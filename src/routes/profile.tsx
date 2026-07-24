@@ -195,9 +195,10 @@ function ProfilePage() {
           <img
             src={heroImage}
             alt={bike.name}
-            className="relative h-full w-full object-contain"
+            className="relative h-full w-full object-cover"
             onError={() => setCoverBroken(true)}
           />
+
           {/* subtle bottom gradient — image stays the focal point */}
           <div
             className="pointer-events-none absolute inset-0"
