@@ -151,21 +151,39 @@ export const getEvent = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!event) return null;
 
-    const [{ data: rsvp }, { data: host }] = await Promise.all([
-      context.supabase
-        .from("event_rsvps")
-        .select("status")
-        .eq("event_id", data.id)
-        .eq("user_id", context.userId)
-        .maybeSingle(),
-      context.supabase
-        .from("profiles")
-        .select("id, handle, display_name, avatar_url, tier, is_verified")
-        .eq("id", event.host_id)
-        .maybeSingle(),
+    const sb = context.supabase;
+    const eq = { event_id: data.id } as const;
+    const [
+      { data: rsvp },
+      { data: host },
+      { count: interestedCount },
+      { count: notGoingCount },
+      { count: goingCount },
+      { count: photosCount },
+      { count: commentsCount },
+      { count: checkinsCount },
+    ] = await Promise.all([
+      sb.from("event_rsvps").select("status").match({ ...eq, user_id: context.userId }).maybeSingle(),
+      sb.from("profiles").select("id, handle, display_name, avatar_url, tier, is_verified").eq("id", event.host_id).maybeSingle(),
+      sb.from("event_rsvps").select("*", { count: "exact", head: true }).match({ ...eq, status: "interested" }),
+      sb.from("event_rsvps").select("*", { count: "exact", head: true }).match({ ...eq, status: "not_going" }),
+      sb.from("event_rsvps").select("*", { count: "exact", head: true }).match({ ...eq, status: "going" }),
+      sb.from("event_photos").select("*", { count: "exact", head: true }).match(eq),
+      sb.from("event_comments").select("*", { count: "exact", head: true }).match(eq),
+      sb.from("event_checkins").select("*", { count: "exact", head: true }).match(eq),
     ]);
 
-    return { ...event, my_rsvp: rsvp?.status ?? null, host };
+    return {
+      ...event,
+      my_rsvp: rsvp?.status ?? null,
+      host: host ? { ...host, verified: host.is_verified } : null,
+      rsvp_count: goingCount ?? event.rsvp_count ?? 0,
+      interested_count: interestedCount ?? 0,
+      not_going_count: notGoingCount ?? 0,
+      photos_count: photosCount ?? 0,
+      comments_count: commentsCount ?? 0,
+      checkins_count: checkinsCount ?? 0,
+    };
   });
 
 export const rsvpEvent = createServerFn({ method: "POST" })

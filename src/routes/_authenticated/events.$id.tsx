@@ -221,13 +221,13 @@ function EventDetail() {
         </div>
       </section>
 
-      {/* STATS — 5 uniform cards */}
+      {/* STATS — 5 uniform cards, tappable */}
       <section className="grid grid-cols-5 divide-x divide-hair hairline-b">
-        <StatCard k="GOING" v={String(e.rsvp_count ?? 0)} active={e.my_rsvp === "going"} />
-        <StatCard k="INTERESTED" v={String(e.interested_count ?? 0)} active={e.my_rsvp === "interested"} />
-        <StatCard k="PASS" v={String(e.not_going_count ?? 0)} active={e.my_rsvp === "not_going"} />
-        <StatCard k="PHOTOS" v={String(e.photos_count ?? 0)} />
-        <StatCard k="COMMENTS" v={String(e.comments_count ?? 0)} />
+        <StatCard k="GOING" v={String(e.rsvp_count ?? 0)} active={e.my_rsvp === "going"} onClick={() => setTab("ATTENDEES")} />
+        <StatCard k="INTERESTED" v={String(e.interested_count ?? 0)} active={e.my_rsvp === "interested"} onClick={() => doRsvp("interested")} />
+        <StatCard k="PASS" v={String(e.not_going_count ?? 0)} active={e.my_rsvp === "not_going"} onClick={() => doRsvp("not_going")} />
+        <StatCard k="PHOTOS" v={String(e.photos_count ?? 0)} onClick={() => setTab("PHOTOS")} />
+        <StatCard k="COMMENTS" v={String(e.comments_count ?? 0)} onClick={() => setTab("DISCUSSION")} />
       </section>
 
       {/* RSVP bar */}
@@ -301,12 +301,17 @@ function Stat({ k, v }: { k: string; v: string }) {
   );
 }
 
-function StatCard({ k, v, active }: { k: string; v: string; active?: boolean }) {
+function StatCard({ k, v, active, onClick }: { k: string; v: string; active?: boolean; onClick?: () => void }) {
+  const Cmp: any = onClick ? "button" : "div";
   return (
-    <div className="px-2 py-3 text-center transition-colors" style={{ background: active ? "var(--color-mist)" : "transparent" }}>
+    <Cmp
+      onClick={onClick}
+      className="tap px-2 py-3 text-center transition-colors"
+      style={{ background: active ? "var(--color-mist)" : "transparent" }}
+    >
       <p className="mono-num text-base font-bold" style={{ color: active ? "var(--color-signal)" : "var(--color-ink)" }}>{v}</p>
       <p className="mono-tag mt-1" style={{ color: "var(--color-ash)", fontSize: 9 }}>{k}</p>
-    </div>
+    </Cmp>
   );
 }
 
@@ -429,12 +434,14 @@ function LiveTab({ eventId, isHost }: { eventId: string; isHost: boolean }) {
   }
   return (
     <div className="px-4 pt-4 space-y-3">
-      <div className="hairline p-3">
-        <p className="mono-tag" style={{ color: "var(--color-ash)" }}>ORGANIZER ANNOUNCEMENT</p>
-        <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="Send a live update…"
-          className="mt-2 w-full bg-transparent text-sm" />
-        <button onClick={post} className="btn-solid mt-2" style={{ padding: "8px 12px", fontSize: 10 }}>BROADCAST ▸</button>
-      </div>
+      {isHost && (
+        <div className="hairline p-3">
+          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>ORGANIZER ANNOUNCEMENT</p>
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="Send a live update…"
+            className="mt-2 w-full bg-transparent text-sm" />
+          <button onClick={post} className="btn-solid mt-2" style={{ padding: "8px 12px", fontSize: 10 }}>BROADCAST ▸</button>
+        </div>
+      )}
       {(data ?? []).length === 0 && (
         <p className="mono-tag text-center py-6" style={{ color: "var(--color-ash)" }}>NO ANNOUNCEMENTS YET</p>
       )}
