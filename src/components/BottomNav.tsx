@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ComponentType } from "react";
-import { Home, Search, Play, User } from "lucide-react";
+import { Home, Search, Play, ShoppingCart, User } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type NavItem = {
-  to: "/" | "/search" | "/reels" | "/profile";
+  to: "/" | "/search" | "/reels" | "/cart" | "/profile";
   label: string;
   icon: ComponentType<{ className?: string; strokeWidth?: number }>;
 };
@@ -14,6 +15,7 @@ const LEFT: NavItem[] = [
 ];
 const RIGHT: NavItem[] = [
   { to: "/reels",   label: "Reels",   icon: Play },
+  { to: "/cart",    label: "Cart",    icon: ShoppingCart },
   { to: "/profile", label: "Profile", icon: User },
 ];
 
