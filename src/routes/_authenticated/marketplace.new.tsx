@@ -6,6 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusBar } from "@/components/StatusBar";
 import { createListing, LISTING_CATEGORIES, LISTING_CONDITIONS, LISTING_FUELS, LISTING_TRANSMISSIONS } from "@/lib/marketplace.functions";
 import { compressImage, uploadWithRetry } from "@/lib/media-upload";
+import {
+  CURRENCIES, COUNTRIES, YEARS,
+  getAllBrands, getAllModels, getAllCities,
+  rememberBrand, rememberModel, rememberCity,
+} from "@/lib/catalog";
 
 export const Route = createFileRoute("/_authenticated/marketplace/new")({
   head: () => ({ meta: [{ title: "New Listing · ZOMBIEREX" }] }),
