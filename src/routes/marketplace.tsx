@@ -35,7 +35,7 @@ const SORTS = [
 
 const CAT_LABEL: Record<string, string> = {
   motorcycle: "Motorcycles", car: "Cars", truck: "Trucks", scooter: "Scooters",
-  atv: "ATVs", boat: "Boats", other_vehicle: "Vehicles",
+  atv: "ATVs", other_vehicle: "Vehicles",
   parts: "Parts", accessories: "Accessories", riding_gear: "Gear", apparel: "Apparel",
   collectibles: "Collectibles", tools: "Tools", garage_equipment: "Garage",
   electronics: "Electronics", services: "Services",

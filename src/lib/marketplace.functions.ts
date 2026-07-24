@@ -37,7 +37,7 @@ async function getOptionalUserId(): Promise<string | null> {
 }
 
 export const LISTING_CATEGORIES = [
-  "motorcycle","car","truck","scooter","atv","boat","other_vehicle",
+  "motorcycle","car","truck","scooter","atv","other_vehicle",
   "parts","accessories","riding_gear","apparel","collectibles",
   "tools","garage_equipment","electronics","services",
 ] as const;
