@@ -434,12 +434,14 @@ function LiveTab({ eventId, isHost }: { eventId: string; isHost: boolean }) {
   }
   return (
     <div className="px-4 pt-4 space-y-3">
-      <div className="hairline p-3">
-        <p className="mono-tag" style={{ color: "var(--color-ash)" }}>ORGANIZER ANNOUNCEMENT</p>
-        <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="Send a live update…"
-          className="mt-2 w-full bg-transparent text-sm" />
-        <button onClick={post} className="btn-solid mt-2" style={{ padding: "8px 12px", fontSize: 10 }}>BROADCAST ▸</button>
-      </div>
+      {isHost && (
+        <div className="hairline p-3">
+          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>ORGANIZER ANNOUNCEMENT</p>
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={2} placeholder="Send a live update…"
+            className="mt-2 w-full bg-transparent text-sm" />
+          <button onClick={post} className="btn-solid mt-2" style={{ padding: "8px 12px", fontSize: 10 }}>BROADCAST ▸</button>
+        </div>
+      )}
       {(data ?? []).length === 0 && (
         <p className="mono-tag text-center py-6" style={{ color: "var(--color-ash)" }}>NO ANNOUNCEMENTS YET</p>
       )}
