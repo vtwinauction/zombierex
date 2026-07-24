@@ -258,3 +258,17 @@ function Select({ label, value, onChange, options }: any) {
     </label>
   );
 }
+function DataListInput({ label, value, onChange, listId, options, placeholder }: any) {
+  return (
+    <label className="block">
+      <Label>{label}</Label>
+      <input list={listId} value={value ?? ""} placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 w-full border px-3 py-2 text-sm"
+        style={{ background: "rgba(255,255,255,0.03)", borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }} />
+      <datalist id={listId}>
+        {(options as string[]).map((o) => <option key={o} value={o} />)}
+      </datalist>
+    </label>
+  );
+}
