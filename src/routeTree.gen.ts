@@ -25,7 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
-import { Route as MarketplaceIdRouteImport } from './routes/marketplace.$id'
+import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
 import { Route as JudgeLeaderboardsRouteImport } from './routes/judge.leaderboards'
 import { Route as CreatorIdRouteImport } from './routes/creator.$id'
 import { Route as CommunitiesSlugRouteImport } from './routes/communities.$slug'
@@ -48,7 +48,7 @@ import { Route as AuthenticatedDragIndexRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBusinessIndexRouteImport } from './routes/_authenticated/business.index'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as MarketplaceSellerIdRouteImport } from './routes/marketplace.seller.$id'
+import { Route as MarketplaceSellerIdRouteImport } from './routes/marketplace_.seller.$id'
 import { Route as JudgeEventsSlugRouteImport } from './routes/judge.events.$slug'
 import { Route as JudgeEntriesIdRouteImport } from './routes/judge.entries.$id'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
@@ -78,8 +78,8 @@ import { Route as AuthenticatedProfileEditRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPostsMineRouteImport } from './routes/_authenticated/posts.mine'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
-import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace.new'
-import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace.dashboard'
+import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace_.new'
+import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace_.dashboard'
 import { Route as AuthenticatedJudgeMineRouteImport } from './routes/_authenticated/judge.mine'
 import { Route as AuthenticatedEventsNewRouteImport } from './routes/_authenticated/events.new'
 import { Route as AuthenticatedEventsIdRouteImport } from './routes/_authenticated/events.$id'
@@ -204,9 +204,9 @@ const SosTokenRoute = SosTokenRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIdRoute = MarketplaceIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => MarketplaceRoute,
+  id: '/marketplace_/$id',
+  path: '/marketplace/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const JudgeLeaderboardsRoute = JudgeLeaderboardsRouteImport.update({
   id: '/judge/leaderboards',
@@ -322,9 +322,9 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
 const MarketplaceSellerIdRoute = MarketplaceSellerIdRouteImport.update({
-  id: '/seller/$id',
-  path: '/seller/$id',
-  getParentRoute: () => MarketplaceRoute,
+  id: '/marketplace_/seller/$id',
+  path: '/marketplace/seller/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const JudgeEventsSlugRoute = JudgeEventsSlugRouteImport.update({
   id: '/judge/events/$slug',
@@ -495,13 +495,13 @@ const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
 } as any)
 const AuthenticatedMarketplaceNewRoute =
   AuthenticatedMarketplaceNewRouteImport.update({
-    id: '/marketplace/new',
+    id: '/marketplace_/new',
     path: '/marketplace/new',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMarketplaceDashboardRoute =
   AuthenticatedMarketplaceDashboardRouteImport.update({
-    id: '/marketplace/dashboard',
+    id: '/marketplace_/dashboard',
     path: '/marketplace/dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
@@ -751,7 +751,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/creators': typeof CreatorsRoute
   '/events': typeof EventsRoute
-  '/marketplace': typeof MarketplaceRouteWithChildren
+  '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/reels': typeof ReelsRoute
@@ -866,7 +866,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/creators': typeof CreatorsRoute
   '/events': typeof EventsRoute
-  '/marketplace': typeof MarketplaceRouteWithChildren
+  '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/reels': typeof ReelsRoute
@@ -980,7 +980,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/creators': typeof CreatorsRoute
   '/events': typeof EventsRoute
-  '/marketplace': typeof MarketplaceRouteWithChildren
+  '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/reels': typeof ReelsRoute
@@ -1002,7 +1002,7 @@ export interface FileRoutesById {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
-  '/marketplace/$id': typeof MarketplaceIdRoute
+  '/marketplace_/$id': typeof MarketplaceIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
@@ -1035,8 +1035,8 @@ export interface FileRoutesById {
   '/_authenticated/events/$id': typeof AuthenticatedEventsIdRoute
   '/_authenticated/events/new': typeof AuthenticatedEventsNewRoute
   '/_authenticated/judge/mine': typeof AuthenticatedJudgeMineRoute
-  '/_authenticated/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
-  '/_authenticated/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
+  '/_authenticated/marketplace_/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
+  '/_authenticated/marketplace_/new': typeof AuthenticatedMarketplaceNewRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
   '/_authenticated/posts/mine': typeof AuthenticatedPostsMineRoute
@@ -1066,7 +1066,7 @@ export interface FileRoutesById {
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
   '/judge/events/$slug': typeof JudgeEventsSlugRoute
-  '/marketplace/seller/$id': typeof MarketplaceSellerIdRoute
+  '/marketplace_/seller/$id': typeof MarketplaceSellerIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/business/': typeof AuthenticatedBusinessIndexRoute
@@ -1347,7 +1347,7 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
-    | '/marketplace/$id'
+    | '/marketplace_/$id'
     | '/sos/$token'
     | '/communities/'
     | '/judge/'
@@ -1380,8 +1380,8 @@ export interface FileRouteTypes {
     | '/_authenticated/events/$id'
     | '/_authenticated/events/new'
     | '/_authenticated/judge/mine'
-    | '/_authenticated/marketplace/dashboard'
-    | '/_authenticated/marketplace/new'
+    | '/_authenticated/marketplace_/dashboard'
+    | '/_authenticated/marketplace_/new'
     | '/_authenticated/messages/$id'
     | '/_authenticated/post/new'
     | '/_authenticated/posts/mine'
@@ -1411,7 +1411,7 @@ export interface FileRouteTypes {
     | '/api/public/health'
     | '/judge/entries/$id'
     | '/judge/events/$slug'
-    | '/marketplace/seller/$id'
+    | '/marketplace_/seller/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/ads/'
     | '/_authenticated/business/'
@@ -1442,7 +1442,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CreatorsRoute: typeof CreatorsRoute
   EventsRoute: typeof EventsRoute
-  MarketplaceRoute: typeof MarketplaceRouteWithChildren
+  MarketplaceRoute: typeof MarketplaceRoute
   NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
   ReelsRoute: typeof ReelsRoute
@@ -1452,12 +1452,14 @@ export interface RootRouteChildren {
   CommunitiesSlugRoute: typeof CommunitiesSlugRouteWithChildren
   CreatorIdRoute: typeof CreatorIdRoute
   JudgeLeaderboardsRoute: typeof JudgeLeaderboardsRoute
+  MarketplaceIdRoute: typeof MarketplaceIdRoute
   SosTokenRoute: typeof SosTokenRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   JudgeEntriesIdRoute: typeof JudgeEntriesIdRoute
   JudgeEventsSlugRoute: typeof JudgeEventsSlugRoute
+  MarketplaceSellerIdRoute: typeof MarketplaceSellerIdRoute
   ApiPublicWebhooksPaymentsRoute: typeof ApiPublicWebhooksPaymentsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1578,12 +1580,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SosTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/marketplace/$id': {
-      id: '/marketplace/$id'
-      path: '/$id'
+    '/marketplace_/$id': {
+      id: '/marketplace_/$id'
+      path: '/marketplace/$id'
       fullPath: '/marketplace/$id'
       preLoaderRoute: typeof MarketplaceIdRouteImport
-      parentRoute: typeof MarketplaceRoute
+      parentRoute: typeof rootRouteImport
     }
     '/judge/leaderboards': {
       id: '/judge/leaderboards'
@@ -1739,12 +1741,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/marketplace/seller/$id': {
-      id: '/marketplace/seller/$id'
-      path: '/seller/$id'
+    '/marketplace_/seller/$id': {
+      id: '/marketplace_/seller/$id'
+      path: '/marketplace/seller/$id'
       fullPath: '/marketplace/seller/$id'
       preLoaderRoute: typeof MarketplaceSellerIdRouteImport
-      parentRoute: typeof MarketplaceRoute
+      parentRoute: typeof rootRouteImport
     }
     '/judge/events/$slug': {
       id: '/judge/events/$slug'
@@ -1949,15 +1951,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesIdRouteImport
       parentRoute: typeof AuthenticatedMessagesRoute
     }
-    '/_authenticated/marketplace/new': {
-      id: '/_authenticated/marketplace/new'
+    '/_authenticated/marketplace_/new': {
+      id: '/_authenticated/marketplace_/new'
       path: '/marketplace/new'
       fullPath: '/marketplace/new'
       preLoaderRoute: typeof AuthenticatedMarketplaceNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/marketplace/dashboard': {
-      id: '/_authenticated/marketplace/dashboard'
+    '/_authenticated/marketplace_/dashboard': {
+      id: '/_authenticated/marketplace_/dashboard'
       path: '/marketplace/dashboard'
       fullPath: '/marketplace/dashboard'
       preLoaderRoute: typeof AuthenticatedMarketplaceDashboardRouteImport
@@ -2515,20 +2517,6 @@ const AtlasRouteChildren: AtlasRouteChildren = {
 
 const AtlasRouteWithChildren = AtlasRoute._addFileChildren(AtlasRouteChildren)
 
-interface MarketplaceRouteChildren {
-  MarketplaceIdRoute: typeof MarketplaceIdRoute
-  MarketplaceSellerIdRoute: typeof MarketplaceSellerIdRoute
-}
-
-const MarketplaceRouteChildren: MarketplaceRouteChildren = {
-  MarketplaceIdRoute: MarketplaceIdRoute,
-  MarketplaceSellerIdRoute: MarketplaceSellerIdRoute,
-}
-
-const MarketplaceRouteWithChildren = MarketplaceRoute._addFileChildren(
-  MarketplaceRouteChildren,
-)
-
 interface CommunitiesSlugRouteChildren {
   CommunitiesSlugChallengesChallengeIdRoute: typeof CommunitiesSlugChallengesChallengeIdRoute
 }
@@ -2549,7 +2537,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CreatorsRoute: CreatorsRoute,
   EventsRoute: EventsRoute,
-  MarketplaceRoute: MarketplaceRouteWithChildren,
+  MarketplaceRoute: MarketplaceRoute,
   NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
   ReelsRoute: ReelsRoute,
@@ -2559,12 +2547,14 @@ const rootRouteChildren: RootRouteChildren = {
   CommunitiesSlugRoute: CommunitiesSlugRouteWithChildren,
   CreatorIdRoute: CreatorIdRoute,
   JudgeLeaderboardsRoute: JudgeLeaderboardsRoute,
+  MarketplaceIdRoute: MarketplaceIdRoute,
   SosTokenRoute: SosTokenRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   JudgeEntriesIdRoute: JudgeEntriesIdRoute,
   JudgeEventsSlugRoute: JudgeEventsSlugRoute,
+  MarketplaceSellerIdRoute: MarketplaceSellerIdRoute,
   ApiPublicWebhooksPaymentsRoute: ApiPublicWebhooksPaymentsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
