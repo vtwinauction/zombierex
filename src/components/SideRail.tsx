@@ -5,9 +5,10 @@ const NAV = [
   { to: "/events", code: "02", label: "MISN", glyph: "◇" },
   { to: "/search", code: "03", label: "SCAN", glyph: "◎" },
   { to: "/marketplace", code: "04", label: "ARSN", glyph: "⌘" },
-  { to: "/messages", code: "05", label: "COMM", glyph: "≋" },
-  { to: "/notifications", code: "06", label: "SIGL", glyph: "◈" },
-  { to: "/profile", code: "07", label: "PROF", glyph: "⬢" },
+  { to: "/cart", code: "05", label: "CART", glyph: "◫" },
+  { to: "/messages", code: "06", label: "COMM", glyph: "≋" },
+  { to: "/notifications", code: "07", label: "SIGL", glyph: "◈" },
+  { to: "/profile", code: "08", label: "PROF", glyph: "⬢" },
 ] as const;
 
 export function SideRail() {
