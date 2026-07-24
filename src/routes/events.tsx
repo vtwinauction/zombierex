@@ -178,9 +178,10 @@ function EventRow({ event }: { event: any }) {
             {event.cover_url ? (
               <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
             ) : (
-              <div className="h-full w-full" style={{ background: "var(--color-mist)" }} />
+              <EmptyCover category={event.category} compact />
             )}
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)" }} />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)" }} />
+
             <div className="absolute inset-x-3 bottom-2 text-white">
               <p className="mono-tag" style={{ color: "rgba(255,255,255,0.8)" }}>
                 {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
