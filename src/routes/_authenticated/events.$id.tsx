@@ -300,9 +300,9 @@ function AboutTab({ e, isHost, onCancel }: { e: any; isHost: boolean; onCancel: 
           </div>
         )}
       </div>
-      {e.status !== "cancelled" && (
+      {isHost && e.status !== "cancelled" && (
         <button onClick={onCancel} className="w-full hairline py-3 mono-caps" style={{ color: "#c33" }}>
-          CANCEL EVENT (HOST ONLY)
+          CANCEL EVENT
         </button>
       )}
     </div>
