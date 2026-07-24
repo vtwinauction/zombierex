@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { IconLens, IconEnginePulse, IconGauge } from "./icons/RexIcons";
+import { ShoppingCart } from "lucide-react";
 
 export function FeedHeader({ dark = false }: { dark?: boolean }) {
   const cls = dark ? "text-white" : "";
@@ -41,6 +42,9 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
       <div className="flex items-center gap-2">
         <Link to="/search" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Discover">
           <IconLens size={16} />
+        </Link>
+        <Link to="/cart" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Cart">
+          <ShoppingCart size={16} strokeWidth={1.75} />
         </Link>
         <Link to="/notifications" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Notifications">
           <IconEnginePulse size={16} />
