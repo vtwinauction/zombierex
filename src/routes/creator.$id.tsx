@@ -34,23 +34,29 @@ function CreatorPublicPage() {
 
   const c = data as any;
 
+  const creatorId = c?.id as string | undefined;
+
   async function doSub(tierId: string | null) {
+    if (!creatorId) return;
     setBusy("sub"); setErr(null); setOk(null);
-    try { await sub({ data: { user_id: id, tier_id: tierId } }); setOk("Subscribed"); qc.invalidateQueries({ queryKey: ["creator", id] }); }
+    try { await sub({ data: { creator_id: creatorId, tier_id: tierId } }); setOk("Subscribed"); qc.invalidateQueries({ queryKey: ["creator", id] }); }
     catch (e: any) { setErr(e?.message ?? "Failed"); } finally { setBusy(null); }
   }
   async function doTip() {
+    if (!creatorId) return;
     setBusy("tip"); setErr(null); setOk(null);
-    try { await tip({ data: { user_id: id, amount_cents: tipAmt, message: tipMsg || undefined } }); setOk("Tip sent"); setTipOpen(false); setTipMsg(""); }
+    try { await tip({ data: { creator_id: creatorId, amount_cents: tipAmt, message: tipMsg || undefined } }); setOk("Tip sent"); setTipOpen(false); setTipMsg(""); }
     catch (e: any) { setErr(e?.message ?? "Failed"); } finally { setBusy(null); }
   }
   async function doCollab() {
+    if (!creatorId) return;
     setBusy("collab"); setErr(null); setOk(null);
     try {
-      await collab({ data: { user_id: id, subject: collabSubj, message: collabMsg, budget_cents: typeof collabBudget === "number" ? collabBudget : undefined } });
+      await collab({ data: { creator_id: creatorId, subject: collabSubj, message: collabMsg, budget_cents: typeof collabBudget === "number" ? collabBudget : undefined } });
       setOk("Request sent"); setCollabOpen(false); setCollabSubj(""); setCollabMsg(""); setCollabBudget("");
     } catch (e: any) { setErr(e?.message ?? "Failed"); } finally { setBusy(null); }
   }
+
 
   return (
     <div className="pb-24">
