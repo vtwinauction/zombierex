@@ -38,7 +38,7 @@ function fmtPrice(cents: number, currency = "USD") {
 }
 
 function MarketplacePage() {
-  const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("featured");
+  const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("new");
   const [category, setCategory] = useState<string | undefined>();
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
