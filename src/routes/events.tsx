@@ -141,9 +141,10 @@ function FeaturedCard({ event }: { event: any }) {
           {event.cover_url ? (
             <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
           ) : (
-            <div className="h-full w-full" style={{ background: "var(--color-mist)" }} />
+            <EmptyCover category={event.category} />
           )}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
+
           <span className="absolute left-3 top-3 mono-tag text-white" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}>
             FEATURED
           </span>
@@ -177,9 +178,10 @@ function EventRow({ event }: { event: any }) {
             {event.cover_url ? (
               <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
             ) : (
-              <div className="h-full w-full" style={{ background: "var(--color-mist)" }} />
+              <EmptyCover category={event.category} compact />
             )}
-            <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)" }} />
+            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)" }} />
+
             <div className="absolute inset-x-3 bottom-2 text-white">
               <p className="mono-tag" style={{ color: "rgba(255,255,255,0.8)" }}>
                 {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -207,3 +209,32 @@ function Cell({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
+
+function EmptyCover({ category, compact }: { category?: string; compact?: boolean }) {
+  return (
+    <div
+      className="relative h-full w-full overflow-hidden"
+      style={{ background: "radial-gradient(120% 80% at 50% 0%, #1a1a1a 0%, #0a0a0a 60%, #000 100%)" }}
+    >
+      <div
+        className="absolute inset-0 opacity-25"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0,200,83,.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,83,.2) 1px, transparent 1px)",
+          backgroundSize: compact ? "18px 18px" : "26px 26px",
+        }}
+      />
+      <div className="absolute inset-0 grid place-items-center">
+        <div className="text-center">
+          <div style={{ color: "var(--color-signal)", fontSize: compact ? 28 : 44, lineHeight: 1 }}>◈</div>
+          {!compact && (
+            <p className="mono-tag mt-2" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {(category ?? "EVENT").toUpperCase()}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
