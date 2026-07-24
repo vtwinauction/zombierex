@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { StatusBar } from "@/components/StatusBar";
 import { getSellerProfile, listSellerReviews } from "@/lib/marketplace.functions";
 
-export const Route = createFileRoute("/marketplace/seller/$id")({
+export const Route = createFileRoute("/marketplace_/seller/$id")({
   head: ({ params }) => ({ meta: [{ title: `Seller · ${params.id.slice(0, 8)} · ZOMBIEREX` }] }),
   component: SellerPage,
 });

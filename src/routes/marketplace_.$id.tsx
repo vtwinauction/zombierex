@@ -8,7 +8,7 @@ import { startDirectMessage } from "@/lib/messages.functions";
 
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/marketplace/$id")({
+export const Route = createFileRoute("/marketplace_/$id")({
   head: ({ params }) => ({
     meta: [{ title: `Listing · ${params.id.slice(0, 8)} · ZOMBIEREX` }],
   }),
