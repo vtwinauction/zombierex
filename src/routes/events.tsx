@@ -209,3 +209,32 @@ function Cell({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
+
+function EmptyCover({ category, compact }: { category?: string; compact?: boolean }) {
+  return (
+    <div
+      className="relative h-full w-full overflow-hidden"
+      style={{ background: "radial-gradient(120% 80% at 50% 0%, #1a1a1a 0%, #0a0a0a 60%, #000 100%)" }}
+    >
+      <div
+        className="absolute inset-0 opacity-25"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(0,200,83,.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,83,.2) 1px, transparent 1px)",
+          backgroundSize: compact ? "18px 18px" : "26px 26px",
+        }}
+      />
+      <div className="absolute inset-0 grid place-items-center">
+        <div className="text-center">
+          <div style={{ color: "var(--color-signal)", fontSize: compact ? 28 : 44, lineHeight: 1 }}>◈</div>
+          {!compact && (
+            <p className="mono-tag mt-2" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {(category ?? "EVENT").toUpperCase()}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
