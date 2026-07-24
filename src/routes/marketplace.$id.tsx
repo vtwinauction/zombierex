@@ -126,6 +126,9 @@ function ListingDetail() {
             SOLD OUT
           </div>
         )}
+      </div>
+
+
 
 
       {/* Actions */}
