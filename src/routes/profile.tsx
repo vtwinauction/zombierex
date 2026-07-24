@@ -254,7 +254,7 @@ function ProfilePage() {
               className="shrink-0 rounded-full p-[2px]"
               style={{ background: "var(--color-line)" }}
             >
-              <img src={p?.avatar_url || me.avatar} alt="" className="h-16 w-16 rounded-full object-contain" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-1)" }} />
+              <img src={p?.avatar_url || me.avatar} alt="" className="h-16 w-16 rounded-full object-cover" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-1)" }} />
             </div>
 
             <div className="min-w-0">
