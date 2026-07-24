@@ -301,6 +301,52 @@ function Stat({ k, v }: { k: string; v: string }) {
   );
 }
 
+function StatCard({ k, v, active }: { k: string; v: string; active?: boolean }) {
+  return (
+    <div className="px-2 py-3 text-center transition-colors" style={{ background: active ? "var(--color-mist)" : "transparent" }}>
+      <p className="mono-num text-base font-bold" style={{ color: active ? "var(--color-signal)" : "var(--color-ink)" }}>{v}</p>
+      <p className="mono-tag mt-1" style={{ color: "var(--color-ash)", fontSize: 9 }}>{k}</p>
+    </div>
+  );
+}
+
+function ActionBtn({ onClick, icon, label, primary }: { onClick: () => void; icon: string; label: string; primary?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      className="tap flex flex-col items-center justify-center gap-1 py-3 transition-transform active:scale-95"
+      style={
+        primary
+          ? { background: "var(--color-signal)", color: "var(--color-bone)" }
+          : { border: "1px solid var(--color-hair)" }
+      }
+    >
+      <span className="text-base">{icon}</span>
+      <span className="mono-caps text-[10px]">{label}</span>
+    </button>
+  );
+}
+
+function EventSkeleton() {
+  return (
+    <div className="event-fade">
+      <div className="aspect-[16/10] w-full animate-pulse" style={{ background: "var(--color-mist)" }} />
+      <div className="px-4 pt-4 space-y-2">
+        <div className="h-6 w-2/3 animate-pulse" style={{ background: "var(--color-mist)" }} />
+        <div className="h-3 w-1/2 animate-pulse" style={{ background: "var(--color-mist)" }} />
+        <div className="h-3 w-1/3 animate-pulse" style={{ background: "var(--color-mist)" }} />
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-2 px-4">
+        {[0, 1, 2].map((i) => <div key={i} className="h-14 animate-pulse" style={{ background: "var(--color-mist)" }} />)}
+      </div>
+      <div className="mt-3 grid grid-cols-5 gap-px px-4">
+        {[0, 1, 2, 3, 4].map((i) => <div key={i} className="h-14 animate-pulse" style={{ background: "var(--color-mist)" }} />)}
+      </div>
+    </div>
+  );
+}
+
+
 function AboutTab({ e, isHost, onCancel }: { e: any; isHost: boolean; onCancel: () => void }) {
   return (
     <div className="px-4 pt-4 space-y-4">
