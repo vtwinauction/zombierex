@@ -240,7 +240,7 @@ function Stat({ k, v }: { k: string; v: string }) {
   );
 }
 
-function AboutTab({ e, onCancel }: { e: any; onCancel: () => void }) {
+function AboutTab({ e, isHost, onCancel }: { e: any; isHost: boolean; onCancel: () => void }) {
   return (
     <div className="px-4 pt-4 space-y-4">
       {e.description && (
