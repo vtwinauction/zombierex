@@ -300,10 +300,11 @@ function FeaturedCard({ listing }: { listing: any }) {
             {l.title}
           </h2>
           <div className="mt-2 flex items-baseline justify-between gap-3">
-            <p className="mono-num text-xl font-bold" style={{ color: "var(--color-ink)" }}>
+            <p className="mono-num text-xl font-bold" style={{ color: "var(--color-neon-deep)" }}>
               {fmtPrice(l.price_cents, l.currency)}
               {l.is_negotiable && <span className="mono-tag ml-2 text-[10px]" style={{ color: "var(--color-neon-deep)" }}>OBO</span>}
             </p>
+
             {l.city && (
               <p className="mono-tag inline-flex items-center gap-1 truncate" style={{ color: "var(--color-titanium)" }}>
                 <MapPin className="h-3 w-3" /> {[l.city, l.country].filter(Boolean).join(", ").toUpperCase()}
@@ -385,10 +386,11 @@ function ListingCard({ listing }: { listing: any }) {
         <p className="mt-0.5 line-clamp-2 min-h-[2.4em] text-[13px] font-semibold leading-tight" style={{ color: "var(--color-ink)" }}>
           {l.title}
         </p>
-        <p className="mono-num mt-1.5 text-sm font-bold" style={{ color: "var(--color-ink)" }}>
+        <p className="mono-num mt-1.5 text-sm font-bold" style={{ color: "var(--color-neon-deep)" }}>
           {fmtPrice(l.price_cents, l.currency)}
           {l.is_negotiable && <span className="mono-tag ml-1 text-[9px]" style={{ color: "var(--color-neon-deep)" }}>OBO</span>}
         </p>
+
         <div className="mt-1 flex items-center justify-between gap-1">
           {l.condition && (
             <span className="mono-tag truncate text-[9px]" style={{ color: "var(--color-titanium)" }}>
