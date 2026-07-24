@@ -38,6 +38,7 @@ import { Route as AuthenticatedOwnerRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
+import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
 import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedVendorIndexRouteImport } from './routes/_authenticated/vendor.index'
@@ -92,6 +93,7 @@ import { Route as AuthenticatedCreatorCollabsRouteImport } from './routes/_authe
 import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authenticated/creator.apply'
 import { Route as AuthenticatedCommunitiesCreateRouteImport } from './routes/_authenticated/communities.create'
 import { Route as AuthenticatedCheckoutPaymentIdRouteImport } from './routes/_authenticated/checkout.$paymentId'
+import { Route as AuthenticatedCheckoutIdRouteImport } from './routes/_authenticated/checkout.$id'
 import { Route as AuthenticatedBusinessShowcaseRouteImport } from './routes/_authenticated/business.showcase'
 import { Route as AuthenticatedAtlasVoiceRouteImport } from './routes/_authenticated/atlas.voice'
 import { Route as AuthenticatedAtlasSosRouteImport } from './routes/_authenticated/atlas.sos'
@@ -264,6 +266,11 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
 const AuthenticatedMenuRoute = AuthenticatedMenuRouteImport.update({
   id: '/menu',
   path: '/menu',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
@@ -570,6 +577,11 @@ const AuthenticatedCheckoutPaymentIdRoute =
     path: '/checkout/$paymentId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCheckoutIdRoute = AuthenticatedCheckoutIdRouteImport.update({
+  id: '/checkout/$id',
+  path: '/checkout/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedBusinessShowcaseRoute =
   AuthenticatedBusinessShowcaseRouteImport.update({
     id: '/business/showcase',
@@ -748,6 +760,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/assistant': typeof AuthenticatedAssistantRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -779,6 +792,7 @@ export interface FileRoutesByFullPath {
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
+  '/checkout/$id': typeof AuthenticatedCheckoutIdRoute
   '/checkout/$paymentId': typeof AuthenticatedCheckoutPaymentIdRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
@@ -860,6 +874,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/assistant': typeof AuthenticatedAssistantRoute
+  '/cart': typeof AuthenticatedCartRoute
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -889,6 +904,7 @@ export interface FileRoutesByTo {
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
+  '/checkout/$id': typeof AuthenticatedCheckoutIdRoute
   '/checkout/$paymentId': typeof AuthenticatedCheckoutPaymentIdRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
@@ -973,6 +989,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
+  '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -1004,6 +1021,7 @@ export interface FileRoutesById {
   '/_authenticated/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/_authenticated/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/_authenticated/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
+  '/_authenticated/checkout/$id': typeof AuthenticatedCheckoutIdRoute
   '/_authenticated/checkout/$paymentId': typeof AuthenticatedCheckoutPaymentIdRoute
   '/_authenticated/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/_authenticated/creator/apply': typeof AuthenticatedCreatorApplyRoute
@@ -1088,6 +1106,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/admin'
     | '/assistant'
+    | '/cart'
     | '/menu'
     | '/messages'
     | '/onboarding'
@@ -1119,6 +1138,7 @@ export interface FileRouteTypes {
     | '/atlas/sos'
     | '/atlas/voice'
     | '/business/showcase'
+    | '/checkout/$id'
     | '/checkout/$paymentId'
     | '/communities/create'
     | '/creator/apply'
@@ -1200,6 +1220,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/assistant'
+    | '/cart'
     | '/menu'
     | '/messages'
     | '/onboarding'
@@ -1229,6 +1250,7 @@ export interface FileRouteTypes {
     | '/atlas/sos'
     | '/atlas/voice'
     | '/business/showcase'
+    | '/checkout/$id'
     | '/checkout/$paymentId'
     | '/communities/create'
     | '/creator/apply'
@@ -1312,6 +1334,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/assistant'
+    | '/_authenticated/cart'
     | '/_authenticated/menu'
     | '/_authenticated/messages'
     | '/_authenticated/onboarding'
@@ -1343,6 +1366,7 @@ export interface FileRouteTypes {
     | '/_authenticated/atlas/sos'
     | '/_authenticated/atlas/voice'
     | '/_authenticated/business/showcase'
+    | '/_authenticated/checkout/$id'
     | '/_authenticated/checkout/$paymentId'
     | '/_authenticated/communities/create'
     | '/_authenticated/creator/apply'
@@ -1643,6 +1667,13 @@ declare module '@tanstack/react-router' {
       path: '/menu'
       fullPath: '/menu'
       preLoaderRoute: typeof AuthenticatedMenuRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/cart': {
+      id: '/_authenticated/cart'
+      path: '/cart'
+      fullPath: '/cart'
+      preLoaderRoute: typeof AuthenticatedCartRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/assistant': {
@@ -2023,6 +2054,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutPaymentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/checkout/$id': {
+      id: '/_authenticated/checkout/$id'
+      path: '/checkout/$id'
+      fullPath: '/checkout/$id'
+      preLoaderRoute: typeof AuthenticatedCheckoutIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/business/showcase': {
       id: '/_authenticated/business/showcase'
       path: '/business/showcase'
@@ -2347,6 +2385,7 @@ const AuthenticatedVendorRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
+  AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -2366,6 +2405,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtlasSosRoute: typeof AuthenticatedAtlasSosRoute
   AuthenticatedAtlasVoiceRoute: typeof AuthenticatedAtlasVoiceRoute
   AuthenticatedBusinessShowcaseRoute: typeof AuthenticatedBusinessShowcaseRoute
+  AuthenticatedCheckoutIdRoute: typeof AuthenticatedCheckoutIdRoute
   AuthenticatedCheckoutPaymentIdRoute: typeof AuthenticatedCheckoutPaymentIdRoute
   AuthenticatedCommunitiesCreateRoute: typeof AuthenticatedCommunitiesCreateRoute
   AuthenticatedCreatorApplyRoute: typeof AuthenticatedCreatorApplyRoute
@@ -2402,6 +2442,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
+  AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -2421,6 +2462,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtlasSosRoute: AuthenticatedAtlasSosRoute,
   AuthenticatedAtlasVoiceRoute: AuthenticatedAtlasVoiceRoute,
   AuthenticatedBusinessShowcaseRoute: AuthenticatedBusinessShowcaseRoute,
+  AuthenticatedCheckoutIdRoute: AuthenticatedCheckoutIdRoute,
   AuthenticatedCheckoutPaymentIdRoute: AuthenticatedCheckoutPaymentIdRoute,
   AuthenticatedCommunitiesCreateRoute: AuthenticatedCommunitiesCreateRoute,
   AuthenticatedCreatorApplyRoute: AuthenticatedCreatorApplyRoute,
