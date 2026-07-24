@@ -95,13 +95,41 @@ function ListingDetail() {
         </p>
         <h1 className="serif mt-2 text-3xl italic leading-tight" style={{ color: "var(--color-ink)" }}>{l.title}</h1>
         <div className="mt-2 flex items-baseline justify-between">
-          <p className="mono-num text-2xl font-bold" style={{ color: "var(--color-ink)" }}>
+          <p className="mono-num text-3xl font-bold" style={{ color: "var(--color-neon)" }}>
             {fmtPrice(l.price_cents, l.currency)}
             {l.is_negotiable && <span className="mono-tag ml-2" style={{ color: "var(--color-neon)" }}>OBO</span>}
           </p>
           {l.city && <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>{[l.city, l.region, l.country].filter(Boolean).join(" · ").toUpperCase()}</p>}
         </div>
+
+        {/* Buy actions */}
+        {l.status === "active" && (
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <button
+              onClick={() => navigate({ to: "/checkout/$id", params: { id: l.id } })}
+              className="tap py-4 mono-tag font-bold text-black"
+              style={{ background: "var(--color-neon)", boxShadow: "0 0 24px rgba(0,200,83,0.45)" }}
+            >
+              BUY NOW ▸
+            </button>
+            <button
+              onClick={() => navigate({ to: "/cart", search: { add: l.id } as any })}
+              className="tap py-4 mono-tag font-bold border"
+              style={{ borderColor: "var(--color-neon)", color: "var(--color-neon)" }}
+            >
+              ADD TO CART
+            </button>
+          </div>
+        )}
+        {l.status === "sold" && (
+          <div className="mt-4 py-4 text-center mono-tag font-bold border" style={{ borderColor: "#ff3d3d", color: "#ff3d3d" }}>
+            SOLD OUT
+          </div>
+        )}
       </div>
+
+
+
 
       {/* Actions */}
       <div className="mx-4 mt-4 grid grid-cols-4 gap-2">
