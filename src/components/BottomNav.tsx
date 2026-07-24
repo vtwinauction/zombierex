@@ -40,14 +40,16 @@ export function BottomNav({ hidden = false }: { hidden?: boolean }) {
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
-      <div className="mx-auto grid max-w-md grid-cols-5 items-center px-2 pt-1.5 pb-1.5">
-        {LEFT.map((it) => <NavCell key={it.to} item={it} active={isActive(pathname, it.to)} />)}
+      <div className="relative mx-auto flex max-w-md items-center justify-between px-2 pt-1.5 pb-1.5">
+        <div className="flex items-center gap-1">
+          {LEFT.map((it) => <NavCell key={it.to} item={it} active={isActive(pathname, it.to)} />)}
+        </div>
 
         {/* Center — old-school compass, neon-green ZombieRex → Atlas */}
         <Link
           to="/atlas"
           aria-label="Open Route Atlas"
-          className="tap mx-auto grid h-12 w-12 place-items-center"
+          className="tap absolute left-1/2 top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center"
           style={{
             borderRadius: 999,
             background: "radial-gradient(circle at 30% 25%, #172114 0%, #0a0f08 70%)",
@@ -59,7 +61,15 @@ export function BottomNav({ hidden = false }: { hidden?: boolean }) {
           <CompassMark />
         </Link>
 
-        {RIGHT.map((it) => <NavCell key={it.to} item={it} active={isActive(pathname, it.to)} />)}
+        <div className="flex items-center gap-1">
+          {RIGHT.map((it) =>
+            it.to === "/cart" ? (
+              <CartCell key={it.to} item={it} active={isActive(pathname, it.to)} />
+            ) : (
+              <NavCell key={it.to} item={it} active={isActive(pathname, it.to)} />
+            )
+          )}
+        </div>
       </div>
     </nav>
   );
