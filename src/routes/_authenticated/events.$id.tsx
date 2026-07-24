@@ -94,11 +94,43 @@ function EventDetail() {
         {e.cover_url ? (
           <img src={e.cover_url} alt="" className="h-full w-full object-cover" />
         ) : (
-          <div className="grid h-full w-full place-items-center" style={{ background: "var(--color-mist)" }}>
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NO COVER PHOTO</p>
+          <div
+            className="relative h-full w-full overflow-hidden"
+            style={{
+              background:
+                "radial-gradient(120% 80% at 50% 0%, #1a1a1a 0%, #0a0a0a 60%, #000 100%)",
+            }}
+          >
+            <div
+              className="absolute inset-0 opacity-30"
+              style={{
+                backgroundImage:
+                  "linear-gradient(rgba(0,200,83,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,83,.18) 1px, transparent 1px)",
+                backgroundSize: "28px 28px",
+              }}
+            />
+            <div className="absolute inset-0 grid place-items-center">
+              <div className="text-center">
+                <div className="text-6xl" style={{ color: "var(--color-signal)" }}>◈</div>
+                <p className="mono-tag mt-3" style={{ color: "rgba(255,255,255,0.55)" }}>
+                  {(e.category ?? "EVENT").toUpperCase()}
+                </p>
+                {isHost && (
+                  <Link
+                    to="/events/$id/edit"
+                    params={{ id }}
+                    className="mono-tag mt-4 inline-block"
+                    style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "6px 12px" }}
+                  >
+                    + ADD COVER PHOTO
+                  </Link>
+                )}
+              </div>
+            </div>
           </div>
         )}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.9) 100%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
+
 
         {/* Top action bar */}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3 pt-3">
