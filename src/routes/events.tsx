@@ -43,88 +43,143 @@ function EventsPage() {
     queryFn: () => list({ data: { scope, category: category as any, search: search || undefined } }),
   });
 
-  const featured = useMemo(() => (data ?? []).find((e: any) => e.is_featured) ?? (data ?? [])[0], [data]);
+  const events = data ?? [];
+  const featured = useMemo(() => events.find((e: any) => e.is_featured) ?? events[0], [events]);
+  const rest = useMemo(() => events.filter((e: any) => e.id !== featured?.id), [events, featured]);
 
   return (
-    <div>
+    <div className="pb-24 event-fade">
       <StatusBar index="06" section="EVENTS" />
 
-      <div className="flex items-end justify-between px-4 pt-6">
-        <div>
-          <p className="mono-tag">{(data ?? []).length} EVENTS</p>
-          <h1 className="mt-2 display-xl text-5xl uppercase">Events</h1>
+      {/* ── Page header ─────────────────────────────── */}
+      <header className="px-4 pt-6">
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              {events.length.toString().padStart(2, "0")} · LISTED
+            </p>
+            <h1 className="mt-2 display-xl text-5xl uppercase leading-none">Events</h1>
+          </div>
+          <Link
+            to="/events/new"
+            className="btn-solid shrink-0"
+            style={{ padding: "12px 16px", fontSize: 10, letterSpacing: "0.12em" }}
+          >
+            + HOST
+          </Link>
         </div>
-        <Link to="/events/new" className="btn-solid" style={{ padding: "10px 14px", fontSize: 10 }}>
-          + HOST
-        </Link>
-      </div>
+      </header>
 
+      {/* ── Toolbar: search ─────────────────────────── */}
       <div className="px-4 pt-4">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search events…"
-          className="w-full hairline px-3 py-3 text-sm"
+        <div
+          className="hairline flex items-center gap-2 px-3"
           style={{ background: "var(--color-mist)" }}
-        />
+        >
+          <span style={{ color: "var(--color-ash)", fontSize: 14 }}>⌕</span>
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search events, cities, hosts…"
+            className="w-full bg-transparent py-3 text-sm outline-none"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="tap mono-tag"
+              style={{ color: "var(--color-ash)" }}
+              aria-label="Clear"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="no-scrollbar mt-4 flex overflow-x-auto hairline-t hairline-b">
+      {/* ── Scope tabs ──────────────────────────────── */}
+      <nav className="no-scrollbar mt-4 flex overflow-x-auto hairline-t hairline-b">
         {SCOPES.map((s) => {
           const active = scope === s.id;
           return (
             <button
               key={s.id}
               onClick={() => setScope(s.id)}
-              className="tap relative shrink-0 border-r border-hair px-4 py-3 mono-caps"
+              className="tap relative shrink-0 px-4 py-3 mono-caps"
               style={{
                 color: active ? "var(--color-ink)" : "var(--color-ash)",
                 background: active ? "var(--color-mist)" : "transparent",
               }}
             >
               {s.label}
-              {active && <span className="absolute inset-x-0 bottom-0 h-[2px]" style={{ background: "var(--color-signal)" }} />}
+              {active && (
+                <span
+                  className="absolute inset-x-3 bottom-0 h-[2px]"
+                  style={{ background: "var(--color-signal)" }}
+                />
+              )}
             </button>
           );
         })}
-      </div>
+      </nav>
 
+      {/* ── Category chips ──────────────────────────── */}
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3 hairline-b">
-        <button
-          onClick={() => setCategory(undefined)}
-          className="tap shrink-0 hairline px-3 py-1.5 mono-caps"
-          style={{ background: !category ? "var(--color-ink)" : "transparent", color: !category ? "var(--color-bone)" : "var(--color-ink)" }}
-        >
-          ALL
-        </button>
+        <CategoryChip label="ALL" active={!category} onClick={() => setCategory(undefined)} />
         {EVENT_CATEGORIES.map((c) => (
-          <button
+          <CategoryChip
             key={c}
+            label={CATEGORY_LABEL[c] ?? c}
+            active={category === c}
             onClick={() => setCategory(c === category ? undefined : c)}
-            className="tap shrink-0 hairline px-3 py-1.5 mono-caps"
-            style={{ background: category === c ? "var(--color-ink)" : "transparent", color: category === c ? "var(--color-bone)" : "var(--color-ink)" }}
-          >
-            {CATEGORY_LABEL[c] ?? c}
-          </button>
+          />
         ))}
       </div>
 
-      {featured && scope !== "past" && (
-        <FeaturedCard event={featured} />
+      {/* ── Loading skeletons ───────────────────────── */}
+      {isLoading && (
+        <div className="px-4 pt-4 space-y-4">
+          <EventSkeleton featured />
+          <EventSkeleton />
+          <EventSkeleton />
+        </div>
       )}
 
-      <div className="px-4 pt-4 space-y-4 pb-24">
-        {isLoading && <p className="mono-tag" style={{ color: "var(--color-ash)" }}>LOADING…</p>}
-        {!isLoading && (data ?? []).length === 0 && (
-          <div className="hairline border-dashed p-6 text-center">
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NOTHING HERE</p>
+      {/* ── Empty state ─────────────────────────────── */}
+      {!isLoading && events.length === 0 && (
+        <div className="px-4 pt-6">
+          <div className="hairline border-dashed p-8 text-center">
+            <div style={{ color: "var(--color-signal)", fontSize: 40, lineHeight: 1 }}>◈</div>
+            <p className="mono-tag mt-3" style={{ color: "var(--color-ash)" }}>NOTHING SCHEDULED</p>
             <p className="mt-2 text-sm font-bold">No events match this filter</p>
-            <Link to="/events/new" className="btn-solid mt-4 inline-block" style={{ padding: "8px 12px", fontSize: 10 }}>
+            <Link
+              to="/events/new"
+              className="btn-solid mt-5 inline-block"
+              style={{ padding: "10px 14px", fontSize: 10 }}
+            >
               + HOST THE FIRST ONE
             </Link>
           </div>
-        )}
-        {(data ?? []).filter((e: any) => e.id !== featured?.id).map((e: any) => (
+        </div>
+      )}
+
+      {/* ── Featured hero ───────────────────────────── */}
+      {!isLoading && featured && scope !== "past" && (
+        <FeaturedCard event={featured} />
+      )}
+
+      {/* ── Section label ───────────────────────────── */}
+      {!isLoading && rest.length > 0 && (
+        <div className="mt-6 flex items-baseline justify-between px-4">
+          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>UPCOMING · SCHEDULE</p>
+          <p className="mono-num text-xs" style={{ color: "var(--color-ash)" }}>
+            {rest.length.toString().padStart(2, "0")}
+          </p>
+        </div>
+      )}
+
+      {/* ── List ────────────────────────────────────── */}
+      <div className="px-4 pt-3 space-y-3">
+        {rest.map((e: any) => (
           <EventRow key={e.id} event={e} />
         ))}
       </div>
@@ -132,31 +187,82 @@ function EventsPage() {
   );
 }
 
+function CategoryChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="tap shrink-0 hairline px-3 py-1.5 mono-caps transition-colors"
+      style={{
+        background: active ? "var(--color-ink)" : "transparent",
+        color: active ? "var(--color-bone)" : "var(--color-ink)",
+        borderColor: active ? "var(--color-ink)" : undefined,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 function FeaturedCard({ event }: { event: any }) {
   const d = new Date(event.starts_at);
+  const day = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return (
     <Link to="/events/$id" params={{ id: event.id }} className="block px-4 pt-4">
-      <div className="hairline overflow-hidden">
-        <div className="relative h-56">
+      <article className="hairline overflow-hidden">
+        <div className="relative" style={{ aspectRatio: "16 / 10" }}>
           {event.cover_url ? (
             <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
           ) : (
             <EmptyCover category={event.category} />
           )}
-          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,0.88) 100%)" }}
+          />
 
-          <span className="absolute left-3 top-3 mono-tag text-white" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}>
-            FEATURED
-          </span>
-          <div className="absolute inset-x-3 bottom-3 text-white">
+          {/* Top chips */}
+          <div className="absolute inset-x-3 top-3 flex items-center justify-between">
+            <span
+              className="mono-tag"
+              style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}
+            >
+              ★ FEATURED
+            </span>
+            <span
+              className="mono-tag"
+              style={{
+                background: "rgba(0,0,0,0.55)",
+                color: "rgba(255,255,255,0.9)",
+                padding: "4px 8px",
+                backdropFilter: "blur(6px)",
+              }}
+            >
+              {CATEGORY_LABEL[event.category] ?? "EVENT"}
+            </span>
+          </div>
+
+          {/* Bottom info */}
+          <div className="absolute inset-x-4 bottom-4 text-white">
             <p className="mono-tag" style={{ color: "rgba(255,255,255,0.85)" }}>
-              {d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })} · {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              {day} · {time}
             </p>
-            <h2 className="mt-1 display-xl text-2xl uppercase leading-tight">{event.title}</h2>
-            {event.location && <p className="mono-tag mt-1" style={{ color: "rgba(255,255,255,0.75)" }}>◎ {event.location}</p>}
+            <h2 className="mt-1.5 display-xl text-2xl uppercase leading-tight">{event.title}</h2>
+            {event.location && (
+              <p className="mono-tag mt-1.5 truncate" style={{ color: "rgba(255,255,255,0.75)" }}>
+                ◎ {event.location}
+              </p>
+            )}
           </div>
         </div>
-      </div>
+
+        {/* Meta strip */}
+        <div className="grid grid-cols-3 divide-x divide-hair">
+          <Cell k="GOING" v={String(event.rsvp_count ?? 0)} accent />
+          <Cell k="STATUS" v={(event.status ?? "scheduled").toUpperCase()} />
+          <Cell k="ACCESS" v={(event.visibility ?? "public").toUpperCase()} />
+        </div>
+      </article>
     </Link>
   );
 }
@@ -165,34 +271,56 @@ function EventRow({ event }: { event: any }) {
   const d = new Date(event.starts_at);
   const day = d.toLocaleDateString(undefined, { day: "2-digit" });
   const monthYear = d.toLocaleDateString(undefined, { month: "short" }).toUpperCase();
+  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return (
     <Link to="/events/$id" params={{ id: event.id }} className="block">
       <article className="hairline overflow-hidden">
-        <div className="grid grid-cols-[76px_1fr]">
-          <div className="border-r border-hair p-3 text-center" style={{ background: "var(--color-mist)" }}>
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>{CATEGORY_LABEL[event.category] ?? "EVENT"}</p>
-            <p className="display-numeral mt-2 text-3xl" style={{ color: "var(--color-signal)" }}>{day}</p>
-            <p className="mono-tag mt-1" style={{ color: "var(--color-ash)" }}>{monthYear}</p>
+        <div className="grid grid-cols-[72px_1fr]">
+          {/* Date column */}
+          <div
+            className="flex flex-col items-center justify-center border-r border-hair py-3"
+            style={{ background: "var(--color-mist)" }}
+          >
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>{monthYear}</p>
+            <p className="display-numeral mt-1 text-3xl leading-none" style={{ color: "var(--color-signal)" }}>
+              {day}
+            </p>
+            <p className="mono-tag mt-1" style={{ color: "var(--color-ash)" }}>{time}</p>
           </div>
-          <div className="relative h-32">
+
+          {/* Cover + title */}
+          <div className="relative h-28">
             {event.cover_url ? (
               <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
             ) : (
               <EmptyCover category={event.category} compact />
             )}
-            <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.85) 100%)" }} />
-
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)" }}
+            />
+            {event.is_featured && (
+              <span
+                className="absolute right-2 top-2 mono-tag"
+                style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "3px 6px" }}
+              >
+                ★
+              </span>
+            )}
             <div className="absolute inset-x-3 bottom-2 text-white">
-              <p className="mono-tag" style={{ color: "rgba(255,255,255,0.8)" }}>
-                {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                {event.location ? ` · ◎ ${event.location}` : ""}
-              </p>
-              <h3 className="mt-1 display-xl text-lg uppercase leading-tight">{event.title}</h3>
+              <h3 className="display-xl text-base uppercase leading-tight line-clamp-1">{event.title}</h3>
+              {event.location && (
+                <p className="mono-tag mt-1 truncate" style={{ color: "rgba(255,255,255,0.8)" }}>
+                  ◎ {event.location}
+                </p>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Meta */}
         <div className="grid grid-cols-3 divide-x divide-hair hairline-t">
-          <Cell k="GOING" v={String(event.rsvp_count ?? 0)} />
+          <Cell k="GOING" v={String(event.rsvp_count ?? 0)} accent />
           <Cell k="TYPE" v={CATEGORY_LABEL[event.category] ?? event.category} />
           <Cell k="STATUS" v={(event.status ?? "scheduled").toUpperCase()} />
         </div>
@@ -201,11 +329,39 @@ function EventRow({ event }: { event: any }) {
   );
 }
 
-function Cell({ k, v }: { k: string; v: string }) {
+function Cell({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
   return (
     <div className="p-3 text-center">
       <p className="mono-tag" style={{ color: "var(--color-ash)" }}>{k}</p>
-      <p className="mono-num mt-1 text-sm font-bold">{v}</p>
+      <p
+        className="mono-num mt-1 text-sm font-bold truncate"
+        style={{ color: accent ? "var(--color-signal)" : "var(--color-ink)" }}
+      >
+        {v}
+      </p>
+    </div>
+  );
+}
+
+function EventSkeleton({ featured }: { featured?: boolean } = {}) {
+  return (
+    <div className="hairline overflow-hidden">
+      <div
+        className="w-full animate-pulse"
+        style={{
+          aspectRatio: featured ? "16 / 10" : undefined,
+          height: featured ? undefined : 112,
+          background: "linear-gradient(90deg, var(--color-mist) 0%, #ececec 50%, var(--color-mist) 100%)",
+        }}
+      />
+      <div className="grid grid-cols-3 divide-x divide-hair hairline-t">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="p-3 text-center">
+            <div className="mx-auto h-2 w-10 animate-pulse" style={{ background: "var(--color-mist)" }} />
+            <div className="mx-auto mt-2 h-3 w-14 animate-pulse" style={{ background: "var(--color-mist)" }} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -228,7 +384,7 @@ function EmptyCover({ category, compact }: { category?: string; compact?: boolea
         <div className="text-center">
           <div style={{ color: "var(--color-signal)", fontSize: compact ? 28 : 44, lineHeight: 1 }}>◈</div>
           {!compact && (
-            <p className="mono-tag mt-2" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <p className="mono-tag mt-2" style={{ color: "rgba(255,255,255,0.55)" }}>
               {(category ?? "EVENT").toUpperCase()}
             </p>
           )}
@@ -237,4 +393,3 @@ function EmptyCover({ category, compact }: { category?: string; compact?: boolea
     </div>
   );
 }
-
