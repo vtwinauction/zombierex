@@ -59,7 +59,7 @@ function EventDetail() {
     return () => { supabase.removeChannel(ch); };
   }, [id, qc]);
 
-  if (isLoading) return <div className="p-6"><p className="mono-tag" style={{ color: "var(--color-ash)" }}>LOADING…</p></div>;
+  if (isLoading) return <EventSkeleton />;
   if (!ev) return (
     <div className="p-6">
       <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NOT FOUND</p>
@@ -86,11 +86,24 @@ function EventDetail() {
     );
   }
 
+  async function doShare() {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (navigator.share) navigator.share({ title: e.title, url });
+    else navigator.clipboard?.writeText(url);
+  }
+
+  const navHref = e.gps_lat && e.gps_lng
+    ? `https://maps.google.com/?q=${e.gps_lat},${e.gps_lng}`
+    : e.address
+    ? `https://maps.google.com/?q=${encodeURIComponent(e.address)}`
+    : null;
+
   return (
-    <div>
+    <div className="event-fade">
       <StatusBar index="06" section="EVENT" />
 
-      <div className="relative h-80">
+      {/* HERO — cover image, minimal overlays */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden">
         {e.cover_url ? (
           <img src={e.cover_url} alt="" className="h-full w-full object-cover" />
         ) : (
@@ -129,32 +142,20 @@ function EventDetail() {
             </div>
           </div>
         )}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
-
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.75) 100%)" }} />
 
         {/* Top action bar */}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3 pt-3">
-          <button onClick={() => navigate({ to: "/events" })} className="tap mono-tag text-white" style={{ background: "rgba(0,0,0,0.55)", padding: "6px 10px", backdropFilter: "blur(6px)" }}>
+          <button onClick={() => navigate({ to: "/events" })} aria-label="Back to events" className="tap mono-tag text-white" style={{ background: "rgba(0,0,0,0.55)", padding: "8px 10px", backdropFilter: "blur(8px)" }}>
             ← BACK
           </button>
           <div className="flex gap-2">
-            <button
-              onClick={() => {
-                const url = typeof window !== "undefined" ? window.location.href : "";
-                if (navigator.share) navigator.share({ title: e.title, url });
-                else navigator.clipboard?.writeText(url);
-              }}
-              className="tap mono-tag text-white"
-              style={{ background: "rgba(0,0,0,0.55)", padding: "6px 10px", backdropFilter: "blur(6px)" }}
-            >
-              SHARE
-            </button>
             {isHost && (
               <Link
                 to="/events/$id/edit"
                 params={{ id }}
                 className="tap mono-tag"
-                style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "6px 10px" }}
+                style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "8px 10px" }}
               >
                 ✎ EDIT
               </Link>
@@ -162,37 +163,72 @@ function EventDetail() {
           </div>
         </div>
 
-        {/* Bottom overlay meta */}
-        <div className="absolute inset-x-4 bottom-4 text-white">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="mono-tag" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", padding: "3px 8px", backdropFilter: "blur(6px)" }}>
-              {(e.category ?? "EVENT").toUpperCase()}
+        {/* Bottom chips only — text info moved below */}
+        <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center gap-1.5">
+          <span className="mono-tag" style={{ background: "rgba(0,0,0,0.55)", color: "#fff", padding: "4px 8px", backdropFilter: "blur(8px)" }}>
+            {(e.category ?? "EVENT").toUpperCase()}
+          </span>
+          {e.status === "cancelled" ? (
+            <span className="mono-tag" style={{ background: "#c33", color: "#fff", padding: "4px 8px" }}>CANCELLED</span>
+          ) : (
+            <span className="mono-tag" style={{ background: "rgba(0,0,0,0.55)", color: "#fff", padding: "4px 8px", backdropFilter: "blur(8px)" }}>
+              {(e.visibility ?? "public").toUpperCase()}
             </span>
-            {e.status === "cancelled" ? (
-              <span className="mono-tag" style={{ background: "#c33", color: "#fff", padding: "3px 8px" }}>CANCELLED</span>
-            ) : (
-              <span className="mono-tag" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", padding: "3px 8px", backdropFilter: "blur(6px)" }}>
-                {(e.visibility ?? "public").toUpperCase()}
-              </span>
-            )}
-            {e.is_featured && (
-              <span className="mono-tag" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "3px 8px" }}>FEATURED</span>
-            )}
-          </div>
-          <h1 className="mt-2 display-xl text-3xl uppercase leading-tight">{e.title}</h1>
-          <p className="mono-tag mt-1.5" style={{ color: "rgba(255,255,255,0.9)" }}>
-            {d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })} · {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </p>
-          {e.location && <p className="mono-tag mt-0.5" style={{ color: "rgba(255,255,255,0.75)" }}>◎ {e.location}</p>}
+          )}
+          {e.is_featured && (
+            <span className="mono-tag" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}>★ FEATURED</span>
+          )}
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 divide-x divide-hair hairline-b">
-        <Stat k="GOING" v={String(e.rsvp_count ?? 0)} />
-        <Stat k="PHOTOS" v={String(e.photos_count ?? 0)} />
-        <Stat k="COMMENTS" v={String(e.comments_count ?? 0)} />
-      </div>
+      {/* INFO SECTION */}
+      <section className="px-4 pt-4 pb-3 hairline-b">
+        <h1 className="display-xl text-2xl uppercase leading-tight">{e.title}</h1>
+        <div className="mt-3 grid grid-cols-[16px_1fr] gap-x-3 gap-y-2 text-sm">
+          <span aria-hidden style={{ color: "var(--color-signal)" }}>◷</span>
+          <div className="min-w-0">
+            <p className="font-bold">
+              {d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+            </p>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              {e.ends_at && ` → ${new Date(e.ends_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
+            </p>
+          </div>
+          {e.location && (<>
+            <span aria-hidden style={{ color: "var(--color-signal)" }}>◎</span>
+            <p className="min-w-0 truncate text-sm">{e.location}</p>
+          </>)}
+        </div>
+      </section>
+
+      {/* PRIMARY ACTIONS */}
+      <section className="px-4 py-3 hairline-b">
+        <div className="grid grid-cols-3 gap-2">
+          <ActionBtn onClick={doCheckIn} icon="◉" label="CHECK IN" primary />
+          {navHref ? (
+            <a href={navHref} target="_blank" rel="noreferrer" className="tap hairline flex flex-col items-center justify-center gap-1 py-3">
+              <span className="text-base" style={{ color: "var(--color-signal)" }}>◎</span>
+              <span className="mono-caps text-[10px]">NAVIGATE</span>
+            </a>
+          ) : (
+            <div className="hairline flex flex-col items-center justify-center gap-1 py-3" style={{ color: "var(--color-ash)" }}>
+              <span className="text-base">◎</span>
+              <span className="mono-caps text-[10px]">NAVIGATE</span>
+            </div>
+          )}
+          <ActionBtn onClick={doShare} icon="↗" label="SHARE" />
+        </div>
+      </section>
+
+      {/* STATS — 5 uniform cards */}
+      <section className="grid grid-cols-5 divide-x divide-hair hairline-b">
+        <StatCard k="GOING" v={String(e.rsvp_count ?? 0)} active={e.my_rsvp === "going"} />
+        <StatCard k="INTERESTED" v={String(e.interested_count ?? 0)} active={e.my_rsvp === "interested"} />
+        <StatCard k="PASS" v={String(e.not_going_count ?? 0)} active={e.my_rsvp === "not_going"} />
+        <StatCard k="PHOTOS" v={String(e.photos_count ?? 0)} />
+        <StatCard k="COMMENTS" v={String(e.comments_count ?? 0)} />
+      </section>
 
       {/* RSVP bar */}
       <div className="grid grid-cols-3 divide-x divide-hair hairline-b">
@@ -200,7 +236,7 @@ function EventDetail() {
           const active = e.my_rsvp === s;
           const label = s === "going" ? "GOING" : s === "interested" ? "INTERESTED" : "CAN'T GO";
           return (
-            <button key={s} onClick={() => doRsvp(s)} className="tap py-4 mono-caps"
+            <button key={s} onClick={() => doRsvp(s)} className="tap py-3.5 mono-caps transition-colors"
               style={{ background: active ? "var(--color-signal)" : "transparent", color: active ? "var(--color-bone)" : "var(--color-ink)" }}>
               {label}
             </button>
@@ -208,34 +244,27 @@ function EventDetail() {
         })}
       </div>
 
-      {/* Secondary actions */}
-      <div className="grid grid-cols-2 divide-x divide-hair hairline-b">
-        <button onClick={doCheckIn} className="tap py-3 mono-caps">◉ CHECK IN</button>
-        {e.gps_lat && e.gps_lng ? (
-          <a href={`https://maps.google.com/?q=${e.gps_lat},${e.gps_lng}`} target="_blank" rel="noreferrer" className="tap py-3 mono-caps text-center">◎ NAVIGATE</a>
-        ) : e.address ? (
-          <a href={`https://maps.google.com/?q=${encodeURIComponent(e.address)}`} target="_blank" rel="noreferrer" className="tap py-3 mono-caps text-center">◎ NAVIGATE</a>
-        ) : (
-          <button disabled className="tap py-3 mono-caps" style={{ color: "var(--color-ash)" }}>◎ NAVIGATE</button>
-        )}
-      </div>
-
-
-      {/* Host card */}
+      {/* HOST CARD */}
       {e.host && (
-        <Link to="/profile" className="flex items-center gap-3 px-4 py-4 hairline-b">
+        <Link to="/profile" className="flex items-center gap-3 px-4 py-4 hairline-b transition-colors hover:bg-[var(--color-mist)]">
           {e.host.avatar_url ? (
-            <img src={e.host.avatar_url} alt="" className="h-10 w-10 object-cover" style={{ borderRadius: 0 }} />
+            <img src={e.host.avatar_url} alt="" className="h-11 w-11 shrink-0 object-cover" style={{ borderRadius: 0 }} />
           ) : (
-            <div className="h-10 w-10" style={{ background: "var(--color-mist)" }} />
+            <div className="h-11 w-11 shrink-0" style={{ background: "var(--color-mist)" }} />
           )}
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <p className="mono-tag" style={{ color: "var(--color-ash)" }}>HOSTED BY</p>
-            <p className="text-sm font-bold">{e.host.display_name ?? e.host.handle}</p>
+            <div className="mt-0.5 flex items-center gap-1.5">
+              <p className="truncate text-sm font-bold">{e.host.display_name ?? e.host.handle}</p>
+              {e.host.verified && (
+                <span aria-label="Verified" title="Verified" className="mono-tag" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "1px 5px", fontSize: 9 }}>✓</span>
+              )}
+            </div>
           </div>
-          <span className="mono-tag" style={{ color: "var(--color-signal)" }}>{(e.host.tier ?? "RIDER").toUpperCase()}</span>
+          <span className="mono-tag shrink-0" style={{ color: "var(--color-signal)" }}>{(e.host.tier ?? "RIDER").toUpperCase()}</span>
         </Link>
       )}
+
 
       {/* Tabs */}
       <div className="no-scrollbar flex overflow-x-auto hairline-b">
