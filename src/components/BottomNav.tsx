@@ -111,6 +111,69 @@ function NavCell({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
+const CART_KEY = "zx.cart.v1";
+
+function CartCell({ item, active }: { item: NavItem; active: boolean }) {
+  const Icon = item.icon;
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        const ids = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+        setCount(Array.isArray(ids) ? ids.length : 0);
+      } catch {
+        setCount(0);
+      }
+    };
+    read();
+    window.addEventListener("storage", read);
+    const id = setInterval(read, 500);
+    return () => {
+      window.removeEventListener("storage", read);
+      clearInterval(id);
+    };
+  }, []);
+
+  return (
+    <Link
+      to={item.to}
+      aria-current={active ? "page" : undefined}
+      className="tap relative flex flex-col items-center justify-center gap-0.5 py-1.5"
+      style={{ color: active ? "var(--color-ink-0)" : "var(--color-ink-3)" }}
+    >
+      <span className="relative">
+        <Icon
+          className="h-[22px] w-[22px]"
+          strokeWidth={active ? 2.2 : 1.75}
+        />
+        {count > 0 && (
+          <span
+            className="absolute -right-2 -top-1.5 grid h-4 min-w-[16px] place-items-center rounded-full px-1 text-[9px] font-bold"
+            style={{ background: "var(--color-neon)", color: "var(--color-ink-0)" }}
+          >
+            {count > 9 ? "9+" : count}
+          </span>
+        )}
+      </span>
+      <span
+        className="text-[10px] font-medium leading-none"
+        style={{ letterSpacing: "-0.01em" }}
+      >
+        {item.label}
+      </span>
+      <span
+        className="absolute -bottom-1 h-[3px] rounded-full transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
+        style={{
+          width: active ? "22px" : "0px",
+          opacity: active ? 1 : 0,
+          background: "var(--color-ink-0)",
+        }}
+      />
+    </Link>
+  );
+}
+
 /**
  * Old-school compass mark — bezel + cardinal ticks + N/S needle, all rendered
  * in the ZombieRex neon-green palette. Used as the elevated center button.
