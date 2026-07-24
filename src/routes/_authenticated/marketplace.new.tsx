@@ -64,6 +64,9 @@ function NewListing() {
         photos,
         tags: [],
       };
+      if (payload.brand) rememberBrand(payload.brand);
+      if (payload.brand && payload.model) rememberModel(payload.brand, payload.model);
+      if (payload.city) rememberCity(payload.city);
       return createFn({ data: payload });
     },
     onSuccess: (res) => navigate({ to: "/marketplace/$id", params: { id: res.id } }),
