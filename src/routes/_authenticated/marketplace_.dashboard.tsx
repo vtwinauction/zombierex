@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { StatusBar } from "@/components/StatusBar";
 import { getSellerDashboard, updateListing, deleteListing } from "@/lib/marketplace.functions";
 
-export const Route = createFileRoute("/_authenticated/marketplace/dashboard")({
+export const Route = createFileRoute("/_authenticated/marketplace_/dashboard")({
   head: () => ({ meta: [{ title: "Seller Dashboard · ZOMBIEREX" }] }),
   component: Dashboard,
 });

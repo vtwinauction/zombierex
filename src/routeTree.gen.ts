@@ -78,8 +78,8 @@ import { Route as AuthenticatedProfileEditRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPostsMineRouteImport } from './routes/_authenticated/posts.mine'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
-import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace.new'
-import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace.dashboard'
+import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace_.new'
+import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace_.dashboard'
 import { Route as AuthenticatedJudgeMineRouteImport } from './routes/_authenticated/judge.mine'
 import { Route as AuthenticatedEventsNewRouteImport } from './routes/_authenticated/events.new'
 import { Route as AuthenticatedEventsIdRouteImport } from './routes/_authenticated/events.$id'
@@ -495,13 +495,13 @@ const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
 } as any)
 const AuthenticatedMarketplaceNewRoute =
   AuthenticatedMarketplaceNewRouteImport.update({
-    id: '/marketplace/new',
+    id: '/marketplace_/new',
     path: '/marketplace/new',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMarketplaceDashboardRoute =
   AuthenticatedMarketplaceDashboardRouteImport.update({
-    id: '/marketplace/dashboard',
+    id: '/marketplace_/dashboard',
     path: '/marketplace/dashboard',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
@@ -1035,8 +1035,8 @@ export interface FileRoutesById {
   '/_authenticated/events/$id': typeof AuthenticatedEventsIdRoute
   '/_authenticated/events/new': typeof AuthenticatedEventsNewRoute
   '/_authenticated/judge/mine': typeof AuthenticatedJudgeMineRoute
-  '/_authenticated/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
-  '/_authenticated/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
+  '/_authenticated/marketplace_/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
+  '/_authenticated/marketplace_/new': typeof AuthenticatedMarketplaceNewRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
   '/_authenticated/posts/mine': typeof AuthenticatedPostsMineRoute
@@ -1380,8 +1380,8 @@ export interface FileRouteTypes {
     | '/_authenticated/events/$id'
     | '/_authenticated/events/new'
     | '/_authenticated/judge/mine'
-    | '/_authenticated/marketplace/dashboard'
-    | '/_authenticated/marketplace/new'
+    | '/_authenticated/marketplace_/dashboard'
+    | '/_authenticated/marketplace_/new'
     | '/_authenticated/messages/$id'
     | '/_authenticated/post/new'
     | '/_authenticated/posts/mine'
@@ -1951,15 +1951,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesIdRouteImport
       parentRoute: typeof AuthenticatedMessagesRoute
     }
-    '/_authenticated/marketplace/new': {
-      id: '/_authenticated/marketplace/new'
+    '/_authenticated/marketplace_/new': {
+      id: '/_authenticated/marketplace_/new'
       path: '/marketplace/new'
       fullPath: '/marketplace/new'
       preLoaderRoute: typeof AuthenticatedMarketplaceNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/marketplace/dashboard': {
-      id: '/_authenticated/marketplace/dashboard'
+    '/_authenticated/marketplace_/dashboard': {
+      id: '/_authenticated/marketplace_/dashboard'
       path: '/marketplace/dashboard'
       fullPath: '/marketplace/dashboard'
       preLoaderRoute: typeof AuthenticatedMarketplaceDashboardRouteImport

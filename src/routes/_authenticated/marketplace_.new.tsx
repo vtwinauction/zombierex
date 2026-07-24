@@ -12,7 +12,7 @@ import {
   rememberBrand, rememberModel, rememberCity,
 } from "@/lib/catalog";
 
-export const Route = createFileRoute("/_authenticated/marketplace/new")({
+export const Route = createFileRoute("/_authenticated/marketplace_/new")({
   head: () => ({ meta: [{ title: "New Listing · ZOMBIEREX" }] }),
   component: NewListing,
 });
