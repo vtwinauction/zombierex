@@ -43,6 +43,9 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
         <Link to="/search" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Discover">
           <IconLens size={16} />
         </Link>
+        <Link to="/cart" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Cart">
+          <ShoppingCart size={16} strokeWidth={1.75} />
+        </Link>
         <Link to="/notifications" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Notifications">
           <IconEnginePulse size={16} />
         </Link>
