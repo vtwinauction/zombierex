@@ -141,9 +141,10 @@ function FeaturedCard({ event }: { event: any }) {
           {event.cover_url ? (
             <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
           ) : (
-            <div className="h-full w-full" style={{ background: "var(--color-mist)" }} />
+            <EmptyCover category={event.category} />
           )}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
+
           <span className="absolute left-3 top-3 mono-tag text-white" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}>
             FEATURED
           </span>
