@@ -38,7 +38,7 @@ function fmtPrice(cents: number, currency = "USD") {
 }
 
 function MarketplacePage() {
-  const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("featured");
+  const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("new");
   const [category, setCategory] = useState<string | undefined>();
   const [search, setSearch] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -113,31 +113,24 @@ function MarketplacePage() {
         </div>
       )}
 
-      <div className="no-scrollbar mt-4 flex overflow-x-auto border-y" style={{ borderColor: "var(--color-hair)" }}>
-        {SCOPES.map((s) => {
-          const active = scope === s.id;
-          return (
-            <button key={s.id} onClick={() => setScope(s.id)}
-              className="tap relative shrink-0 border-r px-4 py-3 mono-tag font-bold"
-              style={{
-                borderColor: "var(--color-hair)",
-                color: active ? "var(--color-ink)" : "var(--color-titanium)",
-                background: active ? "rgba(255,255,255,0.03)" : "transparent",
-              }}>
-              {s.label.toUpperCase()}
-              {active && <span className="absolute inset-x-0 bottom-0 h-[2px]" style={{ background: "var(--color-neon)" }} />}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3 border-b" style={{ borderColor: "var(--color-hair)" }}>
-        <ChipButton active={!category} onClick={() => setCategory(undefined)}>ALL</ChipButton>
-        {LISTING_CATEGORIES.map((c) => (
-          <ChipButton key={c} active={category === c} onClick={() => setCategory(c === category ? undefined : c)}>
-            {(CAT_LABEL[c] ?? c).toUpperCase()}
-          </ChipButton>
-        ))}
+      <div className="px-4 pt-3 grid grid-cols-2 gap-2">
+        <label className="block">
+          <span className="mono-tag font-bold" style={{ color: "var(--color-titanium)" }}>VIEW</span>
+          <select value={scope} onChange={(e) => setScope(e.target.value as any)}
+            className="mt-1 w-full border px-2 py-2 text-sm"
+            style={{ background: "rgba(255,255,255,0.03)", borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}>
+            {SCOPES.map((s) => <option key={s.id} value={s.id}>{s.label.toUpperCase()}</option>)}
+          </select>
+        </label>
+        <label className="block">
+          <span className="mono-tag font-bold" style={{ color: "var(--color-titanium)" }}>CATEGORY</span>
+          <select value={category ?? ""} onChange={(e) => setCategory(e.target.value || undefined)}
+            className="mt-1 w-full border px-2 py-2 text-sm"
+            style={{ background: "rgba(255,255,255,0.03)", borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}>
+            <option value="">ALL CATEGORIES</option>
+            {LISTING_CATEGORIES.map((c) => <option key={c} value={c}>{(CAT_LABEL[c] ?? c).toUpperCase()}</option>)}
+          </select>
+        </label>
       </div>
 
       {featured && (

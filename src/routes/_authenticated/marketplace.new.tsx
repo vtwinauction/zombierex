@@ -6,6 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatusBar } from "@/components/StatusBar";
 import { createListing, LISTING_CATEGORIES, LISTING_CONDITIONS, LISTING_FUELS, LISTING_TRANSMISSIONS } from "@/lib/marketplace.functions";
 import { compressImage, uploadWithRetry } from "@/lib/media-upload";
+import {
+  CURRENCIES, COUNTRIES, YEARS,
+  getAllBrands, getAllModels, getAllCities,
+  rememberBrand, rememberModel, rememberCity,
+} from "@/lib/catalog";
 
 export const Route = createFileRoute("/_authenticated/marketplace/new")({
   head: () => ({ meta: [{ title: "New Listing · ZOMBIEREX" }] }),
@@ -59,6 +64,9 @@ function NewListing() {
         photos,
         tags: [],
       };
+      if (payload.brand) rememberBrand(payload.brand);
+      if (payload.brand && payload.model) rememberModel(payload.brand, payload.model);
+      if (payload.city) rememberCity(payload.city);
       return createFn({ data: payload });
     },
     onSuccess: (res) => navigate({ to: "/marketplace/$id", params: { id: res.id } }),
@@ -144,7 +152,8 @@ function NewListing() {
         </Row>
         <Row>
           <Input label="PRICE *" type="number" value={form.price_cents} onChange={(v: string) => set("price_cents", v)} placeholder="9500" />
-          <Input label="CURRENCY" value={form.currency} onChange={(v: string) => set("currency", v.toUpperCase())} placeholder="USD" />
+          <Select label="CURRENCY *" value={form.currency} onChange={(v: string) => set("currency", v)}
+            options={CURRENCIES.map((c) => [c.code, `${c.code} · ${c.symbol} · ${c.label}`])} />
         </Row>
         <label className="mt-3 flex items-center gap-2">
           <input type="checkbox" checked={form.is_negotiable} onChange={(e) => set("is_negotiable", e.target.checked)} />
@@ -154,11 +163,14 @@ function NewListing() {
 
       <Section title="VEHICLE DETAILS">
         <Row>
-          <Input label="BRAND" value={form.brand} onChange={(v: string) => set("brand", v)} placeholder="Kawasaki" />
-          <Input label="MODEL" value={form.model} onChange={(v: string) => set("model", v)} placeholder="ZX-6R" />
+          <DataListInput label="BRAND" value={form.brand} onChange={(v: string) => set("brand", v)}
+            listId="brand-list" options={getAllBrands()} placeholder="Kawasaki" />
+          <DataListInput label="MODEL" value={form.model} onChange={(v: string) => set("model", v)}
+            listId="model-list" options={form.brand ? getAllModels(form.brand) : []} placeholder="ZX-6R" />
         </Row>
         <Row>
-          <Input label="YEAR" type="number" value={form.year} onChange={(v: string) => set("year", v)} placeholder="2022" />
+          <Select label="YEAR" value={form.year} onChange={(v: string) => set("year", v)}
+            options={[["", "—"], ...YEARS.map((y) => [String(y), String(y)] as [string,string])]} />
           <Input label="MILEAGE (km)" type="number" value={form.mileage_km} onChange={(v: string) => set("mileage_km", v)} placeholder="7800" />
         </Row>
         <Row>
@@ -176,10 +188,12 @@ function NewListing() {
 
       <Section title="LOCATION">
         <Row>
-          <Input label="CITY" value={form.city} onChange={(v: string) => set("city", v)} placeholder="Los Angeles" />
-          <Input label="REGION" value={form.region} onChange={(v: string) => set("region", v)} placeholder="CA" />
+          <Select label="COUNTRY" value={form.country} onChange={(v: string) => set("country", v)}
+            options={[["", "—"], ...COUNTRIES.map((c) => [c, c] as [string,string])]} />
+          <DataListInput label="CITY" value={form.city} onChange={(v: string) => set("city", v)}
+            listId="city-list" options={getAllCities(form.country)} placeholder="Manama" />
         </Row>
-        <Input label="COUNTRY" value={form.country} onChange={(v: string) => set("country", v)} placeholder="USA" />
+        <Input label="REGION / VILLAGE" value={form.region} onChange={(v: string) => set("region", v)} placeholder="Jid Ali" />
       </Section>
 
       {err && <p className="mx-4 mt-4 mono-tag" style={{ color: "#ff6b6b" }}>ERR · {err}</p>}
@@ -241,6 +255,20 @@ function Select({ label, value, onChange, options }: any) {
         style={{ background: "rgba(255,255,255,0.03)", borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}>
         {options.map(([v, lbl]: any) => <option key={v} value={v}>{String(lbl)}</option>)}
       </select>
+    </label>
+  );
+}
+function DataListInput({ label, value, onChange, listId, options, placeholder }: any) {
+  return (
+    <label className="block">
+      <Label>{label}</Label>
+      <input list={listId} value={value ?? ""} placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 w-full border px-3 py-2 text-sm"
+        style={{ background: "rgba(255,255,255,0.03)", borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }} />
+      <datalist id={listId}>
+        {(options as string[]).map((o) => <option key={o} value={o} />)}
+      </datalist>
     </label>
   );
 }
