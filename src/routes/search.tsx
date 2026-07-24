@@ -222,7 +222,7 @@ function ProfilesSection({ profiles }: { profiles: any[] }) {
           <li key={u.id}>
             <Link
               to="/creator/$id"
-              params={{ id: u.handle ?? u.id }}
+              params={{ id: u.id }}
               className="tap flex items-center gap-3 py-3"
             >
               <span className="display-numeral w-6 text-lg" style={{ color: "var(--color-ash)" }}>
