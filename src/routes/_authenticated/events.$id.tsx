@@ -68,8 +68,9 @@ function EventDetail() {
   );
 
   const e: any = ev;
+  const { user } = useSession();
+  const isHost = !!user && user.id === e.host_id;
   const d = new Date(e.starts_at);
-  const isHost = false; // resolved from auth context if needed; server enforces
 
   async function doRsvp(status: "going" | "interested" | "not_going") {
     await rsvpFn({ data: { event_id: id, status } });
