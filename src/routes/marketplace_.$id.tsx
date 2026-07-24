@@ -2,11 +2,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Heart, Share2, MessageCircle, Flag, ArrowRight, ChevronRight, BadgeCheck } from "lucide-react";
 import { StatusBar } from "@/components/StatusBar";
 import { getListing, toggleSaveListing, reportListing, updateListing, deleteListing } from "@/lib/marketplace.functions";
 import { startDirectMessage } from "@/lib/messages.functions";
 
 import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/marketplace_/$id")({
   head: ({ params }) => ({
