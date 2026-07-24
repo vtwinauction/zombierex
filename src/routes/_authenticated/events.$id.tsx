@@ -221,7 +221,7 @@ function EventDetail() {
       </div>
 
       <div className="pb-24">
-        {tab === "ABOUT" && <AboutTab e={e} onCancel={async () => { await cancelFn({ data: { id } }); qc.invalidateQueries({ queryKey: ["event", id] }); }} />}
+        {tab === "ABOUT" && <AboutTab e={e} isHost={isHost} onCancel={async () => { if (!confirm("Cancel this event?")) return; await cancelFn({ data: { id } }); qc.invalidateQueries({ queryKey: ["event", id] }); }} />}
         {tab === "LIVE" && <LiveTab eventId={id} isHost={isHost} />}
         {tab === "PHOTOS" && <PhotosTab eventId={id} />}
         {tab === "ATTENDEES" && <AttendeesTab eventId={id} />}
