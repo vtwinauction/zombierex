@@ -301,12 +301,17 @@ function Stat({ k, v }: { k: string; v: string }) {
   );
 }
 
-function StatCard({ k, v, active }: { k: string; v: string; active?: boolean }) {
+function StatCard({ k, v, active, onClick }: { k: string; v: string; active?: boolean; onClick?: () => void }) {
+  const Cmp: any = onClick ? "button" : "div";
   return (
-    <div className="px-2 py-3 text-center transition-colors" style={{ background: active ? "var(--color-mist)" : "transparent" }}>
+    <Cmp
+      onClick={onClick}
+      className="tap px-2 py-3 text-center transition-colors"
+      style={{ background: active ? "var(--color-mist)" : "transparent" }}
+    >
       <p className="mono-num text-base font-bold" style={{ color: active ? "var(--color-signal)" : "var(--color-ink)" }}>{v}</p>
       <p className="mono-tag mt-1" style={{ color: "var(--color-ash)", fontSize: 9 }}>{k}</p>
-    </div>
+    </Cmp>
   );
 }
 
