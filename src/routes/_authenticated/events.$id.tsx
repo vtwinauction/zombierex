@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/auth-context";
 import {
   getEvent,
   rsvpEvent,
@@ -67,8 +68,9 @@ function EventDetail() {
   );
 
   const e: any = ev;
+  const { user } = useSession();
+  const isHost = !!user && user.id === e.host_id;
   const d = new Date(e.starts_at);
-  const isHost = false; // resolved from auth context if needed; server enforces
 
   async function doRsvp(status: "going" | "interested" | "not_going") {
     await rsvpFn({ data: { event_id: id, status } });
@@ -88,29 +90,72 @@ function EventDetail() {
     <div>
       <StatusBar index="06" section="EVENT" />
 
-      <div className="relative h-72">
+      <div className="relative h-80">
         {e.cover_url ? (
           <img src={e.cover_url} alt="" className="h-full w-full object-cover" />
         ) : (
-          <div className="h-full w-full" style={{ background: "var(--color-mist)" }} />
+          <div className="grid h-full w-full place-items-center" style={{ background: "var(--color-mist)" }}>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NO COVER PHOTO</p>
+          </div>
         )}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.9) 100%)" }} />
-        <button onClick={() => navigate({ to: "/events" })} className="tap absolute left-3 top-3 mono-tag text-white" style={{ background: "rgba(0,0,0,0.55)", padding: "6px 10px" }}>
-          ← BACK
-        </button>
-        {e.status === "cancelled" && (
-          <span className="absolute right-3 top-3 mono-tag text-white" style={{ background: "#c33", padding: "6px 10px" }}>CANCELLED</span>
-        )}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.9) 100%)" }} />
+
+        {/* Top action bar */}
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3 pt-3">
+          <button onClick={() => navigate({ to: "/events" })} className="tap mono-tag text-white" style={{ background: "rgba(0,0,0,0.55)", padding: "6px 10px", backdropFilter: "blur(6px)" }}>
+            ← BACK
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const url = typeof window !== "undefined" ? window.location.href : "";
+                if (navigator.share) navigator.share({ title: e.title, url });
+                else navigator.clipboard?.writeText(url);
+              }}
+              className="tap mono-tag text-white"
+              style={{ background: "rgba(0,0,0,0.55)", padding: "6px 10px", backdropFilter: "blur(6px)" }}
+            >
+              SHARE
+            </button>
+            {isHost && (
+              <Link
+                to="/events/$id/edit"
+                params={{ id }}
+                className="tap mono-tag"
+                style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "6px 10px" }}
+              >
+                ✎ EDIT
+              </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom overlay meta */}
         <div className="absolute inset-x-4 bottom-4 text-white">
-          <p className="mono-tag" style={{ color: "rgba(255,255,255,0.85)" }}>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="mono-tag" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", padding: "3px 8px", backdropFilter: "blur(6px)" }}>
+              {(e.category ?? "EVENT").toUpperCase()}
+            </span>
+            {e.status === "cancelled" ? (
+              <span className="mono-tag" style={{ background: "#c33", color: "#fff", padding: "3px 8px" }}>CANCELLED</span>
+            ) : (
+              <span className="mono-tag" style={{ background: "rgba(255,255,255,0.15)", color: "#fff", padding: "3px 8px", backdropFilter: "blur(6px)" }}>
+                {(e.visibility ?? "public").toUpperCase()}
+              </span>
+            )}
+            {e.is_featured && (
+              <span className="mono-tag" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "3px 8px" }}>FEATURED</span>
+            )}
+          </div>
+          <h1 className="mt-2 display-xl text-3xl uppercase leading-tight">{e.title}</h1>
+          <p className="mono-tag mt-1.5" style={{ color: "rgba(255,255,255,0.9)" }}>
             {d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })} · {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </p>
-          <h1 className="mt-1 display-xl text-3xl uppercase leading-tight">{e.title}</h1>
-          {e.location && <p className="mono-tag mt-1" style={{ color: "rgba(255,255,255,0.75)" }}>◎ {e.location}</p>}
+          {e.location && <p className="mono-tag mt-0.5" style={{ color: "rgba(255,255,255,0.75)" }}>◎ {e.location}</p>}
         </div>
       </div>
 
-      {/* Host + stats */}
+      {/* Stats */}
       <div className="grid grid-cols-3 divide-x divide-hair hairline-b">
         <Stat k="GOING" v={String(e.rsvp_count ?? 0)} />
         <Stat k="PHOTOS" v={String(e.photos_count ?? 0)} />
@@ -131,22 +176,18 @@ function EventDetail() {
         })}
       </div>
 
-      {/* Action row */}
-      <div className="grid grid-cols-3 divide-x divide-hair hairline-b">
-        <button onClick={doCheckIn} className="tap py-3 mono-caps">CHECK IN</button>
-        <button
-          onClick={() => {
-            const url = typeof window !== "undefined" ? window.location.href : "";
-            if (navigator.share) navigator.share({ title: e.title, url });
-            else navigator.clipboard?.writeText(url);
-          }}
-          className="tap py-3 mono-caps">SHARE</button>
+      {/* Secondary actions */}
+      <div className="grid grid-cols-2 divide-x divide-hair hairline-b">
+        <button onClick={doCheckIn} className="tap py-3 mono-caps">◉ CHECK IN</button>
         {e.gps_lat && e.gps_lng ? (
-          <a href={`https://maps.google.com/?q=${e.gps_lat},${e.gps_lng}`} target="_blank" rel="noreferrer" className="tap py-3 mono-caps text-center">NAVIGATE</a>
+          <a href={`https://maps.google.com/?q=${e.gps_lat},${e.gps_lng}`} target="_blank" rel="noreferrer" className="tap py-3 mono-caps text-center">◎ NAVIGATE</a>
+        ) : e.address ? (
+          <a href={`https://maps.google.com/?q=${encodeURIComponent(e.address)}`} target="_blank" rel="noreferrer" className="tap py-3 mono-caps text-center">◎ NAVIGATE</a>
         ) : (
-          <button className="tap py-3 mono-caps" style={{ color: "var(--color-ash)" }}>NAVIGATE</button>
+          <button disabled className="tap py-3 mono-caps" style={{ color: "var(--color-ash)" }}>◎ NAVIGATE</button>
         )}
       </div>
+
 
       {/* Host card */}
       {e.host && (
@@ -180,7 +221,7 @@ function EventDetail() {
       </div>
 
       <div className="pb-24">
-        {tab === "ABOUT" && <AboutTab e={e} onCancel={async () => { await cancelFn({ data: { id } }); qc.invalidateQueries({ queryKey: ["event", id] }); }} />}
+        {tab === "ABOUT" && <AboutTab e={e} isHost={isHost} onCancel={async () => { if (!confirm("Cancel this event?")) return; await cancelFn({ data: { id } }); qc.invalidateQueries({ queryKey: ["event", id] }); }} />}
         {tab === "LIVE" && <LiveTab eventId={id} isHost={isHost} />}
         {tab === "PHOTOS" && <PhotosTab eventId={id} />}
         {tab === "ATTENDEES" && <AttendeesTab eventId={id} />}
@@ -199,7 +240,7 @@ function Stat({ k, v }: { k: string; v: string }) {
   );
 }
 
-function AboutTab({ e, onCancel }: { e: any; onCancel: () => void }) {
+function AboutTab({ e, isHost, onCancel }: { e: any; isHost: boolean; onCancel: () => void }) {
   return (
     <div className="px-4 pt-4 space-y-4">
       {e.description && (
@@ -259,9 +300,9 @@ function AboutTab({ e, onCancel }: { e: any; onCancel: () => void }) {
           </div>
         )}
       </div>
-      {e.status !== "cancelled" && (
+      {isHost && e.status !== "cancelled" && (
         <button onClick={onCancel} className="w-full hairline py-3 mono-caps" style={{ color: "#c33" }}>
-          CANCEL EVENT (HOST ONLY)
+          CANCEL EVENT
         </button>
       )}
     </div>
