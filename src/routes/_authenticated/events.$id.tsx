@@ -221,13 +221,13 @@ function EventDetail() {
         </div>
       </section>
 
-      {/* STATS — 5 uniform cards */}
+      {/* STATS — 5 uniform cards, tappable */}
       <section className="grid grid-cols-5 divide-x divide-hair hairline-b">
-        <StatCard k="GOING" v={String(e.rsvp_count ?? 0)} active={e.my_rsvp === "going"} />
-        <StatCard k="INTERESTED" v={String(e.interested_count ?? 0)} active={e.my_rsvp === "interested"} />
-        <StatCard k="PASS" v={String(e.not_going_count ?? 0)} active={e.my_rsvp === "not_going"} />
-        <StatCard k="PHOTOS" v={String(e.photos_count ?? 0)} />
-        <StatCard k="COMMENTS" v={String(e.comments_count ?? 0)} />
+        <StatCard k="GOING" v={String(e.rsvp_count ?? 0)} active={e.my_rsvp === "going"} onClick={() => setTab("ATTENDEES")} />
+        <StatCard k="INTERESTED" v={String(e.interested_count ?? 0)} active={e.my_rsvp === "interested"} onClick={() => doRsvp("interested")} />
+        <StatCard k="PASS" v={String(e.not_going_count ?? 0)} active={e.my_rsvp === "not_going"} onClick={() => doRsvp("not_going")} />
+        <StatCard k="PHOTOS" v={String(e.photos_count ?? 0)} onClick={() => setTab("PHOTOS")} />
+        <StatCard k="COMMENTS" v={String(e.comments_count ?? 0)} onClick={() => setTab("DISCUSSION")} />
       </section>
 
       {/* RSVP bar */}
