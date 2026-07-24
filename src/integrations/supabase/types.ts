@@ -5158,6 +5158,14 @@ export type Database = {
       is_owner: { Args: { _user: string }; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      user_has_event_invite: {
+        Args: { _event_id: string; _user: string }
+        Returns: boolean
+      }
+      user_has_event_rsvp: {
+        Args: { _event_id: string; _user: string }
+        Returns: boolean
+      }
     }
     Enums: {
       ad_creative_kind:
