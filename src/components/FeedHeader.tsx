@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { IconLens, IconEnginePulse, IconGauge } from "./icons/RexIcons";
+import { ShoppingCart } from "lucide-react";
 
 export function FeedHeader({ dark = false }: { dark?: boolean }) {
   const cls = dark ? "text-white" : "";
