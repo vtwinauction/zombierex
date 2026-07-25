@@ -132,23 +132,39 @@ function CommunitiesPage() {
         </div>
       </div>
 
-      {/* Category chips */}
-      <div className="no-scrollbar mt-4 flex overflow-x-auto gap-1.5 px-4">
-        {(["all", ...CATEGORIES] as const).map((c) => (
-          <button
-            key={c}
-            onClick={() => setCategory(c)}
-            className="tap shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold whitespace-nowrap"
-            style={{
-              background: category === c ? "var(--color-neon)" : "var(--color-graphite)",
-              color: category === c ? "var(--color-obsidian)" : "var(--color-ink)",
-              border: "1px solid var(--color-hair-strong)",
-            }}
+      {/* Category dropdown */}
+      <div className="mt-4 px-4">
+        <label className="mono-tag block mb-1.5" style={{ color: "var(--color-titanium)", letterSpacing: "0.18em" }}>
+          CATEGORY
+        </label>
+        <div
+          className="relative flex items-center overflow-hidden rounded-full"
+          style={{ border: "1px solid var(--color-hair-strong)", background: "var(--color-graphite)" }}
+        >
+          <span className="pl-3.5 pr-2 mono-tag" style={{ color: "var(--color-neon)", letterSpacing: "0.14em" }}>
+            ▸
+          </span>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="tap flex-1 appearance-none bg-transparent py-2.5 pr-9 text-[13px] font-semibold focus:outline-none"
+            style={{ color: "var(--color-ink)" }}
           >
-            {CATEGORY_LABELS[c] ?? c}
-          </button>
-        ))}
+            {(["all", ...CATEGORIES] as const).map((c) => (
+              <option key={c} value={c} style={{ background: "var(--color-graphite)", color: "var(--color-ink)" }}>
+                {CATEGORY_LABELS[c] ?? c}
+              </option>
+            ))}
+          </select>
+          <span
+            className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px]"
+            style={{ color: "var(--color-titanium)" }}
+          >
+            ▼
+          </span>
+        </div>
       </div>
+
 
       {/* Sort tabs */}
       <div className="mt-3 flex gap-1 px-4">
