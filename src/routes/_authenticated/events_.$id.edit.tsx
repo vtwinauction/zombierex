@@ -215,7 +215,7 @@ function EditEventPage() {
       </div>
 
       {/* Sticky save bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 hairline-t" style={{ background: "var(--color-bone)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="fixed inset-x-0 z-40 hairline-t" style={{ background: "var(--color-bone)", bottom: "calc(58px + env(safe-area-inset-bottom))" }}>
         <div className="mx-auto flex max-w-screen-md gap-2 px-4 py-3">
           <Link to="/events/$id" params={{ id }} className="tap flex-1 hairline py-3 text-center mono-caps">CANCEL</Link>
           <button onClick={submit as any} disabled={busy || uploading} className="btn-solid flex-[2] py-3" style={{ fontSize: 12 }}>
