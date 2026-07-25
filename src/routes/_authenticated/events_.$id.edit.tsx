@@ -6,7 +6,7 @@ import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import { getEvent, updateEvent, EVENT_CATEGORIES } from "@/lib/events.functions";
 
-export const Route = createFileRoute("/_authenticated/events/$id/edit")({
+export const Route = createFileRoute("/_authenticated/events_/$id/edit")({
   head: () => ({ meta: [{ title: "Edit event · ZOMBIEREX" }] }),
   component: EditEventPage,
 });
