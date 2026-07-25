@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { reels, type Reel } from "@/lib/mock-data";
 import { RiderMark } from "@/components/RiderBadge";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "@/components/icons/RexIcons";
@@ -99,14 +100,22 @@ function ReelsPage() {
 function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boolean }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [followed, setFollowed] = useState(reel.followed);
   const [muted, setMuted] = useState(true);
   const [lastTap, setLastTap] = useState(0);
   const [heartPing, setHeartPing] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [localComments, setLocalComments] = useState<{ handle: string; text: string; avatar: string }[]>([
+    { handle: "@nitro_rider", text: "That widebody stance is unreal 🔥", avatar: reel.user.avatar },
+    { handle: "@apex_kai", text: "Berlin meet — I'm in.", avatar: reel.user.avatar },
+    { handle: "@turbo_lila", text: "Wheels spec?", avatar: reel.user.avatar },
+  ]);
 
   function onTap() {
+    if (commentsOpen) return;
     const now = Date.now();
     if (now - lastTap < 260) {
-      // double-tap → like
       if (!liked) setLiked(true);
       setHeartPing(true);
       setTimeout(() => setHeartPing(false), 620);
@@ -114,6 +123,34 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
       setMuted((m) => !m);
     }
     setLastTap(now);
+  }
+
+  async function handleShare(e: React.MouseEvent) {
+    e.stopPropagation();
+    const shareData = {
+      title: `${reel.user.handle} on ZOMBIEREX`,
+      text: reel.caption,
+      url: typeof window !== "undefined" ? `${window.location.origin}/reels#${reel.id}` : "",
+    };
+    try {
+      if (typeof navigator !== "undefined" && (navigator as Navigator & { share?: (d: ShareData) => Promise<void> }).share) {
+        await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share(shareData);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(shareData.url);
+        toast.success("Link copied");
+      }
+    } catch {
+      /* user dismissed */
+    }
+  }
+
+  function submitComment(e: React.FormEvent) {
+    e.preventDefault();
+    const t = commentDraft.trim();
+    if (!t) return;
+    setLocalComments((prev) => [{ handle: "@you", text: t, avatar: reel.user.avatar }, ...prev]);
+    setCommentDraft("");
+    toast.success("Comment posted");
   }
 
   return (
@@ -129,10 +166,8 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
         className="absolute inset-0 h-full w-full object-cover"
         style={{ animation: active ? "ken-burns 18s ease-in-out infinite alternate" : "none" }}
       />
-      {/* Vignettes */}
-      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.85) 100%)" }} />
+      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.9) 100%)" }} />
 
-      {/* Mute pill */}
       <span
         className="absolute right-3 top-[calc(env(safe-area-inset-top)+58px)] rounded-full px-2 py-1 text-[10px] font-semibold tracking-wider text-white"
         style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.2)", fontFamily: "var(--font-mono)" }}
@@ -140,7 +175,6 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
         {muted ? "MUTED · TAP" : "SOUND ON"}
       </span>
 
-      {/* Double-tap heart */}
       {heartPing && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div
@@ -155,24 +189,37 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
         </div>
       )}
 
-      {/* Right action rail */}
-      <div className="absolute bottom-24 right-3 flex flex-col items-center gap-5 text-white">
+      {/* Right action rail — lifted above safe area */}
+      <div
+        className="absolute right-3 flex flex-col items-center gap-5 text-white"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 128px)" }}
+      >
         <RailBtn
           Icon={IconClaw}
           count={fmt(reel.likes + (liked ? 1 : 0))}
           active={liked}
-          tint="var(--color-ember)"
+          tint="var(--color-neon)"
           onClick={(e) => { e.stopPropagation(); setLiked((v) => !v); }}
         />
-        <RailBtn Icon={IconVisor} count={fmt(reel.comments)} onClick={(e) => e.stopPropagation()} />
+        <RailBtn
+          Icon={IconVisor}
+          count={fmt(reel.comments + (localComments.length - 3))}
+          onClick={(e) => { e.stopPropagation(); setCommentsOpen(true); }}
+        />
         <RailBtn
           Icon={IconBoneMark}
           count={saved ? "Saved" : "Save"}
           active={saved}
           tint="var(--color-neon)"
-          onClick={(e) => { e.stopPropagation(); setSaved((v) => !v); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setSaved((v) => {
+              toast.success(v ? "Removed from saved" : "Saved to garage");
+              return !v;
+            });
+          }}
         />
-        <RailBtn Icon={IconMechClaw} count={fmt(reel.shares)} onClick={(e) => e.stopPropagation()} />
+        <RailBtn Icon={IconMechClaw} count={fmt(reel.shares)} onClick={handleShare} />
         <button
           onClick={(e) => e.stopPropagation()}
           className="tap mt-1 h-10 w-10 overflow-hidden rounded-full border-2"
@@ -183,19 +230,22 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
         </button>
       </div>
 
-      {/* Bottom content */}
-      <div className="absolute inset-x-3 bottom-6 pr-16 text-white">
+      {/* Bottom content — lifted so nothing is clipped */}
+      <div
+        className="absolute inset-x-3 pr-16 text-white"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 34px)" }}
+      >
         <div className="flex items-center gap-2">
           <img src={reel.user.avatar} alt="" className="h-9 w-9 rounded-full object-cover" style={{ boxShadow: "0 0 0 1.5px var(--color-neon)" }} />
           <p className="flex items-center gap-1.5 text-[14px] font-semibold">
             {reel.user.handle}
             {reel.user.verified && <RiderMark tier={idx % 2 === 0 ? "APEX_REX" : "LEGEND"} />}
           </p>
-          {!reel.followed && (
+          {!followed && (
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); setFollowed(true); toast.success(`Following ${reel.user.handle}`); }}
               className="tap ml-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider"
-              style={{ background: "var(--color-ember)", color: "white", letterSpacing: "0.14em" }}
+              style={{ background: "var(--color-neon)", color: "#0b0b0b", letterSpacing: "0.14em" }}
             >
               Follow
             </button>
@@ -219,7 +269,6 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
           </div>
         )}
 
-        {/* Music ticker */}
         <div className="mt-3 flex items-center gap-2 overflow-hidden">
           <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px]" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}>♫</span>
           <div className="min-w-0 flex-1 overflow-hidden">
@@ -231,7 +280,7 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
         </div>
       </div>
 
-      {/* Progress rail (fake auto-advance visualization) */}
+      {/* Progress rail */}
       <div className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: "rgba(255,255,255,0.12)" }}>
         <div
           key={`${idx}-${active}`}
@@ -243,9 +292,80 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
           }}
         />
       </div>
+
+      {/* Comment sheet */}
+      {commentsOpen && (
+        <div
+          className="absolute inset-0 z-50 flex flex-col justify-end"
+          onClick={(e) => { e.stopPropagation(); setCommentsOpen(false); }}
+        >
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }} />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative flex flex-col rounded-t-3xl"
+            style={{
+              background: "#0f0f10",
+              borderTop: "1px solid rgba(255,255,255,0.08)",
+              maxHeight: "72dvh",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+          >
+            <div className="mx-auto mt-2 h-1 w-10 rounded-full" style={{ background: "rgba(255,255,255,0.25)" }} />
+            <div className="flex items-center justify-between px-4 pt-3 pb-2">
+              <p className="text-[13px] font-bold uppercase tracking-widest text-white" style={{ fontFamily: "var(--font-mono)" }}>
+                Comments · {localComments.length}
+              </p>
+              <button
+                onClick={() => setCommentsOpen(false)}
+                className="tap grid h-8 w-8 place-items-center rounded-full text-white"
+                style={{ background: "rgba(255,255,255,0.08)" }}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 pb-3">
+              {localComments.map((c, i) => (
+                <div key={i} className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <img src={c.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[12.5px] font-semibold text-white">{c.handle}</p>
+                    <p className="text-[13.5px] leading-snug" style={{ color: "rgba(255,255,255,0.85)" }}>{c.text}</p>
+                  </div>
+                  <button
+                    className="tap grid h-8 w-8 place-items-center rounded-full text-white"
+                    style={{ color: "rgba(255,255,255,0.7)" }}
+                    aria-label="Like comment"
+                  >
+                    <IconClaw size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <form onSubmit={submitComment} className="flex items-center gap-2 border-t px-4 py-3" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+              <input
+                value={commentDraft}
+                onChange={(e) => setCommentDraft(e.target.value)}
+                placeholder="Add a comment…"
+                className="flex-1 rounded-full bg-transparent px-4 py-2 text-[14px] text-white outline-none"
+                style={{ border: "1px solid rgba(255,255,255,0.16)" }}
+              />
+              <button
+                type="submit"
+                disabled={!commentDraft.trim()}
+                className="tap rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-wider disabled:opacity-40"
+                style={{ background: "var(--color-neon)", color: "#0b0b0b", letterSpacing: "0.14em" }}
+              >
+                Post
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
+
 
 function RailBtn({
   Icon,
