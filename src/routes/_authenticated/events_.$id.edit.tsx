@@ -122,13 +122,13 @@ function EditEventPage() {
   return (
     <div>
       <StatusBar index="06" section="EVENTS · EDIT" />
-      <div className="px-4 pt-6 pb-32">
-        <div className="flex items-center justify-between">
+      <div className="px-4 pt-6 pb-44">
+        <div className="flex items-start justify-between gap-4">
           <div>
             <p className="mono-tag" style={{ color: "var(--color-ash)" }}>EDIT EVENT</p>
-            <h1 className="mt-2 display-xl text-3xl uppercase leading-tight">{form.title || "Untitled"}</h1>
+            <h1 className="mt-2 display-xl text-2xl uppercase leading-tight">{form.title || "Untitled"}</h1>
           </div>
-          <Link to="/events/$id" params={{ id }} className="mono-tag" style={{ color: "var(--color-ash)" }}>← BACK</Link>
+          <Link to="/events/$id" params={{ id }} className="mono-tag mt-1 shrink-0" style={{ color: "var(--color-ash)" }}>← BACK</Link>
         </div>
 
         <form onSubmit={submit} className="mt-6 space-y-4">
