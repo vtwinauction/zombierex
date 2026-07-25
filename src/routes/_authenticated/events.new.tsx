@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { StatusBar } from "@/components/StatusBar";
@@ -72,7 +72,10 @@ function NewEventPage() {
     <div>
       <StatusBar index="06" section="EVENTS · NEW" />
       <div className="px-4 pt-6 pb-24">
-        <p className="mono-tag" style={{ color: "var(--color-ash)" }}>HOST AN EVENT</p>
+        <div className="flex items-center justify-between">
+          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>HOST AN EVENT</p>
+          <Link to="/events" className="mono-tag tap" style={{ color: "var(--color-ash)" }}>← BACK</Link>
+        </div>
         <h1 className="mt-2 display-xl text-4xl uppercase">New event</h1>
 
         <form onSubmit={submit} className="mt-6 space-y-4">
