@@ -112,11 +112,10 @@ function EventsPage() {
           </label>
           <Select value={scope} onValueChange={(v) => setScope(v as any)}>
             <SelectTrigger
-              className="h-10 w-auto min-w-[10rem] flex-1 hairline bg-transparent px-3 py-2 mono-caps text-xs"
+              className="h-10 w-auto min-w-[10rem] flex-1 hairline bg-transparent px-3 py-2 mono-caps text-xs [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:opacity-60"
               style={{ color: "var(--color-ink)" }}
             >
               <SelectValue placeholder="Select view" />
-              <ChevronDown className="h-3.5 w-3.5 opacity-60" />
             </SelectTrigger>
             <SelectContent
               className="hairline bg-[var(--color-paper-0)] border-[var(--color-line)]"
