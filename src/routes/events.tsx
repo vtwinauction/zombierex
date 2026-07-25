@@ -4,6 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { StatusBar } from "@/components/StatusBar";
 import { listEvents, EVENT_CATEGORIES } from "@/lib/events.functions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/events")({
   head: () => ({
@@ -96,31 +103,37 @@ function EventsPage() {
         </div>
       </div>
 
-      {/* ── Scope tabs ──────────────────────────────── */}
-      <nav className="no-scrollbar mt-4 flex overflow-x-auto hairline-t hairline-b">
-        {SCOPES.map((s) => {
-          const active = scope === s.id;
-          return (
-            <button
-              key={s.id}
-              onClick={() => setScope(s.id)}
-              className="tap relative shrink-0 px-4 py-3 mono-caps"
-              style={{
-                color: active ? "var(--color-ink)" : "var(--color-ash)",
-                background: active ? "var(--color-mist)" : "transparent",
-              }}
+      {/* ── Scope dropdown ───────────────────────────── */}
+      <div className="px-4 pt-3">
+        <div className="flex items-center justify-between gap-3">
+          <label className="mono-tag shrink-0" style={{ color: "var(--color-ash)" }}>
+            VIEW
+          </label>
+          <Select value={scope} onValueChange={(v) => setScope(v as any)}>
+            <SelectTrigger
+              className="h-10 w-auto min-w-[10rem] flex-1 hairline bg-transparent px-3 py-2 mono-caps text-xs [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:opacity-60"
+              style={{ color: "var(--color-ink)" }}
             >
-              {s.label}
-              {active && (
-                <span
-                  className="absolute inset-x-3 bottom-0 h-[2px]"
-                  style={{ background: "var(--color-signal)" }}
-                />
-              )}
-            </button>
-          );
-        })}
-      </nav>
+              <SelectValue placeholder="Select view" />
+            </SelectTrigger>
+            <SelectContent
+              className="hairline bg-[var(--color-paper-0)] border-[var(--color-line)]"
+              position="popper"
+              sideOffset={4}
+            >
+              {SCOPES.map((s) => (
+                <SelectItem
+                  key={s.id}
+                  value={s.id}
+                  className="mono-caps text-xs data-[state=checked]:text-[var(--color-signal)] focus:bg-[var(--color-mist)] focus:text-[var(--color-ink)]"
+                >
+                  {s.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       {/* ── Category chips ──────────────────────────── */}
       <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3 hairline-b">
