@@ -290,10 +290,13 @@ export function MediaComposer({ onDone }: Props) {
         return { scheduled: true };
       }
 
+      const musicFooter = music ? `\n\n♪ ${music.title} — ${music.artist}` : "";
+      const captionWithMusic = (caption.trim() + musicFooter).trim();
+
       await post({
         data: {
           kind,
-          caption: caption.trim() || undefined,
+          caption: captionWithMusic || undefined,
           media_url: first?.url,
           thumbnail_url: first?.url,
           is_reel: kind === "video",
