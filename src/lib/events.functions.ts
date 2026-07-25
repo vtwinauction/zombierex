@@ -99,7 +99,6 @@ export const cancelEvent = createServerFn({ method: "POST" })
   });
 
 export const listEvents = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((raw) =>
     z
       .object({
@@ -110,11 +109,26 @@ export const listEvents = createServerFn({ method: "GET" })
       })
       .parse(raw ?? {}),
   )
-  .handler(async ({ data, context }) => {
-    let q = context.supabase
+  .handler(async ({ data }) => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
+    const supabase = createClient(process.env.SUPABASE_URL!, key, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input, init) => {
+          const h = new Headers(init?.headers);
+          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+          h.set("apikey", key);
+          return fetch(input, { ...init, headers: h });
+        },
+      },
+    });
+
+    let q = supabase
       .from("events")
       .select("id, title, cover_url, category, starts_at, ends_at, location, rsvp_count, host_id, status, is_featured, visibility")
       .neq("status", "cancelled")
+      .eq("visibility", "public")
       .order("starts_at", { ascending: true })
       .limit(data.limit);
 
@@ -130,7 +144,7 @@ export const listEvents = createServerFn({ method: "GET" })
       q = q.gte("starts_at", now).lte("starts_at", end.toISOString());
     }
     if (data.scope === "past") q = q.lt("starts_at", now).order("starts_at", { ascending: false });
-    if (data.scope === "mine") q = q.eq("host_id", context.userId);
+    if (data.scope === "mine") return [];
     if (data.category) q = q.eq("category", data.category);
     if (data.search) q = q.ilike("title", `%${data.search}%`);
 
