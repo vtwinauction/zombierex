@@ -183,117 +183,125 @@ function EventDetail() {
         </div>
       </div>
 
-      {/* INFO SECTION — tighter grid, clearer hierarchy */}
-      <section className="event-section px-4 pt-5 pb-4 hairline-b" style={{ animationDelay: "40ms" }}>
-        <h1 className="display-xl text-2xl uppercase leading-tight tracking-tight">{e.title}</h1>
-        <div className="mt-3.5 grid grid-cols-[18px_1fr] gap-x-3 gap-y-2.5 text-sm">
-          <span aria-hidden className="text-[15px] leading-5" style={{ color: "var(--color-signal)" }}>◷</span>
-          <div className="min-w-0">
-            <p className="font-bold leading-tight">
-              {d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
-            </p>
-            <p className="mono-tag mt-0.5" style={{ color: "var(--color-ash)" }}>
-              {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              {e.ends_at && ` → ${new Date(e.ends_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
-            </p>
+      {/* INFO SECTION — clean metadata block with icons */}
+      <section className="event-section px-5 pt-6 pb-5 hairline-b" style={{ animationDelay: "40ms" }}>
+        <h1 className="display-xl text-[26px] uppercase leading-[1.05] tracking-tight">{e.title}</h1>
+        <div className="mt-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <CalendarDays size={16} className="mt-0.5 shrink-0" style={{ color: "var(--color-signal)" }} />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold leading-tight">
+                {d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric" })}
+              </p>
+              <p className="mono-tag mt-1 flex items-center gap-1.5" style={{ color: "var(--color-ash)" }}>
+                <Clock size={11} />
+                {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {e.ends_at && ` → ${new Date(e.ends_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`}
+              </p>
+            </div>
           </div>
-          {e.location && (<>
-            <span aria-hidden className="text-[15px] leading-5" style={{ color: "var(--color-signal)" }}>◎</span>
-            <p className="min-w-0 truncate text-sm leading-5">{e.location}</p>
-          </>)}
+          {e.location && (
+            <div className="flex items-start gap-3">
+              <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: "var(--color-signal)" }} />
+              <p className="min-w-0 text-sm leading-snug">{e.location}</p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* PRIMARY ACTIONS — equal-sized, Check-In leads */}
-      <section className="event-section px-4 py-3 hairline-b" style={{ animationDelay: "80ms" }}>
-        <div className={`grid gap-2 ${isHost ? "grid-cols-4" : "grid-cols-3"}`}>
-          <ActionBtn onClick={doCheckIn} icon="◉" label="CHECK IN" primary />
+      {/* DASHBOARD — actions + analytics in one clean surface */}
+      <section className="event-section px-5 pt-5 pb-4 hairline-b" style={{ animationDelay: "80ms" }}>
+        {/* Primary actions — pill row */}
+        <div className={`grid gap-2.5 ${isHost ? "grid-cols-4" : "grid-cols-3"}`}>
+          <PillAction onClick={doCheckIn} icon={<QrCode size={16} />} label="CHECK IN" primary />
           {navHref ? (
-            <a href={navHref} target="_blank" rel="noreferrer" className="tap hairline flex flex-col items-center justify-center gap-1 py-3 transition-transform active:scale-95">
-              <span className="text-base" style={{ color: "var(--color-signal)" }}>◎</span>
-              <span className="mono-caps text-[10px]">NAVIGATE</span>
+            <a href={navHref} target="_blank" rel="noreferrer" className="tap">
+              <PillContent icon={<Navigation size={16} />} label="NAVIGATE" />
             </a>
           ) : (
-            <div className="hairline flex flex-col items-center justify-center gap-1 py-3" style={{ color: "var(--color-ash)" }}>
-              <span className="text-base">◎</span>
-              <span className="mono-caps text-[10px]">NAVIGATE</span>
-            </div>
+            <PillContent icon={<Navigation size={16} />} label="NAVIGATE" disabled />
           )}
-          <ActionBtn onClick={doShare} icon="↗" label="SHARE" />
+          <button onClick={doShare} className="tap"><PillContent icon={<Share2 size={16} />} label="SHARE" /></button>
           {isHost && (
-            <Link
-              to="/events/$id/edit"
-              params={{ id }}
-              className="tap hairline flex flex-col items-center justify-center gap-1 py-3 transition-transform active:scale-95"
-            >
-              <span className="text-base" style={{ color: "var(--color-signal)" }}>✎</span>
-              <span className="mono-caps text-[10px]">EDIT</span>
+            <Link to="/events/$id/edit" params={{ id }} className="tap">
+              <PillContent icon={<Pencil size={16} />} label="EDIT" />
             </Link>
           )}
         </div>
+
+        {/* Analytics — borderless row with dividers */}
+        <div className="mt-5 grid grid-cols-4 divide-x divide-hair">
+          <MetricCell icon={<Users size={13} />} k="GOING" v={String(e.rsvp_count ?? 0)} active={e.my_rsvp === "going"} onClick={() => setTab("ATTENDEES")} />
+          <MetricCell icon={<Star size={13} />} k="INTERESTED" v={String(e.interested_count ?? 0)} active={e.my_rsvp === "interested"} onClick={() => setTab("ATTENDEES")} />
+          <MetricCell icon={<Camera size={13} />} k="PHOTOS" v={String(e.photos_count ?? 0)} onClick={() => setTab("PHOTOS")} />
+          <MetricCell icon={<MessageCircle size={13} />} k="COMMENTS" v={String(e.comments_count ?? 0)} onClick={() => setTab("DISCUSSION")} />
+        </div>
+
+        {/* RSVP — segmented control */}
+        <div className="mt-5 flex overflow-hidden hairline" style={{ borderRadius: 999 }}>
+          {(["going", "interested", "not_going"] as const).map((s, i) => {
+            const active = e.my_rsvp === s;
+            const label = s === "going" ? "GOING" : s === "interested" ? "INTERESTED" : "CAN'T GO";
+            const Icon = s === "going" ? Check : s === "interested" ? Star : X;
+            return (
+              <button
+                key={s}
+                onClick={() => doRsvp(s)}
+                className="tap flex flex-1 items-center justify-center gap-1.5 py-2.5 mono-caps text-[10px] transition-colors"
+                style={{
+                  background: active ? "var(--color-signal)" : "transparent",
+                  color: active ? "var(--color-bone)" : "var(--color-ink)",
+                  borderLeft: i === 0 ? "none" : "1px solid var(--color-hair)",
+                }}
+              >
+                <Icon size={12} />
+                <span>{label}</span>
+              </button>
+            );
+          })}
+        </div>
       </section>
 
-      {/* STATS — 4 read-only counters (RSVP bar below handles writes) */}
-      <section className="event-section grid grid-cols-4 divide-x divide-hair hairline-b" style={{ animationDelay: "120ms" }}>
-        <StatCard k="GOING" v={String(e.rsvp_count ?? 0)} active={e.my_rsvp === "going"} onClick={() => setTab("ATTENDEES")} />
-        <StatCard k="INTERESTED" v={String(e.interested_count ?? 0)} active={e.my_rsvp === "interested"} onClick={() => setTab("ATTENDEES")} />
-        <StatCard k="PHOTOS" v={String(e.photos_count ?? 0)} onClick={() => setTab("PHOTOS")} />
-        <StatCard k="COMMENTS" v={String(e.comments_count ?? 0)} onClick={() => setTab("DISCUSSION")} />
-      </section>
-
-      {/* RSVP bar — single write surface */}
-      <div className="event-section grid grid-cols-3 divide-x divide-hair hairline-b" style={{ animationDelay: "160ms" }}>
-        {(["going", "interested", "not_going"] as const).map((s) => {
-          const active = e.my_rsvp === s;
-          const label = s === "going" ? "GOING" : s === "interested" ? "INTERESTED" : "CAN'T GO";
-          const icon = s === "going" ? "✓" : s === "interested" ? "★" : "✕";
-          return (
-            <button key={s} onClick={() => doRsvp(s)} className="tap flex items-center justify-center gap-2 py-3.5 mono-caps transition-colors"
-              style={{ background: active ? "var(--color-signal)" : "transparent", color: active ? "var(--color-bone)" : "var(--color-ink)" }}>
-              <span className="text-xs" aria-hidden>{icon}</span>
-              <span>{label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* HOST CARD — premium */}
+      {/* HOST CARD — premium, icon-driven */}
       {e.host && (
-        <section className="event-section px-4 py-4 hairline-b" style={{ animationDelay: "200ms" }}>
+        <section className="event-section px-5 py-5 hairline-b" style={{ animationDelay: "160ms" }}>
           <p className="mono-tag" style={{ color: "var(--color-ash)" }}>HOSTED BY</p>
           <div className="mt-3 flex items-center gap-3">
             <div className="relative shrink-0">
               {e.host.avatar_url ? (
-                <img src={e.host.avatar_url} alt="" className="h-14 w-14 object-cover" style={{ borderRadius: 0, boxShadow: "0 0 0 2px var(--color-signal)" }} />
+                <img src={e.host.avatar_url} alt="" className="h-14 w-14 rounded-full object-cover" style={{ boxShadow: "0 0 0 2px var(--color-signal)" }} />
               ) : (
-                <div className="h-14 w-14 grid place-items-center" style={{ background: "var(--color-mist)", boxShadow: "0 0 0 2px var(--color-signal)" }}>
+                <div className="h-14 w-14 rounded-full grid place-items-center" style={{ background: "var(--color-mist)", boxShadow: "0 0 0 2px var(--color-signal)" }}>
                   <span className="mono-tag" style={{ color: "var(--color-ash)" }}>{(e.host.display_name ?? e.host.handle ?? "?").slice(0, 1).toUpperCase()}</span>
                 </div>
               )}
               {e.host.verified && (
-                <span aria-label="Verified" title="Verified" className="absolute -right-1 -bottom-1 grid place-items-center" style={{ width: 16, height: 16, background: "var(--color-signal)", color: "var(--color-bone)", fontSize: 9, fontWeight: 700 }}>✓</span>
+                <BadgeCheck size={16} className="absolute -right-0.5 -bottom-0.5" style={{ color: "var(--color-signal)", background: "var(--color-bone)", borderRadius: 999 }} />
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold leading-tight">{e.host.display_name ?? e.host.handle}</p>
+              <p className="truncate text-[15px] font-bold leading-tight">{e.host.display_name ?? e.host.handle}</p>
               {e.host.handle && (
                 <p className="mono-tag mt-0.5 truncate" style={{ color: "var(--color-ash)" }}>@{e.host.handle}</p>
               )}
-              <span className="mono-tag mt-1.5 inline-block" style={{ color: "var(--color-signal)" }}>{(e.host.tier ?? "RIDER").toUpperCase()}</span>
+              <span className="mt-1.5 inline-block mono-tag" style={{ color: "var(--color-signal)", background: "color-mix(in oklab, var(--color-signal) 12%, transparent)", padding: "2px 8px", borderRadius: 999 }}>
+                {(e.host.tier ?? "RIDER").toUpperCase()}
+              </span>
             </div>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <Link to="/profile" className="tap hairline flex items-center justify-center gap-1.5 py-2.5 mono-caps text-[10px] transition-transform active:scale-95">
-              <span style={{ color: "var(--color-signal)" }}>◐</span>
+          <div className="mt-4 grid grid-cols-2 gap-2.5">
+            <Link to="/profile" className="tap flex items-center justify-center gap-2 py-3 mono-caps text-[10px] hairline transition-transform active:scale-95" style={{ borderRadius: 999 }}>
+              <Eye size={13} style={{ color: "var(--color-signal)" }} />
               <span>VIEW PROFILE</span>
             </Link>
-            <Link to="/messages" className="tap flex items-center justify-center gap-1.5 py-2.5 mono-caps text-[10px] transition-transform active:scale-95" style={{ background: "var(--color-signal)", color: "var(--color-bone)" }}>
-              <span>✉</span>
+            <Link to="/messages" className="tap flex items-center justify-center gap-2 py-3 mono-caps text-[10px] transition-transform active:scale-95" style={{ background: "var(--color-signal)", color: "var(--color-bone)", borderRadius: 999 }}>
+              <Send size={13} />
               <span>MESSAGE</span>
             </Link>
           </div>
         </section>
       )}
+
 
 
 
