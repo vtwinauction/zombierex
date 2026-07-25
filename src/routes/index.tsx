@@ -127,14 +127,16 @@ function HomePage() {
          DASHBOARD — Pulse + Quick actions (bento)
          ================================================== */}
       <section className="px-4 pt-4">
-        <div
-          className="grid grid-cols-3 gap-2"
+        <Link
+          to="/rewards"
+          className="grid grid-cols-3 gap-2 tap"
           style={{ borderRadius: 14, background: "var(--color-paper-0)", border: "1px solid var(--color-line)", padding: 12 }}
         >
           <PulseStat label="XP today" value="+184" tone="neon" />
           <PulseStat label="Streak"   value="12d" />
           <PulseStat label="Rides"    value="3" />
-        </div>
+        </Link>
+
         <div className="mt-3 grid grid-cols-5 gap-2">
           {QUICK_ACTIONS.map((a) => (
             <Link
