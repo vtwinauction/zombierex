@@ -300,12 +300,12 @@ function HomePage() {
               </p>
               <p className="mono-tag" style={{ color: "rgba(255,255,255,0.7)" }}>◎ {featured.location}</p>
             </div>
-            <button
-              className="tap rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider"
-              style={{ background: "var(--color-ember)", color: "white", letterSpacing: "0.14em" }}
-            >
-              Follow
-            </button>
+            <FollowButton
+              id={featured.user.id}
+              label={featured.user.handle}
+              variant="ember"
+            />
+
           </div>
 
           {/* TikTok-style right action rail */}
