@@ -15,8 +15,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
       className="sticky top-0 z-40"
       style={{
         paddingTop: "env(safe-area-inset-top)",
-        background: "color-mix(in oklab, #ffffff 88%, transparent)",
-        backdropFilter: "blur(20px) saturate(160%)",
+        background: "var(--color-bone, #ffffff)",
         borderBottom: "1px solid var(--color-line)",
       }}
     >
@@ -27,7 +26,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
             style={{
               color: "var(--color-ink-0)",
               letterSpacing: "-0.03em",
-              fontWeight: 700,
+              fontWeight: 800,
               lineHeight: 1,
             }}
           >
@@ -35,7 +34,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
           </span>
           <span
             className="mono-tag mt-1.5"
-            style={{ fontSize: 9, letterSpacing: "0.28em", color: "var(--color-ink-3)" }}
+            style={{ fontSize: 9, letterSpacing: "0.28em", color: "var(--color-ink-1, #2a2a2a)", fontWeight: 600 }}
           >
             № {index} · {friendlyLabel(section)}
           </span>
