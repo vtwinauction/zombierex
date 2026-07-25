@@ -179,8 +179,8 @@ function EventsPage() {
 
       {/* ── List ────────────────────────────────────── */}
       <div className="px-4 pt-3 space-y-3">
-        {rest.map((e: any) => (
-          <EventRow key={e.id} event={e} />
+        {rest.map((e: any, i: number) => (
+          <EventRow key={e.id} event={e} index={i} />
         ))}
       </div>
     </div>
@@ -208,51 +208,35 @@ function FeaturedCard({ event }: { event: any }) {
   const day = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return (
-    <Link to="/events/$id" params={{ id: event.id }} className="block px-4 pt-4">
-      <article className="hairline overflow-hidden">
+    <Link to="/events/$id" params={{ id: event.id }} className="block px-4 pt-4 event-section" style={{ animationDelay: "40ms" }}>
+      <article className="hairline overflow-hidden transition-transform active:scale-[0.995]">
+        {/* Cover — minimal overlays, only badges */}
         <div className="relative" style={{ aspectRatio: "16 / 10" }}>
           {event.cover_url ? (
             <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
           ) : (
             <EmptyCover category={event.category} />
           )}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: "linear-gradient(180deg, transparent 45%, rgba(0,0,0,0.88) 100%)" }}
-          />
-
-          {/* Top chips */}
           <div className="absolute inset-x-3 top-3 flex items-center justify-between">
-            <span
-              className="mono-tag"
-              style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}
-            >
+            <span className="mono-tag" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}>
               ★ FEATURED
             </span>
-            <span
-              className="mono-tag"
-              style={{
-                background: "rgba(0,0,0,0.55)",
-                color: "rgba(255,255,255,0.9)",
-                padding: "4px 8px",
-                backdropFilter: "blur(6px)",
-              }}
-            >
+            <span className="mono-tag" style={{ background: "rgba(0,0,0,0.55)", color: "rgba(255,255,255,0.9)", padding: "4px 8px", backdropFilter: "blur(6px)" }}>
               {CATEGORY_LABEL[event.category] ?? "EVENT"}
             </span>
           </div>
+        </div>
 
-          {/* Bottom info */}
-          <div className="absolute inset-x-4 bottom-4 text-white">
-            <p className="mono-tag" style={{ color: "rgba(255,255,255,0.85)" }}>
-              {day} · {time}
-            </p>
-            <h2 className="mt-1.5 display-xl text-2xl uppercase leading-tight">{event.title}</h2>
-            {event.location && (
-              <p className="mono-tag mt-1.5 truncate" style={{ color: "rgba(255,255,255,0.75)" }}>
-                ◎ {event.location}
-              </p>
-            )}
+        {/* Info section — below the cover */}
+        <div className="px-4 pt-3.5 pb-4 hairline-b">
+          <h2 className="display-xl text-2xl uppercase leading-tight tracking-tight">{event.title}</h2>
+          <div className="mt-2.5 grid grid-cols-[16px_1fr] gap-x-2.5 gap-y-1.5 text-sm">
+            <span aria-hidden style={{ color: "var(--color-signal)" }}>◷</span>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>{day} · {time}</p>
+            {event.location && (<>
+              <span aria-hidden style={{ color: "var(--color-signal)" }}>◎</span>
+              <p className="mono-tag truncate" style={{ color: "var(--color-ash)" }}>{event.location}</p>
+            </>)}
           </div>
         </div>
 
@@ -267,20 +251,22 @@ function FeaturedCard({ event }: { event: any }) {
   );
 }
 
-function EventRow({ event }: { event: any }) {
+function EventRow({ event, index = 0 }: { event: any; index?: number }) {
   const d = new Date(event.starts_at);
   const day = d.toLocaleDateString(undefined, { day: "2-digit" });
   const monthYear = d.toLocaleDateString(undefined, { month: "short" }).toUpperCase();
   const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return (
-    <Link to="/events/$id" params={{ id: event.id }} className="block">
-      <article className="hairline overflow-hidden">
+    <Link
+      to="/events/$id"
+      params={{ id: event.id }}
+      className="block event-section"
+      style={{ animationDelay: `${80 + index * 40}ms` }}
+    >
+      <article className="hairline overflow-hidden transition-transform active:scale-[0.995]">
         <div className="grid grid-cols-[72px_1fr]">
           {/* Date column */}
-          <div
-            className="flex flex-col items-center justify-center border-r border-hair py-3"
-            style={{ background: "var(--color-mist)" }}
-          >
+          <div className="flex flex-col items-center justify-center border-r border-hair py-3" style={{ background: "var(--color-mist)" }}>
             <p className="mono-tag" style={{ color: "var(--color-ash)" }}>{monthYear}</p>
             <p className="display-numeral mt-1 text-3xl leading-none" style={{ color: "var(--color-signal)" }}>
               {day}
@@ -288,17 +274,13 @@ function EventRow({ event }: { event: any }) {
             <p className="mono-tag mt-1" style={{ color: "var(--color-ash)" }}>{time}</p>
           </div>
 
-          {/* Cover + title */}
+          {/* Cover — clean, badge only */}
           <div className="relative h-28">
             {event.cover_url ? (
               <img src={event.cover_url} alt="" className="h-full w-full object-cover" />
             ) : (
               <EmptyCover category={event.category} compact />
             )}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: "linear-gradient(180deg, transparent 30%, rgba(0,0,0,0.85) 100%)" }}
-            />
             {event.is_featured && (
               <span
                 className="absolute right-2 top-2 mono-tag"
@@ -307,15 +289,15 @@ function EventRow({ event }: { event: any }) {
                 ★
               </span>
             )}
-            <div className="absolute inset-x-3 bottom-2 text-white">
-              <h3 className="display-xl text-base uppercase leading-tight line-clamp-1">{event.title}</h3>
-              {event.location && (
-                <p className="mono-tag mt-1 truncate" style={{ color: "rgba(255,255,255,0.8)" }}>
-                  ◎ {event.location}
-                </p>
-              )}
-            </div>
           </div>
+        </div>
+
+        {/* Info section — below cover */}
+        <div className="px-3 py-3 hairline-t">
+          <h3 className="display-xl text-base uppercase leading-tight line-clamp-1 tracking-tight">{event.title}</h3>
+          {event.location && (
+            <p className="mono-tag mt-1 truncate" style={{ color: "var(--color-ash)" }}>◎ {event.location}</p>
+          )}
         </div>
 
         {/* Meta */}
@@ -328,6 +310,7 @@ function EventRow({ event }: { event: any }) {
     </Link>
   );
 }
+
 
 function Cell({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
   return (
