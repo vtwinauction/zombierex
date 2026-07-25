@@ -404,31 +404,55 @@ function StatCard({ k, v, active, onClick }: { k: string; v: string; active?: bo
   );
 }
 
-function PillContent({ icon, label, disabled }: { icon: React.ReactNode; label: string; disabled?: boolean }) {
-  return (
-    <div
-      className="flex w-full items-center justify-center gap-2 py-3 mono-caps text-[10px] transition-transform active:scale-95 hairline"
-      style={{ borderRadius: 999, color: disabled ? "var(--color-ash)" : "var(--color-ink)", opacity: disabled ? 0.6 : 1 }}
-    >
-      <span style={{ color: disabled ? "var(--color-ash)" : "var(--color-signal)" }}>{icon}</span>
-      <span>{label}</span>
-    </div>
-  );
-}
-
-function PillAction({ onClick, icon, label, primary }: { onClick: () => void; icon: React.ReactNode; label: string; primary?: boolean }) {
+function ActionTile({
+  onClick, icon, label, variant, disabled, busy, checked,
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  variant?: "primary";
+  disabled?: boolean;
+  busy?: boolean;
+  checked?: boolean;
+}) {
+  const isPrimary = variant === "primary";
+  const showChecked = isPrimary && checked;
   return (
     <button
       onClick={onClick}
-      className="tap flex items-center justify-center gap-2 py-3 mono-caps text-[10px] transition-transform active:scale-95"
+      disabled={disabled || busy}
+      className="tap group relative flex flex-col items-center justify-center gap-1.5 py-3.5 mono-caps text-[10px] tracking-wider transition-all active:scale-[0.97] disabled:opacity-45 disabled:active:scale-100"
       style={
-        primary
-          ? { background: "var(--color-signal)", color: "var(--color-bone)", borderRadius: 999 }
-          : { border: "1px solid var(--color-hair)", borderRadius: 999 }
+        isPrimary
+          ? {
+              background: showChecked ? "var(--color-ink, #0a0a0a)" : "var(--color-signal)",
+              color: "var(--color-bone, #ffffff)",
+              borderRadius: 14,
+              boxShadow: showChecked
+                ? "0 0 0 1px var(--color-signal)"
+                : "0 6px 18px -8px color-mix(in oklab, var(--color-signal) 55%, transparent)",
+            }
+          : {
+              background: "color-mix(in oklab, var(--color-ink, #0a0a0a) 4%, transparent)",
+              color: "var(--color-ink-1, #1a1a1a)",
+              borderRadius: 14,
+              boxShadow: "inset 0 0 0 1px var(--color-hair)",
+            }
       }
     >
-      <span>{icon}</span>
-      <span>{label}</span>
+      <span
+        aria-hidden
+        style={{
+          color: isPrimary
+            ? "var(--color-bone, #ffffff)"
+            : disabled
+            ? "var(--color-ash)"
+            : "var(--color-signal)",
+        }}
+      >
+        {busy ? <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : showChecked ? <Check size={18} /> : icon}
+      </span>
+      <span className="text-[10px] font-semibold">{showChecked ? "CHECKED IN" : label}</span>
     </button>
   );
 }
