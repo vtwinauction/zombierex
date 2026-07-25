@@ -226,8 +226,6 @@ function EventsPage() {
 
 function FeaturedCard({ event }: { event: any }) {
 
-
-function FeaturedCard({ event }: { event: any }) {
   const d = new Date(event.starts_at);
   const day = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
