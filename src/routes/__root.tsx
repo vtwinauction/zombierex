@@ -103,7 +103,7 @@ function RootComponent() {
   const scrollDir = useScrollDirection(12);
   const [isTop, setIsTop] = useState(true);
   const pathname = router.state.location.pathname;
-  const isImmersive = pathname.startsWith("/atlas/cockpit") || pathname.startsWith("/drag/race");
+  const isImmersive = pathname.startsWith("/atlas/cockpit") || pathname.startsWith("/drag/race") || pathname === "/reels" || pathname.startsWith("/reels/");
 
   useEffect(() => {
     const onScroll = () => setIsTop(window.scrollY < 40);
