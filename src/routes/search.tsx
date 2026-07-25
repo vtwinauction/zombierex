@@ -87,23 +87,32 @@ function ExplorePage() {
         )}
       </div>
 
-      <div className="no-scrollbar mt-4 flex overflow-x-auto hairline-t hairline-b">
-        {CHIPS.map((c) => (
-          <button
-            key={c}
-            onClick={() => setChip(c)}
-            className="tap relative shrink-0 border-r border-hair px-4 py-3 mono-caps"
-            style={{
-              color: chip === c ? "var(--color-ink)" : "var(--color-ash)",
-              background: chip === c ? "var(--color-mist)" : "transparent",
-            }}
-          >
-            {c}
-            {chip === c && (
-              <span className="absolute inset-x-0 bottom-0 h-[2px]" style={{ background: "var(--color-signal)" }} />
-            )}
-          </button>
-        ))}
+      <div className="mt-4 px-4">
+        <div className="flex items-center gap-3 hairline px-3 py-2">
+          <span className="mono-tag shrink-0" style={{ color: "var(--color-ash)" }}>SCOPE</span>
+          <Select value={chip} onValueChange={(v) => setChip(v as Chip)}>
+            <SelectTrigger
+              className="h-8 flex-1 border-0 bg-transparent px-0 py-0 shadow-none ring-0 focus:ring-0 [&>span]:line-clamp-1"
+              style={{ color: "var(--color-signal)" }}
+            >
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent
+              className="border-0 bg-[var(--color-surface)] text-[var(--color-ink)]"
+              style={{ border: "1px solid var(--color-line)" }}
+            >
+              {CHIPS.map((c) => (
+                <SelectItem
+                  key={c}
+                  value={c}
+                  className="mono-caps cursor-pointer focus:bg-[var(--color-mist)] focus:text-[var(--color-ink)] data-[state=checked]:text-[var(--color-signal)]"
+                >
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="space-y-8 px-4 pt-6 pb-24">
