@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import {
   adminListReports,
   adminResolveReport,
@@ -43,7 +42,6 @@ function ModerationPage() {
 
   return (
     <div style={{ background: "var(--color-cream, #fafaf7)", minHeight: "100vh", color: "var(--color-ink, #0a0a0a)" }}>
-      <StatusBar index="MOD/01" section="Moderation Queue" />
       <main className="mx-auto max-w-3xl px-4 pb-32 pt-4">
         <h1 className="text-2xl font-bold mb-4">Moderation</h1>
 

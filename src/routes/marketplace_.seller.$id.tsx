@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { getSellerProfile, listSellerReviews } from "@/lib/marketplace.functions";
 
 export const Route = createFileRoute("/marketplace_/seller/$id")({
@@ -26,7 +25,6 @@ function SellerPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="SLR" section="SELLER PROFILE" />
 
       <div className="px-4 pt-6">
         <div className="flex items-center gap-4">

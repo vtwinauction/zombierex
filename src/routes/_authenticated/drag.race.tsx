@@ -12,7 +12,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { DragTree } from "@/components/DragTree";
 import { RaceHUD, type LaneTelemetry } from "@/components/RaceHUD";
 import { useChristmasTree, type TreeMode } from "@/lib/christmas-tree";
@@ -375,7 +374,6 @@ function RacePage() {
   // --- Render ----------------------------------------------------------------
   return (
     <div className="min-h-svh pb-24" style={{ background: "linear-gradient(180deg,#050505,#0a0a0a 60%,#080808)" }}>
-      <StatusBar index="07" section="DRAG · RACE MODE" />
 
       {phase === "setup" && (
         <div className="px-4 pt-4">

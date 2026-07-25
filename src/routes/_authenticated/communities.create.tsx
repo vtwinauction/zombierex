@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { StatusBar } from "@/components/StatusBar";
 import { createCommunity, CATEGORIES } from "@/lib/communities.functions";
 
 export const Route = createFileRoute("/_authenticated/communities/create")({
@@ -54,7 +53,6 @@ function CreateCommunityPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="03" section="COMMUNITY · CREATE" />
 
       <div className="px-4 pt-6">
         <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>New signal</p>

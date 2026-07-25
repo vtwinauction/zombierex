@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { getCreatorDashboard, listMyTiers } from "@/lib/creator.functions";
 
 export const Route = createFileRoute("/_authenticated/creator/dashboard")({
@@ -23,7 +22,6 @@ function DashboardPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="07" section="CREATOR · DASHBOARD" />
 
       <div className="flex items-end justify-between px-4 pt-6">
         <div>

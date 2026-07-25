@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo } from "react";
-import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getChallenge, challengeLeaderboard, toggleChallengeVote, myChallengeVotes,
@@ -83,7 +82,6 @@ function ChallengePage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="03" section="COMMUNITY · CHALLENGE" />
 
       <div className="px-4 pt-4">
         <Link to="/communities/$slug" params={{ slug }} className="mono-tag" style={{ color: "var(--color-neon)" }}>

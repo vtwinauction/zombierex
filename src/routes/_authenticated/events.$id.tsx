@@ -7,7 +7,6 @@ import {
   Users, Star, Camera, MessageCircle, Check, X, BadgeCheck, Eye, Send,
   Info, Radio, ImageIcon, MessagesSquare,
 } from "lucide-react";
-import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth-context";
 import { toast } from "sonner";
@@ -164,7 +163,6 @@ function EventDetail() {
 
   return (
     <div className="event-fade">
-      <StatusBar index="06" section="EVENT" />
 
       {/* HERO — cover image, minimal overlays */}
       <div className="relative aspect-[16/10] w-full overflow-hidden">

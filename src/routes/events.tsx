@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { listEvents, EVENT_CATEGORIES } from "@/lib/events.functions";
 import {
   Select,
@@ -56,7 +55,6 @@ function EventsPage() {
 
   return (
     <div className="pb-24 event-fade">
-      <StatusBar index="06" section="EVENTS" />
 
       {/* ── Page header ─────────────────────────────── */}
       <header className="px-4 pt-6">

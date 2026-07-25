@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { createEvent, EVENT_CATEGORIES } from "@/lib/events.functions";
 
 export const Route = createFileRoute("/_authenticated/events/new")({
@@ -70,7 +69,6 @@ function NewEventPage() {
 
   return (
     <div>
-      <StatusBar index="06" section="EVENTS · NEW" />
       <div className="px-4 pt-6 pb-24">
         <div className="flex items-center justify-between">
           <p className="mono-tag" style={{ color: "var(--color-ash)" }}>HOST AN EVENT</p>

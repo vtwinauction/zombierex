@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { StatusBar } from "@/components/StatusBar";
 import { createCommunityEvent, getCommunityBySlug } from "@/lib/communities.functions";
 
 const TYPES = ["meet","ride","drag","drift","track_day","off_road","bike_night","show","cars_coffee","rally","monster_truck"] as const;
@@ -48,7 +47,6 @@ function NewEvent() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="05" section="COMPOSE · EVENT" />
       <div className="px-4 pt-4">
         <Link to="/communities/$slug" params={{ slug }} className="mono-tag" style={{ color: "var(--color-titanium)" }}>← Back</Link>
         <h1 className="serif mt-2 text-[26px] italic" style={{ color: "var(--color-ink)" }}>New event</h1>

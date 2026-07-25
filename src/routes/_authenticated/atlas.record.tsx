@@ -3,7 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useState } from "react";
 import { RouteRecorder } from "@/components/RouteRecorder";
 import { createRoute as createRouteFn, DIFFICULTIES, SURFACES } from "@/lib/routes.functions";
-import { StatusBar } from "@/components/StatusBar";
 
 const RouteMap = lazy(() => import("@/components/RouteMap"));
 type LatLng = { lat: number; lng: number };
@@ -47,7 +46,6 @@ function RecordPage() {
 
   return (
     <div className="min-h-svh pb-32">
-      <StatusBar index="03" section="ATLAS · RECORD" />
       <div className="px-4 py-4 space-y-4">
         {!saved && <RouteRecorder onFinish={setSaved} />}
         {saved && (

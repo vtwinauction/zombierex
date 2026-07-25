@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useMemo, useState } from "react";
 import { createRoute as createRouteFn, searchPlacesNearby, POI_KINDS, DIFFICULTIES, SURFACES } from "@/lib/routes.functions";
-import { StatusBar } from "@/components/StatusBar";
 
 const RouteMap = lazy(() => import("@/components/RouteMap"));
 
@@ -90,7 +89,6 @@ function PlanPage() {
 
   return (
     <div className="min-h-svh pb-40">
-      <StatusBar index="03" section="ATLAS · PLAN" />
       <Suspense fallback={<div className="h-72 w-full bg-graphite" />}>
         <RouteMap path={path} pois={pois} interactive onMapClick={addPoint} className="h-72 w-full" />
       </Suspense>

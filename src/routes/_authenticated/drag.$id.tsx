@@ -4,7 +4,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getDragRun } from "@/lib/drag.functions";
-import { StatusBar } from "@/components/StatusBar";
 
 export const Route = createFileRoute("/_authenticated/drag/$id")({
   head: ({ params }) => ({
@@ -28,7 +27,6 @@ function RunDetail() {
   const statusColor = r.status === "verified" ? "var(--color-neon)" : r.status === "flagged" ? "#ff8c1a" : r.status === "rejected" ? "#ff4d4d" : "var(--color-silver)";
   return (
     <div className="min-h-svh pb-24">
-      <StatusBar index="07" section="DRAG · RECORD" />
       <div className="px-4 pt-4">
         <p className="mono-caps text-[10px] font-black" style={{ color: statusColor }}>
           {String(r.status).toUpperCase()} · SCORE {r.verification_score ?? "—"}

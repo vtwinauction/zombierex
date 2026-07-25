@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyRoutes, listSavedRoutes } from "@/lib/routes.functions";
-import { StatusBar } from "@/components/StatusBar";
 import { RouteCard } from "@/components/RouteCard";
 import { useState } from "react";
 
@@ -29,7 +28,6 @@ function MinePage() {
   const [tab, setTab] = useState<"mine"|"saved">("mine");
   return (
     <div className="min-h-svh pb-24">
-      <StatusBar index="03" section="ATLAS · MINE" />
       <div className="px-4 pt-4">
         <div className="flex items-center gap-2">
           <Tab label="CREATED" active={tab==="mine"} onClick={() => setTab("mine")} />

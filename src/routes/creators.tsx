@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { listCreators, CREATOR_CATEGORIES } from "@/lib/creator.functions";
 
 export const Route = createFileRoute("/creators")({
@@ -57,7 +56,6 @@ function CreatorsPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="07" section="CREATORS" />
 
       <div className="flex items-end justify-between px-4 pt-6">
         <div>

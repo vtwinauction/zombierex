@@ -5,7 +5,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { listDragLeaderboard } from "@/lib/drag.functions";
-import { StatusBar } from "@/components/StatusBar";
 
 const Search = z.object({
   kind: z.enum(["motorcycle", "car"]).default("motorcycle"),
@@ -45,7 +44,6 @@ function Board() {
 
   return (
     <div className="min-h-svh pb-24">
-      <StatusBar index="07" section="DRAG · LEADERBOARDS" />
       <div className="px-4 pt-4">
         <h1 className="serif text-3xl" style={{ color: "var(--color-ink)" }}>Leaderboards</h1>
         <div className="mt-3 grid grid-cols-2 gap-2">

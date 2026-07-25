@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { listMyTiers, upsertTier } from "@/lib/creator.functions";
 
 export const Route = createFileRoute("/_authenticated/creator/tiers")({
@@ -36,7 +35,6 @@ function TiersPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="07" section="CREATOR · TIERS" />
       <div className="px-4 pt-6">
         <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>{(data ?? []).length} TIERS</p>
         <h1 className="serif mt-2 text-4xl italic" style={{ color: "var(--color-ink)" }}>Tiers</h1>

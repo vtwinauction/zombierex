@@ -4,7 +4,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { listMyRides } from "@/lib/rides.functions";
-import { StatusBar } from "@/components/StatusBar";
 
 const q = queryOptions({ queryKey: ["rides", "mine"], queryFn: () => listMyRides() });
 
@@ -22,7 +21,6 @@ function RidesList() {
   const { data } = useSuspenseQuery(q);
   return (
     <div className="min-h-svh pb-24">
-      <StatusBar index="04" section="RIDES · LOG" />
       <div className="flex items-center justify-between px-4 pt-4">
         <h1 className="serif text-3xl" style={{ color: "var(--color-ink)" }}>My rides</h1>
         <Link to="/atlas/ride" className="tap mono-caps text-[10px] font-black" style={{ padding: "8px 12px", background: "var(--color-neon)", color: "var(--color-obsidian)" }}>+ RIDE MODE</Link>

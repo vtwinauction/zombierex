@@ -6,7 +6,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { useDragRecorder } from "@/lib/drag-recorder";
 import { submitDragRun, coachDragRun } from "@/lib/drag.functions";
 
@@ -79,7 +78,6 @@ function NewRun() {
 
   return (
     <div className="min-h-svh pb-24">
-      <StatusBar index="07" section="DRAG · NEW RUN" />
       <div className="px-4 pt-4">
         {step === "vehicle" && (
           <>

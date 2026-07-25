@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { applyAsCreator, getMyCreatorProfile, CREATOR_CATEGORIES } from "@/lib/creator.functions";
 
 export const Route = createFileRoute("/_authenticated/creator/apply")({
@@ -71,7 +70,6 @@ function ApplyPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="07" section="CREATOR · APPLY" />
 
       <div className="px-4 pt-6">
         <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>CREATOR PROGRAM</p>
