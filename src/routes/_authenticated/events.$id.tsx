@@ -214,59 +214,6 @@ function EventDetail() {
         </div>
       </div>
 
-      {/* EVENT BADGES — relocated below cover for a clean photo */}
-      <section className="event-section px-5 pt-4 hairline-b" style={{ animationDelay: "20ms" }}>
-        <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="mono-tag"
-            style={{
-              color: "var(--color-signal)",
-              background: "color-mix(in oklab, var(--color-signal) 10%, transparent)",
-              padding: "4px 10px",
-              borderRadius: 999,
-            }}
-          >
-            {(e.category ?? "EVENT").toUpperCase()}
-          </span>
-          {e.status === "cancelled" ? (
-            <span
-              className="mono-tag"
-              style={{
-                color: "var(--color-bone)",
-                background: "#c33",
-                padding: "4px 10px",
-                borderRadius: 999,
-              }}
-            >
-              CANCELLED
-            </span>
-          ) : (
-            <span
-              className="mono-tag hairline"
-              style={{
-                color: "var(--color-ink)",
-                padding: "4px 10px",
-                borderRadius: 999,
-              }}
-            >
-              {(e.visibility ?? "public").toUpperCase()}
-            </span>
-          )}
-          {e.is_featured && (
-            <span
-              className="mono-tag"
-              style={{
-                color: "var(--color-bone)",
-                background: "var(--color-signal)",
-                padding: "4px 10px",
-                borderRadius: 999,
-              }}
-            >
-              ★ FEATURED
-            </span>
-          )}
-        </div>
-      </section>
 
       {/* INFO SECTION — clean metadata block with icons */}
       <section className="event-section px-5 pt-5 pb-5 hairline-b" style={{ animationDelay: "40ms" }}>
@@ -288,11 +235,64 @@ function EventDetail() {
           {e.location && (
             <div className="flex items-start gap-3">
               <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: "var(--color-signal)" }} />
-              <p className="min-w-0 text-sm leading-snug">{e.location}</p>
+              <div className="min-w-0">
+                <p className="text-sm leading-snug">{e.location}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span
+                    className="mono-tag"
+                    style={{
+                      color: "var(--color-signal)",
+                      background: "color-mix(in oklab, var(--color-signal) 10%, transparent)",
+                      padding: "3px 9px",
+                      borderRadius: 999,
+                    }}
+                  >
+                    {(e.category ?? "EVENT").toUpperCase()}
+                  </span>
+                  {e.status === "cancelled" ? (
+                    <span
+                      className="mono-tag"
+                      style={{
+                        color: "var(--color-bone)",
+                        background: "#c33",
+                        padding: "3px 9px",
+                        borderRadius: 999,
+                      }}
+                    >
+                      CANCELLED
+                    </span>
+                  ) : (
+                    <span
+                      className="mono-tag hairline"
+                      style={{
+                        color: "var(--color-ink)",
+                        padding: "3px 9px",
+                        borderRadius: 999,
+                      }}
+                    >
+                      {(e.visibility ?? "public").toUpperCase()}
+                    </span>
+                  )}
+                  {e.is_featured && (
+                    <span
+                      className="mono-tag"
+                      style={{
+                        color: "var(--color-bone)",
+                        background: "var(--color-signal)",
+                        padding: "3px 9px",
+                        borderRadius: 999,
+                      }}
+                    >
+                      ★ FEATURED
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
       </section>
+
 
       {/* DASHBOARD — actions + analytics in one clean surface */}
       <section className="event-section px-5 pt-5 pb-4 hairline-b" style={{ animationDelay: "80ms" }}>
