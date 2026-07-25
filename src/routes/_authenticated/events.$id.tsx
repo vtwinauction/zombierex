@@ -95,30 +95,71 @@ function EventDetail() {
   const d = new Date(e.starts_at);
 
 
+  const [checkingIn, setCheckingIn] = useState(false);
+
   async function doRsvp(status: "going" | "interested" | "not_going") {
-    await rsvpFn({ data: { event_id: id, status } });
-    qc.invalidateQueries({ queryKey: ["event", id] });
+    try {
+      await rsvpFn({ data: { event_id: id, status } });
+      qc.invalidateQueries({ queryKey: ["event", id] });
+      toast.success(status === "not_going" ? "Marked as can't go" : status === "interested" ? "Marked as interested" : "You're going 🏁");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not update RSVP");
+    }
+  }
+
+  async function submitCheckIn(lat?: number, lng?: number) {
+    try {
+      await checkInFn({ data: { event_id: id, lat, lng } });
+      qc.invalidateQueries({ queryKey: ["event", id] });
+      qc.invalidateQueries({ queryKey: ["event-attendees", id] });
+      toast.success("Checked in ✓");
+    } catch (err: any) {
+      toast.error(err?.message || "Check-in failed");
+    } finally {
+      setCheckingIn(false);
+    }
   }
 
   async function doCheckIn() {
-    if (!navigator.geolocation) { await checkInFn({ data: { event_id: id } }); return; }
+    if (checkingIn) return;
+    setCheckingIn(true);
+    if (!navigator.geolocation) return submitCheckIn();
     navigator.geolocation.getCurrentPosition(
-      async (pos) => { await checkInFn({ data: { event_id: id, lat: pos.coords.latitude, lng: pos.coords.longitude } }); },
-      async () => { await checkInFn({ data: { event_id: id } }); },
+      (pos) => submitCheckIn(pos.coords.latitude, pos.coords.longitude),
+      () => submitCheckIn(),
       { timeout: 4000 }
     );
   }
 
   async function doShare() {
     const url = typeof window !== "undefined" ? window.location.href : "";
-    if (navigator.share) navigator.share({ title: e.title, url });
-    else navigator.clipboard?.writeText(url);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: e.title, url });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
+      }
+    } catch (err: any) {
+      if (err?.name === "AbortError") return;
+      toast.error("Could not share");
+    }
+  }
+
+  function doNavigate() {
+    if (!navHref) {
+      toast.error("No location set for this event");
+      return;
+    }
+    window.open(navHref, "_blank", "noopener,noreferrer");
   }
 
   const navHref = e.gps_lat && e.gps_lng
     ? `https://maps.google.com/?q=${e.gps_lat},${e.gps_lng}`
     : e.address
     ? `https://maps.google.com/?q=${encodeURIComponent(e.address)}`
+    : e.location
+    ? `https://maps.google.com/?q=${encodeURIComponent(e.location)}`
     : null;
 
   return (
