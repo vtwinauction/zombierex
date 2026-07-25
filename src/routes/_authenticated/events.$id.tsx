@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarDays, Clock, MapPin, Navigation, Share2, QrCode, Pencil,
   Users, Star, Camera, MessageCircle, Check, X, BadgeCheck, Eye, Send,
+  Info, Radio, ImageIcon, MessagesSquare,
 } from "lucide-react";
 import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +39,13 @@ export const Route = createFileRoute("/_authenticated/events/$id")({
 });
 
 const TABS = ["ABOUT", "LIVE", "PHOTOS", "ATTENDEES", "DISCUSSION"] as const;
+const TAB_ICONS: Record<(typeof TABS)[number], typeof Info> = {
+  ABOUT: Info,
+  LIVE: Radio,
+  PHOTOS: ImageIcon,
+  ATTENDEES: Users,
+  DISCUSSION: MessagesSquare,
+};
 
 function EventDetail() {
   const { id } = Route.useParams();
@@ -306,18 +314,25 @@ function EventDetail() {
 
 
       {/* Tabs */}
-      <div className="no-scrollbar flex overflow-x-auto hairline-b">
-        {TABS.map((t) => {
-          const active = tab === t;
-          return (
-            <button key={t} onClick={() => setTab(t)}
-              className="tap relative shrink-0 border-r border-hair px-4 py-3 mono-caps"
-              style={{ color: active ? "var(--color-ink)" : "var(--color-ash)", background: active ? "var(--color-mist)" : "transparent" }}>
-              {t}
-              {active && <span className="absolute inset-x-0 bottom-0 h-[2px]" style={{ background: "var(--color-signal)" }} />}
-            </button>
-          );
-        })}
+      <div className="sticky top-0 z-20 hairline-b" style={{ background: "color-mix(in oklab, var(--color-bone) 92%, transparent)", backdropFilter: "blur(12px)" }}>
+        <div className="no-scrollbar flex gap-1 overflow-x-auto px-3 py-2">
+          {TABS.map((t) => {
+            const active = tab === t;
+            const Icon = TAB_ICONS[t];
+            return (
+              <button key={t} onClick={() => setTab(t)}
+                className="tap relative shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 mono-caps text-[11px] tracking-wider transition-all"
+                style={{
+                  color: active ? "var(--color-bone)" : "var(--color-ash)",
+                  background: active ? "var(--color-ink)" : "transparent",
+                }}>
+                <Icon size={13} strokeWidth={active ? 2.25 : 1.75} />
+                <span>{t}</span>
+                {active && <span className="absolute -bottom-2 left-1/2 h-[2px] w-6 -translate-x-1/2 rounded-full" style={{ background: "var(--color-signal)" }} />}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="pb-24">
