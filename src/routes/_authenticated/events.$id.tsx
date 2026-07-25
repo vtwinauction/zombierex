@@ -2,6 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import {
+  CalendarDays, Clock, MapPin, Navigation, Share2, QrCode, Pencil,
+  Users, Star, Camera, MessageCircle, Check, X, BadgeCheck, Eye, Send,
+} from "lucide-react";
 import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth-context";
