@@ -354,20 +354,43 @@ function StatCard({ k, v, active, onClick }: { k: string; v: string; active?: bo
   );
 }
 
-function ActionBtn({ onClick, icon, label, primary }: { onClick: () => void; icon: string; label: string; primary?: boolean }) {
+function PillContent({ icon, label, disabled }: { icon: React.ReactNode; label: string; disabled?: boolean }) {
+  return (
+    <div
+      className="flex w-full items-center justify-center gap-2 py-3 mono-caps text-[10px] transition-transform active:scale-95 hairline"
+      style={{ borderRadius: 999, color: disabled ? "var(--color-ash)" : "var(--color-ink)", opacity: disabled ? 0.6 : 1 }}
+    >
+      <span style={{ color: disabled ? "var(--color-ash)" : "var(--color-signal)" }}>{icon}</span>
+      <span>{label}</span>
+    </div>
+  );
+}
+
+function PillAction({ onClick, icon, label, primary }: { onClick: () => void; icon: React.ReactNode; label: string; primary?: boolean }) {
   return (
     <button
       onClick={onClick}
-      className="tap flex flex-col items-center justify-center gap-1 py-3 transition-transform active:scale-95"
+      className="tap flex items-center justify-center gap-2 py-3 mono-caps text-[10px] transition-transform active:scale-95"
       style={
         primary
-          ? { background: "var(--color-signal)", color: "var(--color-bone)" }
-          : { border: "1px solid var(--color-hair)" }
+          ? { background: "var(--color-signal)", color: "var(--color-bone)", borderRadius: 999 }
+          : { border: "1px solid var(--color-hair)", borderRadius: 999 }
       }
     >
-      <span className="text-base">{icon}</span>
-      <span className="mono-caps text-[10px]">{label}</span>
+      <span>{icon}</span>
+      <span>{label}</span>
     </button>
+  );
+}
+
+function MetricCell({ icon, k, v, active, onClick }: { icon: React.ReactNode; k: string; v: string; active?: boolean; onClick?: () => void }) {
+  const Cmp: any = onClick ? "button" : "div";
+  return (
+    <Cmp onClick={onClick} className="tap flex flex-col items-center justify-center gap-1 px-1 py-2 text-center transition-colors">
+      <span style={{ color: active ? "var(--color-signal)" : "var(--color-ash)" }}>{icon}</span>
+      <p className="mono-num text-base font-bold leading-none" style={{ color: active ? "var(--color-signal)" : "var(--color-ink)" }}>{v}</p>
+      <p className="mono-tag" style={{ color: "var(--color-ash)", fontSize: 9 }}>{k}</p>
+    </Cmp>
   );
 }
 
