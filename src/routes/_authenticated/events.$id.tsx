@@ -261,23 +261,16 @@ function EventDetail() {
 
       {/* DASHBOARD — actions + analytics in one clean surface */}
       <section className="event-section px-5 pt-5 pb-4 hairline-b" style={{ animationDelay: "80ms" }}>
-        {/* Primary actions — pill row */}
-        <div className={`grid gap-2.5 ${isHost ? "grid-cols-4" : "grid-cols-3"}`}>
-          <PillAction onClick={doCheckIn} icon={<QrCode size={16} />} label="CHECK IN" primary />
-          {navHref ? (
-            <a href={navHref} target="_blank" rel="noreferrer" className="tap">
-              <PillContent icon={<Navigation size={16} />} label="NAVIGATE" />
-            </a>
-          ) : (
-            <PillContent icon={<Navigation size={16} />} label="NAVIGATE" disabled />
-          )}
-          <button onClick={doShare} className="tap"><PillContent icon={<Share2 size={16} />} label="SHARE" /></button>
+        {/* Primary actions — professional tile grid */}
+        <div className={`grid gap-2 ${isHost ? "grid-cols-4" : "grid-cols-3"}`}>
+          <ActionTile onClick={doCheckIn} icon={<QrCode size={18} />} label="CHECK IN" variant="primary" busy={checkingIn} checked={e.checked_in} />
+          <ActionTile onClick={doNavigate} icon={<Navigation size={18} />} label="NAVIGATE" disabled={!navHref} />
+          <ActionTile onClick={doShare} icon={<Share2 size={18} />} label="SHARE" />
           {isHost && (
-            <Link to="/events/$id/edit" params={{ id }} className="tap">
-              <PillContent icon={<Pencil size={16} />} label="EDIT" />
-            </Link>
+            <ActionTile onClick={() => navigate({ to: "/events/$id/edit", params: { id } })} icon={<Pencil size={18} />} label="EDIT" />
           )}
         </div>
+
 
         {/* Analytics — borderless row with dividers */}
         <div className="mt-5 grid grid-cols-4 divide-x divide-hair">
