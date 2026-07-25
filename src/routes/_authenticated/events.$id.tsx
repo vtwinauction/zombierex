@@ -206,35 +206,70 @@ function EventDetail() {
             </div>
           </div>
         )}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.75) 100%)" }} />
-
         {/* Top action bar — back only; edit lives in primary actions */}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between px-3 pt-3">
           <button onClick={() => navigate({ to: "/events" })} aria-label="Back to events" className="tap mono-tag text-white" style={{ background: "rgba(0,0,0,0.55)", padding: "8px 10px", backdropFilter: "blur(8px)" }}>
             ← BACK
           </button>
         </div>
+      </div>
 
-        {/* Bottom chips only — text info moved below */}
-        <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center gap-1.5">
-          <span className="mono-tag" style={{ background: "rgba(0,0,0,0.55)", color: "#fff", padding: "4px 8px", backdropFilter: "blur(8px)" }}>
+      {/* EVENT BADGES — relocated below cover for a clean photo */}
+      <section className="event-section px-5 pt-4 hairline-b" style={{ animationDelay: "20ms" }}>
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className="mono-tag"
+            style={{
+              color: "var(--color-signal)",
+              background: "color-mix(in oklab, var(--color-signal) 10%, transparent)",
+              padding: "4px 10px",
+              borderRadius: 999,
+            }}
+          >
             {(e.category ?? "EVENT").toUpperCase()}
           </span>
           {e.status === "cancelled" ? (
-            <span className="mono-tag" style={{ background: "#c33", color: "#fff", padding: "4px 8px" }}>CANCELLED</span>
+            <span
+              className="mono-tag"
+              style={{
+                color: "var(--color-bone)",
+                background: "#c33",
+                padding: "4px 10px",
+                borderRadius: 999,
+              }}
+            >
+              CANCELLED
+            </span>
           ) : (
-            <span className="mono-tag" style={{ background: "rgba(0,0,0,0.55)", color: "#fff", padding: "4px 8px", backdropFilter: "blur(8px)" }}>
+            <span
+              className="mono-tag hairline"
+              style={{
+                color: "var(--color-ink)",
+                padding: "4px 10px",
+                borderRadius: 999,
+              }}
+            >
               {(e.visibility ?? "public").toUpperCase()}
             </span>
           )}
           {e.is_featured && (
-            <span className="mono-tag" style={{ background: "var(--color-signal)", color: "var(--color-bone)", padding: "4px 8px" }}>★ FEATURED</span>
+            <span
+              className="mono-tag"
+              style={{
+                color: "var(--color-bone)",
+                background: "var(--color-signal)",
+                padding: "4px 10px",
+                borderRadius: 999,
+              }}
+            >
+              ★ FEATURED
+            </span>
           )}
         </div>
-      </div>
+      </section>
 
       {/* INFO SECTION — clean metadata block with icons */}
-      <section className="event-section px-5 pt-6 pb-5 hairline-b" style={{ animationDelay: "40ms" }}>
+      <section className="event-section px-5 pt-5 pb-5 hairline-b" style={{ animationDelay: "40ms" }}>
         <h1 className="display-xl text-[26px] uppercase leading-[1.05] tracking-tight">{e.title}</h1>
         <div className="mt-4 space-y-3">
           <div className="flex items-start gap-3">
