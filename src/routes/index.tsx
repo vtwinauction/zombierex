@@ -726,6 +726,45 @@ function fmt(n: number) {
   return String(n);
 }
 
+function FollowButton({
+  id,
+  label,
+  variant,
+  fullWidth,
+}: {
+  id: string;
+  label?: string;
+  variant: "neon" | "ember";
+  fullWidth?: boolean;
+}) {
+  const { following, toggle } = useFollow(id, label);
+  const isNeon = variant === "neon";
+  const base = "tap rounded-full text-[11px] font-bold uppercase tracking-wider";
+  const size = fullWidth ? "mt-2 w-full py-1.5 text-[10.5px]" : "px-3 py-1";
+  const style: React.CSSProperties = following
+    ? {
+        background: "transparent",
+        color: isNeon ? "var(--color-ink-0)" : "white",
+        border: `1px solid ${isNeon ? "var(--color-hair)" : "rgba(255,255,255,0.55)"}`,
+        letterSpacing: "0.14em",
+      }
+    : {
+        background: isNeon ? "var(--color-neon)" : "var(--color-ember)",
+        color: isNeon ? "var(--color-obsidian)" : "white",
+        letterSpacing: "0.14em",
+      };
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); e.preventDefault(); toggle(); }}
+      className={`${base} ${size}`}
+      style={style}
+      aria-pressed={following}
+    >
+      {following ? "Following ✓" : fullWidth ? "+ Follow" : "Follow"}
+    </button>
+  );
+}
+
 /**
  * BluetoothPill — masthead status chip for helmet cams / intercoms.
  * Persists a linked device across sessions and shows live state.
