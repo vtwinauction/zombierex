@@ -121,8 +121,10 @@ export function MediaComposer({ onDone }: Props) {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [active, setActive] = useState(0);
   const [caption, setCaption] = useState("");
-  const [tab, setTab] = useState<"filters" | "adjust" | "text" | "draw" | "video">("filters");
+  const [tab, setTab] = useState<"filters" | "adjust" | "text" | "draw" | "music" | "video">("filters");
   const [showPreview, setShowPreview] = useState(false);
+  const [showMusic, setShowMusic] = useState(false);
+  const [music, setMusic] = useState<SelectedTrack | null>(null);
   const [progress, setProgress] = useState<Record<string, UploadProgress>>({});
   const [failed, setFailed] = useState<string[]>([]);
   const [scheduleAt, setScheduleAt] = useState<string>("");
