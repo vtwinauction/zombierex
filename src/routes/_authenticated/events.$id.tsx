@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   CalendarDays, Clock, MapPin, Navigation, Share2, QrCode, Pencil,
   Users, Star, Camera, MessageCircle, Check, X, BadgeCheck, Eye, Send,
+  Info, Radio, ImageIcon, MessagesSquare,
 } from "lucide-react";
 import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
