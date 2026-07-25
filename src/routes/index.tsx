@@ -120,47 +120,8 @@ function HomePage() {
 
   return (
     <div className="pb-24">
-      {/* ==================================================
-         MASTHEAD — editorial, light glass, wordmark + actions
-         ================================================== */}
-      <header
-        className="sticky top-0 z-40"
-        style={{
-          paddingTop: "env(safe-area-inset-top)",
-          background: "color-mix(in oklab, #ffffff 88%, transparent)",
-          backdropFilter: "blur(20px) saturate(160%)",
-          borderBottom: "1px solid var(--color-line)",
-        }}
-      >
-        <div className="grid grid-cols-[1fr_auto] items-center gap-3 px-4 py-3">
-          <Link to="/" className="tap flex items-center gap-2.5">
-            <div
-              className="grid h-8 w-8 place-items-center overflow-hidden rounded-full"
-              style={{ boxShadow: "0 0 0 1px var(--color-line-2)" }}
-            >
-              <img src={brandLogo.url} alt="" className="h-full w-full object-cover" />
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="serif text-[19px]" style={{ color: "var(--color-ink-0)", letterSpacing: "-0.03em", fontWeight: 700 }}>
-                ZOMBIEREX
-              </span>
-              <span className="mono-tag mt-1" style={{ fontSize: 9, letterSpacing: "0.28em", color: "var(--color-ink-3)" }}>
-                № 01 · Home
-              </span>
-            </div>
-          </Link>
-          <div className="flex items-center gap-1">
-            <BluetoothPill />
-            <Link to="/notifications" aria-label="Notifications" className="tap relative grid h-10 w-10 place-items-center" style={{ color: "var(--color-ink-0)", borderRadius: 10 }}>
-              <Bell size={18} strokeWidth={1.9} />
-              <span className="absolute right-2 top-2 h-[7px] w-[7px] rounded-full" style={{ background: "var(--color-neon)", boxShadow: "0 0 0 2px #fff" }} />
-            </Link>
-            <Link to="/messages" aria-label="Messages" className="tap grid h-10 w-10 place-items-center" style={{ color: "var(--color-ink-0)", borderRadius: 10 }}>
-              <MessageCircle size={18} strokeWidth={1.9} />
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* Masthead is provided globally by GlobalStatusBar in __root. */}
+
 
       {/* ==================================================
          DASHBOARD — Pulse + Quick actions (bento)
