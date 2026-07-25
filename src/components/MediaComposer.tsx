@@ -596,6 +596,13 @@ export function MediaComposer({ onDone }: Props) {
           </div>
         </div>
       )}
+
+      <MusicLibrary
+        open={showMusic}
+        initial={music}
+        onClose={() => setShowMusic(false)}
+        onConfirm={(t) => { setMusic(t); setShowMusic(false); }}
+      />
     </div>
   );
 }
