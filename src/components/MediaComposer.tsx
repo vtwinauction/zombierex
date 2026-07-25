@@ -24,6 +24,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress } from "@/lib/media-upload";
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
+import { MusicLibrary, type SelectedTrack } from "@/components/MusicLibrary";
+import { formatDuration } from "@/lib/music-library";
 
 type EditorAdjust = {
   brightness: number; // 1 = neutral
