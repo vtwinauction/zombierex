@@ -122,7 +122,7 @@ function EditEventPage() {
   return (
     <div>
       <StatusBar index="06" section="EVENTS · EDIT" />
-      <div className="px-4 pt-6 pb-44">
+      <div className="px-4 pt-6 pb-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="mono-tag" style={{ color: "var(--color-ash)" }}>EDIT EVENT</p>
@@ -220,29 +220,22 @@ function EditEventPage() {
           </div>
 
           {err && <p className="mono-tag" style={{ color: "#c33" }}>{err}</p>}
-        </form>
-      </div>
 
-      {/* Sticky save bar */}
-      <div className="fixed inset-x-0 z-40" style={{
-        background: "color-mix(in oklab, var(--color-bone) 92%, transparent)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        borderTop: "1px solid var(--color-hair)",
-        boxShadow: "0 -8px 24px rgba(0,0,0,0.06)",
-        bottom: "calc(58px + env(safe-area-inset-bottom))"
-      }}>
-        <div className="mx-auto flex max-w-screen-md items-center gap-3 px-4 py-3">
-          <Link to="/events/$id" params={{ id }} className="tap flex-1 rounded-md border border-[var(--color-hair)] bg-[var(--color-mist)] py-3 text-center mono-caps transition-colors active:bg-[var(--color-hair)]">
-            CANCEL
-          </Link>
-          <button onClick={submit as any} disabled={busy || uploading} className="tap flex-[2] rounded-md py-3 text-center mono-caps font-semibold text-[var(--color-ink-dark)] transition-transform active:scale-[0.98] disabled:opacity-60" style={{
-            background: "var(--color-signal)",
-            boxShadow: "0 0 18px color-mix(in oklab, var(--color-signal) 35%, transparent)"
-          }}>
-            {busy ? "SAVING…" : "SAVE CHANGES ▸"}
-          </button>
-        </div>
+          {/* Inline action bar */}
+          <div className="mt-8 rounded-xl border border-[var(--color-hair)] bg-[var(--color-mist)] p-4">
+            <div className="flex items-center gap-3">
+              <Link to="/events/$id" params={{ id }} className="tap flex-1 rounded-lg border border-[var(--color-hair)] bg-[var(--color-bone)] py-3 text-center mono-caps transition-colors active:bg-[var(--color-hair)]">
+                CANCEL
+              </Link>
+              <button type="submit" disabled={busy || uploading} className="tap flex-[2] rounded-lg py-3 text-center mono-caps font-semibold text-[var(--color-ink-dark)] transition-transform active:scale-[0.98] disabled:opacity-60" style={{
+                background: "var(--color-signal)",
+                boxShadow: "0 0 18px color-mix(in oklab, var(--color-signal) 35%, transparent)"
+              }}>
+                {busy ? "SAVING…" : "SAVE CHANGES ▸"}
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
 
       <style>{`
