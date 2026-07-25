@@ -117,7 +117,7 @@ import { Route as CommunitiesSlugChallengesChallengeIdRouteImport } from './rout
 import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/public/webhooks.payments'
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
-import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events.$id.edit'
+import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
 import { Route as AuthenticatedCommunitiesSlugManageRouteImport } from './routes/_authenticated/communities.$slug.manage'
 import { Route as AuthenticatedAtlasGroupIdRouteImport } from './routes/_authenticated/atlas.group.$id'
 import { Route as AuthenticatedAdminVendorsIdRouteImport } from './routes/_authenticated/admin.vendors.$id'
@@ -711,9 +711,9 @@ const AuthenticatedJudgeSubmitEventSlugRoute =
   } as any)
 const AuthenticatedEventsIdEditRoute =
   AuthenticatedEventsIdEditRouteImport.update({
-    id: '/edit',
-    path: '/edit',
-    getParentRoute: () => AuthenticatedEventsIdRoute,
+    id: '/events_/$id/edit',
+    path: '/events/$id/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCommunitiesSlugManageRoute =
   AuthenticatedCommunitiesSlugManageRouteImport.update({
@@ -810,7 +810,7 @@ export interface FileRoutesByFullPath {
   '/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
-  '/events/$id': typeof AuthenticatedEventsIdRouteWithChildren
+  '/events/$id': typeof AuthenticatedEventsIdRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -923,7 +923,7 @@ export interface FileRoutesByTo {
   '/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
-  '/events/$id': typeof AuthenticatedEventsIdRouteWithChildren
+  '/events/$id': typeof AuthenticatedEventsIdRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1041,7 +1041,7 @@ export interface FileRoutesById {
   '/_authenticated/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/_authenticated/drag/race': typeof AuthenticatedDragRaceRoute
   '/_authenticated/drag/run': typeof AuthenticatedDragRunRoute
-  '/_authenticated/events/$id': typeof AuthenticatedEventsIdRouteWithChildren
+  '/_authenticated/events/$id': typeof AuthenticatedEventsIdRoute
   '/_authenticated/events/new': typeof AuthenticatedEventsNewRoute
   '/_authenticated/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/_authenticated/marketplace_/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1086,7 +1086,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/vendors/$id': typeof AuthenticatedAdminVendorsIdRoute
   '/_authenticated/atlas/group/$id': typeof AuthenticatedAtlasGroupIdRoute
   '/_authenticated/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
-  '/_authenticated/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
+  '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
@@ -1434,7 +1434,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/vendors/$id'
     | '/_authenticated/atlas/group/$id'
     | '/_authenticated/communities/$slug/manage'
-    | '/_authenticated/events/$id/edit'
+    | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
     | '/_authenticated/post/$id/edit'
     | '/api/public/webhooks/payments'
@@ -2237,12 +2237,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJudgeSubmitEventSlugRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/events/$id/edit': {
-      id: '/_authenticated/events/$id/edit'
-      path: '/edit'
+    '/_authenticated/events_/$id/edit': {
+      id: '/_authenticated/events_/$id/edit'
+      path: '/events/$id/edit'
       fullPath: '/events/$id/edit'
       preLoaderRoute: typeof AuthenticatedEventsIdEditRouteImport
-      parentRoute: typeof AuthenticatedEventsIdRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/communities/$slug/manage': {
       id: '/_authenticated/communities/$slug/manage'
@@ -2404,19 +2404,6 @@ const AuthenticatedVendorRouteChildren: AuthenticatedVendorRouteChildren = {
 const AuthenticatedVendorRouteWithChildren =
   AuthenticatedVendorRoute._addFileChildren(AuthenticatedVendorRouteChildren)
 
-interface AuthenticatedEventsIdRouteChildren {
-  AuthenticatedEventsIdEditRoute: typeof AuthenticatedEventsIdEditRoute
-}
-
-const AuthenticatedEventsIdRouteChildren: AuthenticatedEventsIdRouteChildren = {
-  AuthenticatedEventsIdEditRoute: AuthenticatedEventsIdEditRoute,
-}
-
-const AuthenticatedEventsIdRouteWithChildren =
-  AuthenticatedEventsIdRoute._addFileChildren(
-    AuthenticatedEventsIdRouteChildren,
-  )
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
@@ -2451,7 +2438,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDragLeaderboardsRoute: typeof AuthenticatedDragLeaderboardsRoute
   AuthenticatedDragRaceRoute: typeof AuthenticatedDragRaceRoute
   AuthenticatedDragRunRoute: typeof AuthenticatedDragRunRoute
-  AuthenticatedEventsIdRoute: typeof AuthenticatedEventsIdRouteWithChildren
+  AuthenticatedEventsIdRoute: typeof AuthenticatedEventsIdRoute
   AuthenticatedEventsNewRoute: typeof AuthenticatedEventsNewRoute
   AuthenticatedJudgeMineRoute: typeof AuthenticatedJudgeMineRoute
   AuthenticatedMarketplaceDashboardRoute: typeof AuthenticatedMarketplaceDashboardRoute
@@ -2466,6 +2453,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRidesIndexRoute: typeof AuthenticatedRidesIndexRoute
   AuthenticatedAtlasGroupIdRoute: typeof AuthenticatedAtlasGroupIdRoute
   AuthenticatedCommunitiesSlugManageRoute: typeof AuthenticatedCommunitiesSlugManageRoute
+  AuthenticatedEventsIdEditRoute: typeof AuthenticatedEventsIdEditRoute
   AuthenticatedJudgeSubmitEventSlugRoute: typeof AuthenticatedJudgeSubmitEventSlugRoute
   AuthenticatedPostIdEditRoute: typeof AuthenticatedPostIdEditRoute
   AuthenticatedAtlasGroupIndexRoute: typeof AuthenticatedAtlasGroupIndexRoute
@@ -2508,7 +2496,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDragLeaderboardsRoute: AuthenticatedDragLeaderboardsRoute,
   AuthenticatedDragRaceRoute: AuthenticatedDragRaceRoute,
   AuthenticatedDragRunRoute: AuthenticatedDragRunRoute,
-  AuthenticatedEventsIdRoute: AuthenticatedEventsIdRouteWithChildren,
+  AuthenticatedEventsIdRoute: AuthenticatedEventsIdRoute,
   AuthenticatedEventsNewRoute: AuthenticatedEventsNewRoute,
   AuthenticatedJudgeMineRoute: AuthenticatedJudgeMineRoute,
   AuthenticatedMarketplaceDashboardRoute:
@@ -2525,6 +2513,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtlasGroupIdRoute: AuthenticatedAtlasGroupIdRoute,
   AuthenticatedCommunitiesSlugManageRoute:
     AuthenticatedCommunitiesSlugManageRoute,
+  AuthenticatedEventsIdEditRoute: AuthenticatedEventsIdEditRoute,
   AuthenticatedJudgeSubmitEventSlugRoute:
     AuthenticatedJudgeSubmitEventSlugRoute,
   AuthenticatedPostIdEditRoute: AuthenticatedPostIdEditRoute,

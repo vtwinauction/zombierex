@@ -20,7 +20,16 @@ import {
 } from "@/lib/events.functions";
 
 export const Route = createFileRoute("/_authenticated/events/$id")({
-  head: () => ({ meta: [{ title: "Event · ZOMBIEREX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Event · ZOMBIEREX" },
+      { name: "description", content: "View event details, RSVP, check in, navigate, and connect with the ZOMBIEREX riding community." },
+      { property: "og:title", content: "Event · ZOMBIEREX" },
+      { property: "og:description", content: "View event details, RSVP, check in, navigate, and connect with the ZOMBIEREX riding community." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: EventDetail,
 });
 

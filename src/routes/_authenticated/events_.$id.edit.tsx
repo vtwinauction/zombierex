@@ -6,8 +6,17 @@ import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import { getEvent, updateEvent, EVENT_CATEGORIES } from "@/lib/events.functions";
 
-export const Route = createFileRoute("/_authenticated/events/$id/edit")({
-  head: () => ({ meta: [{ title: "Edit event · ZOMBIEREX" }] }),
+export const Route = createFileRoute("/_authenticated/events_/$id/edit")({
+  head: () => ({
+    meta: [
+      { title: "Edit event · ZOMBIEREX" },
+      { name: "description", content: "Update event details, schedule, contact information, and cover photography in ZOMBIEREX." },
+      { property: "og:title", content: "Edit event · ZOMBIEREX" },
+      { property: "og:description", content: "Update event details, schedule, contact information, and cover photography in ZOMBIEREX." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: EditEventPage,
 });
 
@@ -215,7 +224,7 @@ function EditEventPage() {
       </div>
 
       {/* Sticky save bar */}
-      <div className="fixed inset-x-0 bottom-0 z-40 hairline-t" style={{ background: "var(--color-bone)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="fixed inset-x-0 z-40 hairline-t" style={{ background: "var(--color-bone)", bottom: "calc(58px + env(safe-area-inset-bottom))" }}>
         <div className="mx-auto flex max-w-screen-md gap-2 px-4 py-3">
           <Link to="/events/$id" params={{ id }} className="tap flex-1 hairline py-3 text-center mono-caps">CANCEL</Link>
           <button onClick={submit as any} disabled={busy || uploading} className="btn-solid flex-[2] py-3" style={{ fontSize: 12 }}>
