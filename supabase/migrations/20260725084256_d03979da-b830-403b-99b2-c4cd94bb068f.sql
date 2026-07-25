@@ -1,0 +1,1 @@
+CREATE POLICY "update own checkin" ON public.event_checkins FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
