@@ -98,14 +98,16 @@ function ExplorePage() {
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent
-              className="border-0 bg-[var(--color-surface)] text-[var(--color-ink)]"
+              position="popper"
+              sideOffset={6}
+              className="z-[100] min-w-[var(--radix-select-trigger-width)] rounded-none border bg-[var(--color-surface)] p-1 text-[var(--color-ink)] shadow-xl"
               style={{ border: "1px solid var(--color-line)" }}
             >
               {CHIPS.map((c) => (
                 <SelectItem
                   key={c}
                   value={c}
-                  className="mono-caps cursor-pointer focus:bg-[var(--color-mist)] focus:text-[var(--color-ink)] data-[state=checked]:text-[var(--color-signal)]"
+                  className="mono-caps cursor-pointer rounded-none py-2.5 pl-3 pr-8 focus:bg-[var(--color-mist)] focus:text-[var(--color-ink)] data-[state=checked]:text-[var(--color-signal)]"
                 >
                   {c}
                 </SelectItem>
