@@ -1,11 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import type { ComponentType } from "react";
+import type { ComponentType, CSSProperties } from "react";
 import { Home, Search, Play, User } from "lucide-react";
 
 type NavItem = {
   to: "/" | "/search" | "/reels" | "/profile";
   label: string;
-  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: ComponentType<{ className?: string; strokeWidth?: number; style?: CSSProperties }>;
 };
 
 const ITEMS: (NavItem | "center")[] = [
