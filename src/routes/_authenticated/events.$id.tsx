@@ -235,7 +235,7 @@ function EventDetail() {
           {e.location && (
             <div className="flex items-start gap-3">
               <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: "var(--color-signal)" }} />
-              <div className="min-w-0 screenshot">
+              <div className="min-w-0">
                 <p className="text-sm leading-snug">{e.location}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span
