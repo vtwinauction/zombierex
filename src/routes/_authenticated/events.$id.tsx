@@ -39,6 +39,13 @@ export const Route = createFileRoute("/_authenticated/events/$id")({
 });
 
 const TABS = ["ABOUT", "LIVE", "PHOTOS", "ATTENDEES", "DISCUSSION"] as const;
+const TAB_ICONS: Record<(typeof TABS)[number], typeof Info> = {
+  ABOUT: Info,
+  LIVE: Radio,
+  PHOTOS: ImageIcon,
+  ATTENDEES: Users,
+  DISCUSSION: MessagesSquare,
+};
 
 function EventDetail() {
   const { id } = Route.useParams();
