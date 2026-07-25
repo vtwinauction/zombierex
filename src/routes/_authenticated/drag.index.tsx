@@ -5,7 +5,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyDragRuns } from "@/lib/drag.functions";
-import { StatusBar } from "@/components/StatusBar";
 
 export const Route = createFileRoute("/_authenticated/drag/")({
   head: () => ({
@@ -35,7 +34,6 @@ function DragHub() {
 
   return (
     <div className="min-h-svh pb-24">
-      <StatusBar index="07" section="DRAG · VERIFIED" />
       <div className="px-4 pt-4">
         <div className="flex items-start justify-between gap-3">
           <div>

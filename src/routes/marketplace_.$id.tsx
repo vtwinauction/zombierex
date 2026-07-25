@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Heart, Share2, MessageCircle, Flag, ArrowRight, ChevronRight, BadgeCheck } from "lucide-react";
-import { StatusBar } from "@/components/StatusBar";
 import { getListing, toggleSaveListing, reportListing, updateListing, deleteListing } from "@/lib/marketplace.functions";
 import { startDirectMessage } from "@/lib/messages.functions";
 
@@ -71,7 +70,6 @@ function ListingDetail() {
 
   return (
     <div className="pb-32" style={{ background: "var(--color-bone, #F2F2F0)" }}>
-      <StatusBar index={l.category?.slice(0,3).toUpperCase() ?? "LST"} section={String(l.title).toUpperCase().slice(0, 24)} />
 
       {/* Gallery */}
       <div className="relative aspect-[4/5] w-full overflow-hidden" style={{ background: "var(--color-slate)" }}>

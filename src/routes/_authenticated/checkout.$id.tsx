@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getListing } from "@/lib/marketplace.functions";
-import { StatusBar } from "@/components/StatusBar";
 
 export const Route = createFileRoute("/_authenticated/checkout/$id")({
   head: () => ({ meta: [{ title: "Checkout · ZOMBIEREX" }] }),
@@ -28,7 +27,6 @@ function Checkout() {
 
   return (
     <div className="pb-32">
-      <StatusBar index="CHK" section="CHECKOUT" />
       <div className="px-4 pt-4">
         <p className="mono-tag font-bold" style={{ color: "var(--color-neon)" }}>SECURE CHECKOUT · ESCROW PROTECTED</p>
         <h1 className="serif mt-2 text-3xl italic" style={{ color: "var(--color-ink)" }}>Review Order</h1>

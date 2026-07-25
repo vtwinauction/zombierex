@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { getSellerDashboard, updateListing, deleteListing } from "@/lib/marketplace.functions";
 
 export const Route = createFileRoute("/_authenticated/marketplace_/dashboard")({
@@ -27,7 +26,6 @@ function Dashboard() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="DSH" section="SELLER DASHBOARD" />
 
       <div className="flex items-end justify-between px-4 pt-6">
         <div>

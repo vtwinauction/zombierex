@@ -7,7 +7,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useState } from "react";
 import { getRide, updateRide, deleteRide } from "@/lib/rides.functions";
 import { ridePathToGpx, downloadGpx } from "@/lib/gpx";
-import { StatusBar } from "@/components/StatusBar";
 
 const RouteMap = lazy(() => import("@/components/RouteMap"));
 
@@ -64,7 +63,6 @@ function RideDetail() {
 
   return (
     <div className="min-h-svh pb-32">
-      <StatusBar index="04" section="RIDES · DETAIL" />
       <Suspense fallback={<div className="h-64 w-full bg-graphite" />}>
         <RouteMap path={path} className="h-64 w-full" />
       </Suspense>

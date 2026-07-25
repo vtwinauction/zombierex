@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { StatusBar } from "@/components/StatusBar";
 import { createListing, LISTING_CATEGORIES, LISTING_CONDITIONS, LISTING_FUELS, LISTING_TRANSMISSIONS } from "@/lib/marketplace.functions";
 import { compressImage, uploadWithRetry } from "@/lib/media-upload";
 import {
@@ -101,7 +100,6 @@ function NewListing() {
   return (
     <div className="pb-56">
 
-      <StatusBar index="09" section="NEW LISTING" />
 
       <div className="px-4 pt-6">
         <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>MARKETPLACE ▸ CREATE</p>

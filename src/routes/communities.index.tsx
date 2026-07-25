@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { StatusBar } from "@/components/StatusBar";
 import { discoverCommunities, CATEGORIES } from "@/lib/communities.functions";
 import { clubs as mockClubs } from "@/lib/mock-data";
 
@@ -98,7 +97,6 @@ function CommunitiesPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="03" section="COMMUNITIES · DISCOVER" />
 
       {/* Header */}
       <div className="px-4 pt-6">

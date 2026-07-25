@@ -2,7 +2,6 @@ import { createFileRoute, Link, useRouter, useNavigate } from "@tanstack/react-r
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getRoute, toggleSaveRoute, startRide } from "@/lib/routes.functions";
-import { StatusBar } from "@/components/StatusBar";
 import { BottomNav } from "@/components/BottomNav";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { lazy, Suspense, useState } from "react";
@@ -88,7 +87,6 @@ function RouteDetail() {
 
   return (
     <div className="min-h-svh pb-32">
-      <StatusBar index="03" section="ATLAS · ROUTE" />
       <Suspense fallback={<div className="h-72 w-full bg-graphite" />}>
         <RouteMap path={route.path ?? []} pois={route.pois ?? []} interactive className="h-72 w-full" />
       </Suspense>

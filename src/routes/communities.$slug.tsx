@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { StatusBar } from "@/components/StatusBar";
 import { getCommunityBySlug, joinCommunity, leaveCommunity, listChallenges, listCommunityBadges } from "@/lib/communities.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
@@ -102,7 +101,6 @@ function CommunityDetail() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="03" section="COMMUNITY · LIVE" />
 
       {/* Cover */}
       <div className="relative">

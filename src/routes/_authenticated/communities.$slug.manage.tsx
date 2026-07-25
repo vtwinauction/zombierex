@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getCommunityBySlug, decideRequest, setMemberRole, removeMember, pinPost, deleteCommunityPost,
@@ -109,7 +108,6 @@ function ManageCommunity() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="03" section="COMMUNITY · MANAGE" />
 
       <div className="flex items-baseline justify-between px-4 pt-6">
         <div>

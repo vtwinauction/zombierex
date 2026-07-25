@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { getMyProfile, updateMyProfile } from "@/lib/profile.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage, uploadWithRetry } from "@/lib/media-upload";
@@ -141,7 +140,6 @@ function EditProfilePage() {
 
   return (
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
-      <StatusBar index="05" section="EDIT · PROFILE" />
       <header className="flex items-center justify-between px-4 pt-4">
         <Link to="/profile" className="mono-tag" style={{ color: "var(--color-ink-3)" }}>← Back</Link>
         <button

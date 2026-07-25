@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Search, SlidersHorizontal, ArrowUpDown, Plus, MapPin, Star } from "lucide-react";
-import { StatusBar } from "@/components/StatusBar";
 import { listListings, LISTING_CATEGORIES, LISTING_CONDITIONS } from "@/lib/marketplace.functions";
 
 export const Route = createFileRoute("/marketplace")({
@@ -83,7 +82,6 @@ function MarketplacePage() {
 
   return (
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
-      <StatusBar index="09" section="MARKETPLACE" />
 
       {/* Title row */}
       <div className="flex items-end justify-between gap-3 px-4 pt-6">

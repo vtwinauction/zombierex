@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Phone, Share2, Settings as SettingsIcon } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
-import { StatusBar } from "@/components/StatusBar";
 import { me, myVehicles, rider, achievements, workshopHistory, reels } from "@/lib/mock-data";
 import { getMyProfileMetrics, upsertMyVehicle } from "@/lib/profile.functions";
 import { listMyPosts } from "@/lib/feed.functions";
@@ -171,7 +170,6 @@ function ProfilePage() {
 
   return (
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
-      <StatusBar index="05" section="GARAGE · OPERATOR" />
 
       {/* ============ HERO — VEHICLE ============ */}
       <section className="px-4 pt-4">

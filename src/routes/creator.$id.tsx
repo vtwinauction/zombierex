@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { StatusBar } from "@/components/StatusBar";
 import { getCreatorProfile, subscribeToCreator, tipCreator, sendCollabRequest } from "@/lib/creator.functions";
 
 export const Route = createFileRoute("/creator/$id")({
@@ -60,7 +59,6 @@ function CreatorPublicPage() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="07" section="CREATOR" />
 
       {isLoading && <p className="px-4 pt-6 mono-tag" style={{ color: "var(--color-titanium)" }}>LOADING…</p>}
       {!isLoading && !c && (

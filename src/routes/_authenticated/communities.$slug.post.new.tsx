@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { StatusBar } from "@/components/StatusBar";
 import { createCommunityPost, getCommunityBySlug } from "@/lib/communities.functions";
 
 export const Route = createFileRoute("/_authenticated/communities/$slug/post/new")({
@@ -40,7 +39,6 @@ function NewPost() {
 
   return (
     <div className="pb-24">
-      <StatusBar index="04" section="COMPOSE · POST" />
       <div className="px-4 pt-4">
         <Link to="/communities/$slug" params={{ slug }} className="mono-tag" style={{ color: "var(--color-titanium)" }}>← Back</Link>
         <h1 className="serif mt-2 text-[26px] italic" style={{ color: "var(--color-ink)" }}>New post</h1>

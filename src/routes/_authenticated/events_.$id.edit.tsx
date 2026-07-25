@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import { getEvent, updateEvent, EVENT_CATEGORIES } from "@/lib/events.functions";
 
@@ -121,7 +120,6 @@ function EditEventPage() {
 
   return (
     <div>
-      <StatusBar index="06" section="EVENTS · EDIT" />
       <div className="px-4 pt-6 pb-8">
         <div className="flex items-start justify-between gap-4">
           <div>

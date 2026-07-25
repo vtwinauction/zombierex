@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { StatusBar } from "@/components/StatusBar";
 import { users } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/notifications")({
@@ -18,7 +17,6 @@ const items = [
 function NotificationsPage() {
   return (
     <div>
-      <StatusBar index="07" section="LOG · ACTIVITY" />
 
       <div className="flex items-end justify-between px-4 pt-6">
         <div>

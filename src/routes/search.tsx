@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { StatusBar } from "@/components/StatusBar";
 import { searchAll } from "@/lib/search.functions";
 import {
   Select,
@@ -58,7 +57,6 @@ function ExplorePage() {
 
   return (
     <div>
-      <StatusBar index="02" section="SIGNAL · DISCOVER" />
 
       <div className="px-4 pt-6">
         <p className="mono-tag">NETWORK · LIVE INDEX</p>

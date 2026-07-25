@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getListing } from "@/lib/marketplace.functions";
-import { StatusBar } from "@/components/StatusBar";
 import { z } from "zod";
 
 const CART_KEY = "zx.cart.v1";
@@ -58,7 +57,6 @@ function Cart() {
 
   return (
     <div className="pb-32">
-      <StatusBar index="CRT" section="SHOPPING CART" />
       <div className="px-4 pt-4">
         <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>Your Cart</h1>
         <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>{items.length} ITEM{items.length === 1 ? "" : "S"}</p>
