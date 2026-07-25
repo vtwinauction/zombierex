@@ -179,8 +179,8 @@ function EventsPage() {
 
       {/* ── List ────────────────────────────────────── */}
       <div className="px-4 pt-3 space-y-3">
-        {rest.map((e: any) => (
-          <EventRow key={e.id} event={e} />
+        {rest.map((e: any, i: number) => (
+          <EventRow key={e.id} event={e} index={i} />
         ))}
       </div>
     </div>
