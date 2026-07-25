@@ -136,6 +136,7 @@ function RootComponent() {
       <div className="relative min-h-[100svh] bg-background text-foreground">
         <main className={isImmersive ? "min-h-[100svh]" : "min-h-[100svh] pb-[calc(64px+env(safe-area-inset-bottom))]"}>
           {!isImmersive && <OwnerBroadcastBanner />}
+          {!isImmersive && <GlobalStatusBar />}
           <Outlet />
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
