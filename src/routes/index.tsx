@@ -23,6 +23,10 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "ZOMBIEREX — Feed" },
       { name: "description", content: "Stories, reels & garage posts for motorcycle and automotive culture." },
+      { property: "og:title", content: "ZOMBIEREX — Feed" },
+      { property: "og:description", content: "Stories, reels & garage posts for motorcycle and automotive culture." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: HomePage,

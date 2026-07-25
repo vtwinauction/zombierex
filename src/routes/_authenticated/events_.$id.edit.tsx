@@ -7,7 +7,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { getEvent, updateEvent, EVENT_CATEGORIES } from "@/lib/events.functions";
 
 export const Route = createFileRoute("/_authenticated/events_/$id/edit")({
-  head: () => ({ meta: [{ title: "Edit event · ZOMBIEREX" }] }),
+  head: () => ({
+    meta: [
+      { title: "Edit event · ZOMBIEREX" },
+      { name: "description", content: "Update event details, schedule, contact information, and cover photography in ZOMBIEREX." },
+      { property: "og:title", content: "Edit event · ZOMBIEREX" },
+      { property: "og:description", content: "Update event details, schedule, contact information, and cover photography in ZOMBIEREX." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: EditEventPage,
 });
 
