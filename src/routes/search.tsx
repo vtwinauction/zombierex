@@ -100,7 +100,7 @@ function ExplorePage() {
             <SelectContent
               position="popper"
               sideOffset={6}
-              className="z-[100] min-w-[var(--radix-select-trigger-width)] rounded-none border bg-[var(--color-surface)] p-1 text-[var(--color-ink)] shadow-xl"
+              className="z-[100] min-w-[var(--radix-select-trigger-width)] rounded-none border bg-[var(--color-paper-0)] p-1 text-[var(--color-ink)] shadow-2xl"
               style={{ border: "1px solid var(--color-line)" }}
             >
               {CHIPS.map((c) => (
