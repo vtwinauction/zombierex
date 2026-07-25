@@ -446,12 +446,13 @@ function HomePage() {
                   <p className="mono-tag truncate" style={{ fontSize: 8.5, color: "var(--color-titanium)" }}>
                     {u.handle} · ◎ {u.location}
                   </p>
-                  <button
-                    className="tap mt-2 w-full rounded-full py-1.5 text-[10.5px] font-bold uppercase tracking-wider"
-                    style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em" }}
-                  >
-                    + Follow
-                  </button>
+                  <FollowButton
+                    id={u.id}
+                    label={u.handle}
+                    variant="neon"
+                    fullWidth
+                  />
+
                 </div>
               </div>
             );
