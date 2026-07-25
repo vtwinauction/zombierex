@@ -10,6 +10,7 @@ import {
 import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth-context";
+import { toast } from "sonner";
 import {
   getEvent,
   rsvpEvent,
@@ -94,30 +95,71 @@ function EventDetail() {
   const d = new Date(e.starts_at);
 
 
+  const [checkingIn, setCheckingIn] = useState(false);
+
   async function doRsvp(status: "going" | "interested" | "not_going") {
-    await rsvpFn({ data: { event_id: id, status } });
-    qc.invalidateQueries({ queryKey: ["event", id] });
+    try {
+      await rsvpFn({ data: { event_id: id, status } });
+      qc.invalidateQueries({ queryKey: ["event", id] });
+      toast.success(status === "not_going" ? "Marked as can't go" : status === "interested" ? "Marked as interested" : "You're going 🏁");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not update RSVP");
+    }
+  }
+
+  async function submitCheckIn(lat?: number, lng?: number) {
+    try {
+      await checkInFn({ data: { event_id: id, lat, lng } });
+      qc.invalidateQueries({ queryKey: ["event", id] });
+      qc.invalidateQueries({ queryKey: ["event-attendees", id] });
+      toast.success("Checked in ✓");
+    } catch (err: any) {
+      toast.error(err?.message || "Check-in failed");
+    } finally {
+      setCheckingIn(false);
+    }
   }
 
   async function doCheckIn() {
-    if (!navigator.geolocation) { await checkInFn({ data: { event_id: id } }); return; }
+    if (checkingIn) return;
+    setCheckingIn(true);
+    if (!navigator.geolocation) return submitCheckIn();
     navigator.geolocation.getCurrentPosition(
-      async (pos) => { await checkInFn({ data: { event_id: id, lat: pos.coords.latitude, lng: pos.coords.longitude } }); },
-      async () => { await checkInFn({ data: { event_id: id } }); },
+      (pos) => submitCheckIn(pos.coords.latitude, pos.coords.longitude),
+      () => submitCheckIn(),
       { timeout: 4000 }
     );
   }
 
   async function doShare() {
     const url = typeof window !== "undefined" ? window.location.href : "";
-    if (navigator.share) navigator.share({ title: e.title, url });
-    else navigator.clipboard?.writeText(url);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: e.title, url });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard");
+      }
+    } catch (err: any) {
+      if (err?.name === "AbortError") return;
+      toast.error("Could not share");
+    }
+  }
+
+  function doNavigate() {
+    if (!navHref) {
+      toast.error("No location set for this event");
+      return;
+    }
+    window.open(navHref, "_blank", "noopener,noreferrer");
   }
 
   const navHref = e.gps_lat && e.gps_lng
     ? `https://maps.google.com/?q=${e.gps_lat},${e.gps_lng}`
     : e.address
     ? `https://maps.google.com/?q=${encodeURIComponent(e.address)}`
+    : e.location
+    ? `https://maps.google.com/?q=${encodeURIComponent(e.location)}`
     : null;
 
   return (
@@ -219,23 +261,16 @@ function EventDetail() {
 
       {/* DASHBOARD — actions + analytics in one clean surface */}
       <section className="event-section px-5 pt-5 pb-4 hairline-b" style={{ animationDelay: "80ms" }}>
-        {/* Primary actions — pill row */}
-        <div className={`grid gap-2.5 ${isHost ? "grid-cols-4" : "grid-cols-3"}`}>
-          <PillAction onClick={doCheckIn} icon={<QrCode size={16} />} label="CHECK IN" primary />
-          {navHref ? (
-            <a href={navHref} target="_blank" rel="noreferrer" className="tap">
-              <PillContent icon={<Navigation size={16} />} label="NAVIGATE" />
-            </a>
-          ) : (
-            <PillContent icon={<Navigation size={16} />} label="NAVIGATE" disabled />
-          )}
-          <button onClick={doShare} className="tap"><PillContent icon={<Share2 size={16} />} label="SHARE" /></button>
+        {/* Primary actions — professional tile grid */}
+        <div className={`grid gap-2 ${isHost ? "grid-cols-4" : "grid-cols-3"}`}>
+          <ActionTile onClick={doCheckIn} icon={<QrCode size={18} />} label="CHECK IN" variant="primary" busy={checkingIn} checked={e.checked_in} />
+          <ActionTile onClick={doNavigate} icon={<Navigation size={18} />} label="NAVIGATE" disabled={!navHref} />
+          <ActionTile onClick={doShare} icon={<Share2 size={18} />} label="SHARE" />
           {isHost && (
-            <Link to="/events/$id/edit" params={{ id }} className="tap">
-              <PillContent icon={<Pencil size={16} />} label="EDIT" />
-            </Link>
+            <ActionTile onClick={() => navigate({ to: "/events/$id/edit", params: { id } })} icon={<Pencil size={18} />} label="EDIT" />
           )}
         </div>
+
 
         {/* Analytics — borderless row with dividers */}
         <div className="mt-5 grid grid-cols-4 divide-x divide-hair">
@@ -369,31 +404,55 @@ function StatCard({ k, v, active, onClick }: { k: string; v: string; active?: bo
   );
 }
 
-function PillContent({ icon, label, disabled }: { icon: React.ReactNode; label: string; disabled?: boolean }) {
-  return (
-    <div
-      className="flex w-full items-center justify-center gap-2 py-3 mono-caps text-[10px] transition-transform active:scale-95 hairline"
-      style={{ borderRadius: 999, color: disabled ? "var(--color-ash)" : "var(--color-ink)", opacity: disabled ? 0.6 : 1 }}
-    >
-      <span style={{ color: disabled ? "var(--color-ash)" : "var(--color-signal)" }}>{icon}</span>
-      <span>{label}</span>
-    </div>
-  );
-}
-
-function PillAction({ onClick, icon, label, primary }: { onClick: () => void; icon: React.ReactNode; label: string; primary?: boolean }) {
+function ActionTile({
+  onClick, icon, label, variant, disabled, busy, checked,
+}: {
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+  variant?: "primary";
+  disabled?: boolean;
+  busy?: boolean;
+  checked?: boolean;
+}) {
+  const isPrimary = variant === "primary";
+  const showChecked = isPrimary && checked;
   return (
     <button
       onClick={onClick}
-      className="tap flex items-center justify-center gap-2 py-3 mono-caps text-[10px] transition-transform active:scale-95"
+      disabled={disabled || busy}
+      className="tap group relative flex flex-col items-center justify-center gap-1.5 py-3.5 mono-caps text-[10px] tracking-wider transition-all active:scale-[0.97] disabled:opacity-45 disabled:active:scale-100"
       style={
-        primary
-          ? { background: "var(--color-signal)", color: "var(--color-bone)", borderRadius: 999 }
-          : { border: "1px solid var(--color-hair)", borderRadius: 999 }
+        isPrimary
+          ? {
+              background: showChecked ? "var(--color-ink, #0a0a0a)" : "var(--color-signal)",
+              color: "var(--color-bone, #ffffff)",
+              borderRadius: 14,
+              boxShadow: showChecked
+                ? "0 0 0 1px var(--color-signal)"
+                : "0 6px 18px -8px color-mix(in oklab, var(--color-signal) 55%, transparent)",
+            }
+          : {
+              background: "color-mix(in oklab, var(--color-ink, #0a0a0a) 4%, transparent)",
+              color: "var(--color-ink-1, #1a1a1a)",
+              borderRadius: 14,
+              boxShadow: "inset 0 0 0 1px var(--color-hair)",
+            }
       }
     >
-      <span>{icon}</span>
-      <span>{label}</span>
+      <span
+        aria-hidden
+        style={{
+          color: isPrimary
+            ? "var(--color-bone, #ffffff)"
+            : disabled
+            ? "var(--color-ash)"
+            : "var(--color-signal)",
+        }}
+      >
+        {busy ? <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" /> : showChecked ? <Check size={18} /> : icon}
+      </span>
+      <span className="text-[10px] font-semibold">{showChecked ? "CHECKED IN" : label}</span>
     </button>
   );
 }
