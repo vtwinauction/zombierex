@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, Search, Menu, Bluetooth, Plus } from "lucide-react";
 import { useState } from "react";
+import { CartIconLink } from "@/components/CartIconLink";
+
 
 /**
  * Editorial masthead — light glass, wordmark left, system actions right.
@@ -47,7 +49,9 @@ export function StatusBar({ index, section }: { index: string; section: string }
           <ActionCell to="/search" label="Search">
             <Search size={17} strokeWidth={1.8} />
           </ActionCell>
+          <CartIconLink />
           <ActionCell to="/notifications" label="Notifications" pulse>
+
             <Bell size={17} strokeWidth={1.8} />
           </ActionCell>
           <ActionCell to="/menu" label="Menu">

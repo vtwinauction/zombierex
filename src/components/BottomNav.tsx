@@ -1,10 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ComponentType } from "react";
-import { Home, Search, Play, ShoppingCart, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Home, Search, Play, User } from "lucide-react";
 
 type NavItem = {
-  to: "/" | "/search" | "/reels" | "/cart" | "/profile";
+  to: "/" | "/search" | "/reels" | "/profile";
   label: string;
   icon: ComponentType<{ className?: string; strokeWidth?: number }>;
 };
@@ -15,9 +14,9 @@ const LEFT: NavItem[] = [
 ];
 const RIGHT: NavItem[] = [
   { to: "/reels",   label: "Reels",   icon: Play },
-  { to: "/cart",    label: "Cart",    icon: ShoppingCart },
   { to: "/profile", label: "Profile", icon: User },
 ];
+
 
 /**
  * 5-tab bottom nav. Center Create button is a green old-school compose
@@ -62,14 +61,11 @@ export function BottomNav({ hidden = false }: { hidden?: boolean }) {
         </Link>
 
         <div className="flex items-center gap-1">
-          {RIGHT.map((it) =>
-            it.to === "/cart" ? (
-              <CartCell key={it.to} item={it} active={isActive(pathname, it.to)} />
-            ) : (
-              <NavCell key={it.to} item={it} active={isActive(pathname, it.to)} />
-            )
-          )}
+          {RIGHT.map((it) => (
+            <NavCell key={it.to} item={it} active={isActive(pathname, it.to)} />
+          ))}
         </div>
+
       </div>
     </nav>
   );
