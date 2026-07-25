@@ -235,57 +235,59 @@ function EventDetail() {
           {e.location && (
             <div className="flex items-start gap-3">
               <MapPin size={16} className="mt-0.5 shrink-0" style={{ color: "var(--color-signal)" }} />
-              <div className="min-w-0">
-                <p className="text-sm leading-snug">{e.location}</p>
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span
-                    className="mono-tag"
-                    style={{
-                      color: "var(--color-signal)",
-                      background: "color-mix(in oklab, var(--color-signal) 10%, transparent)",
-                      padding: "3px 9px",
-                      borderRadius: 999,
-                    }}
-                  >
-                    {(e.category ?? "EVENT").toUpperCase()}
-                  </span>
-                  {e.status === "cancelled" ? (
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm leading-snug">{e.location}</p>
+                  <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
                     <span
                       className="mono-tag"
                       style={{
-                        color: "var(--color-bone)",
-                        background: "#c33",
+                        color: "var(--color-signal)",
+                        background: "color-mix(in oklab, var(--color-signal) 10%, transparent)",
                         padding: "3px 9px",
                         borderRadius: 999,
                       }}
                     >
-                      CANCELLED
+                      {(e.category ?? "EVENT").toUpperCase()}
                     </span>
-                  ) : (
-                    <span
-                      className="mono-tag hairline"
-                      style={{
-                        color: "var(--color-ink)",
-                        padding: "3px 9px",
-                        borderRadius: 999,
-                      }}
-                    >
-                      {(e.visibility ?? "public").toUpperCase()}
-                    </span>
-                  )}
-                  {e.is_featured && (
-                    <span
-                      className="mono-tag"
-                      style={{
-                        color: "var(--color-bone)",
-                        background: "var(--color-signal)",
-                        padding: "3px 9px",
-                        borderRadius: 999,
-                      }}
-                    >
-                      ★ FEATURED
-                    </span>
-                  )}
+                    {e.status === "cancelled" ? (
+                      <span
+                        className="mono-tag"
+                        style={{
+                          color: "var(--color-bone)",
+                          background: "#c33",
+                          padding: "3px 9px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        CANCELLED
+                      </span>
+                    ) : (
+                      <span
+                        className="mono-tag hairline"
+                        style={{
+                          color: "var(--color-ink)",
+                          padding: "3px 9px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        {(e.visibility ?? "public").toUpperCase()}
+                      </span>
+                    )}
+                    {e.is_featured && (
+                      <span
+                        className="mono-tag"
+                        style={{
+                          color: "var(--color-bone)",
+                          background: "var(--color-signal)",
+                          padding: "3px 9px",
+                          borderRadius: 999,
+                        }}
+                      >
+                        ★ FEATURED
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
