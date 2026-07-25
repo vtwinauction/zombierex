@@ -497,6 +497,62 @@ export function MediaComposer({ onDone }: Props) {
               </div>
             )}
 
+            {tab === "music" && (
+              <div className="space-y-3">
+                {music ? (
+                  <div
+                    className="flex items-center gap-3 rounded-lg p-2"
+                    style={{ background: "var(--color-graphite)", border: "1px solid var(--color-neon)" }}
+                  >
+                    <div
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-md"
+                      style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}
+                    >
+                      ♪
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-semibold" style={{ color: "var(--color-ink)" }}>
+                        {music.title}
+                      </p>
+                      <p className="mono-tag truncate" style={{ color: "var(--color-silver)" }}>
+                        {music.artist} · starts at {formatDuration(music.startAt)} · vol {Math.round(music.volume * 100)}%
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowMusic(true)}
+                      className="mono-tag tap px-2 py-1 rounded-full"
+                      style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}
+                    >
+                      Change
+                    </button>
+                    <button
+                      onClick={() => setMusic(null)}
+                      className="mono-tag tap px-2 py-1"
+                      style={{ color: "#ff8080" }}
+                      aria-label="Remove music"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowMusic(true)}
+                    className="tap w-full rounded-lg px-4 py-4 text-left text-[13px]"
+                    style={{
+                      background: "var(--color-graphite)",
+                      color: "var(--color-ink)",
+                      border: "1px dashed var(--color-hair-strong)",
+                    }}
+                  >
+                    <span className="mono-tag" style={{ color: "var(--color-neon)" }}>♪ ADD MUSIC</span>
+                    <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
+                      Browse hype, drift, night-ride and cinematic tracks. Preview, trim the start, set volume.
+                    </p>
+                  </button>
+                )}
+              </div>
+            )}
+
             {tab === "video" && activeItem.kind === "video" && (
               <VideoControls m={activeItem} onPatch={patchActive} />
             )}
