@@ -103,50 +103,74 @@ function EventsPage() {
         </div>
       </div>
 
-      {/* ── Scope dropdown ───────────────────────────── */}
-      <div className="px-4 pt-3">
-        <div className="flex items-center justify-between gap-3">
-          <label className="mono-tag shrink-0" style={{ color: "var(--color-ash)" }}>
-            VIEW
-          </label>
-          <Select value={scope} onValueChange={(v) => setScope(v as any)}>
-            <SelectTrigger
-              className="h-10 w-auto min-w-[10rem] flex-1 hairline bg-transparent px-3 py-2 mono-caps text-xs [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:opacity-60"
-              style={{ color: "var(--color-ink)" }}
+      {/* ── Filters: View + Category side by side ─── */}
+      <div className="px-4 pt-3 hairline-b pb-3">
+        <div className="grid grid-cols-2 gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <label className="mono-tag shrink-0" style={{ color: "var(--color-ash)" }}>VIEW</label>
+            <Select value={scope} onValueChange={(v) => setScope(v as any)}>
+              <SelectTrigger
+                className="h-10 flex-1 min-w-0 hairline bg-transparent px-3 py-2 mono-caps text-xs [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:opacity-60"
+                style={{ color: "var(--color-ink)" }}
+              >
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent
+                className="hairline bg-[var(--color-paper-0)] border-[var(--color-line)]"
+                position="popper"
+                sideOffset={4}
+              >
+                {SCOPES.map((s) => (
+                  <SelectItem
+                    key={s.id}
+                    value={s.id}
+                    className="mono-caps text-xs data-[state=checked]:text-[var(--color-signal)] focus:bg-[var(--color-mist)] focus:text-[var(--color-ink)]"
+                  >
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-2 min-w-0">
+            <label className="mono-tag shrink-0" style={{ color: "var(--color-ash)" }}>TYPE</label>
+            <Select
+              value={category ?? "__all"}
+              onValueChange={(v) => setCategory(v === "__all" ? undefined : v)}
             >
-              <SelectValue placeholder="Select view" />
-            </SelectTrigger>
-            <SelectContent
-              className="hairline bg-[var(--color-paper-0)] border-[var(--color-line)]"
-              position="popper"
-              sideOffset={4}
-            >
-              {SCOPES.map((s) => (
+              <SelectTrigger
+                className="h-10 flex-1 min-w-0 hairline bg-transparent px-3 py-2 mono-caps text-xs [&>svg]:h-3.5 [&>svg]:w-3.5 [&>svg]:opacity-60"
+                style={{ color: "var(--color-ink)" }}
+              >
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent
+                className="hairline bg-[var(--color-paper-0)] border-[var(--color-line)] max-h-72"
+                position="popper"
+                sideOffset={4}
+              >
                 <SelectItem
-                  key={s.id}
-                  value={s.id}
+                  value="__all"
                   className="mono-caps text-xs data-[state=checked]:text-[var(--color-signal)] focus:bg-[var(--color-mist)] focus:text-[var(--color-ink)]"
                 >
-                  {s.label}
+                  All
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                {EVENT_CATEGORIES.map((c) => (
+                  <SelectItem
+                    key={c}
+                    value={c}
+                    className="mono-caps text-xs data-[state=checked]:text-[var(--color-signal)] focus:bg-[var(--color-mist)] focus:text-[var(--color-ink)]"
+                  >
+                    {CATEGORY_LABEL[c] ?? c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* ── Category chips ──────────────────────────── */}
-      <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 py-3 hairline-b">
-        <CategoryChip label="ALL" active={!category} onClick={() => setCategory(undefined)} />
-        {EVENT_CATEGORIES.map((c) => (
-          <CategoryChip
-            key={c}
-            label={CATEGORY_LABEL[c] ?? c}
-            active={category === c}
-            onClick={() => setCategory(c === category ? undefined : c)}
-          />
-        ))}
-      </div>
 
       {/* ── Loading skeletons ───────────────────────── */}
       {isLoading && (
@@ -200,23 +224,8 @@ function EventsPage() {
   );
 }
 
-function CategoryChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="tap shrink-0 hairline px-3 py-1.5 mono-caps transition-colors"
-      style={{
-        background: active ? "var(--color-ink)" : "transparent",
-        color: active ? "var(--color-bone)" : "var(--color-ink)",
-        borderColor: active ? "var(--color-ink)" : undefined,
-      }}
-    >
-      {label}
-    </button>
-  );
-}
-
 function FeaturedCard({ event }: { event: any }) {
+
   const d = new Date(event.starts_at);
   const day = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
   const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
