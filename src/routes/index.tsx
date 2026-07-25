@@ -12,6 +12,7 @@ import {
 import { Bell, MessageCircle, Map, Store, CalendarDays, Users, Bluetooth, Gauge } from "lucide-react";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { reels, storiesV2, posts, chats, users, clubs } from "@/lib/mock-data";
+import { useFollow } from "@/hooks/useFollow";
 import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -299,12 +300,12 @@ function HomePage() {
               </p>
               <p className="mono-tag" style={{ color: "rgba(255,255,255,0.7)" }}>◎ {featured.location}</p>
             </div>
-            <button
-              className="tap rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider"
-              style={{ background: "var(--color-ember)", color: "white", letterSpacing: "0.14em" }}
-            >
-              Follow
-            </button>
+            <FollowButton
+              id={featured.user.id}
+              label={featured.user.handle}
+              variant="ember"
+            />
+
           </div>
 
           {/* TikTok-style right action rail */}
@@ -445,12 +446,13 @@ function HomePage() {
                   <p className="mono-tag truncate" style={{ fontSize: 8.5, color: "var(--color-titanium)" }}>
                     {u.handle} · ◎ {u.location}
                   </p>
-                  <button
-                    className="tap mt-2 w-full rounded-full py-1.5 text-[10.5px] font-bold uppercase tracking-wider"
-                    style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em" }}
-                  >
-                    + Follow
-                  </button>
+                  <FollowButton
+                    id={u.id}
+                    label={u.handle}
+                    variant="neon"
+                    fullWidth
+                  />
+
                 </div>
               </div>
             );
@@ -722,6 +724,45 @@ function fmt(n: number) {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
   return String(n);
+}
+
+function FollowButton({
+  id,
+  label,
+  variant,
+  fullWidth,
+}: {
+  id: string;
+  label?: string;
+  variant: "neon" | "ember";
+  fullWidth?: boolean;
+}) {
+  const { following, toggle } = useFollow(id, label);
+  const isNeon = variant === "neon";
+  const base = "tap rounded-full text-[11px] font-bold uppercase tracking-wider";
+  const size = fullWidth ? "mt-2 w-full py-1.5 text-[10.5px]" : "px-3 py-1";
+  const style: React.CSSProperties = following
+    ? {
+        background: "transparent",
+        color: isNeon ? "var(--color-ink-0)" : "white",
+        border: `1px solid ${isNeon ? "var(--color-hair)" : "rgba(255,255,255,0.55)"}`,
+        letterSpacing: "0.14em",
+      }
+    : {
+        background: isNeon ? "var(--color-neon)" : "var(--color-ember)",
+        color: isNeon ? "var(--color-obsidian)" : "white",
+        letterSpacing: "0.14em",
+      };
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); e.preventDefault(); toggle(); }}
+      className={`${base} ${size}`}
+      style={style}
+      aria-pressed={following}
+    >
+      {following ? "Following ✓" : fullWidth ? "+ Follow" : "Follow"}
+    </button>
+  );
 }
 
 /**
