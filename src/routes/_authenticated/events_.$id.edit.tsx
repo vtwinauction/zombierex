@@ -122,7 +122,7 @@ function EditEventPage() {
   return (
     <div>
       <StatusBar index="06" section="EVENTS · EDIT" />
-      <div className="px-4 pt-6 pb-44">
+      <div className="px-4 pt-6 pb-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="mono-tag" style={{ color: "var(--color-ash)" }}>EDIT EVENT</p>
