@@ -10,6 +10,7 @@ import {
 import { StatusBar } from "@/components/StatusBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth-context";
+import { toast } from "sonner";
 import {
   getEvent,
   rsvpEvent,
