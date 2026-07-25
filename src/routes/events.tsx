@@ -224,21 +224,8 @@ function EventsPage() {
   );
 }
 
-function CategoryChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="tap shrink-0 hairline px-3 py-1.5 mono-caps transition-colors"
-      style={{
-        background: active ? "var(--color-ink)" : "transparent",
-        color: active ? "var(--color-bone)" : "var(--color-ink)",
-        borderColor: active ? "var(--color-ink)" : undefined,
-      }}
-    >
-      {label}
-    </button>
-  );
-}
+function FeaturedCard({ event }: { event: any }) {
+
 
 function FeaturedCard({ event }: { event: any }) {
   const d = new Date(event.starts_at);
