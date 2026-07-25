@@ -24,6 +24,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress } from "@/lib/media-upload";
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
+import { MusicLibrary, type SelectedTrack } from "@/components/MusicLibrary";
+import { formatDuration } from "@/lib/music-library";
 
 type EditorAdjust = {
   brightness: number; // 1 = neutral
@@ -119,8 +121,10 @@ export function MediaComposer({ onDone }: Props) {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [active, setActive] = useState(0);
   const [caption, setCaption] = useState("");
-  const [tab, setTab] = useState<"filters" | "adjust" | "text" | "draw" | "video">("filters");
+  const [tab, setTab] = useState<"filters" | "adjust" | "text" | "draw" | "music" | "video">("filters");
   const [showPreview, setShowPreview] = useState(false);
+  const [showMusic, setShowMusic] = useState(false);
+  const [music, setMusic] = useState<SelectedTrack | null>(null);
   const [progress, setProgress] = useState<Record<string, UploadProgress>>({});
   const [failed, setFailed] = useState<string[]>([]);
   const [scheduleAt, setScheduleAt] = useState<string>("");
@@ -286,10 +290,13 @@ export function MediaComposer({ onDone }: Props) {
         return { scheduled: true };
       }
 
+      const musicFooter = music ? `\n\n♪ ${music.title} — ${music.artist}` : "";
+      const captionWithMusic = (caption.trim() + musicFooter).trim();
+
       await post({
         data: {
           kind,
-          caption: caption.trim() || undefined,
+          caption: captionWithMusic || undefined,
           media_url: first?.url,
           thumbnail_url: first?.url,
           is_reel: kind === "video",
@@ -418,7 +425,7 @@ export function MediaComposer({ onDone }: Props) {
 
           {/* Tabs */}
           <div className="mt-4 flex px-3" style={{ borderBottom: "1px solid var(--color-hair)" }}>
-            {(["filters", "adjust", "text", "draw", ...(activeItem.kind === "video" ? ["video"] as const : [])] as const).map((t) => (
+            {(["filters", "adjust", "text", "draw", "music", ...(activeItem.kind === "video" ? ["video"] as const : [])] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)} className="tap flex-1 py-2 text-[11px] uppercase tracking-wider"
                 style={{ color: tab === t ? "var(--color-neon)" : "var(--color-silver)", borderBottom: tab === t ? "2px solid var(--color-neon)" : "2px solid transparent" }}
               >{t}</button>
@@ -490,6 +497,62 @@ export function MediaComposer({ onDone }: Props) {
               </div>
             )}
 
+            {tab === "music" && (
+              <div className="space-y-3">
+                {music ? (
+                  <div
+                    className="flex items-center gap-3 rounded-lg p-2"
+                    style={{ background: "var(--color-graphite)", border: "1px solid var(--color-neon)" }}
+                  >
+                    <div
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-md"
+                      style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}
+                    >
+                      ♪
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-semibold" style={{ color: "var(--color-ink)" }}>
+                        {music.title}
+                      </p>
+                      <p className="mono-tag truncate" style={{ color: "var(--color-silver)" }}>
+                        {music.artist} · starts at {formatDuration(music.startAt)} · vol {Math.round(music.volume * 100)}%
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowMusic(true)}
+                      className="mono-tag tap px-2 py-1 rounded-full"
+                      style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}
+                    >
+                      Change
+                    </button>
+                    <button
+                      onClick={() => setMusic(null)}
+                      className="mono-tag tap px-2 py-1"
+                      style={{ color: "#ff8080" }}
+                      aria-label="Remove music"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowMusic(true)}
+                    className="tap w-full rounded-lg px-4 py-4 text-left text-[13px]"
+                    style={{
+                      background: "var(--color-graphite)",
+                      color: "var(--color-ink)",
+                      border: "1px dashed var(--color-hair-strong)",
+                    }}
+                  >
+                    <span className="mono-tag" style={{ color: "var(--color-neon)" }}>♪ ADD MUSIC</span>
+                    <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
+                      Browse hype, drift, night-ride and cinematic tracks. Preview, trim the start, set volume.
+                    </p>
+                  </button>
+                )}
+              </div>
+            )}
+
             {tab === "video" && activeItem.kind === "video" && (
               <VideoControls m={activeItem} onPatch={patchActive} />
             )}
@@ -533,6 +596,13 @@ export function MediaComposer({ onDone }: Props) {
           </div>
         </div>
       )}
+
+      <MusicLibrary
+        open={showMusic}
+        initial={music}
+        onClose={() => setShowMusic(false)}
+        onConfirm={(t) => { setMusic(t); setShowMusic(false); }}
+      />
     </div>
   );
 }
