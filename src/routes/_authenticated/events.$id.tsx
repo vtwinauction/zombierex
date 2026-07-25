@@ -323,8 +323,8 @@ function EventDetail() {
               <button key={t} onClick={() => setTab(t)}
                 className="tap relative shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 mono-caps text-[11px] tracking-wider transition-all"
                 style={{
-                  color: active ? "var(--color-bone)" : "var(--color-ash)",
-                  background: active ? "var(--color-ink)" : "transparent",
+                  color: active ? "var(--color-bone, #ffffff)" : "var(--color-ink-2, #4a4a4a)",
+                  background: active ? "var(--color-ink, #0a0a0a)" : "transparent",
                 }}>
                 <Icon size={13} strokeWidth={active ? 2.25 : 1.75} />
                 <span>{t}</span>
