@@ -35,6 +35,7 @@ function EventDetail() {
   const rsvpFn = useServerFn(rsvpEvent);
   const checkInFn = useServerFn(checkInEvent);
   const cancelFn = useServerFn(cancelEvent);
+  const { user } = useSession();
 
   const { data: ev, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -68,9 +69,9 @@ function EventDetail() {
   );
 
   const e: any = ev;
-  const { user } = useSession();
   const isHost = !!user && user.id === e.host_id;
   const d = new Date(e.starts_at);
+
 
   async function doRsvp(status: "going" | "interested" | "not_going") {
     await rsvpFn({ data: { event_id: id, status } });
