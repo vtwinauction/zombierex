@@ -11,6 +11,7 @@ import {
   claimChallenge,
 } from "@/lib/gamification.functions";
 import { Flame, Trophy, Zap, Award, Users, Gift, CheckCircle2, Lock } from "lucide-react";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/rewards")({
   head: () => ({
@@ -70,7 +71,9 @@ function RewardsPage() {
   const progressPct = Math.round(((s?.level_progress ?? 0) as number) * 100);
 
   return (
+    <PullToRefresh onRefresh={async () => { await Promise.all([summary.refetch(), achievements.refetch(), challenges.refetch(), leaderboard.refetch()]); }}>
     <div className="min-h-screen bg-background text-foreground pb-24">
+
       <div className="px-4 pt-4">
         <div className="text-[10px] tracking-[0.3em] text-muted-foreground">18 · REWARDS</div>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">Your Garage Ledger</h1>
@@ -246,8 +249,10 @@ function RewardsPage() {
         )}
       </Section>
     </div>
+    </PullToRefresh>
   );
 }
+
 
 function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (

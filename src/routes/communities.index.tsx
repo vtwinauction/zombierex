@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { discoverCommunities, CATEGORIES } from "@/lib/communities.functions";
 import { clubs as mockClubs } from "@/lib/mock-data";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/communities/")({
   head: () => ({
@@ -64,7 +65,7 @@ function CommunitiesPage() {
   const [sort, setSort] = useState<(typeof SORTS)[number]["id"]>("trending");
 
   const discover = useServerFn(discoverCommunities);
-  const { data, isPending } = useQuery({
+  const { data, isPending, refetch } = useQuery({
     queryKey: ["communities", { q, category, sort }],
     queryFn: () => discover({
       data: {
@@ -96,7 +97,9 @@ function CommunitiesPage() {
       }));
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24">
+
 
       {/* Header */}
       <div className="px-4 pt-6">
@@ -201,8 +204,10 @@ function CommunitiesPage() {
         </p>
       )}
     </div>
+    </PullToRefresh>
   );
 }
+
 
 type CardCommunity = {
   id: string;

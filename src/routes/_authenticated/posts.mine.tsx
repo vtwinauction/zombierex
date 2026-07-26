@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyPosts, deletePost } from "@/lib/feed.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/posts/mine")({
   head: () => ({
@@ -26,7 +27,9 @@ function MyPostsPage() {
   });
 
   return (
+    <PullToRefresh onRefresh={() => q.refetch()}>
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
+
       <header className="px-4 pt-4">
         <Link to="/profile" className="mono-tag" style={{ color: "var(--color-ink-3)" }}>← Back</Link>
         <h1 className="serif mt-2 text-3xl" style={{ color: "var(--color-ink-0)" }}>My posts</h1>
@@ -84,5 +87,6 @@ function MyPostsPage() {
         ))}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

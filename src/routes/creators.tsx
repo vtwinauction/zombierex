@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listCreators, CREATOR_CATEGORIES } from "@/lib/creator.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/creators")({
   head: () => ({
@@ -47,7 +48,7 @@ function CreatorsPage() {
   const [search, setSearch] = useState("");
 
   const list = useServerFn(listCreators);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["creators", scope, category, search],
     queryFn: () => list({ data: { scope, category: category as any, search: search || undefined } }),
   });
@@ -55,7 +56,9 @@ function CreatorsPage() {
   const featured = useMemo(() => (data ?? [])[0], [data]);
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24">
+
 
       <div className="flex items-end justify-between px-4 pt-6">
         <div>
@@ -159,8 +162,10 @@ function CreatorsPage() {
         ))}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
+
 
 function CreatorRow({ c }: { c: any }) {
   return (

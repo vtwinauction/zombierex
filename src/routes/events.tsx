@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listEvents, EVENT_CATEGORIES } from "@/lib/events.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   Select,
   SelectContent,
@@ -44,7 +45,7 @@ function EventsPage() {
   const [search, setSearch] = useState("");
 
   const list = useServerFn(listEvents);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["events", scope, category, search],
     queryFn: () => list({ data: { scope, category: category as any, search: search || undefined } }),
   });
@@ -54,7 +55,9 @@ function EventsPage() {
   const rest = useMemo(() => events.filter((e: any) => e.id !== featured?.id), [events, featured]);
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24 event-fade">
+
 
       {/* ── Page header ─────────────────────────────── */}
       <header className="px-4 pt-6">
@@ -219,8 +222,10 @@ function EventsPage() {
         ))}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
+
 
 function FeaturedCard({ event }: { event: any }) {
 
