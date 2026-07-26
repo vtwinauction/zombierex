@@ -96,14 +96,24 @@ export function setForceOffline(v: boolean) {
   if (!v) void drain();
 }
 
-/** Simulated network transport. Replace with a real fetch/RPC call. */
+/** Real network transport — sends the queued action to the backend. */
 async function sendMock(action: QueuedAction): Promise<void> {
-  await new Promise((r) => setTimeout(r, 320 + Math.random() * 280));
-  if (!isOnline()) {
-    throw new Error("offline");
+  if (!isOnline()) throw new Error("offline");
+  const { react, unreact } = await import("@/lib/feed.functions");
+  try {
+    if (action.kind === "like") await react({ data: { post_id: action.targetId, kind: "like" } });
+    else if (action.kind === "unlike") await unreact({ data: { post_id: action.targetId, kind: "like" } });
+    else if (action.kind === "save") await react({ data: { post_id: action.targetId, kind: "save" } });
+    else if (action.kind === "unsave") await unreact({ data: { post_id: action.targetId, kind: "save" } });
+    else if (action.kind === "share") await react({ data: { post_id: action.targetId, kind: "share" } });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "error";
+    // Auth errors shouldn't retry forever — mark as terminal.
+    if (msg.toLowerCase().includes("unauthorized") || msg.toLowerCase().includes("forbidden")) {
+      throw new Error("auth_required");
+    }
+    throw err;
   }
-  // ~5% synthetic transient failure so retry state is visible.
-  if (Math.random() < 0.05) throw new Error("transient");
 }
 
 export function enqueue(targetId: string, kind: InteractionKind): QueuedAction {
