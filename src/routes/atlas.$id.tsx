@@ -75,14 +75,15 @@ function RouteDetail() {
     }
     // open Google Maps directions to start point
     if (route.start_lat && route.start_lng) {
-      window.open(`https://www.google.com/maps/dir/?api=1&destination=${route.start_lat},${route.start_lng}&travelmode=driving`, "_blank");
+      const { openExternal } = await import("@/lib/native");
+      await openExternal(`https://www.google.com/maps/dir/?api=1&destination=${route.start_lat},${route.start_lng}&travelmode=driving`);
     }
   }
   async function onShare() {
-    const url = window.location.href;
-    if ((navigator as any).share) { try { await (navigator as any).share({ title: route.title, url }); return; } catch {} }
-    await navigator.clipboard.writeText(url);
-    alert("Link copied");
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    const { share } = await import("@/lib/native");
+    const res = await share({ title: route.title, url, dialogTitle: "Share route" });
+    if (res.ok) toast.success("Shared");
   }
 
   return (
