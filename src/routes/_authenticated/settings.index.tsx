@@ -89,6 +89,9 @@ const SECTIONS: Array<{ id: string; title: string; hint: string; items: Array<{ 
     { label: "About ZOMBIEREX", hint: "App version and credits", kind: "about" },
     { label: "Terms of service", kind: "tos" },
     { label: "Privacy policy", kind: "privacy-policy" },
+    { label: "Community guidelines", kind: "guidelines" },
+    { label: "EULA", kind: "eula" },
+    { label: "Copyright / DMCA", kind: "dmca" },
   ]},
 ];
 
