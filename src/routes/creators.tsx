@@ -48,7 +48,7 @@ function CreatorsPage() {
   const [search, setSearch] = useState("");
 
   const list = useServerFn(listCreators);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["creators", scope, category, search],
     queryFn: () => list({ data: { scope, category: category as any, search: search || undefined } }),
   });
@@ -56,7 +56,9 @@ function CreatorsPage() {
   const featured = useMemo(() => (data ?? [])[0], [data]);
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24">
+
 
       <div className="flex items-end justify-between px-4 pt-6">
         <div>
