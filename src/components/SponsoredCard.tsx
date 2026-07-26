@@ -27,7 +27,7 @@ export function SponsoredCard({ creative, placement }: { creative: Creative; pla
     }).catch(() => {});
   }, [creative?.id]);
 
-  const onClick = () => {
+  const onClick = async () => {
     if (creative?.campaign?.id) {
       log({
         data: {
