@@ -141,6 +141,30 @@ function RootComponent() {
     return () => { cancelled = true; };
   }, [router]);
 
+  // Refresh live data whenever the app returns to the foreground
+  // (native `zx:appstate` from bootstrap, plus web visibility change).
+  useEffect(() => {
+    let lastRefresh = Date.now();
+    const refresh = () => {
+      if (Date.now() - lastRefresh < 5_000) return; // debounce
+      lastRefresh = Date.now();
+      queryClient.invalidateQueries();
+    };
+    const onAppState = (e: Event) => {
+      const detail = (e as CustomEvent<{ isActive?: boolean }>).detail;
+      if (detail?.isActive) refresh();
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    window.addEventListener("zx:appstate", onAppState as EventListener);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("zx:appstate", onAppState as EventListener);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [queryClient]);
+
   // Hide while scrolling down; always visible at the top of the page.
   const navHidden = !isTop && scrollDir === "down";
 
