@@ -1,33 +1,36 @@
 import { Link } from "@tanstack/react-router";
 import { ShoppingCart } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { cartCount } from "@/lib/cart.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-
-const CART_KEY = "zx.cart.v1";
 
 /**
  * Cart entry point rendered in the top masthead on every page.
- * Reads the local cart snapshot and shows a live item count badge.
+ * Live count reads from the database (RLS-scoped to the signed-in user).
  */
 export function CartIconLink() {
-  const [count, setCount] = useState(0);
+  const fetchCount = useServerFn(cartCount);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
-    const read = () => {
-      try {
-        const ids = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
-        setCount(Array.isArray(ids) ? ids.length : 0);
-      } catch {
-        setCount(0);
-      }
-    };
-    read();
-    window.addEventListener("storage", read);
-    const id = window.setInterval(read, 500);
-    return () => {
-      window.removeEventListener("storage", read);
-      window.clearInterval(id);
-    };
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => mounted && setSignedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setSignedIn(!!session);
+    });
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, []);
+
+  const q = useQuery({
+    queryKey: ["cart", "count"],
+    queryFn: () => fetchCount(),
+    enabled: signedIn,
+    staleTime: 15_000,
+    refetchOnWindowFocus: true,
+  });
+  const count = q.data ?? 0;
 
   return (
     <Link
