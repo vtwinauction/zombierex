@@ -5,6 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Heart, Share2, MessageCircle, Flag, ArrowRight, ChevronRight, BadgeCheck } from "lucide-react";
 import { getListing, toggleSaveListing, reportListing, updateListing, deleteListing } from "@/lib/marketplace.functions";
 import { startDirectMessage } from "@/lib/messages.functions";
+import { addToCart } from "@/lib/cart.functions";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 
