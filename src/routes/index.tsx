@@ -100,6 +100,8 @@ function HomePage() {
     const timeAgo = mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.round(mins/60)}h` : `${Math.round(mins/1440)}d`;
     return {
       id: `db:${r.id}`,
+      dbId: r.id as string,
+      authorId: (a.id ?? r.author_id) as string | undefined,
       user: {
         avatar: a.avatar_url || "https://api.dicebear.com/7.x/shapes/svg?seed=" + (a.id ?? r.author_id),
         handle: a.handle || a.display_name || "rider",
