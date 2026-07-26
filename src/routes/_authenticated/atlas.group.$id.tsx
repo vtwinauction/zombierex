@@ -123,8 +123,9 @@ function GroupLive() {
     if (!ride) return;
     const url = `${location.origin}/atlas/group?code=${ride.join_code}`;
     try {
-      if (navigator.share) await navigator.share({ title: ride.title, text: `Join my ride: ${ride.join_code}`, url });
-      else { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
+      const { share: nativeShare } = await import("@/lib/native");
+      const res = await nativeShare({ title: ride.title, text: `Join my ride: ${ride.join_code}`, url, dialogTitle: "Share ride" });
+      if (!res.ok) { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
     } catch {}
   }
   async function onLeave() {
