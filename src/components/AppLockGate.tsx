@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import {
   authenticateBiometric,
   loadAppLockPrefs,
+  saveAppLockPrefs,
 } from "@/lib/native/biometric";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Full-screen biometric gate. When app-lock is enabled, blocks the UI
@@ -113,6 +115,40 @@ export function AppLockGate() {
       >
         {busy ? "Verifying…" : "Unlock"}
       </button>
+      {/* Escape hatches — prevent permanent lockout if biometrics fail
+          (e.g. plugin unavailable, hardware broken, credential missing). */}
+      <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
+        <button
+          onClick={() => {
+            saveAppLockPrefs({ ...loadAppLockPrefs(), enabled: false });
+            setLocked(false);
+          }}
+          className="tap"
+          style={{
+            padding: "10px 16px", borderRadius: 999, fontSize: 12,
+            background: "transparent", color: "var(--color-silver, #9aa0a6)",
+            border: "1px solid var(--color-hair-strong, #2a2d33)",
+          }}
+        >
+          Disable app lock
+        </button>
+        <button
+          onClick={async () => {
+            try { await supabase.auth.signOut(); } catch { /* ignore */ }
+            saveAppLockPrefs({ ...loadAppLockPrefs(), enabled: false });
+            setLocked(false);
+            try { window.location.assign("/auth"); } catch { /* ignore */ }
+          }}
+          className="tap"
+          style={{
+            padding: "10px 16px", borderRadius: 999, fontSize: 12,
+            background: "transparent", color: "var(--color-silver, #9aa0a6)",
+            border: "1px solid var(--color-hair-strong, #2a2d33)",
+          }}
+        >
+          Sign out
+        </button>
+      </div>
     </div>
   );
 }

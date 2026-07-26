@@ -54,7 +54,7 @@ export const startCheckout = createServerFn({ method: "POST" })
     // provider is enabled. For now, a hosted mock page collects confirmation.
     return {
       payment_id: payment.id,
-      checkout_url: `/checkout/${payment.id}`,
+      checkout_url: `/checkout/payment/${payment.id}`,
       provider: "mock" as const,
     };
   });
@@ -87,7 +87,8 @@ export const listMyPayments = createServerFn({ method: "GET" })
 
 /**
  * Dev-only: confirm a mock payment without leaving the app.
- * In production this path is disabled and the real provider webhook does it.
+ * HARD-DISABLED in production — the real provider webhook confirms payments.
+ * Explicitly opt-in via ALLOW_MOCK_PAYMENTS=1 for staging/dev builds only.
  */
 export const confirmMockPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -98,6 +99,13 @@ export const confirmMockPayment = createServerFn({ method: "POST" })
     }).parse(raw),
   )
   .handler(async ({ data, context }) => {
+    // Production guard: without the explicit opt-in, refuse. This closes the
+    // free-subscription exploit where any authenticated user could flip their
+    // own mock payment to "succeeded" and activate a paid plan.
+    if (process.env.ALLOW_MOCK_PAYMENTS !== "1" && process.env.NODE_ENV === "production") {
+      throw new Error("Mock payment confirmation is disabled in production");
+    }
+
     const { data: payment, error } = await context.supabase
       .from("payments")
       .select("id, user_id, provider, subscription_id")

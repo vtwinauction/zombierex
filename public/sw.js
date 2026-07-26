@@ -41,6 +41,6 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
       }
       return res;
-    }).catch(() => cached as any)),
+    }).catch(() => cached))),
   );
 });

@@ -77,10 +77,12 @@ export async function authenticateBiometric(reason = "Unlock ZOMBIEREX"): Promis
     }
     return false;
   }
-  // Web fallback: prompt platform authenticator via a discoverable get() ceremony.
+  // Web fallback: only pass if a credential was actually returned and verified.
+  // A completed ceremony with no registered credential must NOT be treated as
+  // a pass — otherwise anyone who cancels a browser prompt could unlock.
   try {
     if (!("credentials" in navigator)) return false;
-    await navigator.credentials.get({
+    const cred = await navigator.credentials.get({
       publicKey: {
         challenge: crypto.getRandomValues(new Uint8Array(32)),
         timeout: 30_000,
@@ -89,10 +91,8 @@ export async function authenticateBiometric(reason = "Unlock ZOMBIEREX"): Promis
       },
       mediation: "optional",
     } as CredentialRequestOptions);
-    return true;
+    return cred != null;
   } catch {
-    // If no credential is registered we still consider a completed user-verify UI a pass;
-    // on failure/cancel, deny.
     return false;
   }
 }
