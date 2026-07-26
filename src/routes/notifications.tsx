@@ -68,5 +68,6 @@ function NotificationsPage() {
         <p className="mono-tag" style={{ color: "var(--color-ash)" }}>END OF LOG</p>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
