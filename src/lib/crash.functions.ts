@@ -33,6 +33,24 @@ export const submitCrashReport = createServerFn({ method: "POST" })
       },
     });
 
+    // Anonymous flood control: dedupe near-identical reports (same message +
+    // route + user agent) within the last 30s to blunt unauth spam. The
+    // authenticated `check_rate_limit` primitive can't be used here because
+    // crash reports must accept anon inserts (users may be signed out when
+    // the app crashes).
+    try {
+      const since = new Date(Date.now() - 30_000).toISOString();
+      let q = supabase
+        .from("crash_reports")
+        .select("id")
+        .eq("message", data.message.slice(0, 2000))
+        .gte("created_at", since);
+      q = data.route ? q.eq("route", data.route) : q.is("route", null);
+      q = data.userAgent ? q.eq("user_agent", data.userAgent) : q.is("user_agent", null);
+      const { data: recent } = await q.limit(1).maybeSingle();
+      if (recent) return { ok: true as const, deduped: true };
+    } catch { /* dedupe best-effort */ }
+
     const { error } = await supabase.from("crash_reports").insert({
       user_id: data.userId ?? null,
       message: data.message.slice(0, 2000),

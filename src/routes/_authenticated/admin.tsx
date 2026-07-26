@@ -23,10 +23,13 @@ function AdminShell() {
   const { data: stats } = useSuspenseQuery(statsQuery);
   const path = useRouterState({ select: (s) => s.location.pathname });
 
-  const tabs: { to: "/admin" | "/admin/vendors" | "/admin/crashes"; label: string; exact?: boolean }[] = [
+  const tabs: { to: "/admin" | "/admin/vendors" | "/admin/crashes" | "/admin/judge" | "/admin/health" | "/admin/moderation"; label: string; exact?: boolean }[] = [
     { to: "/admin", label: "Overview", exact: true },
     { to: "/admin/vendors", label: "Vendors" },
+    { to: "/admin/moderation", label: "Moderation" },
+    { to: "/admin/judge", label: "Judge" },
     { to: "/admin/crashes", label: "Crashes" },
+    { to: "/admin/health", label: "Health" },
   ];
 
   return (

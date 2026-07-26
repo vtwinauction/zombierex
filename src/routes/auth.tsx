@@ -11,8 +11,18 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Sign in or create your ZOMBIEREX account." },
     ],
   }),
+  validateSearch: (raw) => {
+    const r = typeof raw.redirect === "string" && raw.redirect.startsWith("/") ? raw.redirect : undefined;
+    return { redirect: r };
+  },
   component: AuthPage,
 });
+
+function safeDest(d: string | undefined): string {
+  // Only same-origin paths, never /auth itself.
+  if (!d || !d.startsWith("/") || d.startsWith("//") || d.startsWith("/auth")) return "/";
+  return d;
+}
 
 const emailSchema = z.string().trim().email("Enter a valid email").max(255);
 const passwordSchema = z.string().min(8, "At least 8 characters").max(72);
@@ -39,13 +49,15 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const { redirect: rawDest } = Route.useSearch();
+  const dest = safeDest(rawDest);
 
-  // If already signed in, bounce home.
+  // If already signed in, bounce to the intended destination.
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/", replace: true });
+      if (data.user) navigate({ to: dest, replace: true });
     });
-  }, [navigate]);
+  }, [navigate, dest]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
