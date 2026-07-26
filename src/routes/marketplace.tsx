@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Search, SlidersHorizontal, ArrowUpDown, Plus, MapPin, Star } from "lucide-react";
 import { listListings, LISTING_CATEGORIES, LISTING_CONDITIONS } from "@/lib/marketplace.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/marketplace")({
   head: () => ({
@@ -56,7 +57,7 @@ function MarketplacePage() {
   const [condition, setCondition] = useState<string | undefined>();
 
   const list = useServerFn(listListings);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["marketplace", scope, category, search, priceMin, priceMax, yearMin, condition],
     queryFn: () => list({ data: {
       scope, category: category as any, condition: condition as any,
@@ -81,6 +82,7 @@ function MarketplacePage() {
   const rest = useMemo(() => sorted.filter((l: any) => l.id !== featured?.id), [sorted, featured]);
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
 
       {/* Title row */}
@@ -194,6 +196,7 @@ function MarketplacePage() {
         {rest.map((l: any) => <ListingCard key={l.id} listing={l} />)}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 
