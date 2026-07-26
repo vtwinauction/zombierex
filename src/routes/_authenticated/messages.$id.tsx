@@ -110,6 +110,14 @@ function ChannelPage() {
         <Link to="/messages" className="mono-tag" style={{ color: "var(--color-ash)" }}>← BACK</Link>
         <p className="mono-tag" style={{ color: "var(--color-signal)" }}>CH · {id.slice(0, 6).toUpperCase()}</p>
         {peerTyping && <span className="mono-tag ml-auto" style={{ color: "var(--color-ash)" }}>TYPING…</span>}
+        <button
+          aria-label="More"
+          onClick={() => { setReportMsg(null); setReportOpen(true); }}
+          className={`tap grid h-8 w-8 place-items-center rounded-full ${peerTyping ? "" : "ml-auto"}`}
+          style={{ color: "var(--color-ash)" }}
+        >
+          <MoreVertical size={16} />
+        </button>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
