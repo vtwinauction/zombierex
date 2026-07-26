@@ -115,13 +115,19 @@ export const getMessages = createServerFn({ method: "GET" })
 
 export const sendMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
+  .inputValidator((raw) => z.object({
     conversationId: z.string().uuid(),
     body: z.string().max(4000).default(""),
     mediaUrl: z.string().url().max(2048).optional(),
   }).refine((v) => v.body.trim().length > 0 || !!v.mediaUrl, { message: "Message is empty" }).parse(raw))
 
   .handler(async ({ data, context }) => {
+    const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
+      _bucket: "messages", _max_hits: 30, _window_seconds: 60,
+    });
+    if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
+      ? "You're sending messages too fast — wait a moment."
+      : rlErr.message);
     const { data: row, error } = await context.supabase
       .from("messages")
       .insert({

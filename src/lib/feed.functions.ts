@@ -58,6 +58,12 @@ export const createPost = createServerFn({ method: "POST" })
     }).parse(raw),
   )
   .handler(async ({ data, context }) => {
+    const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
+      _bucket: "posts", _max_hits: 10, _window_seconds: 3600,
+    });
+    if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
+      ? "You're posting too fast — take a breather and try again in a bit."
+      : rlErr.message);
     const { data: row, error } = await context.supabase
       .from("posts")
       .insert({ ...data, author_id: context.userId })
@@ -176,6 +182,12 @@ export const follow = createServerFn({ method: "POST" })
   .inputValidator((raw) => z.object({ followee_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     if (data.followee_id === context.userId) throw new Error("Cannot follow yourself");
+    const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
+      _bucket: "follows", _max_hits: 60, _window_seconds: 3600,
+    });
+    if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
+      ? "Slow down on the follows — try again in a bit."
+      : rlErr.message);
     const { error } = await context.supabase
       .from("follows")
       .insert({ follower_id: context.userId, followee_id: data.followee_id });
