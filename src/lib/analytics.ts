@@ -55,11 +55,9 @@ function getSession(): string {
 async function flush() {
   if (BUFFER.length === 0) return;
   const rows = BUFFER.splice(0, BUFFER.length).map((e) => ({
-    event_name: e.name,
+    event: e.name,
     user_id: e.user_id,
-    session_id: e.session,
-    properties: e.props ?? {},
-    created_at: e.at,
+    props: { ...(e.props ?? {}), session_id: e.session, client_at: e.at } as never,
   }));
   try {
     await supabase.from("analytics_events").insert(rows);

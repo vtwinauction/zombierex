@@ -11,12 +11,15 @@ const DELAY_MS = 30_000;
 
 async function requestNative(): Promise<boolean> {
   try {
-    const mod = await import("@/lib/native/push");
-    if (typeof (mod as { registerPushNotifications?: () => Promise<boolean> }).registerPushNotifications === "function") {
-      return !!(await (mod as { registerPushNotifications: () => Promise<boolean> }).registerPushNotifications());
+    const mod = (await import("@/lib/native/push")) as {
+      registerPushNotifications?: () => Promise<unknown>;
+    };
+    if (typeof mod.registerPushNotifications === "function") {
+      const result = await mod.registerPushNotifications();
+      // Function returns a token string on success, null on failure.
+      return result != null && result !== false;
     }
   } catch {}
-  // Web fallback
   if (typeof Notification !== "undefined" && Notification.permission === "default") {
     try {
       const r = await Notification.requestPermission();
