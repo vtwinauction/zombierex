@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { MoreVertical } from "lucide-react";
 import { getMessages, sendMessage } from "@/lib/messages.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { ReportBlockSheet } from "@/components/ReportBlockSheet";
 
 export const Route = createFileRoute("/_authenticated/messages/$id")({
   head: ({ params }) => ({ meta: [
@@ -29,6 +31,8 @@ function ChannelPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const chanRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const meRef = useRef<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportMsg, setReportMsg] = useState<{ id: string; authorId?: string } | null>(null);
 
   const q = useQuery({
     queryKey: ["messages", id],
