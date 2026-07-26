@@ -39,6 +39,7 @@ function ExplorePage() {
   const [chip, setChip] = useState<Chip>("ALL");
   const dq = useDebounced(q.trim(), 250);
   const run = useServerFn(searchAll);
+  const history = useSearchHistory();
 
   const active = dq.length >= 2;
   const { data, isFetching } = useQuery({
@@ -47,6 +48,10 @@ function ExplorePage() {
     enabled: active,
     staleTime: 30_000,
   });
+
+  useEffect(() => {
+    if (active && !isFetching) history.push(dq);
+  }, [active, isFetching, dq, history]);
 
   const trending = useQuery({
     queryKey: ["search", "trending"],
