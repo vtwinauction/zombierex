@@ -34,10 +34,16 @@ async function awaitInitialSession() {
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const session = await awaitInitialSession();
     if (!session?.user) {
-      throw redirect({ to: "/auth" });
+      // Preserve the intended destination so /auth can bounce the user back
+      // after sign-in. Only same-origin paths — never external URLs.
+      const dest = location.href && location.href.startsWith("/") ? location.href : undefined;
+      throw redirect({
+        to: "/auth",
+        search: dest && dest !== "/auth" ? { redirect: dest } : undefined,
+      });
     }
     return { user: session.user };
   },
