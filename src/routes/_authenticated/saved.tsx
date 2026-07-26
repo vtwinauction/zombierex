@@ -47,9 +47,8 @@ function SavedPage() {
           <ul className="mt-6 grid grid-cols-3 gap-1">
             {rows.map((p: any) => {
               const src = p.thumbnail_url ?? p.media_url ?? "";
-              const handle = p.author?.handle;
-              const tile = (
-                <>
+              return (
+                <li key={p.id} className="relative aspect-square overflow-hidden hairline">
                   {src ? (
                     src.match(/\.(mp4|webm|mov)(\?|$)/i) ? (
                       <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
@@ -78,17 +77,6 @@ function SavedPage() {
                     >
                       {p.author.display_name}
                     </span>
-                  )}
-                </>
-              );
-              return (
-                <li key={p.id} className="relative aspect-square overflow-hidden hairline">
-                  {handle ? (
-                    <Link to="/u/$handle" params={{ handle }} className="block h-full w-full">
-                      {tile}
-                    </Link>
-                  ) : (
-                    tile
                   )}
                 </li>
               );
