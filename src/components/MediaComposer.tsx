@@ -351,6 +351,24 @@ export function MediaComposer({ onDone }: Props) {
         onDone?.();
       }
     },
+    onError: (err) => {
+      // Offline / network failure → keep everything as a draft and tell the user.
+      const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+      const msg = err instanceof Error ? err.message : String(err);
+      const isNetwork = offline || /network|fetch|failed to fetch|offline|timeout/i.test(msg);
+      if (isNetwork) {
+        try {
+          const draft = saveDraft({
+            ...(savedDraftId ? { id: savedDraftId } : {}),
+            caption,
+            kind: (items[0]?.kind === "video" ? "video" : "photo") as PostDraft["kind"],
+            media: items.map((m) => ({ url: m.previewUrl, contentType: m.file.type })),
+            scheduledFor: scheduleAt ? new Date(scheduleAt).getTime() : null,
+          });
+          setSavedDraftId(draft.id);
+        } catch { /* ignore */ }
+      }
+    },
   });
 
   const draftSave = () => {
