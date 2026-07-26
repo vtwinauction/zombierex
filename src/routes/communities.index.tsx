@@ -186,6 +186,21 @@ function CommunitiesPage() {
           scanning frequencies…
         </p>
       )}
+      {!isPending && items.length === 0 && (
+        <div className="mt-10 px-6 text-center">
+          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>NO CREWS FOUND</p>
+          <p className="mt-2 text-[13px]" style={{ color: "var(--color-ink-2)" }}>
+            Try a different filter — or start your own crew.
+          </p>
+          <Link
+            to="/communities/new"
+            className="mt-4 inline-block rounded-full px-5 py-2 text-[12px] font-semibold"
+            style={{ background: "var(--color-neon)", color: "var(--color-ink-0)" }}
+          >
+            Create community
+          </Link>
+        </div>
+      )}
     </div>
     </PullToRefresh>
   );
