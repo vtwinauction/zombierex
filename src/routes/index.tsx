@@ -531,6 +531,12 @@ function HomePage() {
               </div>
               <button
                 aria-label="More"
+                onClick={() => setReportTarget({
+                  kind: "post",
+                  id: (p as any).dbId,
+                  authorId: (p as any).authorId,
+                  handle: p.user.handle,
+                })}
                 className="tap grid h-9 w-9 shrink-0 place-items-center text-lg leading-none"
                 style={{ color: "var(--color-ink-3)" }}
               >
