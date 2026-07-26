@@ -1,25 +1,30 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ReportBlockSheet } from "@/components/ReportBlockSheet";
+import { haptic } from "@/lib/native";
 
 export type CommentItem = {
   id: string;
   author: string;
   body: string;
   createdAt: number;
+  parentId?: string | null;
+  likes?: number;
+  likedByMe?: boolean;
 };
 
 /**
  * Lightweight comments sheet — slides up from the bottom.
  * Uses in-memory state per targetId (persists during the session via module cache).
- * Works for both real posts and mock posts so users can always leave a comment.
+ * Supports one-level reply threading + per-comment likes.
  */
 const store = new Map<string, CommentItem[]>();
 
 function seed(targetId: string): CommentItem[] {
   if (store.has(targetId)) return store.get(targetId)!;
   const initial: CommentItem[] = [
-    { id: "s1", author: "apex_rex", body: "Insane throttle response 🔥", createdAt: Date.now() - 3600_000 },
-    { id: "s2", author: "nitro_kid", body: "What tires you running?", createdAt: Date.now() - 1800_000 },
+    { id: "s1", author: "apex_rex", body: "Insane throttle response 🔥", createdAt: Date.now() - 3600_000, likes: 12 },
+    { id: "s2", author: "nitro_kid", body: "What tires you running?", createdAt: Date.now() - 1800_000, likes: 3 },
+    { id: "s3", author: "torque_dan", body: "Michelin Power 6.", createdAt: Date.now() - 1500_000, parentId: "s2", likes: 1 },
   ];
   store.set(targetId, initial);
   return initial;
@@ -41,11 +46,13 @@ export function CommentsSheet({
   const [items, setItems] = useState<CommentItem[]>(() => seed(targetId));
   const [text, setText] = useState("");
   const [flagged, setFlagged] = useState<CommentItem | null>(null);
+  const [replyTo, setReplyTo] = useState<CommentItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
       setItems([...seed(targetId)]);
+      setReplyTo(null);
     }
   }, [open, targetId]);
 
@@ -56,6 +63,21 @@ export function CommentsSheet({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  const { roots, repliesByParent } = useMemo(() => {
+    const roots: CommentItem[] = [];
+    const map = new Map<string, CommentItem[]>();
+    for (const c of items) {
+      if (c.parentId) {
+        const arr = map.get(c.parentId) ?? [];
+        arr.push(c);
+        map.set(c.parentId, arr);
+      } else {
+        roots.push(c);
+      }
+    }
+    return { roots, repliesByParent: map };
+  }, [items]);
+
   const submit = () => {
     const body = text.trim();
     if (!body) return;
@@ -64,14 +86,33 @@ export function CommentsSheet({
       author: "you",
       body,
       createdAt: Date.now(),
+      parentId: replyTo ? (replyTo.parentId ?? replyTo.id) : null,
+      likes: 0,
     };
-    const merged = [next, ...items];
+    const merged = [...items, next];
     store.set(targetId, merged);
     setItems(merged);
     setText("");
+    setReplyTo(null);
+    void haptic("light");
     onSubmitted?.();
   };
 
+  const toggleLike = (c: CommentItem) => {
+    const merged = items.map((it) =>
+      it.id === c.id
+        ? { ...it, likedByMe: !it.likedByMe, likes: (it.likes ?? 0) + (it.likedByMe ? -1 : 1) }
+        : it,
+    );
+    store.set(targetId, merged);
+    setItems(merged);
+    void haptic("light");
+  };
+
+  const startReply = (c: CommentItem) => {
+    setReplyTo(c);
+    setTimeout(() => inputRef.current?.focus(), 30);
+  };
 
   return (
     <div
@@ -79,7 +120,6 @@ export function CommentsSheet({
       className="fixed inset-0 z-[80]"
       style={{ pointerEvents: open ? "auto" : "none" }}
     >
-      {/* backdrop */}
       <div
         onClick={onClose}
         className="absolute inset-0 transition-opacity duration-200"
@@ -90,7 +130,6 @@ export function CommentsSheet({
         }}
       />
 
-      {/* sheet */}
       <div
         role="dialog"
         aria-modal="true"
@@ -107,7 +146,6 @@ export function CommentsSheet({
           boxShadow: "0 -30px 80px -20px rgba(15,15,15,0.18)",
         }}
       >
-        {/* grabber */}
         <div className="flex justify-center pt-2.5 pb-1">
           <span
             className="block h-1 w-10 rounded-full"
@@ -115,14 +153,10 @@ export function CommentsSheet({
           />
         </div>
 
-        {/* header */}
         <div className="flex items-center justify-between px-5 pb-3">
           <h3 className="text-[15px] font-semibold tracking-tight" style={{ color: "var(--color-ink-0)" }}>
             {title}{" "}
-            <span
-              className="mono-num text-[11px]"
-              style={{ color: "var(--color-ink-3)" }}
-            >
+            <span className="mono-num text-[11px]" style={{ color: "var(--color-ink-3)" }}>
               {items.length}
             </span>
           </h3>
@@ -138,52 +172,34 @@ export function CommentsSheet({
 
         <div aria-hidden className="mx-5 h-px" style={{ background: "var(--color-line)" }} />
 
-        {/* list */}
         <div className="flex-1 overflow-y-auto px-5 py-3 space-y-4">
-          {items.length === 0 && (
+          {roots.length === 0 && (
             <p className="pt-10 text-center text-[13px]" style={{ color: "var(--color-ink-3)" }}>
               Be the first to comment.
             </p>
           )}
-          {items.map((c) => (
-            <div key={c.id} className="flex gap-3">
-              <div
-                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold"
-                style={{
-                  background: "var(--color-paper-2)",
-                  border: "1px solid var(--color-line)",
-                  color: "var(--color-ink-0)",
-                }}
-              >
-                {c.author.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-[13px] font-semibold" style={{ color: "var(--color-ink-0)" }}>{c.author}</span>
-                  <span className="mono-num text-[10px]" style={{ color: "var(--color-ink-3)" }}>
-                    {timeAgo(c.createdAt)}
-                  </span>
-                </div>
-                <p className="mt-0.5 text-[13.5px] leading-snug" style={{ color: "var(--color-ink-1)" }}>
-                  {c.body}
-                </p>
-                <div className="mt-1 flex gap-4 text-[11px]" style={{ color: "var(--color-ink-3)" }}>
-                  <button className="tap">Reply</button>
-                  <button className="tap">Like</button>
-                  <button
-                    className="tap ml-auto"
-                    aria-label="Report comment"
-                    onClick={() => setFlagged(c)}
-                  >
-                    ⋯
-                  </button>
-                </div>
-              </div>
-            </div>
+          {roots.map((c) => (
+            <CommentRow
+              key={c.id}
+              c={c}
+              onReply={startReply}
+              onLike={toggleLike}
+              onFlag={setFlagged}
+              replies={repliesByParent.get(c.id) ?? []}
+            />
           ))}
         </div>
 
-        {/* composer */}
+        {replyTo && (
+          <div
+            className="flex items-center justify-between px-5 py-1.5 text-[11px]"
+            style={{ background: "var(--color-paper-1)", color: "var(--color-ink-2)", borderTop: "1px solid var(--color-line)" }}
+          >
+            <span>Replying to <b style={{ color: "var(--color-ink-0)" }}>@{replyTo.author}</b></span>
+            <button className="tap" onClick={() => setReplyTo(null)} aria-label="Cancel reply">✕</button>
+          </div>
+        )}
+
         <form
           onSubmit={(e) => { e.preventDefault(); submit(); }}
           className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 pt-3"
@@ -205,7 +221,7 @@ export function CommentsSheet({
             ref={inputRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Add a comment…"
+            placeholder={replyTo ? `Reply to @${replyTo.author}…` : "Add a comment…"}
             enterKeyHint="send"
             autoComplete="off"
             autoCapitalize="sentences"
@@ -235,7 +251,6 @@ export function CommentsSheet({
             Post
           </button>
         </form>
-
       </div>
       <ReportBlockSheet
         open={!!flagged}
@@ -244,6 +259,91 @@ export function CommentsSheet({
         targetId={flagged?.id}
         authorHandle={flagged?.author}
       />
+    </div>
+  );
+}
+
+function CommentRow({
+  c,
+  replies,
+  onReply,
+  onLike,
+  onFlag,
+  nested = false,
+}: {
+  c: CommentItem;
+  replies?: CommentItem[];
+  onReply: (c: CommentItem) => void;
+  onLike: (c: CommentItem) => void;
+  onFlag: (c: CommentItem) => void;
+  nested?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const replyCount = replies?.length ?? 0;
+  return (
+    <div className={nested ? "flex gap-3 pl-10" : "flex gap-3"}>
+      <div
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] font-semibold"
+        style={{
+          background: "var(--color-paper-2)",
+          border: "1px solid var(--color-line)",
+          color: "var(--color-ink-0)",
+        }}
+      >
+        {c.author.slice(0, 2).toUpperCase()}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline gap-2">
+          <span className="text-[13px] font-semibold" style={{ color: "var(--color-ink-0)" }}>{c.author}</span>
+          <span className="mono-num text-[10px]" style={{ color: "var(--color-ink-3)" }}>
+            {timeAgo(c.createdAt)}
+          </span>
+        </div>
+        <p className="mt-0.5 text-[13.5px] leading-snug" style={{ color: "var(--color-ink-1)" }}>
+          {c.body}
+        </p>
+        <div className="mt-1 flex items-center gap-4 text-[11px]" style={{ color: "var(--color-ink-3)" }}>
+          <button
+            className="tap"
+            onClick={() => onLike(c)}
+            aria-pressed={c.likedByMe}
+            style={{ color: c.likedByMe ? "var(--color-neon)" : "var(--color-ink-3)" }}
+          >
+            {c.likedByMe ? "♥" : "♡"} {c.likes ?? 0}
+          </button>
+          {!nested && <button className="tap" onClick={() => onReply(c)}>Reply</button>}
+          <button
+            className="tap ml-auto"
+            aria-label="Report comment"
+            onClick={() => onFlag(c)}
+          >
+            ⋯
+          </button>
+        </div>
+        {replyCount > 0 && (
+          <button
+            className="tap mt-2 text-[11px] font-semibold"
+            style={{ color: "var(--color-ink-2)" }}
+            onClick={() => setExpanded((v) => !v)}
+          >
+            {expanded ? "Hide replies" : `View ${replyCount} ${replyCount === 1 ? "reply" : "replies"}`}
+          </button>
+        )}
+        {expanded && replies && (
+          <div className="mt-3 space-y-3">
+            {replies.map((r) => (
+              <CommentRow
+                key={r.id}
+                c={r}
+                onReply={onReply}
+                onLike={onLike}
+                onFlag={onFlag}
+                nested
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
