@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listEvents, EVENT_CATEGORIES } from "@/lib/events.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import {
   Select,
   SelectContent,
