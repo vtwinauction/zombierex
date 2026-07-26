@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { installCrashReporter, reportCrash } from "../lib/crash-reporter";
 import { BottomNav } from "@/components/BottomNav";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
@@ -41,6 +42,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    void reportCrash(error, { mechanism: "react_error_boundary", context: { boundary: "root" } });
   }, [error]);
 
   return (
@@ -122,6 +124,12 @@ function RootComponent() {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
     if (!import.meta.env.PROD) return;
     navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
+
+  // Wire global crash reporter — installs window error + unhandledrejection
+  // listeners and forwards throttled, deduped reports to crash_reports.
+  useEffect(() => {
+    installCrashReporter();
   }, []);
 
   useEffect(() => {
