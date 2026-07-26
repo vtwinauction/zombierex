@@ -128,7 +128,7 @@ function HomePage() {
       caption: r.caption ?? "",
       tags: [] as string[],
     };
-  }).filter((p) => p.image || p.caption);
+  }).filter((p: any) => p.image || p.caption);
   // Only fall back to sample content when the live feed has no real posts yet.
   const hasRealPosts = realPosts.length > 0;
   const baseFeed = tab === "following" ? posts.filter((_, i) => i % 2 === 0) : posts;
