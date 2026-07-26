@@ -11,6 +11,7 @@ import {
   claimChallenge,
 } from "@/lib/gamification.functions";
 import { Flame, Trophy, Zap, Award, Users, Gift, CheckCircle2, Lock } from "lucide-react";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/rewards")({
   head: () => ({
