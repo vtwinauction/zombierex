@@ -84,25 +84,65 @@ bunx @capacitor/assets generate --iconBackgroundColor '#08090b' \
   --splashBackgroundColor '#08090b'
 ```
 
-## 6. Permissions
+## 6. Permissions — copy/paste
 
-Add usage strings before shipping. iOS `Info.plist`:
+### iOS — `ios/App/App/Info.plist`
 
-- `NSCameraUsageDescription`
-- `NSPhotoLibraryUsageDescription`
-- `NSLocationWhenInUseUsageDescription`
-- `NSLocationAlwaysAndWhenInUseUsageDescription` (Atlas group ride)
-- `NSMicrophoneUsageDescription` (Reels)
+App Store review rejects builds that request any of these APIs without a
+human-readable usage string. Paste inside the top-level `<dict>`:
 
-Android `AndroidManifest.xml` already gets these from installed plugins;
-add `ACCESS_BACKGROUND_LOCATION` manually if group ride runs backgrounded.
+```xml
+<key>NSCameraUsageDescription</key>
+<string>ZOMBIEREX uses your camera to capture posts, reels, and vehicle inspections.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Attach photos and videos from your library to posts, reels, and listings.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Save reels and drag-race replays back to your photo library.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Record audio for reels and voice notes.</string>
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>Show your position on Atlas, verify drag-race runs, and tag posts with location.</string>
+<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+<string>Keep tracking your route during group rides even when the app is in the background.</string>
+<key>NSMotionUsageDescription</key>
+<string>Use motion sensors to detect launches and validate drag-race telemetry.</string>
+<key>NSFaceIDUsageDescription</key>
+<string>Unlock ZOMBIEREX and confirm sensitive actions with Face ID.</string>
+```
 
-## 7. Release checklist
+### Android — `android/app/src/main/AndroidManifest.xml`
 
-- [ ] Real bundle ID + Team ID configured
-- [ ] Icons + splash generated
-- [ ] Permission strings written
-- [ ] Deep-link intent filter + Info.plist entries added
-- [ ] Push credentials uploaded (APNs key, FCM `google-services.json`)
-- [ ] `bun run build && bunx cap sync` clean
-- [ ] TestFlight / Internal Testing build validated on physical device
+The installed Capacitor plugins declare most permissions automatically.
+Add these manually only if the matching feature is enabled:
+
+```xml
+<!-- Background group-ride tracking on Atlas -->
+<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+<!-- High-frequency GPS for drag racing -->
+<uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+<!-- Push notifications on Android 13+ -->
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+```
+
+## 7. Assets
+
+Regenerate every icon + splash density after editing `resources/icon.png`
+or `resources/splash.png`:
+
+```bash
+bun run cap:assets
+```
+
+See `resources/README.md` for source-image constraints.
+
+## 8. Release checklist
+
+- [ ] Real bundle ID + Team ID configured in `capacitor.config.ts`
+- [ ] `bun run cap:assets` run against final artwork
+- [ ] All permission strings above pasted into `Info.plist`
+- [ ] Deep-link intent filter + `CFBundleURLSchemes` entries added
+- [ ] Push credentials uploaded (APNs `.p8` key, FCM `google-services.json`)
+- [ ] `bun run build && bunx cap sync` finishes clean
+- [ ] Smoke-test on a physical device via TestFlight / Internal Testing
+- [ ] Offline banner appears when device is put in airplane mode
+- [ ] Deep link `zombierex://post/<id>` opens the correct route
