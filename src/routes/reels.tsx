@@ -127,21 +127,15 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
 
   async function handleShare(e: React.MouseEvent) {
     e.stopPropagation();
-    const shareData = {
+    const url = typeof window !== "undefined" ? `${window.location.origin}/reels#${reel.id}` : "";
+    const { share } = await import("@/lib/native");
+    const res = await share({
       title: `${reel.user.handle} on ZOMBIEREX`,
       text: reel.caption,
-      url: typeof window !== "undefined" ? `${window.location.origin}/reels#${reel.id}` : "",
-    };
-    try {
-      if (typeof navigator !== "undefined" && (navigator as Navigator & { share?: (d: ShareData) => Promise<void> }).share) {
-        await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share(shareData);
-      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(shareData.url);
-        toast.success("Link copied");
-      }
-    } catch {
-      /* user dismissed */
-    }
+      url,
+      dialogTitle: "Share reel",
+    });
+    if (res.ok) toast.success("Shared");
   }
 
   function submitComment(e: React.FormEvent) {

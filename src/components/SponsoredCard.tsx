@@ -27,7 +27,7 @@ export function SponsoredCard({ creative, placement }: { creative: Creative; pla
     }).catch(() => {});
   }, [creative?.id]);
 
-  const onClick = () => {
+  const onClick = async () => {
     if (creative?.campaign?.id) {
       log({
         data: {
@@ -38,7 +38,10 @@ export function SponsoredCard({ creative, placement }: { creative: Creative; pla
         },
       }).catch(() => {});
     }
-    if (creative.cta_url) window.open(creative.cta_url, "_blank", "noopener");
+    if (creative.cta_url) {
+      const { openExternal } = await import("@/lib/native");
+      await openExternal(creative.cta_url);
+    }
   };
 
   return (
