@@ -143,27 +143,17 @@ function ProfilePage() {
   const handleShareProfile = async () => {
     if (typeof window === "undefined") return;
     const url = `${window.location.origin}/profile`;
-    const shareData = {
+    const { share: nativeShare } = await import("@/lib/native");
+    const res = await nativeShare({
       title: `${displayName} · ZOMBIEREX`,
       text: `Check out ${displayName} on ZOMBIEREX`,
       url,
-    };
-
-    try {
-      const canNativeShare =
-        typeof navigator !== "undefined" &&
-        typeof navigator.share === "function" &&
-        (typeof navigator.canShare !== "function" || navigator.canShare(shareData));
-
-      if (canNativeShare) {
-        await navigator.share(shareData);
-        showToast("Share opened");
-        return;
-      }
-    } catch {
-      // Some mobile preview/browser contexts expose native share but block it.
+      dialogTitle: "Share profile",
+    });
+    if (res.ok) {
+      showToast("Share opened");
+      return;
     }
-
     const copied = await copyProfileLink(url);
     showToast(copied ? "Profile link copied" : "Copy this profile link: /profile");
   };
