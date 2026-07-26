@@ -98,5 +98,6 @@ function AdsManager() {
         })}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

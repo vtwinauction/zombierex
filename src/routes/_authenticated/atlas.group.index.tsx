@@ -158,5 +158,6 @@ function GroupHub() {
         )}
       </section>
     </div>
+    </PullToRefresh>
   );
 }

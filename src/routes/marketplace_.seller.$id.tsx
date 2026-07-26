@@ -87,6 +87,7 @@ function SellerPage() {
         </div>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 

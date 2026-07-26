@@ -181,6 +181,7 @@ function CreatorPublicPage() {
         </Modal>
       )}
     </div>
+    </PullToRefresh>
   );
 }
 

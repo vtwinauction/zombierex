@@ -120,6 +120,7 @@ function DashboardPage() {
         </>
       )}
     </div>
+    </PullToRefresh>
   );
 }
 
