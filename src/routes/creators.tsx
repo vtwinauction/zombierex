@@ -162,8 +162,10 @@ function CreatorsPage() {
         ))}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
+
 
 function CreatorRow({ c }: { c: any }) {
   return (
