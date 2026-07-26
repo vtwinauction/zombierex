@@ -34,6 +34,15 @@ function ListingDetail() {
   const update = useServerFn(updateListing);
   const del = useServerFn(deleteListing);
   const startDM = useServerFn(startDirectMessage);
+  const addToCartFn = useServerFn(addToCart);
+  const addCartMut = useMutation({
+    mutationFn: (listingId: string) => addToCartFn({ data: { listingId } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Added to cart");
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to add to cart"),
+  });
   const [photoIdx, setPhotoIdx] = useState(0);
   const [dmPending, setDmPending] = useState(false);
 
