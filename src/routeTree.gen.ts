@@ -104,8 +104,6 @@ import { Route as AuthenticatedCreatorDashboardRouteImport } from './routes/_aut
 import { Route as AuthenticatedCreatorCollabsRouteImport } from './routes/_authenticated/creator.collabs'
 import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authenticated/creator.apply'
 import { Route as AuthenticatedCommunitiesCreateRouteImport } from './routes/_authenticated/communities.create'
-import { Route as AuthenticatedCheckoutPaymentIdRouteImport } from './routes/_authenticated/checkout.$paymentId'
-import { Route as AuthenticatedCheckoutIdRouteImport } from './routes/_authenticated/checkout.$id'
 import { Route as AuthenticatedBusinessShowcaseRouteImport } from './routes/_authenticated/business.showcase'
 import { Route as AuthenticatedAtlasVoiceRouteImport } from './routes/_authenticated/atlas.voice'
 import { Route as AuthenticatedAtlasSosRouteImport } from './routes/_authenticated/atlas.sos'
@@ -132,6 +130,8 @@ import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authentic
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
 import { Route as AuthenticatedCommunitiesSlugManageRouteImport } from './routes/_authenticated/communities.$slug.manage'
+import { Route as AuthenticatedCheckoutPaymentPaymentIdRouteImport } from './routes/_authenticated/checkout.payment.$paymentId'
+import { Route as AuthenticatedCheckoutOrderIdRouteImport } from './routes/_authenticated/checkout.order.$id'
 import { Route as AuthenticatedAtlasGroupIdRouteImport } from './routes/_authenticated/atlas.group.$id'
 import { Route as AuthenticatedAdminVendorsIdRouteImport } from './routes/_authenticated/admin.vendors.$id'
 import { Route as AuthenticatedCommunitiesSlugPostNewRouteImport } from './routes/_authenticated/communities.$slug.post.new'
@@ -648,17 +648,6 @@ const AuthenticatedCommunitiesCreateRoute =
     path: '/communities/create',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCheckoutPaymentIdRoute =
-  AuthenticatedCheckoutPaymentIdRouteImport.update({
-    id: '/checkout/$paymentId',
-    path: '/checkout/$paymentId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedCheckoutIdRoute = AuthenticatedCheckoutIdRouteImport.update({
-  id: '/checkout/$id',
-  path: '/checkout/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedBusinessShowcaseRoute =
   AuthenticatedBusinessShowcaseRouteImport.update({
     id: '/business/showcase',
@@ -803,6 +792,18 @@ const AuthenticatedCommunitiesSlugManageRoute =
     path: '/communities/$slug/manage',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCheckoutPaymentPaymentIdRoute =
+  AuthenticatedCheckoutPaymentPaymentIdRouteImport.update({
+    id: '/checkout/payment/$paymentId',
+    path: '/checkout/payment/$paymentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCheckoutOrderIdRoute =
+  AuthenticatedCheckoutOrderIdRouteImport.update({
+    id: '/checkout/order/$id',
+    path: '/checkout/order/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAtlasGroupIdRoute =
   AuthenticatedAtlasGroupIdRouteImport.update({
     id: '/atlas/group/$id',
@@ -892,8 +893,6 @@ export interface FileRoutesByFullPath {
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
-  '/checkout/$id': typeof AuthenticatedCheckoutIdRoute
-  '/checkout/$paymentId': typeof AuthenticatedCheckoutPaymentIdRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
@@ -949,6 +948,8 @@ export interface FileRoutesByFullPath {
   '/vendor/': typeof AuthenticatedVendorIndexRoute
   '/admin/vendors/$id': typeof AuthenticatedAdminVendorsIdRoute
   '/atlas/group/$id': typeof AuthenticatedAtlasGroupIdRoute
+  '/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
+  '/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
@@ -1018,8 +1019,6 @@ export interface FileRoutesByTo {
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
-  '/checkout/$id': typeof AuthenticatedCheckoutIdRoute
-  '/checkout/$paymentId': typeof AuthenticatedCheckoutPaymentIdRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
@@ -1075,6 +1074,8 @@ export interface FileRoutesByTo {
   '/vendor': typeof AuthenticatedVendorIndexRoute
   '/admin/vendors/$id': typeof AuthenticatedAdminVendorsIdRoute
   '/atlas/group/$id': typeof AuthenticatedAtlasGroupIdRoute
+  '/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
+  '/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
@@ -1149,8 +1150,6 @@ export interface FileRoutesById {
   '/_authenticated/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/_authenticated/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/_authenticated/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
-  '/_authenticated/checkout/$id': typeof AuthenticatedCheckoutIdRoute
-  '/_authenticated/checkout/$paymentId': typeof AuthenticatedCheckoutPaymentIdRoute
   '/_authenticated/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/_authenticated/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/_authenticated/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
@@ -1206,6 +1205,8 @@ export interface FileRoutesById {
   '/_authenticated/vendor/': typeof AuthenticatedVendorIndexRoute
   '/_authenticated/admin/vendors/$id': typeof AuthenticatedAdminVendorsIdRoute
   '/_authenticated/atlas/group/$id': typeof AuthenticatedAtlasGroupIdRoute
+  '/_authenticated/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
+  '/_authenticated/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/_authenticated/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
@@ -1280,8 +1281,6 @@ export interface FileRouteTypes {
     | '/atlas/sos'
     | '/atlas/voice'
     | '/business/showcase'
-    | '/checkout/$id'
-    | '/checkout/$paymentId'
     | '/communities/create'
     | '/creator/apply'
     | '/creator/collabs'
@@ -1337,6 +1336,8 @@ export interface FileRouteTypes {
     | '/vendor/'
     | '/admin/vendors/$id'
     | '/atlas/group/$id'
+    | '/checkout/order/$id'
+    | '/checkout/payment/$paymentId'
     | '/communities/$slug/manage'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
@@ -1406,8 +1407,6 @@ export interface FileRouteTypes {
     | '/atlas/sos'
     | '/atlas/voice'
     | '/business/showcase'
-    | '/checkout/$id'
-    | '/checkout/$paymentId'
     | '/communities/create'
     | '/creator/apply'
     | '/creator/collabs'
@@ -1463,6 +1462,8 @@ export interface FileRouteTypes {
     | '/vendor'
     | '/admin/vendors/$id'
     | '/atlas/group/$id'
+    | '/checkout/order/$id'
+    | '/checkout/payment/$paymentId'
     | '/communities/$slug/manage'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
@@ -1536,8 +1537,6 @@ export interface FileRouteTypes {
     | '/_authenticated/atlas/sos'
     | '/_authenticated/atlas/voice'
     | '/_authenticated/business/showcase'
-    | '/_authenticated/checkout/$id'
-    | '/_authenticated/checkout/$paymentId'
     | '/_authenticated/communities/create'
     | '/_authenticated/creator/apply'
     | '/_authenticated/creator/collabs'
@@ -1593,6 +1592,8 @@ export interface FileRouteTypes {
     | '/_authenticated/vendor/'
     | '/_authenticated/admin/vendors/$id'
     | '/_authenticated/atlas/group/$id'
+    | '/_authenticated/checkout/order/$id'
+    | '/_authenticated/checkout/payment/$paymentId'
     | '/_authenticated/communities/$slug/manage'
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
@@ -2314,20 +2315,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommunitiesCreateRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/checkout/$paymentId': {
-      id: '/_authenticated/checkout/$paymentId'
-      path: '/checkout/$paymentId'
-      fullPath: '/checkout/$paymentId'
-      preLoaderRoute: typeof AuthenticatedCheckoutPaymentIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/checkout/$id': {
-      id: '/_authenticated/checkout/$id'
-      path: '/checkout/$id'
-      fullPath: '/checkout/$id'
-      preLoaderRoute: typeof AuthenticatedCheckoutIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/business/showcase': {
       id: '/_authenticated/business/showcase'
       path: '/business/showcase'
@@ -2508,6 +2495,20 @@ declare module '@tanstack/react-router' {
       path: '/communities/$slug/manage'
       fullPath: '/communities/$slug/manage'
       preLoaderRoute: typeof AuthenticatedCommunitiesSlugManageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/checkout/payment/$paymentId': {
+      id: '/_authenticated/checkout/payment/$paymentId'
+      path: '/checkout/payment/$paymentId'
+      fullPath: '/checkout/payment/$paymentId'
+      preLoaderRoute: typeof AuthenticatedCheckoutPaymentPaymentIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/checkout/order/$id': {
+      id: '/_authenticated/checkout/order/$id'
+      path: '/checkout/order/$id'
+      fullPath: '/checkout/order/$id'
+      preLoaderRoute: typeof AuthenticatedCheckoutOrderIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/atlas/group/$id': {
@@ -2694,8 +2695,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtlasSosRoute: typeof AuthenticatedAtlasSosRoute
   AuthenticatedAtlasVoiceRoute: typeof AuthenticatedAtlasVoiceRoute
   AuthenticatedBusinessShowcaseRoute: typeof AuthenticatedBusinessShowcaseRoute
-  AuthenticatedCheckoutIdRoute: typeof AuthenticatedCheckoutIdRoute
-  AuthenticatedCheckoutPaymentIdRoute: typeof AuthenticatedCheckoutPaymentIdRoute
   AuthenticatedCommunitiesCreateRoute: typeof AuthenticatedCommunitiesCreateRoute
   AuthenticatedCreatorApplyRoute: typeof AuthenticatedCreatorApplyRoute
   AuthenticatedCreatorCollabsRoute: typeof AuthenticatedCreatorCollabsRoute
@@ -2719,6 +2718,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDragIndexRoute: typeof AuthenticatedDragIndexRoute
   AuthenticatedRidesIndexRoute: typeof AuthenticatedRidesIndexRoute
   AuthenticatedAtlasGroupIdRoute: typeof AuthenticatedAtlasGroupIdRoute
+  AuthenticatedCheckoutOrderIdRoute: typeof AuthenticatedCheckoutOrderIdRoute
+  AuthenticatedCheckoutPaymentPaymentIdRoute: typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   AuthenticatedCommunitiesSlugManageRoute: typeof AuthenticatedCommunitiesSlugManageRoute
   AuthenticatedEventsIdEditRoute: typeof AuthenticatedEventsIdEditRoute
   AuthenticatedJudgeSubmitEventSlugRoute: typeof AuthenticatedJudgeSubmitEventSlugRoute
@@ -2753,8 +2754,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtlasSosRoute: AuthenticatedAtlasSosRoute,
   AuthenticatedAtlasVoiceRoute: AuthenticatedAtlasVoiceRoute,
   AuthenticatedBusinessShowcaseRoute: AuthenticatedBusinessShowcaseRoute,
-  AuthenticatedCheckoutIdRoute: AuthenticatedCheckoutIdRoute,
-  AuthenticatedCheckoutPaymentIdRoute: AuthenticatedCheckoutPaymentIdRoute,
   AuthenticatedCommunitiesCreateRoute: AuthenticatedCommunitiesCreateRoute,
   AuthenticatedCreatorApplyRoute: AuthenticatedCreatorApplyRoute,
   AuthenticatedCreatorCollabsRoute: AuthenticatedCreatorCollabsRoute,
@@ -2779,6 +2778,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDragIndexRoute: AuthenticatedDragIndexRoute,
   AuthenticatedRidesIndexRoute: AuthenticatedRidesIndexRoute,
   AuthenticatedAtlasGroupIdRoute: AuthenticatedAtlasGroupIdRoute,
+  AuthenticatedCheckoutOrderIdRoute: AuthenticatedCheckoutOrderIdRoute,
+  AuthenticatedCheckoutPaymentPaymentIdRoute:
+    AuthenticatedCheckoutPaymentPaymentIdRoute,
   AuthenticatedCommunitiesSlugManageRoute:
     AuthenticatedCommunitiesSlugManageRoute,
   AuthenticatedEventsIdEditRoute: AuthenticatedEventsIdEditRoute,

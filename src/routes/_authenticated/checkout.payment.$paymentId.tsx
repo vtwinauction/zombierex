@@ -7,7 +7,7 @@ import { getPayment, confirmMockPayment } from "@/lib/payments.functions";
 const paymentQuery = (id: string) =>
   queryOptions({ queryKey: ["payment", id], queryFn: () => getPayment({ data: { id } }) });
 
-export const Route = createFileRoute("/_authenticated/checkout/$paymentId")({
+export const Route = createFileRoute("/_authenticated/checkout/payment/$paymentId")({
   head: () => ({ meta: [{ title: "Checkout · ZOMBIEREX" }] }),
   loader: ({ context, params }) => context.queryClient.ensureQueryData(paymentQuery(params.paymentId)),
   component: CheckoutPage,
