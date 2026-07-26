@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "rev-n-roll-connect"
+const SITE_NAME = "zombierex"
 const SENDER_DOMAIN = "notify.zombierex.com"
 const ROOT_DOMAIN = "zombierex.com"
 const FROM_DOMAIN = "notify.zombierex.com"
