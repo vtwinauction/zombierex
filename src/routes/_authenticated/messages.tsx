@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { listConversations } from "@/lib/messages.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({ meta: [
