@@ -101,7 +101,10 @@ function ChannelPage() {
     } finally { setUploading(false); }
   }
 
-  const msgs = q.data ?? [];
+  const msgs: any[] = (q.data as any)?.messages ?? [];
+  const peer: any = (q.data as any)?.peer ?? null;
+  const peerLastReadAt: string | null = (q.data as any)?.peerLastReadAt ?? null;
+  const peerReadTs = peerLastReadAt ? new Date(peerLastReadAt).getTime() : 0;
   const canSend = (text.trim().length > 0 || !!pendingMedia) && !send.isPending && !uploading;
 
   return (
