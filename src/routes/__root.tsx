@@ -136,7 +136,6 @@ function RootComponent() {
   }, []);
 
   // Fire screen_view on every pathname change.
-  const pathname = router.state.location.pathname;
   useEffect(() => {
     track("screen_view", { path: pathname });
   }, [pathname]);
