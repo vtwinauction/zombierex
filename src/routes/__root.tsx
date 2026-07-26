@@ -18,6 +18,7 @@ import { GlobalStatusBar } from "@/components/GlobalStatusBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { PushNotificationBridge } from "@/components/PushNotificationBridge";
 import { AppLockGate } from "@/components/AppLockGate";
+import { FirstRunTour } from "@/components/FirstRunTour";
 import { Toaster } from "@/components/ui/sonner";
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
@@ -181,6 +182,7 @@ function RootComponent() {
         {!isImmersive && <BottomNav hidden={navHidden} />}
         <PushNotificationBridge />
         <AppLockGate />
+        <FirstRunTour />
         <Toaster position="top-center" richColors closeButton />
       </div>
 
