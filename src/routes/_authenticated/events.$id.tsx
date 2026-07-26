@@ -111,8 +111,12 @@ function EventDetail() {
       await checkInFn({ data: { event_id: id, lat, lng } });
       qc.invalidateQueries({ queryKey: ["event", id] });
       qc.invalidateQueries({ queryKey: ["event-attendees", id] });
+      const { haptic } = await import("@/lib/native");
+      void haptic("success");
       toast.success("Checked in ✓");
     } catch (err: any) {
+      const { haptic } = await import("@/lib/native");
+      void haptic("error");
       toast.error(err?.message || "Check-in failed");
     } finally {
       setCheckingIn(false);

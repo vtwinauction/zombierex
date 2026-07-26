@@ -17,6 +17,7 @@ import { RaceHUD, type LaneTelemetry } from "@/components/RaceHUD";
 import { useChristmasTree, type TreeMode } from "@/lib/christmas-tree";
 import { Ghost, GHOST_PRESETS, type GhostPreset } from "@/lib/ghost-racer";
 import { submitDragRun, coachDragRun } from "@/lib/drag.functions";
+import { haptic } from "@/lib/native";
 
 export const Route = createFileRoute("/_authenticated/drag/race")({
   head: () => ({
@@ -145,6 +146,20 @@ function RacePage() {
       greenAt: tree.state.greenAt,
     };
   }, [tree.state]);
+
+  // Haptic pulses on tree phase changes (native on device, vibrate on web).
+  const prevPhaseRef = useRef(tree.state.phase);
+  useEffect(() => {
+    const prev = prevPhaseRef.current;
+    const cur = tree.state.phase;
+    if (cur !== prev) {
+      if (cur === "amber1" || cur === "amber2" || cur === "amber3") void haptic("light");
+      else if (cur === "green") void haptic("heavy");
+      else if (cur === "foul") void haptic("error");
+      else if (cur === "done") void haptic("success");
+      prevPhaseRef.current = cur;
+    }
+  }, [tree.state.phase]);
 
   // --- GPS lifecycle ---------------------------------------------------------
   const startGps = useCallback(() => {
