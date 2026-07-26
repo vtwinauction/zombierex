@@ -8,6 +8,7 @@ import {
   subscribe,
   type QueuedAction,
 } from "@/lib/interaction-queue";
+import { share as nativeShare } from "@/lib/native";
 
 export type InteractionState = {
   liked: boolean;
@@ -59,6 +60,11 @@ export function useInteractionState(
   const share = useCallback(() => {
     setShares((n) => n + 1);
     try { enqueue(targetId, "share"); } catch (e) { console.error("enqueue share failed", e); }
+    // Fire the native / web share sheet in parallel; failures are silent.
+    if (typeof window !== "undefined") {
+      const url = `${window.location.origin}/${targetId.replace(/^db:/, "posts/")}`;
+      void nativeShare({ title: "ZOMBIEREX", url, dialogTitle: "Share" });
+    }
   }, [targetId]);
 
 
