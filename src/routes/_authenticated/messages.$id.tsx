@@ -63,6 +63,10 @@ function ChannelPage() {
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
         () => qc.invalidateQueries({ queryKey: ["messages", id] }),
       )
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "conversation_members", filter: `conversation_id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["messages", id] }),
+      )
       .on("broadcast", { event: "typing" }, (payload: any) => {
         if (payload?.payload?.userId && payload.payload.userId !== meRef.current) {
           setPeerTyping(true);
@@ -101,19 +105,27 @@ function ChannelPage() {
     } finally { setUploading(false); }
   }
 
-  const msgs = q.data ?? [];
+  const msgs: any[] = (q.data as any)?.messages ?? [];
+  const peer: any = (q.data as any)?.peer ?? null;
+  const peerLastReadAt: string | null = (q.data as any)?.peerLastReadAt ?? null;
+  const peerReadTs = peerLastReadAt ? new Date(peerLastReadAt).getTime() : 0;
   const canSend = (text.trim().length > 0 || !!pendingMedia) && !send.isPending && !uploading;
 
   return (
     <div className="flex flex-col" style={{ minHeight: "100svh" }}>
       <header className="sticky top-0 z-10 hairline-b px-4 py-3 flex items-center gap-3" style={{ background: "var(--color-bone)" }}>
         <Link to="/messages" className="mono-tag" style={{ color: "var(--color-ash)" }}>← BACK</Link>
-        <p className="mono-tag" style={{ color: "var(--color-signal)" }}>CH · {id.slice(0, 6).toUpperCase()}</p>
-        {peerTyping && <span className="mono-tag ml-auto" style={{ color: "var(--color-ash)" }}>TYPING…</span>}
+        {peer?.avatar_url && <img src={peer.avatar_url} alt="" className="h-8 w-8 hairline object-cover" />}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13px] font-bold">{peer?.display_name ?? peer?.username ?? `CH · ${id.slice(0, 6).toUpperCase()}`}</p>
+          <p className="mono-tag" style={{ color: peerTyping ? "var(--color-signal)" : "var(--color-ash)" }}>
+            {peerTyping ? "TYPING…" : peer?.username ? `@${peer.username}` : "CHANNEL"}
+          </p>
+        </div>
         <button
           aria-label="More"
           onClick={() => { setReportMsg(null); setReportOpen(true); }}
-          className={`tap grid h-8 w-8 place-items-center rounded-full ${peerTyping ? "" : "ml-auto"}`}
+          className="tap grid h-8 w-8 place-items-center rounded-full"
           style={{ color: "var(--color-ash)" }}
         >
           <MoreVertical size={16} />
@@ -157,6 +169,11 @@ function ChannelPage() {
               )}
               <p className="mono-tag mt-1 px-1 text-right" style={{ color: "var(--color-ash)" }}>
                 {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {m.mine && (
+                  <span className="ml-1" style={{ color: peerReadTs >= new Date(m.createdAt).getTime() ? "var(--color-signal)" : "var(--color-ash)" }}>
+                    {peerReadTs >= new Date(m.createdAt).getTime() ? "✓✓" : "✓"}
+                  </span>
+                )}
               </p>
             </div>
           </div>
