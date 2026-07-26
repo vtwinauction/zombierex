@@ -24,12 +24,50 @@ export const Route = createFileRoute("/reels")({
   component: ReelsPage,
 });
 
-// Loop the mock reels a few times for an infinite-feel prototype
-const feed: Reel[] = [...reels, ...reels, ...reels];
+const mockFeed: Reel[] = [...reels, ...reels, ...reels];
 
 function ReelsPage() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
+
+  const fetchFeed = useServerFn(listFeed);
+  const live = useQuery({
+    queryKey: ["reels", "live"],
+    queryFn: () => fetchFeed({ data: { kind: "video", limit: 24 } }),
+    staleTime: 60_000,
+  });
+
+  const feed: Reel[] = useMemo(() => {
+    const items = (live.data?.items ?? []) as any[];
+    const mapped: Reel[] = items
+      .filter((r) => r.media_url || r.thumbnail_url)
+      .map((r) => {
+        const a = r.author ?? {};
+        return {
+          id: `db:${r.id}`,
+          user: {
+            id: (a.id ?? r.author_id) as string,
+            handle: a.handle ? `@${String(a.handle).replace(/^@/, "")}` : "@rider",
+            name: a.display_name || a.handle || "Rider",
+            avatar: a.avatar_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${a.id ?? r.author_id}`,
+            verified: !!a.is_verified,
+          },
+          video: r.media_url || "",
+          poster: r.thumbnail_url || r.media_url || "",
+          duration: 15,
+          caption: r.caption ?? "",
+          hashtags: [],
+          location: a.location || "",
+          music: { title: "Original sound", artist: a.display_name || a.handle || "rider" },
+          likes: r.likes_count ?? 0,
+          comments: r.comments_count ?? 0,
+          shares: r.shares_count ?? 0,
+          saves: 0,
+          views: r.views_count ?? 0,
+        } as Reel;
+      });
+    return mapped.length > 0 ? mapped : mockFeed;
+  }, [live.data]);
 
   useEffect(() => {
     const scroller = scrollerRef.current;
