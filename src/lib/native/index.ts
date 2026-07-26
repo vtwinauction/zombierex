@@ -6,8 +6,25 @@
  * Rule: never `import` a plugin at module scope — that pulls the native
  * binding into the web bundle. Always dynamic-import inside the function
  * body, guarded by isNative().
+ *
+ * The plugin specifiers are loaded via a variable so TypeScript does not
+ * try to resolve the native-only packages during web typecheck / SSR
+ * prerender. They are only ever evaluated on a real device.
  */
 import { Capacitor } from "@capacitor/core";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadPlugin<T = any>(name: string): Promise<T | null> {
+  try {
+    // Variable specifier — TS won't type-resolve, Vite will still bundle
+    // when the module exists on-device. On web this simply throws and we
+    // fall back to the web branch below.
+    const mod = await import(/* @vite-ignore */ name);
+    return mod as T;
+  } catch {
+    return null;
+  }
+}
 
 export function isNative(): boolean {
   try {
@@ -30,17 +47,24 @@ export function platform(): "ios" | "android" | "web" {
 
 export async function haptic(kind: "light" | "medium" | "heavy" | "success" | "warning" | "error" = "light") {
   if (isNative()) {
-    try {
-      const { Haptics, ImpactStyle, NotificationType } = await import("@capacitor/haptics");
-      if (kind === "success" || kind === "warning" || kind === "error") {
-        const map = { success: NotificationType.Success, warning: NotificationType.Warning, error: NotificationType.Error };
-        await Haptics.notification({ type: map[kind] });
-      } else {
-        const map = { light: ImpactStyle.Light, medium: ImpactStyle.Medium, heavy: ImpactStyle.Heavy };
-        await Haptics.impact({ style: map[kind] });
-      }
-      return;
-    } catch { /* fall through to web */ }
+    const mod = await loadPlugin<{
+      Haptics: { impact: (o: { style: unknown }) => Promise<void>; notification: (o: { type: unknown }) => Promise<void> };
+      ImpactStyle: Record<string, unknown>;
+      NotificationType: Record<string, unknown>;
+    }>("@capacitor/haptics");
+    if (mod) {
+      try {
+        const { Haptics, ImpactStyle, NotificationType } = mod;
+        if (kind === "success" || kind === "warning" || kind === "error") {
+          const map = { success: NotificationType.Success, warning: NotificationType.Warning, error: NotificationType.Error };
+          await Haptics.notification({ type: map[kind] });
+        } else {
+          const map = { light: ImpactStyle.Light, medium: ImpactStyle.Medium, heavy: ImpactStyle.Heavy };
+          await Haptics.impact({ style: map[kind] });
+        }
+        return;
+      } catch { /* fall through */ }
+    }
   }
   if (typeof navigator !== "undefined" && "vibrate" in navigator) {
     const ms = kind === "heavy" ? 30 : kind === "medium" ? 18 : 10;
@@ -54,11 +78,10 @@ export type ShareInput = { title?: string; text?: string; url?: string; dialogTi
 
 export async function share(input: ShareInput): Promise<{ ok: boolean }> {
   if (isNative()) {
-    try {
-      const { Share } = await import("@capacitor/share");
-      await Share.share(input);
-      return { ok: true };
-    } catch { return { ok: false }; }
+    const mod = await loadPlugin<{ Share: { share: (o: ShareInput) => Promise<void> } }>("@capacitor/share");
+    if (mod) {
+      try { await mod.Share.share(input); return { ok: true }; } catch { return { ok: false }; }
+    }
   }
   if (typeof navigator !== "undefined" && "share" in navigator) {
     try {
@@ -66,7 +89,6 @@ export async function share(input: ShareInput): Promise<{ ok: boolean }> {
       return { ok: true };
     } catch { return { ok: false }; }
   }
-  // Final fallback: copy URL to clipboard.
   if (input.url && typeof navigator !== "undefined" && "clipboard" in navigator) {
     try { await (navigator as Navigator).clipboard.writeText(input.url); return { ok: true }; } catch { /* ignore */ }
   }
@@ -77,11 +99,10 @@ export async function share(input: ShareInput): Promise<{ ok: boolean }> {
 
 export async function openExternal(url: string) {
   if (isNative()) {
-    try {
-      const { Browser } = await import("@capacitor/browser");
-      await Browser.open({ url, presentationStyle: "popover" });
-      return;
-    } catch { /* fall through */ }
+    const mod = await loadPlugin<{ Browser: { open: (o: { url: string; presentationStyle?: string }) => Promise<void> } }>("@capacitor/browser");
+    if (mod) {
+      try { await mod.Browser.open({ url, presentationStyle: "popover" }); return; } catch { /* fall through */ }
+    }
   }
   if (typeof window !== "undefined") window.open(url, "_blank", "noopener,noreferrer");
 }
@@ -90,23 +111,23 @@ export async function openExternal(url: string) {
 
 export async function getNetworkStatus() {
   if (isNative()) {
-    try {
-      const { Network } = await import("@capacitor/network");
-      return await Network.getStatus();
-    } catch { /* fall through */ }
+    const mod = await loadPlugin<{ Network: { getStatus: () => Promise<{ connected: boolean; connectionType: string }> } }>("@capacitor/network");
+    if (mod) {
+      try { return await mod.Network.getStatus(); } catch { /* fall through */ }
+    }
   }
   const online = typeof navigator === "undefined" ? true : navigator.onLine;
-  return { connected: online, connectionType: online ? "unknown" : "none" as const };
+  return { connected: online, connectionType: online ? "unknown" : "none" };
 }
 
 /* -------------------------------------------------- Device info */
 
 export async function getDeviceInfo() {
   if (isNative()) {
-    try {
-      const { Device } = await import("@capacitor/device");
-      return await Device.getInfo();
-    } catch { /* fall through */ }
+    const mod = await loadPlugin<{ Device: { getInfo: () => Promise<Record<string, unknown>> } }>("@capacitor/device");
+    if (mod) {
+      try { return await mod.Device.getInfo(); } catch { /* fall through */ }
+    }
   }
   return {
     platform: "web" as const,
