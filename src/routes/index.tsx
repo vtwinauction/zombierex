@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
 import { listFeed } from "@/lib/feed.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
 
 export const Route = createFileRoute("/")({
   head: () => ({
