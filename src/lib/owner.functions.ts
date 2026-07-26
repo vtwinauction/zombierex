@@ -362,7 +362,7 @@ export const listRecentPosts = createServerFn({ method: "GET" })
     await assertOwner(context.supabase, context.userId);
     let q = (context.supabase as any)
       .from("posts")
-      .select("id, author_id, caption, media_urls, likes_count, comments_count, created_at, is_hidden")
+      .select("id, author_id, caption, media_url, likes_count, comments_count, created_at, is_hidden")
 
       .order("created_at", { ascending: false }).limit(data.limit);
     if (data.search) q = q.ilike("caption", `%${data.search}%`);
