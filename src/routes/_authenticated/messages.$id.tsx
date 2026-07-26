@@ -129,8 +129,15 @@ function ChannelPage() {
           <div key={m.id} className={`flex ${m.mine ? "justify-end" : "justify-start"}`}>
             <div className="max-w-[78%]">
               {!m.mine && m.sender && (
-                <p className="mono-tag mb-1 px-1" style={{ color: "var(--color-ash)" }}>
-                  {m.sender.display_name ?? m.sender.username ?? "RIDER"}
+                <p className="mono-tag mb-1 px-1 flex items-center gap-2" style={{ color: "var(--color-ash)" }}>
+                  <span>{m.sender.display_name ?? m.sender.username ?? "RIDER"}</span>
+                  <button
+                    aria-label="Report message"
+                    onClick={() => { setReportMsg({ id: m.id, authorId: m.sender?.id }); setReportOpen(true); }}
+                    className="tap opacity-60 hover:opacity-100"
+                  >
+                    <MoreVertical size={12} />
+                  </button>
                 </p>
               )}
               {m.mediaUrl && (
