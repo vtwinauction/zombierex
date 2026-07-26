@@ -516,7 +516,7 @@ function HomePage() {
          Square media · caption · InteractionBar
          ================================================== */}
       <section className="mt-8 space-y-10">
-        {feedPosts.map((p, idx) => (
+        {feedPosts.map((p: any, idx: number) => (
           <div key={p.id}>
           <article className="rise" style={{ animationDelay: `${idx * 40}ms` }}>
             {/* post header — single baseline, 8pt rhythm, no crowding */}
