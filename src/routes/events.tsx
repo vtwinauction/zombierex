@@ -45,7 +45,7 @@ function EventsPage() {
   const [search, setSearch] = useState("");
 
   const list = useServerFn(listEvents);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["events", scope, category, search],
     queryFn: () => list({ data: { scope, category: category as any, search: search || undefined } }),
   });
@@ -55,7 +55,9 @@ function EventsPage() {
   const rest = useMemo(() => events.filter((e: any) => e.id !== featured?.id), [events, featured]);
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24 event-fade">
+
 
       {/* ── Page header ─────────────────────────────── */}
       <header className="px-4 pt-6">
