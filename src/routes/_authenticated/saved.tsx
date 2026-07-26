@@ -47,31 +47,49 @@ function SavedPage() {
           <ul className="mt-6 grid grid-cols-3 gap-1">
             {rows.map((p: any) => {
               const src = p.thumbnail_url ?? p.media_url ?? "";
+              const handle = p.author?.handle;
+              const tile = (
+                <>
+                  {src ? (
+                    src.match(/\.(mp4|webm|mov)(\?|$)/i) ? (
+                      <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
+                    ) : (
+                      <img src={src} alt={p.caption ?? "Saved post"} className="h-full w-full object-cover" loading="lazy" />
+                    )
+                  ) : (
+                    <div className="grid h-full w-full place-items-center" style={{ background: "var(--color-mist)" }}>
+                      <p className="mono-tag px-2 text-center line-clamp-3" style={{ color: "var(--color-ash)" }}>
+                        {(p.caption ?? "POST").slice(0, 60)}
+                      </p>
+                    </div>
+                  )}
+                  {p.kind === "video" && (
+                    <span
+                      className="absolute right-1 top-1 mono-tag px-1.5 py-0.5"
+                      style={{ background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 9 }}
+                    >
+                      REEL
+                    </span>
+                  )}
+                  {p.author?.display_name && (
+                    <span
+                      className="absolute inset-x-0 bottom-0 truncate px-1.5 py-1 text-[10px] font-semibold"
+                      style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7), transparent)", color: "#fff" }}
+                    >
+                      {p.author.display_name}
+                    </span>
+                  )}
+                </>
+              );
               return (
                 <li key={p.id} className="relative aspect-square overflow-hidden hairline">
-                  <Link to="/p/$id" params={{ id: p.id }}>
-                    {src ? (
-                      src.match(/\.(mp4|webm|mov)(\?|$)/i) ? (
-                        <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
-                      ) : (
-                        <img src={src} alt={p.caption ?? "Saved post"} className="h-full w-full object-cover" loading="lazy" />
-                      )
-                    ) : (
-                      <div className="grid h-full w-full place-items-center" style={{ background: "var(--color-mist)" }}>
-                        <p className="mono-tag px-2 text-center line-clamp-3" style={{ color: "var(--color-ash)" }}>
-                          {(p.caption ?? "POST").slice(0, 60)}
-                        </p>
-                      </div>
-                    )}
-                    {p.kind === "video" && (
-                      <span
-                        className="absolute right-1 top-1 mono-tag px-1.5 py-0.5"
-                        style={{ background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 9 }}
-                      >
-                        REEL
-                      </span>
-                    )}
-                  </Link>
+                  {handle ? (
+                    <Link to="/u/$handle" params={{ handle }} className="block h-full w-full">
+                      {tile}
+                    </Link>
+                  ) : (
+                    tile
+                  )}
                 </li>
               );
             })}
