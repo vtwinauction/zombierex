@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { MoreVertical } from "lucide-react";
 import { getMessages, sendMessage } from "@/lib/messages.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { ReportBlockSheet } from "@/components/ReportBlockSheet";
 
 export const Route = createFileRoute("/_authenticated/messages/$id")({
   head: ({ params }) => ({ meta: [
@@ -29,6 +31,8 @@ function ChannelPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const chanRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const meRef = useRef<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportMsg, setReportMsg] = useState<{ id: string; authorId?: string } | null>(null);
 
   const q = useQuery({
     queryKey: ["messages", id],
@@ -106,6 +110,14 @@ function ChannelPage() {
         <Link to="/messages" className="mono-tag" style={{ color: "var(--color-ash)" }}>← BACK</Link>
         <p className="mono-tag" style={{ color: "var(--color-signal)" }}>CH · {id.slice(0, 6).toUpperCase()}</p>
         {peerTyping && <span className="mono-tag ml-auto" style={{ color: "var(--color-ash)" }}>TYPING…</span>}
+        <button
+          aria-label="More"
+          onClick={() => { setReportMsg(null); setReportOpen(true); }}
+          className={`tap grid h-8 w-8 place-items-center rounded-full ${peerTyping ? "" : "ml-auto"}`}
+          style={{ color: "var(--color-ash)" }}
+        >
+          <MoreVertical size={16} />
+        </button>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
@@ -117,8 +129,15 @@ function ChannelPage() {
           <div key={m.id} className={`flex ${m.mine ? "justify-end" : "justify-start"}`}>
             <div className="max-w-[78%]">
               {!m.mine && m.sender && (
-                <p className="mono-tag mb-1 px-1" style={{ color: "var(--color-ash)" }}>
-                  {m.sender.display_name ?? m.sender.username ?? "RIDER"}
+                <p className="mono-tag mb-1 px-1 flex items-center gap-2" style={{ color: "var(--color-ash)" }}>
+                  <span>{m.sender.display_name ?? m.sender.username ?? "RIDER"}</span>
+                  <button
+                    aria-label="Report message"
+                    onClick={() => { setReportMsg({ id: m.id, authorId: m.sender?.id }); setReportOpen(true); }}
+                    className="tap opacity-60 hover:opacity-100"
+                  >
+                    <MoreVertical size={12} />
+                  </button>
                 </p>
               )}
               {m.mediaUrl && (
@@ -182,6 +201,15 @@ function ChannelPage() {
           {send.isPending ? "…" : "SEND"}
         </button>
       </form>
+
+      <ReportBlockSheet
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetKind="message"
+        targetId={reportMsg?.id ?? id}
+        authorId={reportMsg?.authorId}
+        authorHandle={undefined}
+      />
     </div>
   );
 }
