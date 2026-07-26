@@ -17,6 +17,16 @@ export const Route = createFileRoute("/auth")({
 const emailSchema = z.string().trim().email("Enter a valid email").max(255);
 const passwordSchema = z.string().min(8, "At least 8 characters").max(72);
 
+function ageInYears(dob: string): number {
+  const d = new Date(dob);
+  if (Number.isNaN(d.getTime())) return -1;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age;
+}
+
 function AuthPage() {
   const router = useRouter();
   const navigate = useNavigate();
@@ -24,6 +34,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [dob, setDob] = useState("");
+  const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -50,12 +62,16 @@ function AuthPage() {
         setMsg("Check your inbox for a reset link.");
       } else if (mode === "signup") {
         const parsedPassword = passwordSchema.parse(password);
+        const age = ageInYears(dob);
+        if (age < 0) throw new Error("Enter your date of birth.");
+        if (age < 13) throw new Error("You must be at least 13 years old to sign up.");
+        if (!agree) throw new Error("Please accept the Terms and Privacy Policy to continue.");
         const { error } = await supabase.auth.signUp({
           email: parsedEmail,
           password: parsedPassword,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: displayName || parsedEmail.split("@")[0] },
+            data: { full_name: displayName || parsedEmail.split("@")[0], dob, tos_accepted_at: new Date().toISOString() },
           },
         });
         if (error) throw error;
@@ -182,6 +198,41 @@ function AuthPage() {
                 placeholder="At least 8 characters"
               />
             </label>
+          )}
+
+          {mode === "signup" && (
+            <>
+              <label className="block">
+                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>DATE OF BIRTH</span>
+                <input
+                  type="date"
+                  required
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                  max={new Date().toISOString().slice(0, 10)}
+                  className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--color-hairline)", color: "var(--color-ink)", colorScheme: "dark" }}
+                />
+                <span className="mt-1 block text-[11px]" style={{ color: "var(--color-ash)" }}>
+                  You must be at least 13 to sign up.
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2 pt-1 text-xs" style={{ color: "var(--color-ash)" }}>
+                <input
+                  type="checkbox"
+                  checked={agree}
+                  onChange={(e) => setAgree(e.target.checked)}
+                  className="mt-0.5"
+                />
+                <span>
+                  I agree to the{" "}
+                  <Link to="/legal/terms" className="underline" style={{ color: "var(--color-neon)" }}>Terms</Link>,{" "}
+                  <Link to="/legal/privacy" className="underline" style={{ color: "var(--color-neon)" }}>Privacy Policy</Link>, and{" "}
+                  <Link to="/legal/community-guidelines" className="underline" style={{ color: "var(--color-neon)" }}>Community Guidelines</Link>.
+                </span>
+              </label>
+            </>
           )}
 
           {err && <p className="text-sm" style={{ color: "var(--color-heat)" }}>{err}</p>}
