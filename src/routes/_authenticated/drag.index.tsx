@@ -34,6 +34,7 @@ function DragHub() {
   const runs = data ?? [];
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="min-h-svh pb-24">
       <div className="px-4 pt-4">
         <div className="flex items-start justify-between gap-3">
@@ -119,6 +120,7 @@ function DragHub() {
 
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 
