@@ -117,6 +117,7 @@ import { Route as AuthenticatedAdminVendorsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_authenticated/admin.moderation'
 import { Route as AuthenticatedAdminJudgeRouteImport } from './routes/_authenticated/admin.judge'
 import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
+import { Route as AuthenticatedAdminCrashesRouteImport } from './routes/_authenticated/admin.crashes'
 import { Route as AuthenticatedAtlasGroupIndexRouteImport } from './routes/_authenticated/atlas.group.index'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -715,6 +716,12 @@ const AuthenticatedAdminHealthRoute =
     path: '/health',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCrashesRoute =
+  AuthenticatedAdminCrashesRouteImport.update({
+    id: '/crashes',
+    path: '/crashes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAtlasGroupIndexRoute =
   AuthenticatedAtlasGroupIndexRouteImport.update({
     id: '/atlas/group/',
@@ -841,6 +848,7 @@ export interface FileRoutesByFullPath {
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
+  '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/judge': typeof AuthenticatedAdminJudgeRoute
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
@@ -962,6 +970,7 @@ export interface FileRoutesByTo {
   '/sos/$token': typeof SosTokenRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
+  '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/judge': typeof AuthenticatedAdminJudgeRoute
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
@@ -1088,6 +1097,7 @@ export interface FileRoutesById {
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
+  '/_authenticated/admin/crashes': typeof AuthenticatedAdminCrashesRoute
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
   '/_authenticated/admin/judge': typeof AuthenticatedAdminJudgeRoute
   '/_authenticated/admin/moderation': typeof AuthenticatedAdminModerationRoute
@@ -1214,6 +1224,7 @@ export interface FileRouteTypes {
     | '/sos/$token'
     | '/communities/'
     | '/judge/'
+    | '/admin/crashes'
     | '/admin/health'
     | '/admin/judge'
     | '/admin/moderation'
@@ -1335,6 +1346,7 @@ export interface FileRouteTypes {
     | '/sos/$token'
     | '/communities'
     | '/judge'
+    | '/admin/crashes'
     | '/admin/health'
     | '/admin/judge'
     | '/admin/moderation'
@@ -1460,6 +1472,7 @@ export interface FileRouteTypes {
     | '/sos/$token'
     | '/communities/'
     | '/judge/'
+    | '/_authenticated/admin/crashes'
     | '/_authenticated/admin/health'
     | '/_authenticated/admin/judge'
     | '/_authenticated/admin/moderation'
@@ -2342,6 +2355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminHealthRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/crashes': {
+      id: '/_authenticated/admin/crashes'
+      path: '/crashes'
+      fullPath: '/admin/crashes'
+      preLoaderRoute: typeof AuthenticatedAdminCrashesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/atlas/group/': {
       id: '/_authenticated/atlas/group/'
       path: '/atlas/group'
@@ -2465,6 +2485,7 @@ const AuthenticatedAdminVendorsRouteWithChildren =
   )
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminCrashesRoute: typeof AuthenticatedAdminCrashesRoute
   AuthenticatedAdminHealthRoute: typeof AuthenticatedAdminHealthRoute
   AuthenticatedAdminJudgeRoute: typeof AuthenticatedAdminJudgeRoute
   AuthenticatedAdminModerationRoute: typeof AuthenticatedAdminModerationRoute
@@ -2473,6 +2494,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminCrashesRoute: AuthenticatedAdminCrashesRoute,
   AuthenticatedAdminHealthRoute: AuthenticatedAdminHealthRoute,
   AuthenticatedAdminJudgeRoute: AuthenticatedAdminJudgeRoute,
   AuthenticatedAdminModerationRoute: AuthenticatedAdminModerationRoute,
@@ -2757,3 +2779,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
