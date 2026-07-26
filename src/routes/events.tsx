@@ -221,7 +221,6 @@ function EventsPage() {
           <EventRow key={e.id} event={e} index={i} />
         ))}
       </div>
-      </div>
     </div>
     </PullToRefresh>
   );
