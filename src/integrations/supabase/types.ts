@@ -203,6 +203,13 @@ export type Database = {
             referencedRelation: "ad_campaigns"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ad_creatives_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ad_events: {
@@ -242,6 +249,13 @@ export type Database = {
             columns: ["campaign_id"]
             isOneToOne: false
             referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns_public"
             referencedColumns: ["id"]
           },
           {
@@ -4967,6 +4981,102 @@ export type Database = {
       }
     }
     Views: {
+      ad_campaigns_public: {
+        Row: {
+          currency: string | null
+          id: string | null
+          name: string | null
+          objective: Database["public"]["Enums"]["ad_objective"] | null
+          owner_id: string | null
+          placements: Database["public"]["Enums"]["ad_placement"][] | null
+          status: Database["public"]["Enums"]["ad_status"] | null
+          vendor_id: string | null
+        }
+        Insert: {
+          currency?: string | null
+          id?: string | null
+          name?: string | null
+          objective?: Database["public"]["Enums"]["ad_objective"] | null
+          owner_id?: string | null
+          placements?: Database["public"]["Enums"]["ad_placement"][] | null
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          vendor_id?: string | null
+        }
+        Update: {
+          currency?: string | null
+          id?: string | null
+          name?: string | null
+          objective?: Database["public"]["Enums"]["ad_objective"] | null
+          owner_id?: string | null
+          placements?: Database["public"]["Enums"]["ad_placement"][] | null
+          status?: Database["public"]["Enums"]["ad_status"] | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_campaigns_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_campaigns_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      advertisements_public: {
+        Row: {
+          ends_at: string | null
+          id: string | null
+          is_active: boolean | null
+          media_url: string | null
+          starts_at: string | null
+          target_url: string | null
+          title: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          ends_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          media_url?: string | null
+          starts_at?: string | null
+          target_url?: string | null
+          title?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          ends_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          media_url?: string | null
+          starts_at?: string | null
+          target_url?: string | null
+          title?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisements_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors_public: {
         Row: {
           business_name: string | null
