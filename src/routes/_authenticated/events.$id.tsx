@@ -133,9 +133,10 @@ function EventDetail() {
   async function doShare() {
     const url = typeof window !== "undefined" ? window.location.href : "";
     try {
-      if (navigator.share) {
-        await navigator.share({ title: e.title, url });
-      } else if (navigator.clipboard) {
+      const { share: nativeShare } = await import("@/lib/native");
+      const res = await nativeShare({ title: e.title, url, dialogTitle: "Share event" });
+      if (res.ok) return;
+      if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
         toast.success("Link copied to clipboard");
       }

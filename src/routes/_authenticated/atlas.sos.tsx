@@ -290,7 +290,8 @@ function ActivePanel({
         ) : (
           <button onClick={async () => {
             try {
-              if (navigator.share) await navigator.share({ title: "SOS", text: "I need help — track me:", url: shareUrl });
+              const { share: nativeShare } = await import("@/lib/native");
+              await nativeShare({ title: "SOS", text: "I need help — track me:", url: shareUrl, dialogTitle: "Share SOS" });
             } catch {}
           }} className="tap rounded-lg bg-white text-red-700 px-3 py-2 text-sm font-semibold">Share…</button>
         )}
