@@ -82,6 +82,7 @@ function MarketplacePage() {
   const rest = useMemo(() => sorted.filter((l: any) => l.id !== featured?.id), [sorted, featured]);
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
 
       {/* Title row */}
