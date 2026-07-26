@@ -166,11 +166,12 @@ function ListingDetail() {
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" style={{ color: "var(--color-neon)" }} strokeWidth={2} />
               </button>
               <button
-                onClick={() => navigate({ to: "/cart", search: { add: l.id } as any })}
-                className="tap w-full border py-4 mono-tag font-bold"
+                onClick={() => addCartMut.mutate(l.id)}
+                disabled={addCartMut.isPending}
+                className="tap w-full border py-4 mono-tag font-bold disabled:opacity-60"
                 style={{ borderColor: "var(--color-ink)", color: "var(--color-ink)", letterSpacing: "0.22em" }}
               >
-                ADD TO CART
+                {addCartMut.isPending ? "ADDING…" : "ADD TO CART"}
               </button>
             </div>
           )}
