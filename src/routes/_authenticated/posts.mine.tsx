@@ -27,7 +27,9 @@ function MyPostsPage() {
   });
 
   return (
+    <PullToRefresh onRefresh={() => q.refetch()}>
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
+
       <header className="px-4 pt-4">
         <Link to="/profile" className="mono-tag" style={{ color: "var(--color-ink-3)" }}>← Back</Link>
         <h1 className="serif mt-2 text-3xl" style={{ color: "var(--color-ink-0)" }}>My posts</h1>
