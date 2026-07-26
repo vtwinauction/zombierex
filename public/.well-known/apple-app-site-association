@@ -1,0 +1,23 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.zombierex.app"],
+        "components": [
+          { "/": "/", "comment": "Home" },
+          { "/": "/reels/*", "comment": "Reels" },
+          { "/": "/p/*", "comment": "Post detail" },
+          { "/": "/u/*", "comment": "Profile" },
+          { "/": "/marketplace/*", "comment": "Marketplace" },
+          { "/": "/atlas/*", "comment": "Atlas routes" },
+          { "/": "/drag/*", "comment": "Drag racing" },
+          { "/": "/events/*", "comment": "Events" }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.zombierex.app"]
+  }
+}
