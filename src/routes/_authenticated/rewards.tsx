@@ -249,8 +249,10 @@ function RewardsPage() {
         )}
       </Section>
     </div>
+    </PullToRefresh>
   );
 }
+
 
 function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
