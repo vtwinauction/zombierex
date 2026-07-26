@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { reels, type Reel } from "@/lib/mock-data";
 import { RiderMark } from "@/components/RiderBadge";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "@/components/icons/RexIcons";
+import { ReportBlockSheet } from "@/components/ReportBlockSheet";
+import { MoreVertical } from "lucide-react";
 
 export const Route = createFileRoute("/reels")({
   head: () => ({
@@ -111,6 +113,8 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
     { handle: "@apex_kai", text: "Berlin meet — I'm in.", avatar: reel.user.avatar },
     { handle: "@turbo_lila", text: "Wheels spec?", avatar: reel.user.avatar },
   ]);
+  const [reportOpen, setReportOpen] = useState(false);
+
 
   function onTap() {
     if (commentsOpen) return;
@@ -168,6 +172,20 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
       >
         {muted ? "MUTED · TAP" : "SOUND ON"}
       </span>
+
+      <button
+        onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
+        aria-label="More options"
+        className="tap absolute right-3 grid h-9 w-9 place-items-center rounded-full text-white"
+        style={{
+          top: "calc(env(safe-area-inset-top) + 92px)",
+          background: "rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        <MoreVertical size={16} />
+      </button>
+
 
       {heartPing && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -356,6 +374,15 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
           </div>
         </div>
       )}
+
+      <ReportBlockSheet
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetKind="reel"
+        targetId={(reel as any).dbId}
+        authorId={(reel as any).authorId}
+        authorHandle={reel.user.handle}
+      />
     </section>
   );
 }

@@ -21,7 +21,7 @@ async function assertAdmin(supabase: any, userId: string) {
 
 export const submitReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
+  .inputValidator((raw) =>
     z
       .object({
         target_kind: z.enum([
@@ -51,7 +51,7 @@ export const submitReport = createServerFn({ method: "POST" })
 
 export const blockUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ user_id: z.string().uuid(), reason: z.string().max(500).optional() }).parse(raw))
+  .inputValidator((raw) => z.object({ user_id: z.string().uuid(), reason: z.string().max(500).optional() }).parse(raw))
   .handler(async ({ data, context }) => {
     if (data.user_id === context.userId) throw new Error("Cannot block yourself");
     const { error } = await (context.supabase as any)
@@ -64,7 +64,7 @@ export const blockUser = createServerFn({ method: "POST" })
 
 export const unblockUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ user_id: z.string().uuid() }).parse(raw))
+  .inputValidator((raw) => z.object({ user_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as any).from("user_blocks").delete()
       .eq("blocker_id", context.userId).eq("blocked_id", data.user_id);
@@ -74,7 +74,7 @@ export const unblockUser = createServerFn({ method: "POST" })
 
 export const muteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ user_id: z.string().uuid() }).parse(raw))
+  .inputValidator((raw) => z.object({ user_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     if (data.user_id === context.userId) throw new Error("Cannot mute yourself");
     const { error } = await (context.supabase as any).from("user_mutes")
@@ -97,7 +97,7 @@ export const listMyBlocks = createServerFn({ method: "GET" })
 
 export const submitAppeal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ action_id: z.string().uuid().optional(), message: z.string().min(20).max(4000) }).parse(raw))
+  .inputValidator((raw) => z.object({ action_id: z.string().uuid().optional(), message: z.string().min(20).max(4000) }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as any).from("appeals").insert({
       user_id: context.userId,
@@ -110,7 +110,7 @@ export const submitAppeal = createServerFn({ method: "POST" })
 
 export const upsertKeywordFilter = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
+  .inputValidator((raw) =>
     z.object({
       keyword: z.string().min(1).max(120),
       match_type: z.enum(["contains", "exact", "regex"]).default("contains"),
@@ -128,7 +128,7 @@ export const upsertKeywordFilter = createServerFn({ method: "POST" })
 
 export const removeKeywordFilter = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await (context.supabase as any).from("keyword_filters").delete()
       .eq("id", data.id).eq("user_id", context.userId);
@@ -153,7 +153,7 @@ export const listMyKeywordFilters = createServerFn({ method: "GET" })
 
 export const adminListReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
+  .inputValidator((raw) =>
     z.object({
       status: z.enum(["open", "reviewing", "resolved", "dismissed", "all"]).default("open"),
       limit: z.number().int().min(1).max(200).default(100),
@@ -174,7 +174,7 @@ export const adminListReports = createServerFn({ method: "GET" })
 
 export const adminResolveReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
+  .inputValidator((raw) =>
     z.object({
       id: z.string().uuid(),
       status: z.enum(["reviewing", "resolved", "dismissed"]),
@@ -197,7 +197,7 @@ export const adminResolveReport = createServerFn({ method: "POST" })
 
 export const adminModerateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
+  .inputValidator((raw) =>
     z.object({
       target_user_id: z.string().uuid(),
       action: z.enum(["warn", "suspend", "ban", "restore", "shadow_ban"]),

@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
 import { listFeed } from "@/lib/feed.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -77,6 +78,9 @@ function PulseStat({ label, value, tone }: { label: string; value: string; tone?
 function HomePage() {
   const [tab, setTab] = useState<"for_you" | "following">("for_you");
   const [commentTarget, setCommentTarget] = useState<string | null>(null);
+  const [reportTarget, setReportTarget] = useState<null | {
+    kind: ReportTargetKind; id?: string; authorId?: string; handle?: string;
+  }>(null);
   const featured = reels[1];
   const gridReels = [reels[0], reels[2], reels[3]];
   const suggestedCreators = users.slice(0, 6);
@@ -99,6 +103,8 @@ function HomePage() {
     const timeAgo = mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.round(mins/60)}h` : `${Math.round(mins/1440)}d`;
     return {
       id: `db:${r.id}`,
+      dbId: r.id as string,
+      authorId: (a.id ?? r.author_id) as string | undefined,
       user: {
         avatar: a.avatar_url || "https://api.dicebear.com/7.x/shapes/svg?seed=" + (a.id ?? r.author_id),
         handle: a.handle || a.display_name || "rider",
@@ -525,6 +531,12 @@ function HomePage() {
               </div>
               <button
                 aria-label="More"
+                onClick={() => setReportTarget({
+                  kind: "post",
+                  id: (p as any).dbId,
+                  authorId: (p as any).authorId,
+                  handle: p.user.handle,
+                })}
                 className="tap grid h-9 w-9 shrink-0 place-items-center text-lg leading-none"
                 style={{ color: "var(--color-ink-3)" }}
               >
@@ -632,6 +644,15 @@ function HomePage() {
         open={!!commentTarget}
         targetId={commentTarget ?? "anon"}
         onClose={() => setCommentTarget(null)}
+      />
+
+      <ReportBlockSheet
+        open={!!reportTarget}
+        onClose={() => setReportTarget(null)}
+        targetKind={reportTarget?.kind ?? "post"}
+        targetId={reportTarget?.id}
+        authorId={reportTarget?.authorId}
+        authorHandle={reportTarget?.handle}
       />
     </div>
     </PullToRefresh>
