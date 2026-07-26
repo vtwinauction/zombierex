@@ -17,7 +17,8 @@ import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
-import { listFeed } from "@/lib/feed.functions";
+import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
 
@@ -92,9 +93,17 @@ function HomePage() {
     staleTime: 5 * 60_000,
   });
   const fetchFeed = useServerFn(listFeed);
+  const fetchAuthedFeed = useServerFn(listAuthedFeed);
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getUser().then(({ data }) => { if (alive) setSignedIn(!!data.user); });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
   const liveFeed = useQuery({
-    queryKey: ["feed", "live"],
-    queryFn: () => fetchFeed({ data: { limit: 20 } }),
+    queryKey: ["feed", "live", signedIn ? "authed" : "anon"],
+    queryFn: () => (signedIn ? fetchAuthedFeed({ data: { limit: 20 } }) : fetchFeed({ data: { limit: 20 } })),
     staleTime: 30_000,
   });
   const realPosts = (liveFeed.data?.items ?? []).map((r: any) => {
@@ -119,7 +128,7 @@ function HomePage() {
       caption: r.caption ?? "",
       tags: [] as string[],
     };
-  }).filter((p) => p.image || p.caption);
+  }).filter((p: any) => p.image || p.caption);
   // Only fall back to sample content when the live feed has no real posts yet.
   const hasRealPosts = realPosts.length > 0;
   const baseFeed = tab === "following" ? posts.filter((_, i) => i % 2 === 0) : posts;
@@ -507,7 +516,7 @@ function HomePage() {
          Square media · caption · InteractionBar
          ================================================== */}
       <section className="mt-8 space-y-10">
-        {feedPosts.map((p, idx) => (
+        {feedPosts.map((p: any, idx: number) => (
           <div key={p.id}>
           <article className="rise" style={{ animationDelay: `${idx * 40}ms` }}>
             {/* post header — single baseline, 8pt rhythm, no crowding */}

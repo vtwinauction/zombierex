@@ -37,6 +37,7 @@ export const listFeed = createServerFn({ method: "GET" })
     let q = supabase
       .from("posts")
       .select("id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location)")
+      .eq("is_hidden", false)
       .order("created_at", { ascending: false })
       .limit(data.limit);
     if (data.kind) q = q.eq("kind", data.kind);
@@ -44,6 +45,59 @@ export const listFeed = createServerFn({ method: "GET" })
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
     return { items: rows ?? [], nextCursor: rows && rows.length === data.limit ? rows[rows.length - 1].created_at : null };
+  });
+
+/**
+ * Authenticated feed variant that also filters out posts from blocked/muted
+ * users and captions matching the viewer's keyword filters. Falls back
+ * gracefully if any of those tables are empty.
+ */
+export const listAuthedFeed = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw) =>
+    z.object({
+      limit: z.number().int().min(1).max(50).default(20),
+      cursor: z.string().datetime().optional(),
+      kind: z.enum(["photo", "video", "event", "telemetry"]).optional(),
+    }).parse(raw ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const [blocksRes, mutesRes, kwRes] = await Promise.all([
+      sb.from("user_blocks").select("blocked_id").eq("blocker_id", context.userId),
+      sb.from("user_mutes").select("muted_id").eq("muter_id", context.userId),
+      sb.from("keyword_filters").select("keyword, match_type").eq("user_id", context.userId),
+    ]);
+    const excluded = new Set<string>();
+    for (const r of (blocksRes.data ?? [])) if (r?.blocked_id) excluded.add(r.blocked_id);
+    for (const r of (mutesRes.data ?? [])) if (r?.muted_id) excluded.add(r.muted_id);
+    const keywords: { keyword: string; match_type: string | null }[] = kwRes.data ?? [];
+
+    let q = sb
+      .from("posts")
+      .select("id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location)")
+      .eq("is_hidden", false)
+      .order("created_at", { ascending: false })
+      .limit(data.limit + excluded.size);
+    if (data.kind) q = q.eq("kind", data.kind);
+    if (data.cursor) q = q.lt("created_at", data.cursor);
+    if (excluded.size > 0) q = q.not("author_id", "in", `(${Array.from(excluded).join(",")})`);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filtered = (rows ?? []).filter((row: any) => {
+      const caption = String(row.caption ?? "").toLowerCase();
+      return !keywords.some((k) => {
+        const kw = k.keyword.toLowerCase();
+        return k.match_type === "exact" ? caption.split(/\W+/).includes(kw) : caption.includes(kw);
+      });
+    }).slice(0, data.limit);
+    return {
+      items: filtered,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      nextCursor: filtered.length === data.limit ? (filtered[filtered.length - 1] as any).created_at : null,
+    };
   });
 
 export const getPostPublic = createServerFn({ method: "GET" })
