@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
+import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
@@ -212,6 +213,11 @@ const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
 const SosTokenRoute = SosTokenRouteImport.update({
   id: '/sos/$token',
   path: '/sos/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PIdRoute = PIdRouteImport.update({
+  id: '/p/$id',
+  path: '/p/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIdRoute = MarketplaceIdRouteImport.update({
@@ -852,6 +858,7 @@ export interface FileRoutesByFullPath {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
+  '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
@@ -975,6 +982,7 @@ export interface FileRoutesByTo {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
+  '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
@@ -1103,6 +1111,7 @@ export interface FileRoutesById {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace_/$id': typeof MarketplaceIdRoute
+  '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
@@ -1231,6 +1240,7 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace/$id'
+    | '/p/$id'
     | '/sos/$token'
     | '/communities/'
     | '/judge/'
@@ -1354,6 +1364,7 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace/$id'
+    | '/p/$id'
     | '/sos/$token'
     | '/communities'
     | '/judge'
@@ -1481,6 +1492,7 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace_/$id'
+    | '/p/$id'
     | '/sos/$token'
     | '/communities/'
     | '/judge/'
@@ -1596,6 +1608,7 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   MarketplaceIdRoute: typeof MarketplaceIdRoute
+  PIdRoute: typeof PIdRoute
   SosTokenRoute: typeof SosTokenRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
@@ -1721,6 +1734,13 @@ declare module '@tanstack/react-router' {
       path: '/sos/$token'
       fullPath: '/sos/$token'
       preLoaderRoute: typeof SosTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$id': {
+      id: '/p/$id'
+      path: '/p/$id'
+      fullPath: '/p/$id'
+      preLoaderRoute: typeof PIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace_/$id': {
@@ -2785,6 +2805,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   MarketplaceIdRoute: MarketplaceIdRoute,
+  PIdRoute: PIdRoute,
   SosTokenRoute: SosTokenRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
