@@ -97,7 +97,9 @@ function CommunitiesPage() {
       }));
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24">
+
 
       {/* Header */}
       <div className="px-4 pt-6">
