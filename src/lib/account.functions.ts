@@ -18,15 +18,10 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
     // any related tables use SET NULL rather than CASCADE.
     await supabaseAdmin.from("profiles").update({
       display_name: "Deleted rider",
-      handle: null,
-      bio: null,
-      avatar_url: null,
-      cover_url: null,
-      website: null,
-      location: null,
-      phone: null,
-      email: null,
-    }).eq("id", userId);
+      bio: "",
+      avatar_url: "",
+      cover_url: "",
+    } as never).eq("id", userId);
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
     if (error) throw new Error(error.message);
     return { ok: true as const };

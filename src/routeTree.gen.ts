@@ -26,7 +26,12 @@ import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
+import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
+import { Route as LegalEulaRouteImport } from './routes/legal/eula'
+import { Route as LegalDmcaRouteImport } from './routes/legal/dmca'
 import { Route as LegalComplianceRouteImport } from './routes/legal.compliance'
+import { Route as LegalCommunityGuidelinesRouteImport } from './routes/legal/community-guidelines'
 import { Route as JudgeLeaderboardsRouteImport } from './routes/judge.leaderboards'
 import { Route as CreatorIdRouteImport } from './routes/creator.$id'
 import { Route as CommunitiesSlugRouteImport } from './routes/communities.$slug'
@@ -65,6 +70,7 @@ import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes
 import { Route as AuthenticatedSettingsHelpRouteImport } from './routes/_authenticated/settings.help'
 import { Route as AuthenticatedSettingsExportRouteImport } from './routes/_authenticated/settings.export'
 import { Route as AuthenticatedSettingsEmailRouteImport } from './routes/_authenticated/settings.email'
+import { Route as AuthenticatedSettingsDeleteAccountRouteImport } from './routes/_authenticated/settings.delete-account'
 import { Route as AuthenticatedSettingsDataRouteImport } from './routes/_authenticated/settings.data'
 import { Route as AuthenticatedSettingsContentRouteImport } from './routes/_authenticated/settings.content'
 import { Route as AuthenticatedSettingsConnectionsRouteImport } from './routes/_authenticated/settings.connections'
@@ -211,11 +217,37 @@ const MarketplaceIdRoute = MarketplaceIdRouteImport.update({
   path: '/marketplace/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalEulaRoute = LegalEulaRouteImport.update({
+  id: '/legal/eula',
+  path: '/legal/eula',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalDmcaRoute = LegalDmcaRouteImport.update({
+  id: '/legal/dmca',
+  path: '/legal/dmca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalComplianceRoute = LegalComplianceRouteImport.update({
   id: '/legal/compliance',
   path: '/legal/compliance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalCommunityGuidelinesRoute =
+  LegalCommunityGuidelinesRouteImport.update({
+    id: '/legal/community-guidelines',
+    path: '/legal/community-guidelines',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const JudgeLeaderboardsRoute = JudgeLeaderboardsRouteImport.update({
   id: '/judge/leaderboards',
   path: '/judge/leaderboards',
@@ -419,6 +451,12 @@ const AuthenticatedSettingsEmailRoute =
   AuthenticatedSettingsEmailRouteImport.update({
     id: '/email',
     path: '/email',
+    getParentRoute: () => AuthenticatedSettingsRoute,
+  } as any)
+const AuthenticatedSettingsDeleteAccountRoute =
+  AuthenticatedSettingsDeleteAccountRouteImport.update({
+    id: '/delete-account',
+    path: '/delete-account',
     getParentRoute: () => AuthenticatedSettingsRoute,
   } as any)
 const AuthenticatedSettingsDataRoute =
@@ -793,7 +831,12 @@ export interface FileRoutesByFullPath {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/community-guidelines': typeof LegalCommunityGuidelinesRoute
   '/legal/compliance': typeof LegalComplianceRoute
+  '/legal/dmca': typeof LegalDmcaRoute
+  '/legal/eula': typeof LegalEulaRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
@@ -844,6 +887,7 @@ export interface FileRoutesByFullPath {
   '/settings/connections': typeof AuthenticatedSettingsConnectionsRoute
   '/settings/content': typeof AuthenticatedSettingsContentRoute
   '/settings/data': typeof AuthenticatedSettingsDataRoute
+  '/settings/delete-account': typeof AuthenticatedSettingsDeleteAccountRoute
   '/settings/email': typeof AuthenticatedSettingsEmailRoute
   '/settings/export': typeof AuthenticatedSettingsExportRoute
   '/settings/help': typeof AuthenticatedSettingsHelpRoute
@@ -908,7 +952,12 @@ export interface FileRoutesByTo {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/community-guidelines': typeof LegalCommunityGuidelinesRoute
   '/legal/compliance': typeof LegalComplianceRoute
+  '/legal/dmca': typeof LegalDmcaRoute
+  '/legal/eula': typeof LegalEulaRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities': typeof CommunitiesIndexRoute
@@ -959,6 +1008,7 @@ export interface FileRoutesByTo {
   '/settings/connections': typeof AuthenticatedSettingsConnectionsRoute
   '/settings/content': typeof AuthenticatedSettingsContentRoute
   '/settings/data': typeof AuthenticatedSettingsDataRoute
+  '/settings/delete-account': typeof AuthenticatedSettingsDeleteAccountRoute
   '/settings/email': typeof AuthenticatedSettingsEmailRoute
   '/settings/export': typeof AuthenticatedSettingsExportRoute
   '/settings/help': typeof AuthenticatedSettingsHelpRoute
@@ -1028,7 +1078,12 @@ export interface FileRoutesById {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/community-guidelines': typeof LegalCommunityGuidelinesRoute
   '/legal/compliance': typeof LegalComplianceRoute
+  '/legal/dmca': typeof LegalDmcaRoute
+  '/legal/eula': typeof LegalEulaRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/terms': typeof LegalTermsRoute
   '/marketplace_/$id': typeof MarketplaceIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
@@ -1079,6 +1134,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/connections': typeof AuthenticatedSettingsConnectionsRoute
   '/_authenticated/settings/content': typeof AuthenticatedSettingsContentRoute
   '/_authenticated/settings/data': typeof AuthenticatedSettingsDataRoute
+  '/_authenticated/settings/delete-account': typeof AuthenticatedSettingsDeleteAccountRoute
   '/_authenticated/settings/email': typeof AuthenticatedSettingsEmailRoute
   '/_authenticated/settings/export': typeof AuthenticatedSettingsExportRoute
   '/_authenticated/settings/help': typeof AuthenticatedSettingsHelpRoute
@@ -1148,7 +1204,12 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/community-guidelines'
     | '/legal/compliance'
+    | '/legal/dmca'
+    | '/legal/eula'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/marketplace/$id'
     | '/sos/$token'
     | '/communities/'
@@ -1199,6 +1260,7 @@ export interface FileRouteTypes {
     | '/settings/connections'
     | '/settings/content'
     | '/settings/data'
+    | '/settings/delete-account'
     | '/settings/email'
     | '/settings/export'
     | '/settings/help'
@@ -1263,7 +1325,12 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/community-guidelines'
     | '/legal/compliance'
+    | '/legal/dmca'
+    | '/legal/eula'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/marketplace/$id'
     | '/sos/$token'
     | '/communities'
@@ -1314,6 +1381,7 @@ export interface FileRouteTypes {
     | '/settings/connections'
     | '/settings/content'
     | '/settings/data'
+    | '/settings/delete-account'
     | '/settings/email'
     | '/settings/export'
     | '/settings/help'
@@ -1382,7 +1450,12 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/community-guidelines'
     | '/legal/compliance'
+    | '/legal/dmca'
+    | '/legal/eula'
+    | '/legal/privacy'
+    | '/legal/terms'
     | '/marketplace_/$id'
     | '/sos/$token'
     | '/communities/'
@@ -1433,6 +1506,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/connections'
     | '/_authenticated/settings/content'
     | '/_authenticated/settings/data'
+    | '/_authenticated/settings/delete-account'
     | '/_authenticated/settings/email'
     | '/_authenticated/settings/export'
     | '/_authenticated/settings/help'
@@ -1490,7 +1564,12 @@ export interface RootRouteChildren {
   CommunitiesSlugRoute: typeof CommunitiesSlugRouteWithChildren
   CreatorIdRoute: typeof CreatorIdRoute
   JudgeLeaderboardsRoute: typeof JudgeLeaderboardsRoute
+  LegalCommunityGuidelinesRoute: typeof LegalCommunityGuidelinesRoute
   LegalComplianceRoute: typeof LegalComplianceRoute
+  LegalDmcaRoute: typeof LegalDmcaRoute
+  LegalEulaRoute: typeof LegalEulaRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalTermsRoute: typeof LegalTermsRoute
   MarketplaceIdRoute: typeof MarketplaceIdRoute
   SosTokenRoute: typeof SosTokenRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
@@ -1626,11 +1705,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketplaceIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/eula': {
+      id: '/legal/eula'
+      path: '/legal/eula'
+      fullPath: '/legal/eula'
+      preLoaderRoute: typeof LegalEulaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/dmca': {
+      id: '/legal/dmca'
+      path: '/legal/dmca'
+      fullPath: '/legal/dmca'
+      preLoaderRoute: typeof LegalDmcaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/compliance': {
       id: '/legal/compliance'
       path: '/legal/compliance'
       fullPath: '/legal/compliance'
       preLoaderRoute: typeof LegalComplianceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/community-guidelines': {
+      id: '/legal/community-guidelines'
+      path: '/legal/community-guidelines'
+      fullPath: '/legal/community-guidelines'
+      preLoaderRoute: typeof LegalCommunityGuidelinesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/judge/leaderboards': {
@@ -1897,6 +2011,13 @@ declare module '@tanstack/react-router' {
       path: '/email'
       fullPath: '/settings/email'
       preLoaderRoute: typeof AuthenticatedSettingsEmailRouteImport
+      parentRoute: typeof AuthenticatedSettingsRoute
+    }
+    '/_authenticated/settings/delete-account': {
+      id: '/_authenticated/settings/delete-account'
+      path: '/delete-account'
+      fullPath: '/settings/delete-account'
+      preLoaderRoute: typeof AuthenticatedSettingsDeleteAccountRouteImport
       parentRoute: typeof AuthenticatedSettingsRoute
     }
     '/_authenticated/settings/data': {
@@ -2386,6 +2507,7 @@ interface AuthenticatedSettingsRouteChildren {
   AuthenticatedSettingsConnectionsRoute: typeof AuthenticatedSettingsConnectionsRoute
   AuthenticatedSettingsContentRoute: typeof AuthenticatedSettingsContentRoute
   AuthenticatedSettingsDataRoute: typeof AuthenticatedSettingsDataRoute
+  AuthenticatedSettingsDeleteAccountRoute: typeof AuthenticatedSettingsDeleteAccountRoute
   AuthenticatedSettingsEmailRoute: typeof AuthenticatedSettingsEmailRoute
   AuthenticatedSettingsExportRoute: typeof AuthenticatedSettingsExportRoute
   AuthenticatedSettingsHelpRoute: typeof AuthenticatedSettingsHelpRoute
@@ -2412,6 +2534,8 @@ const AuthenticatedSettingsRouteChildren: AuthenticatedSettingsRouteChildren = {
   AuthenticatedSettingsConnectionsRoute: AuthenticatedSettingsConnectionsRoute,
   AuthenticatedSettingsContentRoute: AuthenticatedSettingsContentRoute,
   AuthenticatedSettingsDataRoute: AuthenticatedSettingsDataRoute,
+  AuthenticatedSettingsDeleteAccountRoute:
+    AuthenticatedSettingsDeleteAccountRoute,
   AuthenticatedSettingsEmailRoute: AuthenticatedSettingsEmailRoute,
   AuthenticatedSettingsExportRoute: AuthenticatedSettingsExportRoute,
   AuthenticatedSettingsHelpRoute: AuthenticatedSettingsHelpRoute,
@@ -2611,7 +2735,12 @@ const rootRouteChildren: RootRouteChildren = {
   CommunitiesSlugRoute: CommunitiesSlugRouteWithChildren,
   CreatorIdRoute: CreatorIdRoute,
   JudgeLeaderboardsRoute: JudgeLeaderboardsRoute,
+  LegalCommunityGuidelinesRoute: LegalCommunityGuidelinesRoute,
   LegalComplianceRoute: LegalComplianceRoute,
+  LegalDmcaRoute: LegalDmcaRoute,
+  LegalEulaRoute: LegalEulaRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalTermsRoute: LegalTermsRoute,
   MarketplaceIdRoute: MarketplaceIdRoute,
   SosTokenRoute: SosTokenRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
