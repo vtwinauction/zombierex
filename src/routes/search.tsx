@@ -125,7 +125,38 @@ function ExplorePage() {
         {active ? (
           <ResultsView data={data} isFetching={isFetching} showSection={showSection} />
         ) : (
-          <TrendingView data={trending.data} showSection={showSection} setQ={setQ} />
+          <>
+            {history.items.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="mono-tag" style={{ color: "var(--color-ash)" }}>RECENT · {history.items.length}</p>
+                  <button onClick={history.clear} className="mono-tag" style={{ color: "var(--color-ash)" }}>CLEAR ALL</button>
+                </div>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {history.items.map((r) => (
+                    <li key={r} className="inline-flex items-center hairline">
+                      <button
+                        onClick={() => setQ(r)}
+                        className="px-3 py-1.5 text-xs uppercase tracking-wide"
+                        style={{ color: "var(--color-ink)" }}
+                      >
+                        {r}
+                      </button>
+                      <button
+                        onClick={() => history.remove(r)}
+                        aria-label={`Remove ${r}`}
+                        className="border-l border-hair px-2 py-1.5 mono-tag"
+                        style={{ color: "var(--color-ash)" }}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <TrendingView data={trending.data} showSection={showSection} setQ={setQ} />
+          </>
         )}
       </div>
     </div>
