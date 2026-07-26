@@ -57,7 +57,7 @@ function MarketplacePage() {
   const [condition, setCondition] = useState<string | undefined>();
 
   const list = useServerFn(listListings);
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["marketplace", scope, category, search, priceMin, priceMax, yearMin, condition],
     queryFn: () => list({ data: {
       scope, category: category as any, condition: condition as any,
