@@ -62,12 +62,16 @@ function AuthPage() {
         setMsg("Check your inbox for a reset link.");
       } else if (mode === "signup") {
         const parsedPassword = passwordSchema.parse(password);
+        const age = ageInYears(dob);
+        if (age < 0) throw new Error("Enter your date of birth.");
+        if (age < 13) throw new Error("You must be at least 13 years old to sign up.");
+        if (!agree) throw new Error("Please accept the Terms and Privacy Policy to continue.");
         const { error } = await supabase.auth.signUp({
           email: parsedEmail,
           password: parsedPassword,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: displayName || parsedEmail.split("@")[0] },
+            data: { full_name: displayName || parsedEmail.split("@")[0], dob, tos_accepted_at: new Date().toISOString() },
           },
         });
         if (error) throw error;
