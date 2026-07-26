@@ -77,24 +77,7 @@ function CommunitiesPage() {
     }),
   });
 
-  // Fall back to mock while empty so preview always has content
-  const items = (data && data.length > 0)
-    ? data
-    : mockClubs.map((c, i) => ({
-        id: c.id,
-        slug: c.name.toLowerCase().replace(/\s+/g, "-"),
-        name: c.name,
-        description: `${c.tag} · ${c.city}`,
-        category: "clubs",
-        location: c.city,
-        cover_url: c.cover,
-        banner_url: c.cover,
-        members_count: c.members,
-        is_private: false,
-        activity_score: 100 - i * 10,
-        created_at: new Date().toISOString(),
-        hashtags: [`#${c.tag.toLowerCase()}`],
-      }));
+  const items = data ?? [];
 
   return (
     <PullToRefresh onRefresh={() => refetch()}>
