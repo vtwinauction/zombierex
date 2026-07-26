@@ -47,6 +47,7 @@ function MessagesPage() {
   const totalUnread = rows.reduce((s: number, c: any) => s + (c.unread || 0), 0);
 
   return (
+    <PullToRefresh onRefresh={() => q.refetch()}>
     <div>
       <div className="px-4 pt-6">
         <div className="flex items-end justify-between">
