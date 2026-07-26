@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { users } from "@/lib/mock-data";
+import { PullToRefresh } from "@/components/PullToRefresh";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/notifications")({
   head: () => ({ meta: [{ title: "Log · ZOMBIEREX" }, { name: "description", content: "System log of activity across your ZOMBIEREX network." }] }),
@@ -15,7 +17,9 @@ const items = [
 ] as const;
 
 function NotificationsPage() {
+  const qc = useQueryClient();
   return (
+    <PullToRefresh onRefresh={async () => { await qc.invalidateQueries({ queryKey: ["notifications"] }); }}>
     <div>
 
       <div className="flex items-end justify-between px-4 pt-6">
