@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { discoverCommunities, CATEGORIES } from "@/lib/communities.functions";
-import { clubs as mockClubs } from "@/lib/mock-data";
+
 import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/communities/")({
@@ -77,24 +77,7 @@ function CommunitiesPage() {
     }),
   });
 
-  // Fall back to mock while empty so preview always has content
-  const items = (data && data.length > 0)
-    ? data
-    : mockClubs.map((c, i) => ({
-        id: c.id,
-        slug: c.name.toLowerCase().replace(/\s+/g, "-"),
-        name: c.name,
-        description: `${c.tag} · ${c.city}`,
-        category: "clubs",
-        location: c.city,
-        cover_url: c.cover,
-        banner_url: c.cover,
-        members_count: c.members,
-        is_private: false,
-        activity_score: 100 - i * 10,
-        created_at: new Date().toISOString(),
-        hashtags: [`#${c.tag.toLowerCase()}`],
-      }));
+  const items = data ?? [];
 
   return (
     <PullToRefresh onRefresh={() => refetch()}>
@@ -202,6 +185,21 @@ function CommunitiesPage() {
         <p className="mono-tag mt-6 text-center" style={{ color: "var(--color-titanium)" }}>
           scanning frequencies…
         </p>
+      )}
+      {!isPending && items.length === 0 && (
+        <div className="mt-10 px-6 text-center">
+          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>NO CREWS FOUND</p>
+          <p className="mt-2 text-[13px]" style={{ color: "var(--color-ink-2)" }}>
+            Try a different filter — or start your own crew.
+          </p>
+          <Link
+            to="/communities/new"
+            className="mt-4 inline-block rounded-full px-5 py-2 text-[12px] font-semibold"
+            style={{ background: "var(--color-neon)", color: "var(--color-ink-0)" }}
+          >
+            Create community
+          </Link>
+        </div>
       )}
     </div>
     </PullToRefresh>

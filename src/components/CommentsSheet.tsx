@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { ReportBlockSheet } from "@/components/ReportBlockSheet";
 import { haptic } from "@/lib/native";
+import { supabase } from "@/integrations/supabase/client";
+import { listComments, addComment, deleteComment } from "@/lib/comments.functions";
 
 export type CommentItem = {
   id: string;
@@ -10,23 +15,20 @@ export type CommentItem = {
   parentId?: string | null;
   likes?: number;
   likedByMe?: boolean;
+  authorId?: string;
 };
 
-/**
- * Lightweight comments sheet — slides up from the bottom.
- * Uses in-memory state per targetId (persists during the session via module cache).
- * Supports one-level reply threading + per-comment likes.
- */
-const store = new Map<string, CommentItem[]>();
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const localStore = new Map<string, CommentItem[]>();
 
-function seed(targetId: string): CommentItem[] {
-  if (store.has(targetId)) return store.get(targetId)!;
+function seedLocal(targetId: string): CommentItem[] {
+  if (localStore.has(targetId)) return localStore.get(targetId)!;
   const initial: CommentItem[] = [
     { id: "s1", author: "apex_rex", body: "Insane throttle response 🔥", createdAt: Date.now() - 3600_000, likes: 12 },
     { id: "s2", author: "nitro_kid", body: "What tires you running?", createdAt: Date.now() - 1800_000, likes: 3 },
     { id: "s3", author: "torque_dan", body: "Michelin Power 6.", createdAt: Date.now() - 1500_000, parentId: "s2", likes: 1 },
   ];
-  store.set(targetId, initial);
+  localStore.set(targetId, initial);
   return initial;
 }
 
@@ -43,18 +45,54 @@ export function CommentsSheet({
   title?: string;
   onSubmitted?: () => void;
 }) {
-  const [items, setItems] = useState<CommentItem[]>(() => seed(targetId));
+  const qc = useQueryClient();
+  // Strip client prefixes like "db:" so we always work with the raw UUID for DB posts.
+  const raw = targetId.startsWith("db:") ? targetId.slice(3) : targetId;
+  const isLive = UUID_RE.test(raw);
+
+  const fetchList = useServerFn(listComments);
+  const addFn = useServerFn(addComment);
+  const delFn = useServerFn(deleteComment);
+
+  const [meId, setMeId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setMeId(data.user?.id ?? null));
+  }, []);
+
+  const query = useQuery({
+    queryKey: ["comments", raw],
+    queryFn: () => fetchList({ data: { post_id: raw, limit: 200 } }),
+    enabled: open && isLive,
+    staleTime: 15_000,
+  });
+
+  const [localItems, setLocalItems] = useState<CommentItem[]>(() =>
+    isLive ? [] : seedLocal(raw),
+  );
+  useEffect(() => {
+    if (open && !isLive) setLocalItems([...seedLocal(raw)]);
+  }, [open, raw, isLive]);
+
+  const items: CommentItem[] = isLive
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ? ((query.data ?? []) as any[]).map((r) => ({
+        id: r.id,
+        author: r.author?.handle || r.author?.display_name || "rider",
+        authorId: r.author_id,
+        body: r.body,
+        createdAt: new Date(r.created_at).getTime(),
+        parentId: r.parent_id,
+      }))
+    : localItems;
+
   const [text, setText] = useState("");
   const [flagged, setFlagged] = useState<CommentItem | null>(null);
   const [replyTo, setReplyTo] = useState<CommentItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (open) {
-      setItems([...seed(targetId)]);
-      setReplyTo(null);
-    }
-  }, [open, targetId]);
+    if (open) setReplyTo(null);
+  }, [open, raw]);
 
   useEffect(() => {
     if (!open) return;
@@ -78,34 +116,57 @@ export function CommentsSheet({
     return { roots, repliesByParent: map };
   }, [items]);
 
+  const addMut = useMutation({
+    mutationFn: (v: { body: string; parent_id: string | null }) =>
+      addFn({ data: { post_id: raw, body: v.body, parent_id: v.parent_id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["comments", raw] });
+      onSubmitted?.();
+    },
+    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Couldn't post comment"),
+  });
+
+  const delMut = useMutation({
+    mutationFn: (id: string) => delFn({ data: { id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["comments", raw] }),
+    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Couldn't delete"),
+  });
+
   const submit = () => {
     const body = text.trim();
     if (!body) return;
-    const next: CommentItem = {
-      id: `c${Date.now()}`,
-      author: "you",
-      body,
-      createdAt: Date.now(),
-      parentId: replyTo ? (replyTo.parentId ?? replyTo.id) : null,
-      likes: 0,
-    };
-    const merged = [...items, next];
-    store.set(targetId, merged);
-    setItems(merged);
+    const parentId = replyTo ? (replyTo.parentId ?? replyTo.id) : null;
+    if (isLive) {
+      if (!meId) { toast.error("Sign in to comment"); return; }
+      addMut.mutate({ body, parent_id: parentId });
+    } else {
+      const next: CommentItem = {
+        id: `c${Date.now()}`,
+        author: "you",
+        body,
+        createdAt: Date.now(),
+        parentId,
+        likes: 0,
+      };
+      const merged = [...localItems, next];
+      localStore.set(raw, merged);
+      setLocalItems(merged);
+      onSubmitted?.();
+    }
     setText("");
     setReplyTo(null);
     void haptic("light");
-    onSubmitted?.();
   };
 
   const toggleLike = (c: CommentItem) => {
-    const merged = items.map((it) =>
+    if (isLive) { void haptic("light"); return; } // like on live comments not modeled yet
+    const merged = localItems.map((it) =>
       it.id === c.id
         ? { ...it, likedByMe: !it.likedByMe, likes: (it.likes ?? 0) + (it.likedByMe ? -1 : 1) }
         : it,
     );
-    store.set(targetId, merged);
-    setItems(merged);
+    localStore.set(raw, merged);
+    setLocalItems(merged);
     void haptic("light");
   };
 
@@ -113,6 +174,11 @@ export function CommentsSheet({
     setReplyTo(c);
     setTimeout(() => inputRef.current?.focus(), 30);
   };
+
+  const canDelete = (c: CommentItem) => isLive && !!c.authorId && c.authorId === meId;
+  const removeMine = (c: CommentItem) => { if (canDelete(c)) delMut.mutate(c.id); };
+  void removeMine; void canDelete;
+
 
   return (
     <div
