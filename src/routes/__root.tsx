@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BottomNav } from "@/components/BottomNav";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 
@@ -145,6 +146,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <div className="relative min-h-[100svh] bg-background text-foreground">
         <main className={isImmersive ? "min-h-[100svh]" : "min-h-[100svh] pb-[calc(64px+env(safe-area-inset-bottom))]"}>
+          {!isImmersive && <OfflineBanner />}
           {!isImmersive && <OwnerBroadcastBanner />}
           {!isImmersive && <GlobalStatusBar />}
           <Outlet />
