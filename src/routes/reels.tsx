@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { reels, type Reel } from "@/lib/mock-data";
 import { RiderMark } from "@/components/RiderBadge";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "@/components/icons/RexIcons";
+import { ReportBlockSheet } from "@/components/ReportBlockSheet";
+import { MoreVertical } from "lucide-react";
 
 export const Route = createFileRoute("/reels")({
   head: () => ({
