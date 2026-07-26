@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import type { Reel as ReelType } from "@/lib/mock-data";
+import type { Reel as ReelType } from "@/lib/types";
 
 // Custom hand-drawn glyphs — no lucide defaults on the video surface
 const Glyph = {

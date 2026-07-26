@@ -1,5 +1,5 @@
 import { useState, type ComponentType } from "react";
-import type { Post } from "@/lib/mock-data";
+import type { Post } from "@/lib/types";
 import { HexChip, DataChip } from "./hud";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "./icons/RexIcons";
 import { RiderMark } from "./RiderBadge";
