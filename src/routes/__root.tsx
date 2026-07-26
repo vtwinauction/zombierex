@@ -154,6 +154,8 @@ function RootComponent() {
           <Outlet />
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
+        <PushNotificationBridge />
+        <Toaster position="top-center" richColors closeButton />
       </div>
 
     </QueryClientProvider>
