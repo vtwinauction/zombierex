@@ -8,7 +8,8 @@ import { ReportBlockSheet } from "@/components/ReportBlockSheet";
 import { MoreVertical } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { listFeed } from "@/lib/feed.functions";
+import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reels")({
   head: () => ({
