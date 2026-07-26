@@ -110,10 +110,8 @@ function SettingsPage() {
     navigate({ to: "/auth", replace: true });
   };
 
-  const deleteAccount = async () => {
-    if (!confirm("Delete your account? This action cannot be undone.")) return;
-    if (!confirm("Really? All posts, media and messages will be permanently removed.")) return;
-    alert("Deletion request queued. Support will contact you at your registered email.");
+  const deleteAccount = () => {
+    navigate({ to: "/settings/delete-account" });
   };
 
   return (
@@ -199,8 +197,12 @@ function SettingRow({ it, prefs, update }: {
     help: "/settings/help",
     report: "/settings/report",
     about: "/settings/about",
-    tos: "/settings/terms",
-    "privacy-policy": "/settings/privacy",
+    tos: "/legal/terms",
+    "privacy-policy": "/legal/privacy",
+    guidelines: "/legal/community-guidelines",
+    eula: "/legal/eula",
+    dmca: "/legal/dmca",
+    "delete-account": "/settings/delete-account",
   };
 
   const route = ROUTES[it.kind];
