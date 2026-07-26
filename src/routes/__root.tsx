@@ -182,6 +182,7 @@ function RootComponent() {
         {!isImmersive && <BottomNav hidden={navHidden} />}
         <PushNotificationBridge />
         <AppLockGate />
+        <FirstRunTour />
         <Toaster position="top-center" richColors closeButton />
       </div>
 
