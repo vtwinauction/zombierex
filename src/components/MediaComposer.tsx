@@ -24,8 +24,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress } from "@/lib/media-upload";
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
+import { moderateImage } from "@/lib/moderation-image.functions";
 import { MusicLibrary, type SelectedTrack } from "@/components/MusicLibrary";
 import { formatDuration } from "@/lib/music-library";
+
 
 type EditorAdjust = {
   brightness: number; // 1 = neutral
@@ -134,6 +136,7 @@ export function MediaComposer({ onDone }: Props) {
   const pickVideo = useRef<HTMLInputElement>(null);
 
   const post = useServerFn(createPost);
+  const moderate = useServerFn(moderateImage);
   const queryClient = useQueryClient();
 
   const activeItem = items[active];
@@ -276,6 +279,25 @@ export function MediaComposer({ onDone }: Props) {
       const first = uploaded[0];
       const kind: "photo" | "video" | "telemetry" =
         first?.kind === "video" ? "video" : "photo";
+
+      // AI safety scan on the first image (fail-open on gateway error).
+      if (first && first.kind === "image") {
+        try {
+          const verdict = await moderate({ data: { url: first.url } });
+          if (!verdict.safe) {
+            const cats = verdict.categories?.join(", ") || "policy violation";
+            throw new Error(
+              `Image blocked by safety scan (${cats}). ${verdict.reason ?? "Please choose a different photo."}`,
+            );
+          }
+        } catch (e) {
+          // Only re-throw our own block; swallow network errors so a flaky
+          // AI gateway never prevents a legitimate post.
+          if (e instanceof Error && e.message.startsWith("Image blocked")) throw e;
+        }
+      }
+
+
 
       // If scheduled → keep as draft, don't publish yet.
       if (scheduleAt) {
