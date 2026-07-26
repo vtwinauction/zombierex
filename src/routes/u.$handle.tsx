@@ -86,7 +86,7 @@ function PublicProfile() {
           </div>
         </div>
 
-        {p.bio && <p className="mt-4 text-[14px] leading-relaxed">{p.bio}</p>}
+        {p.bio && <RichCaption text={p.bio} className="mt-4 block text-[14px] leading-relaxed" />}
 
         <div className="mt-4 flex gap-6 mono-tag">
           <span><b className="text-base font-semibold">{p.posts_count ?? 0}</b> POSTS</span>
@@ -100,10 +100,8 @@ function PublicProfile() {
           </p>
         )}
 
-        <div className="mt-6 flex gap-2">
-          <Link to="/auth" className="btn-solid mono-tag">FOLLOW</Link>
-          <Link to="/auth" className="btn-ghost mono-tag">MESSAGE</Link>
-        </div>
+        <FollowActions profileId={p.id} handle={p.handle} />
+
 
         <div className="mt-8">
           <p className="mono-tag" style={{ color: "var(--color-ash)" }}>POSTS · {posts.length}</p>
