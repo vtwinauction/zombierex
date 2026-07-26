@@ -200,6 +200,41 @@ function AuthPage() {
             </label>
           )}
 
+          {mode === "signup" && (
+            <>
+              <label className="block">
+                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>DATE OF BIRTH</span>
+                <input
+                  type="date"
+                  required
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                  max={new Date().toISOString().slice(0, 10)}
+                  className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--color-hairline)", color: "var(--color-ink)", colorScheme: "dark" }}
+                />
+                <span className="mt-1 block text-[11px]" style={{ color: "var(--color-ash)" }}>
+                  You must be at least 13 to sign up.
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2 pt-1 text-xs" style={{ color: "var(--color-ash)" }}>
+                <input
+                  type="checkbox"
+                  checked={agree}
+                  onChange={(e) => setAgree(e.target.checked)}
+                  className="mt-0.5"
+                />
+                <span>
+                  I agree to the{" "}
+                  <Link to="/legal/terms" className="underline" style={{ color: "var(--color-neon)" }}>Terms</Link>,{" "}
+                  <Link to="/legal/privacy" className="underline" style={{ color: "var(--color-neon)" }}>Privacy Policy</Link>, and{" "}
+                  <Link to="/legal/community-guidelines" className="underline" style={{ color: "var(--color-neon)" }}>Community Guidelines</Link>.
+                </span>
+              </label>
+            </>
+          )}
+
           {err && <p className="text-sm" style={{ color: "var(--color-heat)" }}>{err}</p>}
           {msg && <p className="text-sm" style={{ color: "var(--color-neon)" }}>{msg}</p>}
 
