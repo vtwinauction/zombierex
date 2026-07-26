@@ -26,6 +26,7 @@ import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
+import { Route as ReelsIdRouteImport } from './routes/reels.$id'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
@@ -220,6 +221,11 @@ const SosTokenRoute = SosTokenRouteImport.update({
   id: '/sos/$token',
   path: '/sos/$token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ReelsIdRoute = ReelsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ReelsRoute,
 } as any)
 const PIdRoute = PIdRouteImport.update({
   id: '/p/$id',
@@ -837,7 +843,7 @@ export interface FileRoutesByFullPath {
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
-  '/reels': typeof ReelsRoute
+  '/reels': typeof ReelsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -865,6 +871,7 @@ export interface FileRoutesByFullPath {
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
+  '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
@@ -965,7 +972,7 @@ export interface FileRoutesByTo {
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
-  '/reels': typeof ReelsRoute
+  '/reels': typeof ReelsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -990,6 +997,7 @@ export interface FileRoutesByTo {
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
+  '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/u/$handle': typeof UHandleRoute
   '/communities': typeof CommunitiesIndexRoute
@@ -1092,7 +1100,7 @@ export interface FileRoutesById {
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
-  '/reels': typeof ReelsRoute
+  '/reels': typeof ReelsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -1120,6 +1128,7 @@ export interface FileRoutesById {
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace_/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
+  '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
@@ -1250,6 +1259,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/marketplace/$id'
     | '/p/$id'
+    | '/reels/$id'
     | '/sos/$token'
     | '/u/$handle'
     | '/communities/'
@@ -1375,6 +1385,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/marketplace/$id'
     | '/p/$id'
+    | '/reels/$id'
     | '/sos/$token'
     | '/u/$handle'
     | '/communities'
@@ -1504,6 +1515,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/marketplace_/$id'
     | '/p/$id'
+    | '/reels/$id'
     | '/sos/$token'
     | '/u/$handle'
     | '/communities/'
@@ -1606,7 +1618,7 @@ export interface RootRouteChildren {
   MarketplaceRoute: typeof MarketplaceRoute
   NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
-  ReelsRoute: typeof ReelsRoute
+  ReelsRoute: typeof ReelsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -1755,6 +1767,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/sos/$token'
       preLoaderRoute: typeof SosTokenRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/reels/$id': {
+      id: '/reels/$id'
+      path: '/$id'
+      fullPath: '/reels/$id'
+      preLoaderRoute: typeof ReelsIdRouteImport
+      parentRoute: typeof ReelsRoute
     }
     '/p/$id': {
       id: '/p/$id'
@@ -2788,6 +2807,16 @@ const AtlasRouteChildren: AtlasRouteChildren = {
 
 const AtlasRouteWithChildren = AtlasRoute._addFileChildren(AtlasRouteChildren)
 
+interface ReelsRouteChildren {
+  ReelsIdRoute: typeof ReelsIdRoute
+}
+
+const ReelsRouteChildren: ReelsRouteChildren = {
+  ReelsIdRoute: ReelsIdRoute,
+}
+
+const ReelsRouteWithChildren = ReelsRoute._addFileChildren(ReelsRouteChildren)
+
 interface CommunitiesSlugRouteChildren {
   CommunitiesSlugChallengesChallengeIdRoute: typeof CommunitiesSlugChallengesChallengeIdRoute
 }
@@ -2811,7 +2840,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceRoute: MarketplaceRoute,
   NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
-  ReelsRoute: ReelsRoute,
+  ReelsRoute: ReelsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

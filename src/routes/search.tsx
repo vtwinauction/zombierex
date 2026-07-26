@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { searchAll } from "@/lib/search.functions";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
 import {
   Select,
   SelectContent,
@@ -38,6 +39,7 @@ function ExplorePage() {
   const [chip, setChip] = useState<Chip>("ALL");
   const dq = useDebounced(q.trim(), 250);
   const run = useServerFn(searchAll);
+  const history = useSearchHistory();
 
   const active = dq.length >= 2;
   const { data, isFetching } = useQuery({
@@ -46,6 +48,10 @@ function ExplorePage() {
     enabled: active,
     staleTime: 30_000,
   });
+
+  useEffect(() => {
+    if (active && !isFetching) history.push(dq);
+  }, [active, isFetching, dq, history]);
 
   const trending = useQuery({
     queryKey: ["search", "trending"],
@@ -119,7 +125,38 @@ function ExplorePage() {
         {active ? (
           <ResultsView data={data} isFetching={isFetching} showSection={showSection} />
         ) : (
-          <TrendingView data={trending.data} showSection={showSection} setQ={setQ} />
+          <>
+            {history.items.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="mono-tag" style={{ color: "var(--color-ash)" }}>RECENT · {history.items.length}</p>
+                  <button onClick={history.clear} className="mono-tag" style={{ color: "var(--color-ash)" }}>CLEAR ALL</button>
+                </div>
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {history.items.map((r) => (
+                    <li key={r} className="inline-flex items-center hairline">
+                      <button
+                        onClick={() => setQ(r)}
+                        className="px-3 py-1.5 text-xs uppercase tracking-wide"
+                        style={{ color: "var(--color-ink)" }}
+                      >
+                        {r}
+                      </button>
+                      <button
+                        onClick={() => history.remove(r)}
+                        aria-label={`Remove ${r}`}
+                        className="border-l border-hair px-2 py-1.5 mono-tag"
+                        style={{ color: "var(--color-ash)" }}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <TrendingView data={trending.data} showSection={showSection} setQ={setQ} />
+          </>
         )}
       </div>
     </div>
