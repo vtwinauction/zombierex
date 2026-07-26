@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { haptic } from "@/lib/native";
 
 const KEY = "zrex.follows.v1";
 
