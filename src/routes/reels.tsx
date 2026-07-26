@@ -8,7 +8,8 @@ import { ReportBlockSheet } from "@/components/ReportBlockSheet";
 import { MoreVertical } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { listFeed } from "@/lib/feed.functions";
+import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reels")({
   head: () => ({
@@ -31,9 +32,19 @@ function ReelsPage() {
   const [activeIdx, setActiveIdx] = useState(0);
 
   const fetchFeed = useServerFn(listFeed);
+  const fetchAuthedFeed = useServerFn(listAuthedFeed);
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getUser().then(({ data }) => { if (alive) setSignedIn(!!data.user); });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
   const live = useQuery({
-    queryKey: ["reels", "live"],
-    queryFn: () => fetchFeed({ data: { kind: "video", limit: 24 } }),
+    queryKey: ["reels", "live", signedIn ? "authed" : "anon"],
+    queryFn: () => (signedIn
+      ? fetchAuthedFeed({ data: { kind: "video", limit: 24 } })
+      : fetchFeed({ data: { kind: "video", limit: 24 } })),
     staleTime: 60_000,
   });
 
