@@ -165,6 +165,11 @@ function ChannelPage() {
               )}
               <p className="mono-tag mt-1 px-1 text-right" style={{ color: "var(--color-ash)" }}>
                 {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                {m.mine && (
+                  <span className="ml-1" style={{ color: peerReadTs >= new Date(m.createdAt).getTime() ? "var(--color-signal)" : "var(--color-ash)" }}>
+                    {peerReadTs >= new Date(m.createdAt).getTime() ? "✓✓" : "✓"}
+                  </span>
+                )}
               </p>
             </div>
           </div>
