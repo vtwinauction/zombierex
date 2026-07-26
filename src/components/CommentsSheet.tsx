@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ReportBlockSheet } from "@/components/ReportBlockSheet";
 
 export type CommentItem = {
   id: string;
@@ -39,6 +40,7 @@ export function CommentsSheet({
 }) {
   const [items, setItems] = useState<CommentItem[]>(() => seed(targetId));
   const [text, setText] = useState("");
+  const [flagged, setFlagged] = useState<CommentItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -168,6 +170,13 @@ export function CommentsSheet({
                 <div className="mt-1 flex gap-4 text-[11px]" style={{ color: "var(--color-ink-3)" }}>
                   <button className="tap">Reply</button>
                   <button className="tap">Like</button>
+                  <button
+                    className="tap ml-auto"
+                    aria-label="Report comment"
+                    onClick={() => setFlagged(c)}
+                  >
+                    ⋯
+                  </button>
                 </div>
               </div>
             </div>
@@ -228,6 +237,13 @@ export function CommentsSheet({
         </form>
 
       </div>
+      <ReportBlockSheet
+        open={!!flagged}
+        onClose={() => setFlagged(null)}
+        targetKind="comment"
+        targetId={flagged?.id}
+        authorHandle={flagged?.author}
+      />
     </div>
   );
 }
