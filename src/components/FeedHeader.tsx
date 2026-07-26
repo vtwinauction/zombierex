@@ -1,7 +1,12 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { IconLens, IconEnginePulse, IconGauge } from "./icons/RexIcons";
 import { ShoppingCart } from "lucide-react";
+import { getInboxCounts } from "@/lib/inbox.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export function FeedHeader({ dark = false }: { dark?: boolean }) {
   const cls = dark ? "text-white" : "";
@@ -9,11 +14,31 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
     ? { background: "rgba(255,255,255,0.10)", color: "#fff", border: "1px solid rgba(255,255,255,0.14)" }
     : { background: "rgba(255,255,255,0.85)", color: "var(--color-matte)", border: "1px solid var(--color-hair)" };
 
-  const chip = "tap grid h-9 w-9 place-items-center backdrop-blur-md";
+  const chip = "tap grid h-9 w-9 place-items-center backdrop-blur-md relative";
   const clip = {
     clipPath:
       "polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px)",
   };
+
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const fetchCounts = useServerFn(getInboxCounts);
+  const counts = useQuery({
+    queryKey: ["inbox-counts"],
+    queryFn: () => fetchCounts({}) as Promise<{ notifications: number; messages: number }>,
+    enabled: !!signedIn,
+    staleTime: 20_000,
+    refetchInterval: 45_000,
+    refetchOnWindowFocus: true,
+  });
+
+  const notif = counts.data?.notifications ?? 0;
+  const dm = counts.data?.messages ?? 0;
 
   return (
     <header
@@ -46,13 +71,33 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
         <Link to="/cart" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Cart">
           <ShoppingCart size={16} strokeWidth={1.75} />
         </Link>
-        <Link to="/notifications" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Notifications">
+        <Link to="/notifications" className={chip} style={{ ...clip, ...iconStyle }} aria-label={`Notifications${notif ? `, ${notif} unread` : ""}`}>
           <IconEnginePulse size={16} />
+          {notif > 0 && <Badge count={notif} />}
         </Link>
-        <Link to="/messages" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Messages">
+        <Link to="/messages" className={chip} style={{ ...clip, ...iconStyle }} aria-label={`Messages${dm ? `, ${dm} unread` : ""}`}>
           <IconGauge size={16} />
+          {dm > 0 && <Badge count={dm} />}
         </Link>
       </div>
     </header>
   );
 }
+
+function Badge({ count }: { count: number }) {
+  const label = count > 99 ? "99+" : String(count);
+  return (
+    <span
+      aria-hidden
+      className="absolute -right-1 -top-1 grid min-w-[16px] h-[16px] place-items-center rounded-full px-1 mono-num text-[9px] font-bold leading-none"
+      style={{
+        background: "var(--color-neon, #00c853)",
+        color: "#0a0f08",
+        boxShadow: "0 0 6px rgba(0,200,83,0.55), 0 0 0 1.5px #ffffff",
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
