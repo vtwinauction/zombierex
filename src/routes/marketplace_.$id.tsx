@@ -5,6 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Heart, Share2, MessageCircle, Flag, ArrowRight, ChevronRight, BadgeCheck } from "lucide-react";
 import { getListing, toggleSaveListing, reportListing, updateListing, deleteListing } from "@/lib/marketplace.functions";
 import { startDirectMessage } from "@/lib/messages.functions";
+import { addToCart } from "@/lib/cart.functions";
+import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -32,6 +34,15 @@ function ListingDetail() {
   const update = useServerFn(updateListing);
   const del = useServerFn(deleteListing);
   const startDM = useServerFn(startDirectMessage);
+  const addToCartFn = useServerFn(addToCart);
+  const addCartMut = useMutation({
+    mutationFn: (listingId: string) => addToCartFn({ data: { listingId } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Added to cart");
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to add to cart"),
+  });
   const [photoIdx, setPhotoIdx] = useState(0);
   const [dmPending, setDmPending] = useState(false);
 
@@ -155,11 +166,12 @@ function ListingDetail() {
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" style={{ color: "var(--color-neon)" }} strokeWidth={2} />
               </button>
               <button
-                onClick={() => navigate({ to: "/cart", search: { add: l.id } as any })}
-                className="tap w-full border py-4 mono-tag font-bold"
+                onClick={() => addCartMut.mutate(l.id)}
+                disabled={addCartMut.isPending}
+                className="tap w-full border py-4 mono-tag font-bold disabled:opacity-60"
                 style={{ borderColor: "var(--color-ink)", color: "var(--color-ink)", letterSpacing: "0.22em" }}
               >
-                ADD TO CART
+                {addCartMut.isPending ? "ADDING…" : "ADD TO CART"}
               </button>
             </div>
           )}
