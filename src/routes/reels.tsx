@@ -173,6 +173,20 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
         {muted ? "MUTED · TAP" : "SOUND ON"}
       </span>
 
+      <button
+        onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
+        aria-label="More options"
+        className="tap absolute right-3 grid h-9 w-9 place-items-center rounded-full text-white"
+        style={{
+          top: "calc(env(safe-area-inset-top) + 92px)",
+          background: "rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        <MoreVertical size={16} />
+      </button>
+
+
       {heartPing && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div
