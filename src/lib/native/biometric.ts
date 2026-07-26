@@ -11,8 +11,9 @@ type NativeBio = any;
 
 async function loadNative(): Promise<NativeBio | null> {
   try {
+    const name = "@capacitor-community/biometric-auth";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mod: any = await import(/* @vite-ignore */ "@capacitor-community/biometric-auth");
+    const mod: any = await import(/* @vite-ignore */ name);
     return mod?.BiometricAuth ?? mod?.default ?? mod ?? null;
   } catch {
     return null;

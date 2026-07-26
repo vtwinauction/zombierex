@@ -70,6 +70,7 @@ import { Route as AuthenticatedSettingsContentRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsConnectionsRouteImport } from './routes/_authenticated/settings.connections'
 import { Route as AuthenticatedSettingsBlockedRouteImport } from './routes/_authenticated/settings.blocked'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings.appearance'
+import { Route as AuthenticatedSettingsAppLockRouteImport } from './routes/_authenticated/settings.app-lock'
 import { Route as AuthenticatedSettingsActivityRouteImport } from './routes/_authenticated/settings.activity'
 import { Route as AuthenticatedSettingsAccountPrivacyRouteImport } from './routes/_authenticated/settings.account-privacy'
 import { Route as AuthenticatedSettingsAccessibilityRouteImport } from './routes/_authenticated/settings.accessibility'
@@ -448,6 +449,12 @@ const AuthenticatedSettingsAppearanceRoute =
   AuthenticatedSettingsAppearanceRouteImport.update({
     id: '/appearance',
     path: '/appearance',
+    getParentRoute: () => AuthenticatedSettingsRoute,
+  } as any)
+const AuthenticatedSettingsAppLockRoute =
+  AuthenticatedSettingsAppLockRouteImport.update({
+    id: '/app-lock',
+    path: '/app-lock',
     getParentRoute: () => AuthenticatedSettingsRoute,
   } as any)
 const AuthenticatedSettingsActivityRoute =
@@ -831,6 +838,7 @@ export interface FileRoutesByFullPath {
   '/settings/accessibility': typeof AuthenticatedSettingsAccessibilityRoute
   '/settings/account-privacy': typeof AuthenticatedSettingsAccountPrivacyRoute
   '/settings/activity': typeof AuthenticatedSettingsActivityRoute
+  '/settings/app-lock': typeof AuthenticatedSettingsAppLockRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/blocked': typeof AuthenticatedSettingsBlockedRoute
   '/settings/connections': typeof AuthenticatedSettingsConnectionsRoute
@@ -945,6 +953,7 @@ export interface FileRoutesByTo {
   '/settings/accessibility': typeof AuthenticatedSettingsAccessibilityRoute
   '/settings/account-privacy': typeof AuthenticatedSettingsAccountPrivacyRoute
   '/settings/activity': typeof AuthenticatedSettingsActivityRoute
+  '/settings/app-lock': typeof AuthenticatedSettingsAppLockRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/blocked': typeof AuthenticatedSettingsBlockedRoute
   '/settings/connections': typeof AuthenticatedSettingsConnectionsRoute
@@ -1064,6 +1073,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/accessibility': typeof AuthenticatedSettingsAccessibilityRoute
   '/_authenticated/settings/account-privacy': typeof AuthenticatedSettingsAccountPrivacyRoute
   '/_authenticated/settings/activity': typeof AuthenticatedSettingsActivityRoute
+  '/_authenticated/settings/app-lock': typeof AuthenticatedSettingsAppLockRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/blocked': typeof AuthenticatedSettingsBlockedRoute
   '/_authenticated/settings/connections': typeof AuthenticatedSettingsConnectionsRoute
@@ -1183,6 +1193,7 @@ export interface FileRouteTypes {
     | '/settings/accessibility'
     | '/settings/account-privacy'
     | '/settings/activity'
+    | '/settings/app-lock'
     | '/settings/appearance'
     | '/settings/blocked'
     | '/settings/connections'
@@ -1297,6 +1308,7 @@ export interface FileRouteTypes {
     | '/settings/accessibility'
     | '/settings/account-privacy'
     | '/settings/activity'
+    | '/settings/app-lock'
     | '/settings/appearance'
     | '/settings/blocked'
     | '/settings/connections'
@@ -1415,6 +1427,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/accessibility'
     | '/_authenticated/settings/account-privacy'
     | '/_authenticated/settings/activity'
+    | '/_authenticated/settings/app-lock'
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/blocked'
     | '/_authenticated/settings/connections'
@@ -1921,6 +1934,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsAppearanceRouteImport
       parentRoute: typeof AuthenticatedSettingsRoute
     }
+    '/_authenticated/settings/app-lock': {
+      id: '/_authenticated/settings/app-lock'
+      path: '/app-lock'
+      fullPath: '/settings/app-lock'
+      preLoaderRoute: typeof AuthenticatedSettingsAppLockRouteImport
+      parentRoute: typeof AuthenticatedSettingsRoute
+    }
     '/_authenticated/settings/activity': {
       id: '/_authenticated/settings/activity'
       path: '/activity'
@@ -2360,6 +2380,7 @@ interface AuthenticatedSettingsRouteChildren {
   AuthenticatedSettingsAccessibilityRoute: typeof AuthenticatedSettingsAccessibilityRoute
   AuthenticatedSettingsAccountPrivacyRoute: typeof AuthenticatedSettingsAccountPrivacyRoute
   AuthenticatedSettingsActivityRoute: typeof AuthenticatedSettingsActivityRoute
+  AuthenticatedSettingsAppLockRoute: typeof AuthenticatedSettingsAppLockRoute
   AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
   AuthenticatedSettingsBlockedRoute: typeof AuthenticatedSettingsBlockedRoute
   AuthenticatedSettingsConnectionsRoute: typeof AuthenticatedSettingsConnectionsRoute
@@ -2385,6 +2406,7 @@ const AuthenticatedSettingsRouteChildren: AuthenticatedSettingsRouteChildren = {
   AuthenticatedSettingsAccountPrivacyRoute:
     AuthenticatedSettingsAccountPrivacyRoute,
   AuthenticatedSettingsActivityRoute: AuthenticatedSettingsActivityRoute,
+  AuthenticatedSettingsAppLockRoute: AuthenticatedSettingsAppLockRoute,
   AuthenticatedSettingsAppearanceRoute: AuthenticatedSettingsAppearanceRoute,
   AuthenticatedSettingsBlockedRoute: AuthenticatedSettingsBlockedRoute,
   AuthenticatedSettingsConnectionsRoute: AuthenticatedSettingsConnectionsRoute,
