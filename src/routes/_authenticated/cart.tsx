@@ -109,7 +109,7 @@ function Cart() {
               {items.map((x) => (
                 <Link
                   key={x.id}
-                  to="/checkout/$id"
+                  to="/checkout/order/$id"
                   params={{ id: x.id }}
                   className="block tap py-3 mono-tag font-bold text-center text-black"
                   style={{ background: "var(--color-neon)" }}
