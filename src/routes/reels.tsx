@@ -374,6 +374,15 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
           </div>
         </div>
       )}
+
+      <ReportBlockSheet
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetKind="reel"
+        targetId={(reel as any).dbId}
+        authorId={(reel as any).authorId}
+        authorHandle={reel.user.handle}
+      />
     </section>
   );
 }
