@@ -25,6 +25,7 @@ import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress } f
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
 import { moderateImage } from "@/lib/moderation-image.functions";
+import { checkTextSafety } from "@/lib/moderation-text.functions";
 import { MusicLibrary, type SelectedTrack } from "@/components/MusicLibrary";
 import { formatDuration } from "@/lib/music-library";
 
@@ -137,6 +138,7 @@ export function MediaComposer({ onDone }: Props) {
 
   const post = useServerFn(createPost);
   const moderate = useServerFn(moderateImage);
+  const moderateCaption = useServerFn(checkTextSafety);
   const queryClient = useQueryClient();
 
   const activeItem = items[active];
@@ -296,6 +298,22 @@ export function MediaComposer({ onDone }: Props) {
           if (e instanceof Error && e.message.startsWith("Image blocked")) throw e;
         }
       }
+
+      // Text safety scan on the caption (fail-open on gateway error).
+      if (caption.trim().length >= 3) {
+        try {
+          const v = await moderateCaption({ data: { text: caption, surface: "post" } });
+          if (!v.safe) {
+            const cats = v.categories?.join(", ") || "policy violation";
+            throw new Error(
+              `Caption blocked by safety scan (${cats}). ${v.reason ?? "Please revise."}`,
+            );
+          }
+        } catch (e) {
+          if (e instanceof Error && e.message.startsWith("Caption blocked")) throw e;
+        }
+      }
+
 
 
 
