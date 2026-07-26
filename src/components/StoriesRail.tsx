@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { storiesV2, type Story } from "@/lib/mock-data";
+import { storiesV2 } from "@/lib/mock-data";
+import type { Story } from "@/lib/types";
 import {
   Plus,
   Radio,

@@ -1,14 +1,45 @@
 import { createFileRoute, Outlet, Link, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * Wait for the Supabase client to finish restoring its persisted session.
+ *
+ * `getSession()` returns whatever is already in memory — on a cold start
+ * (especially on native, where storage reads are async) the session may not
+ * have been rehydrated yet. We wait for the first `INITIAL_SESSION` event
+ * (or a short timeout) before deciding to redirect.
+ */
+async function awaitInitialSession() {
+  const { data } = await supabase.auth.getSession();
+  if (data.session) return data.session;
+
+  return await new Promise<import("@supabase/supabase-js").Session | null>((resolve) => {
+    let done = false;
+    const finish = (s: import("@supabase/supabase-js").Session | null) => {
+      if (done) return;
+      done = true;
+      sub.data.subscription.unsubscribe();
+      clearTimeout(timer);
+      resolve(s);
+    };
+    const sub = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        finish(session ?? null);
+      }
+    });
+    // Hard ceiling so a broken storage adapter can never wedge the app.
+    const timer = setTimeout(() => finish(null), 1500);
+  });
+}
+
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
+    const session = await awaitInitialSession();
+    if (!session?.user) {
       throw redirect({ to: "/auth" });
     }
-    return { user: data.user };
+    return { user: session.user };
   },
   component: () => <Outlet />,
   errorComponent: ({ error, reset }) => (
