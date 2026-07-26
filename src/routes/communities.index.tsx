@@ -204,8 +204,10 @@ function CommunitiesPage() {
         </p>
       )}
     </div>
+    </PullToRefresh>
   );
 }
+
 
 type CardCommunity = {
   id: string;
