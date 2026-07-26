@@ -1,71 +1,63 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { SettingsScreen, Card, PrimaryButton } from "@/components/SettingsScreen";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { exportMyData } from "@/lib/data-export.functions";
 
 export const Route = createFileRoute("/_authenticated/settings/export")({
-  head: () => ({ meta: [{ title: "Download your data · Settings · ZOMBIEREX" }, { name: "description", content: "Export a copy of your ZOMBIEREX information as JSON." }] }),
+  head: () => ({ meta: [
+    { title: "Download my data · ZOMBIEREX" },
+    { name: "robots", content: "noindex" },
+    { name: "description", content: "Export a copy of your ZOMBIEREX data." },
+  ] }),
   component: ExportPage,
 });
 
 function ExportPage() {
+  const run = useServerFn(exportMyData);
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
 
   const download = async () => {
-    setBusy(true); setMsg(null);
+    setBusy(true);
     try {
-      const { data: userRes } = await supabase.auth.getUser();
-      const user = userRes.user;
-      const uid = user?.id ?? "";
-
-      const safe = async (fn: () => any) => { try { const r = await fn(); return r?.data ?? null; } catch { return null; } };
-      const sb = supabase as any;
-      const [profile, posts, vehicles, routes, listings, dragRuns] = await Promise.all([
-        safe(() => sb.from("profiles").select("*").eq("id", uid).maybeSingle()),
-        safe(() => sb.from("posts").select("*").eq("author_id", uid)),
-        safe(() => sb.from("vehicles").select("*").eq("owner_id", uid)),
-        safe(() => sb.from("routes").select("*").eq("owner_id", uid)),
-        safe(() => sb.from("listings").select("*").eq("seller_id", uid)),
-        safe(() => sb.from("drag_runs").select("*").eq("user_id", uid)),
-      ]);
-
-      const prefs: Record<string, unknown> = {};
-      try {
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && k.startsWith("zombierex.")) prefs[k] = JSON.parse(localStorage.getItem(k) || "null");
-        }
-      } catch {}
-
-      const bundle = {
-        exportedAt: new Date().toISOString(),
-        user: user ? { id: user.id, email: user.email, created_at: user.created_at } : null,
-        profile, posts, vehicles, routes, listings, dragRuns, prefs,
-      };
+      const bundle = await run();
       const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url; a.download = `zombierex-export-${uid.slice(0, 8) || "me"}.json`;
-      document.body.appendChild(a); a.click(); a.remove();
+      a.href = url;
+      a.download = `zombierex-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       URL.revokeObjectURL(url);
-      setMsg("Export ready — check your downloads.");
-    } catch (e: any) {
-      setMsg(e?.message ?? "Export failed.");
-    } finally { setBusy(false); }
+      toast.success("Your data bundle is downloading.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Export failed.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <SettingsScreen index="06.10" section="EXPORT" title="Download your data" subtitle="Get a JSON copy of your profile, posts, garage, routes and preferences.">
-      <Card>
-        <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
-          The file only includes rows you have permission to read. Media files stay on the platform.
-        </p>
-        <div className="mt-4">
-          <PrimaryButton onClick={download} disabled={busy}>{busy ? "Preparing…" : "Download JSON"}</PrimaryButton>
-        </div>
-        {msg && <p className="mt-2 text-[12px]" style={{ color: "var(--color-neon)" }}>{msg}</p>}
-      </Card>
-    </SettingsScreen>
+    <div className="px-5 py-6">
+      <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ PRIVACY</p>
+      <h1 className="serif mt-2 text-4xl leading-tight" style={{ color: "var(--color-ink)" }}>
+        Download <span className="italic" style={{ color: "var(--color-neon)" }}>my data</span>
+      </h1>
+      <p className="mt-3 text-[13px]" style={{ color: "var(--color-silver)" }}>
+        A single JSON file containing everything you own: profile, vehicles, posts, comments,
+        follows, listings, orders, rides, routes, drag runs, DMs you sent, achievements, and
+        emergency contacts. Prepared on demand — nothing is stored server-side.
+      </p>
+
+      <button onClick={download} disabled={busy} className="btn-solid mt-6">
+        {busy ? "Preparing…" : "Download JSON"}
+      </button>
+
+      <p className="mt-6 text-[11px]" style={{ color: "var(--color-silver)" }}>
+        Under GDPR / CCPA you may also request account deletion. Go to
+        Settings → Account for that irreversible flow.
+      </p>
+    </div>
   );
 }

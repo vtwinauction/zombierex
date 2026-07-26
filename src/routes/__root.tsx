@@ -20,6 +20,8 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { PushNotificationBridge } from "@/components/PushNotificationBridge";
 import { AppLockGate } from "@/components/AppLockGate";
 import { FirstRunTour } from "@/components/FirstRunTour";
+import { PushPrimer } from "@/components/PushPrimer";
+import { installAnalytics, track } from "@/lib/analytics";
 import { Toaster } from "@/components/ui/sonner";
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
@@ -130,7 +132,13 @@ function RootComponent() {
   // listeners and forwards throttled, deduped reports to crash_reports.
   useEffect(() => {
     installCrashReporter();
+    installAnalytics();
   }, []);
+
+  // Fire screen_view on every pathname change.
+  useEffect(() => {
+    track("screen_view", { path: pathname });
+  }, [pathname]);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
@@ -189,6 +197,7 @@ function RootComponent() {
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
         <PushNotificationBridge />
+        <PushPrimer />
         <AppLockGate />
         <FirstRunTour />
         <Toaster position="top-center" richColors closeButton />
