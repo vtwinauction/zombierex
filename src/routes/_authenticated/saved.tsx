@@ -49,6 +49,7 @@ function SavedPage() {
               const src = p.thumbnail_url ?? p.media_url ?? "";
               return (
                 <li key={p.id} className="relative aspect-square overflow-hidden hairline">
+                  <Link to="/p/$id" params={{ id: p.id }} className="block h-full w-full">
                   {src ? (
                     src.match(/\.(mp4|webm|mov)(\?|$)/i) ? (
                       <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
@@ -78,6 +79,7 @@ function SavedPage() {
                       {p.author.display_name}
                     </span>
                   )}
+                  </Link>
                 </li>
               );
             })}

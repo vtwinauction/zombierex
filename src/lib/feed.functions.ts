@@ -44,6 +44,42 @@ export const listFeed = createServerFn({ method: "GET" })
     return { items: rows ?? [], nextCursor: rows && rows.length === data.limit ? rows[rows.length - 1].created_at : null };
   });
 
+export const getPostPublic = createServerFn({ method: "GET" })
+  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data }) => {
+    const supabase = serverPublic();
+    const { data: row, error } = await supabase
+      .from("posts")
+      .select("id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location, bio)")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const getProfileByHandlePublic = createServerFn({ method: "GET" })
+  .inputValidator((raw) => z.object({ handle: z.string().trim().min(1).max(32) }).parse(raw))
+  .handler(async ({ data }) => {
+    const supabase = serverPublic();
+    const handle = data.handle.replace(/^@/, "");
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, is_business")
+      .eq("handle", handle)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!profile) return null;
+    const { data: posts } = await supabase
+      .from("posts")
+      .select("id, kind, caption, media_url, thumbnail_url, created_at")
+      .eq("author_id", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(36);
+    return { profile, posts: posts ?? [] };
+  });
+
+
+
 
 export const createPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

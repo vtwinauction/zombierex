@@ -24,7 +24,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
+import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
+import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
@@ -209,9 +211,19 @@ const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
   path: '/communities/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UHandleRoute = UHandleRouteImport.update({
+  id: '/u/$handle',
+  path: '/u/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SosTokenRoute = SosTokenRouteImport.update({
   id: '/sos/$token',
   path: '/sos/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PIdRoute = PIdRouteImport.update({
+  id: '/p/$id',
+  path: '/p/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIdRoute = MarketplaceIdRouteImport.update({
@@ -852,7 +864,9 @@ export interface FileRoutesByFullPath {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
+  '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
@@ -975,7 +989,9 @@ export interface FileRoutesByTo {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
+  '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/u/$handle': typeof UHandleRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
   '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
@@ -1103,7 +1119,9 @@ export interface FileRoutesById {
   '/legal/privacy': typeof LegalPrivacyRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace_/$id': typeof MarketplaceIdRoute
+  '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/_authenticated/admin/crashes': typeof AuthenticatedAdminCrashesRoute
@@ -1231,7 +1249,9 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace/$id'
+    | '/p/$id'
     | '/sos/$token'
+    | '/u/$handle'
     | '/communities/'
     | '/judge/'
     | '/admin/crashes'
@@ -1354,7 +1374,9 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace/$id'
+    | '/p/$id'
     | '/sos/$token'
+    | '/u/$handle'
     | '/communities'
     | '/judge'
     | '/admin/crashes'
@@ -1481,7 +1503,9 @@ export interface FileRouteTypes {
     | '/legal/privacy'
     | '/legal/terms'
     | '/marketplace_/$id'
+    | '/p/$id'
     | '/sos/$token'
+    | '/u/$handle'
     | '/communities/'
     | '/judge/'
     | '/_authenticated/admin/crashes'
@@ -1596,7 +1620,9 @@ export interface RootRouteChildren {
   LegalPrivacyRoute: typeof LegalPrivacyRoute
   LegalTermsRoute: typeof LegalTermsRoute
   MarketplaceIdRoute: typeof MarketplaceIdRoute
+  PIdRoute: typeof PIdRoute
   SosTokenRoute: typeof SosTokenRoute
+  UHandleRoute: typeof UHandleRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -1716,11 +1742,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunitiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/$handle': {
+      id: '/u/$handle'
+      path: '/u/$handle'
+      fullPath: '/u/$handle'
+      preLoaderRoute: typeof UHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sos/$token': {
       id: '/sos/$token'
       path: '/sos/$token'
       fullPath: '/sos/$token'
       preLoaderRoute: typeof SosTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$id': {
+      id: '/p/$id'
+      path: '/p/$id'
+      fullPath: '/p/$id'
+      preLoaderRoute: typeof PIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace_/$id': {
@@ -2785,7 +2825,9 @@ const rootRouteChildren: RootRouteChildren = {
   LegalPrivacyRoute: LegalPrivacyRoute,
   LegalTermsRoute: LegalTermsRoute,
   MarketplaceIdRoute: MarketplaceIdRoute,
+  PIdRoute: PIdRoute,
   SosTokenRoute: SosTokenRoute,
+  UHandleRoute: UHandleRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
