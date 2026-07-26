@@ -58,6 +58,7 @@ const SECTIONS: Array<{ id: string; title: string; hint: string; items: Array<{ 
     { label: "Content you see", hint: "Muted words and sensitive content", kind: "content-prefs" },
   ]},
   { id: "security", title: "Security", hint: "Protect your account", items: [
+    { label: "App Lock", hint: "Require FaceID, TouchID or fingerprint to open the app", kind: "app-lock" },
     { label: "Two-step verification", hint: "Add an extra layer of security when signing in", kind: "twofa" },
     { label: "Where you're signed in", hint: "Devices currently using your account", kind: "sessions" },
     { label: "Recent sign-in activity", hint: "Review new logins to your account", kind: "login-activity" },
@@ -176,6 +177,7 @@ function SettingRow({ it, prefs, update }: {
     "select-messages": "/settings/account-privacy",
     blocked: "/settings/blocked",
     "content-prefs": "/settings/content",
+    "app-lock": "/settings/app-lock",
     twofa: "/settings/twofa",
     sessions: "/settings/sessions",
     "login-activity": "/settings/activity",
