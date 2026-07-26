@@ -256,7 +256,7 @@ export const recommendedForYou = createServerFn({ method: "POST" })
 
     // Signal: recent reactions & follows.
     const [reactions, follows] = await Promise.all([
-      supabase.from("reactions").select("target_id, kind").eq("user_id", userId).limit(30),
+      supabase.from("reactions").select("post_id, kind").eq("user_id", userId).limit(30),
       supabase.from("follows").select("followee_id").eq("follower_id", userId).limit(30),
     ]);
     const signals = {
