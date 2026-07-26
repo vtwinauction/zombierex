@@ -128,6 +128,16 @@ function RootComponent() {
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
 
+  // Native shell bootstrap — no-op on web; hides splash, themes status
+  // bar, wires Android back button, exposes keyboard height on native.
+  useEffect(() => {
+    let cancelled = false;
+    void import("@/lib/native/bootstrap").then((m) => {
+      if (!cancelled) void m.bootstrapNative(router);
+    });
+    return () => { cancelled = true; };
+  }, [router]);
+
   // Hide while scrolling down; always visible at the top of the page.
   const navHidden = !isTop && scrollDir === "down";
 
