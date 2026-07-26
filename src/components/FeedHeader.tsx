@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
@@ -20,10 +20,18 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
       "polygon(6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px), 0 6px)",
   };
 
+  const qc = useQueryClient();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [uid, setUid] = useState<string | null>(null);
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
+    supabase.auth.getUser().then(({ data }) => {
+      setSignedIn(!!data.user);
+      setUid(data.user?.id ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+      setSignedIn(!!s?.user);
+      setUid(s?.user?.id ?? null);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -33,9 +41,26 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
     queryFn: () => fetchCounts({}) as Promise<{ notifications: number; messages: number }>,
     enabled: !!signedIn,
     staleTime: 20_000,
-    refetchInterval: 45_000,
+    refetchInterval: 60_000,
     refetchOnWindowFocus: true,
   });
+
+  // Realtime bump — new notification for me OR new message in any of my channels
+  useEffect(() => {
+    if (!uid) return;
+    const bump = () => qc.invalidateQueries({ queryKey: ["inbox-counts"] });
+    const ch = supabase.channel(`inbox-${uid}`)
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
+        bump,
+      )
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload: any) => { if (payload?.new?.sender_id !== uid) bump(); },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [uid, qc]);
 
   const notif = counts.data?.notifications ?? 0;
   const dm = counts.data?.messages ?? 0;
