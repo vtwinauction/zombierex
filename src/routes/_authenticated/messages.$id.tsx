@@ -63,6 +63,10 @@ function ChannelPage() {
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
         () => qc.invalidateQueries({ queryKey: ["messages", id] }),
       )
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "conversation_members", filter: `conversation_id=eq.${id}` },
+        () => qc.invalidateQueries({ queryKey: ["messages", id] }),
+      )
       .on("broadcast", { event: "typing" }, (payload: any) => {
         if (payload?.payload?.userId && payload.payload.userId !== meRef.current) {
           setPeerTyping(true);
