@@ -175,9 +175,9 @@ export function CommentsSheet({
     setTimeout(() => inputRef.current?.focus(), 30);
   };
 
-  const removeMine = (c: CommentItem) => {
-    if (isLive && c.authorId && c.authorId === meId) delMut.mutate(c.id);
-  };
+  const canDelete = (c: CommentItem) => isLive && !!c.authorId && c.authorId === meId;
+  const removeMine = (c: CommentItem) => { if (canDelete(c)) delMut.mutate(c.id); };
+  void removeMine; void canDelete;
 
 
   return (
