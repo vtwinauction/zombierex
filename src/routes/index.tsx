@@ -15,9 +15,10 @@ import { reels, storiesV2, posts, chats, users, clubs } from "@/lib/mock-data";
 import { useFollow } from "@/hooks/useFollow";
 import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
 import { listFeed } from "@/lib/feed.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -118,7 +119,16 @@ function HomePage() {
 
 
 
+  const qc = useQueryClient();
+  const onRefresh = async () => {
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["feed", "live"] }),
+      qc.invalidateQueries({ queryKey: ["ads", "feed"] }),
+    ]);
+  };
+
   return (
+    <PullToRefresh onRefresh={onRefresh}>
     <div className="pb-24">
       {/* Masthead is provided globally by GlobalStatusBar in __root. */}
 
