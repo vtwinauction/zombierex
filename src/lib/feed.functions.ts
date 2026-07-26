@@ -29,6 +29,7 @@ export const listFeed = createServerFn({ method: "GET" })
     z.object({
       limit: z.number().int().min(1).max(50).default(20),
       cursor: z.string().datetime().optional(),
+      kind: z.enum(["photo", "video", "event", "telemetry"]).optional(),
     }).parse(raw ?? {}),
   )
   .handler(async ({ data }) => {
@@ -38,6 +39,7 @@ export const listFeed = createServerFn({ method: "GET" })
       .select("id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location)")
       .order("created_at", { ascending: false })
       .limit(data.limit);
+    if (data.kind) q = q.eq("kind", data.kind);
     if (data.cursor) q = q.lt("created_at", data.cursor);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
