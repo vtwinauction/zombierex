@@ -645,6 +645,15 @@ function HomePage() {
         targetId={commentTarget ?? "anon"}
         onClose={() => setCommentTarget(null)}
       />
+
+      <ReportBlockSheet
+        open={!!reportTarget}
+        onClose={() => setReportTarget(null)}
+        targetKind={reportTarget?.kind ?? "post"}
+        targetId={reportTarget?.id}
+        authorId={reportTarget?.authorId}
+        authorHandle={reportTarget?.handle}
+      />
     </div>
     </PullToRefresh>
   );
