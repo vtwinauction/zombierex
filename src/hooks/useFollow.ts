@@ -49,6 +49,7 @@ export function useFollow(id: string, label?: string) {
       else set.delete(id);
       write(set);
       setFollowing(next);
+      void haptic(next ? "medium" : "light");
       toast.success(next ? `Following ${label ?? "rider"}` : `Unfollowed ${label ?? "rider"}`);
     },
     [id, label],
