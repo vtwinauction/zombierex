@@ -1,6 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { getProfileByHandlePublic } from "@/lib/feed.functions";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { follow, unfollow, getProfileByHandlePublic } from "@/lib/feed.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { RichCaption } from "@/components/RichCaption";
+import { haptic } from "@/lib/native";
 
 const profileQO = (handle: string) =>
   queryOptions({
