@@ -65,6 +65,7 @@ function PostDetail() {
   const p: any = data!;
   const src = p.media_url ?? p.thumbnail_url;
   const isVideo = p.kind === "video" || (typeof src === "string" && /\.(mp4|webm|mov)(\?|$)/i.test(src));
+  const [commentsOpen, setCommentsOpen] = useState(false);
   return (
     <article className="mx-auto max-w-xl px-4 pt-6 pb-32">
       {p.author && (
@@ -98,19 +99,23 @@ function PostDetail() {
       )}
 
       {p.caption && (
-        <p className="mt-5 whitespace-pre-wrap text-[15px] leading-relaxed">{p.caption}</p>
+        <RichCaption text={p.caption} className="mt-5 block text-[15px] leading-relaxed" />
       )}
 
-      <div className="mt-5 flex gap-5 mono-tag" style={{ color: "var(--color-ash)" }}>
-        <span>{p.likes_count ?? 0} LIKES</span>
-        <span>{p.comments_count ?? 0} COMMENTS</span>
-        <span>{p.views_count ?? 0} VIEWS</span>
+      <div className="mt-6">
+        <InteractionBar
+          targetId={`db:${p.id}`}
+          counts={{ likes: p.likes_count ?? 0, comments: p.comments_count ?? 0, shares: p.shares_count ?? 0 }}
+          variant="light"
+          onComment={() => setCommentsOpen(true)}
+        />
       </div>
 
-      <div className="mt-10 border-t pt-6" style={{ borderColor: "var(--color-mist)" }}>
-        <p className="mono-tag" style={{ color: "var(--color-ash)" }}>JOIN THE CONVERSATION</p>
-        <Link to="/auth" className="btn-solid mt-3 inline-block mono-tag">SIGN IN TO REPLY</Link>
-      </div>
+      <CommentsSheet
+        open={commentsOpen}
+        onClose={() => setCommentsOpen(false)}
+        targetId={`db:${p.id}`}
+      />
     </article>
   );
 }
