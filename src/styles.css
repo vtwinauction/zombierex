@@ -322,10 +322,16 @@
 @utility story-ring {
   padding: 2.5px;
   border-radius: 999px;
-  background: conic-gradient(from 210deg, var(--color-neon) 0deg, var(--color-ember) 140deg, var(--color-neon-deep) 260deg, var(--color-neon) 360deg);
+  background: conic-gradient(from 210deg, var(--color-neon) 0deg, var(--color-neon-deep) 180deg, var(--color-neon) 360deg);
+  box-shadow: 0 0 10px rgba(0, 200, 83, 0.45), 0 0 2px rgba(0, 200, 83, 0.9);
 }
 @utility story-ring-seen { padding: 2.5px; border-radius: 999px; background: var(--color-line-2); }
-@utility story-ring-live { padding: 2.5px; border-radius: 999px; background: conic-gradient(from 0deg, var(--color-ember), #ff9a3a, var(--color-ember)); }
+@utility story-ring-live {
+  padding: 2.5px;
+  border-radius: 999px;
+  background: conic-gradient(from 0deg, var(--color-neon), #7CFFB2, var(--color-neon-deep), var(--color-neon));
+  box-shadow: 0 0 14px rgba(0, 200, 83, 0.6);
+}
 
 @utility badge-metal {
   display: inline-flex; align-items: center; gap: 4px;
