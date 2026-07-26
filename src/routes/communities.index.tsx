@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { discoverCommunities, CATEGORIES } from "@/lib/communities.functions";
-import { clubs as mockClubs } from "@/lib/mock-data";
+
 import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/communities/")({
