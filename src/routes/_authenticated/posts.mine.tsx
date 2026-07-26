@@ -87,5 +87,6 @@ function MyPostsPage() {
         ))}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
