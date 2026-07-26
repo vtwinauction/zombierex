@@ -150,12 +150,13 @@ function EventDetail() {
     }
   }
 
-  function doNavigate() {
+  async function doNavigate() {
     if (!navHref) {
       toast.error("No location set for this event");
       return;
     }
-    window.open(navHref, "_blank", "noopener,noreferrer");
+    const { openExternal } = await import("@/lib/native");
+    await openExternal(navHref);
   }
 
   const navHref = e.gps_lat && e.gps_lng
