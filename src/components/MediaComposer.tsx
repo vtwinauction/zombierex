@@ -280,6 +280,25 @@ export function MediaComposer({ onDone }: Props) {
       const kind: "photo" | "video" | "telemetry" =
         first?.kind === "video" ? "video" : "photo";
 
+      // AI safety scan on the first image (fail-open on gateway error).
+      if (first && first.kind === "image") {
+        try {
+          const verdict = await moderate({ data: { url: first.url } });
+          if (!verdict.safe) {
+            const cats = verdict.categories?.join(", ") || "policy violation";
+            throw new Error(
+              `Image blocked by safety scan (${cats}). ${verdict.reason ?? "Please choose a different photo."}`,
+            );
+          }
+        } catch (e) {
+          // Only re-throw our own block; swallow network errors so a flaky
+          // AI gateway never prevents a legitimate post.
+          if (e instanceof Error && e.message.startsWith("Image blocked")) throw e;
+        }
+      }
+
+
+
       // If scheduled → keep as draft, don't publish yet.
       if (scheduleAt) {
         const draft = saveDraft({
