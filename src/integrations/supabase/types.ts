@@ -1078,6 +1078,48 @@ export type Database = {
           },
         ]
       }
+      crash_reports: {
+        Row: {
+          app_version: string | null
+          context: Json
+          created_at: string
+          id: string
+          mechanism: string | null
+          message: string
+          platform: string | null
+          route: string | null
+          stack: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          app_version?: string | null
+          context?: Json
+          created_at?: string
+          id?: string
+          mechanism?: string | null
+          message: string
+          platform?: string | null
+          route?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          app_version?: string | null
+          context?: Json
+          created_at?: string
+          id?: string
+          mechanism?: string | null
+          message?: string
+          platform?: string | null
+          route?: string | null
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       creator_profiles: {
         Row: {
           accepts_collabs: boolean
