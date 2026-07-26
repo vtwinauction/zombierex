@@ -16,6 +16,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { PushNotificationBridge } from "@/components/PushNotificationBridge";
+import { Toaster } from "@/components/ui/sonner";
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 
