@@ -24,6 +24,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
+import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
@@ -208,6 +209,11 @@ const JudgeIndexRoute = JudgeIndexRouteImport.update({
 const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
   id: '/communities/',
   path: '/communities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UHandleRoute = UHandleRouteImport.update({
+  id: '/u/$handle',
+  path: '/u/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SosTokenRoute = SosTokenRouteImport.update({
@@ -860,6 +866,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
@@ -984,6 +991,7 @@ export interface FileRoutesByTo {
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/u/$handle': typeof UHandleRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
   '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
@@ -1113,6 +1121,7 @@ export interface FileRoutesById {
   '/marketplace_/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/_authenticated/admin/crashes': typeof AuthenticatedAdminCrashesRoute
@@ -1242,6 +1251,7 @@ export interface FileRouteTypes {
     | '/marketplace/$id'
     | '/p/$id'
     | '/sos/$token'
+    | '/u/$handle'
     | '/communities/'
     | '/judge/'
     | '/admin/crashes'
@@ -1366,6 +1376,7 @@ export interface FileRouteTypes {
     | '/marketplace/$id'
     | '/p/$id'
     | '/sos/$token'
+    | '/u/$handle'
     | '/communities'
     | '/judge'
     | '/admin/crashes'
@@ -1494,6 +1505,7 @@ export interface FileRouteTypes {
     | '/marketplace_/$id'
     | '/p/$id'
     | '/sos/$token'
+    | '/u/$handle'
     | '/communities/'
     | '/judge/'
     | '/_authenticated/admin/crashes'
@@ -1610,6 +1622,7 @@ export interface RootRouteChildren {
   MarketplaceIdRoute: typeof MarketplaceIdRoute
   PIdRoute: typeof PIdRoute
   SosTokenRoute: typeof SosTokenRoute
+  UHandleRoute: typeof UHandleRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -1727,6 +1740,13 @@ declare module '@tanstack/react-router' {
       path: '/communities'
       fullPath: '/communities/'
       preLoaderRoute: typeof CommunitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$handle': {
+      id: '/u/$handle'
+      path: '/u/$handle'
+      fullPath: '/u/$handle'
+      preLoaderRoute: typeof UHandleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sos/$token': {
@@ -2807,6 +2827,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceIdRoute: MarketplaceIdRoute,
   PIdRoute: PIdRoute,
   SosTokenRoute: SosTokenRoute,
+  UHandleRoute: UHandleRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
@@ -2821,3 +2842,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
