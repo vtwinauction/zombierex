@@ -1,6 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { getPostPublic } from "@/lib/feed.functions";
+import { RichCaption } from "@/components/RichCaption";
+import { InteractionBar } from "@/components/InteractionBar";
+import { CommentsSheet } from "@/components/CommentsSheet";
 
 const postQO = (id: string) =>
   queryOptions({
