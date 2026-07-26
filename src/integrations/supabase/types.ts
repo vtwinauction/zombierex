@@ -3659,6 +3659,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_events: {
+        Row: {
+          bucket: string
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          bucket: string
+          created_at?: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          bucket?: string
+          created_at?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       reactions: {
         Row: {
           created_at: string
@@ -5194,6 +5215,10 @@ export type Database = {
       can_view_event: {
         Args: { _event_id: string; _user: string }
         Returns: boolean
+      }
+      check_rate_limit: {
+        Args: { _bucket: string; _max_hits: number; _window_seconds: number }
+        Returns: undefined
       }
       find_group_ride_by_code: {
         Args: { _code: string }
