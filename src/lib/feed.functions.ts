@@ -29,7 +29,7 @@ export const listFeed = createServerFn({ method: "GET" })
     z.object({
       limit: z.number().int().min(1).max(50).default(20),
       cursor: z.string().datetime().optional(),
-      kind: z.enum(["photo", "video", "reel", "text"]).optional(),
+      kind: z.enum(["photo", "video", "event", "telemetry"]).optional(),
     }).parse(raw ?? {}),
   )
   .handler(async ({ data }) => {
