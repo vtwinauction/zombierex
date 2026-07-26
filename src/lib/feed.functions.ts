@@ -86,6 +86,31 @@ export const listMyPosts = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+export const listMySavedPosts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = context.supabase;
+    const { data: saves, error: sErr } = await sb
+      .from("reactions")
+      .select("post_id, created_at")
+      .eq("user_id", context.userId)
+      .eq("kind", "save")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (sErr) throw new Error(sErr.message);
+    const ids = Array.from(new Set((saves ?? []).map((r: any) => r.post_id).filter(Boolean)));
+    if (ids.length === 0) return [];
+    const { data: posts, error: pErr } = await sb
+      .from("posts")
+      .select("id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url)")
+      .in("id", ids);
+    if (pErr) throw new Error(pErr.message);
+    const order = new Map(ids.map((id, i) => [id, i]));
+    return (posts ?? []).sort(
+      (a: any, b: any) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
+    );
+  });
+
 export const getMyPost = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
