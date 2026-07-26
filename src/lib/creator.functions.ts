@@ -288,7 +288,7 @@ export const getCreatorDashboard = createServerFn({ method: "GET" })
     const sinceIso = since.toISOString();
 
     const [{ data: recentPosts }, { count: newSubs }, { count: newTips }, { data: tipsSum }, { count: newCollabs }, { data: topPosts }] = await Promise.all([
-      context.supabase.from("posts").select("id, created_at, likes_count, comments_count, shares_count, saves_count, views_count")
+      context.supabase.from("posts").select("id, created_at, likes_count, comments_count, shares_count, views_count")
         .eq("author_id", context.userId).order("created_at", { ascending: false }).limit(50),
       context.supabase.from("creator_subscriptions").select("*", { count: "exact", head: true })
         .eq("creator_id", cp.id).eq("status", "active").gte("created_at", sinceIso),
