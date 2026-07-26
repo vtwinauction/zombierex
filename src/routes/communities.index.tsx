@@ -65,7 +65,7 @@ function CommunitiesPage() {
   const [sort, setSort] = useState<(typeof SORTS)[number]["id"]>("trending");
 
   const discover = useServerFn(discoverCommunities);
-  const { data, isPending } = useQuery({
+  const { data, isPending, refetch } = useQuery({
     queryKey: ["communities", { q, category, sort }],
     queryFn: () => discover({
       data: {
