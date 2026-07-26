@@ -14,7 +14,7 @@ export function RichCaption({
   className?: string;
   style?: CSSProperties;
 }) {
-  const parts: Array<JSX.Element | string> = [];
+  const parts: ReactNode[] = [];
   const re = /(#[A-Za-z0-9_]+)|(@[A-Za-z0-9_]{2,32})/g;
   let last = 0;
   let m: RegExpExecArray | null;
