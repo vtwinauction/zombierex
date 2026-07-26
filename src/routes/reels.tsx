@@ -113,6 +113,8 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
     { handle: "@apex_kai", text: "Berlin meet — I'm in.", avatar: reel.user.avatar },
     { handle: "@turbo_lila", text: "Wheels spec?", avatar: reel.user.avatar },
   ]);
+  const [reportOpen, setReportOpen] = useState(false);
+
 
   function onTap() {
     if (commentsOpen) return;
