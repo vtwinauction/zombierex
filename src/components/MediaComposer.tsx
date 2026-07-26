@@ -349,8 +349,15 @@ export function MediaComposer({ onDone }: Props) {
           <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Pick from your library or use the camera. Up to 10 items.</p>
           <div className="mt-6 grid grid-cols-1 gap-2">
             <PickerButton label="Photo & video library" onClick={() => pickGallery.current?.click()} accent />
-            <PickerButton label="Take a photo" onClick={() => pickCamera.current?.click()} />
+            <PickerButton label="Take a photo" onClick={async () => {
+              const { pickNativePhoto } = await import("@/lib/native/camera");
+              const f = await pickNativePhoto("photo");
+              if (f) {
+                const dt = new DataTransfer(); dt.items.add(f); addFiles(dt.files);
+              } else { pickCamera.current?.click(); }
+            }} />
             <PickerButton label="Record a video" onClick={() => pickVideo.current?.click()} />
+
           </div>
           <div className="mt-8">
             <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>OR</p>
