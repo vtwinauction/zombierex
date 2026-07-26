@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getSellerDashboard, updateListing, deleteListing } from "@/lib/marketplace.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/marketplace_/dashboard")({
   head: () => ({ meta: [{ title: "Seller Dashboard · ZOMBIEREX" }] }),
@@ -25,6 +26,7 @@ function Dashboard() {
   async function remove(id: string) { if (confirm("Delete listing?")) { await delFn({ data: { id } }); refetch(); } }
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="pb-24">
 
       <div className="flex items-end justify-between px-4 pt-6">

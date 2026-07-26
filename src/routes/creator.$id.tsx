@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { getCreatorProfile, subscribeToCreator, tipCreator, sendCollabRequest } from "@/lib/creator.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/creator/$id")({
   head: () => ({ meta: [{ title: "Creator · ZOMBIEREX" }] }),
@@ -58,6 +59,7 @@ function CreatorPublicPage() {
 
 
   return (
+    <PullToRefresh onRefresh={() => qc.invalidateQueries({ queryKey: ["creator", id] })}>
     <div className="pb-24">
 
       {isLoading && <p className="px-4 pt-6 mono-tag" style={{ color: "var(--color-titanium)" }}>LOADING…</p>}

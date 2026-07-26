@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getCreatorDashboard, listMyTiers } from "@/lib/creator.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/creator/dashboard")({
   head: () => ({ meta: [{ title: "Creator Dashboard · ZOMBIEREX" }] }),
@@ -17,10 +18,11 @@ function fmtPct(x: number) { return `${(x * 100).toFixed(1)}%`; }
 function DashboardPage() {
   const getDash = useServerFn(getCreatorDashboard);
   const listTiers = useServerFn(listMyTiers);
-  const { data: dash, isLoading } = useQuery({ queryKey: ["creator-dashboard"], queryFn: () => getDash() });
-  const { data: tiers } = useQuery({ queryKey: ["my-tiers"], queryFn: () => listTiers() });
+  const { data: dash, isLoading, refetch: refetchDash } = useQuery({ queryKey: ["creator-dashboard"], queryFn: () => getDash() });
+  const { data: tiers, refetch: refetchTiers } = useQuery({ queryKey: ["my-tiers"], queryFn: () => listTiers() });
 
   return (
+    <PullToRefresh onRefresh={async () => { await Promise.all([refetchDash(), refetchTiers()]); }}>
     <div className="pb-24">
 
       <div className="flex items-end justify-between px-4 pt-6">
