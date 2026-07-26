@@ -4478,6 +4478,42 @@ export type Database = {
           },
         ]
       }
+      stories: {
+        Row: {
+          author_id: string
+          caption: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          kind: string
+          label: string | null
+          media_url: string
+          thumbnail_url: string | null
+        }
+        Insert: {
+          author_id: string
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          media_url: string
+          thumbnail_url?: string | null
+        }
+        Update: {
+          author_id?: string
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          media_url?: string
+          thumbnail_url?: string | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           code: string

@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { storiesV2 } from "@/lib/mock-data";
 import type { Story } from "@/lib/types";
+import { listActiveStories } from "@/lib/stories.functions";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Plus,
   Radio,
@@ -43,19 +47,64 @@ function persistSeen(set: Set<string>) {
   } catch {}
 }
 
+// Local "me" tile the composer opens.
+const ME_TILE: Story = {
+  id: "__me__",
+  user: { id: "me", handle: "@you", name: "You", avatar: "https://api.dicebear.com/7.x/shapes/svg?seed=me", verified: false, location: "" },
+  kind: "photo",
+  cover: "https://api.dicebear.com/7.x/shapes/svg?seed=me",
+};
+
 export function StoriesRail() {
   const navigate = useNavigate();
   const [seen, setSeen] = useState<Set<string>>(() => loadSeen());
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getUser().then(({ data }) => { if (alive) setSignedIn(!!data.user); });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
 
-  const stories = useMemo(
-    () =>
-      storiesV2.map((s, i) => ({
-        ...s,
-        seen: i === 0 ? false : s.seen || seen.has(s.id),
-      })),
-    [seen]
-  );
+  const fetchStories = useServerFn(listActiveStories);
+  const live = useQuery({
+    queryKey: ["stories", "active"],
+    queryFn: () => fetchStories(),
+    staleTime: 60_000,
+  });
+
+  const stories = useMemo<Story[]>(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rows = (live.data?.items ?? []) as any[];
+    const realMapped: Story[] = rows
+      .filter((r) => r.media_url || r.thumbnail_url)
+      .map((r) => {
+        const a = r.author ?? {};
+        return {
+          id: r.id,
+          user: {
+            id: (a.id ?? r.author_id) as string,
+            handle: a.handle ? `@${String(a.handle).replace(/^@/, "")}` : "@rider",
+            name: a.display_name || a.handle || "Rider",
+            avatar: a.avatar_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${a.id ?? r.author_id}`,
+            verified: !!a.is_verified,
+            location: "",
+          },
+          kind: (r.kind as Story["kind"]) ?? "photo",
+          cover: r.thumbnail_url || r.media_url,
+          label: r.label ?? undefined,
+        } as Story;
+      });
+
+    // Signed-out preview: keep the atmospheric demo tiles when we have nothing live yet.
+    const base = realMapped.length > 0 || signedIn ? realMapped : storiesV2.slice(1);
+    return [ME_TILE, ...base].map((s, i) => ({
+      ...s,
+      seen: i === 0 ? false : s.seen || seen.has(s.id),
+    }));
+  }, [live.data, seen, signedIn]);
+
 
   function openStory(i: number) {
     if (i === 0) {
