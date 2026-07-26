@@ -17,6 +17,7 @@ import { RaceHUD, type LaneTelemetry } from "@/components/RaceHUD";
 import { useChristmasTree, type TreeMode } from "@/lib/christmas-tree";
 import { Ghost, GHOST_PRESETS, type GhostPreset } from "@/lib/ghost-racer";
 import { submitDragRun, coachDragRun } from "@/lib/drag.functions";
+import { haptic } from "@/lib/native";
 
 export const Route = createFileRoute("/_authenticated/drag/race")({
   head: () => ({
