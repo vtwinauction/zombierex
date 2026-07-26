@@ -136,6 +136,7 @@ export function MediaComposer({ onDone }: Props) {
   const pickVideo = useRef<HTMLInputElement>(null);
 
   const post = useServerFn(createPost);
+  const moderate = useServerFn(moderateImage);
   const queryClient = useQueryClient();
 
   const activeItem = items[active];
