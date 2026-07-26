@@ -196,6 +196,7 @@ function MarketplacePage() {
         {rest.map((l: any) => <ListingCard key={l.id} listing={l} />)}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 
