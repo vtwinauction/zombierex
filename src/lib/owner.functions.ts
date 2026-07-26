@@ -221,12 +221,12 @@ export const listUsersForOwner = createServerFn({ method: "GET" })
     await assertOwner(context.supabase, context.userId);
     let q = context.supabase
       .from("profiles")
-      .select("id, display_name, username, avatar_url, is_verified, is_suspended, is_premium, xp_total, level, created_at", { count: "exact" })
+      .select("id, display_name, handle, avatar_url, is_verified, is_suspended, is_premium, xp_total, level, created_at", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(data.offset, data.offset + data.limit - 1);
     if (data.search) {
       const term = `%${data.search.trim()}%`;
-      q = q.or(`display_name.ilike.${term},username.ilike.${term}`);
+      q = q.or(`display_name.ilike.${term},handle.ilike.${term}`);
     }
     if (data.onlySuspended) q = q.eq("is_suspended", true);
     if (data.onlyVerified) q = q.eq("is_verified", true);
@@ -362,7 +362,7 @@ export const listRecentPosts = createServerFn({ method: "GET" })
     await assertOwner(context.supabase, context.userId);
     let q = (context.supabase as any)
       .from("posts")
-      .select("id, author_id, caption, media_urls, likes_count, comments_count, created_at, is_hidden")
+      .select("id, author_id, caption, media_url, likes_count, comments_count, created_at, is_hidden")
 
       .order("created_at", { ascending: false }).limit(data.limit);
     if (data.search) q = q.ilike("caption", `%${data.search}%`);
@@ -390,7 +390,7 @@ export const listOpenReports = createServerFn({ method: "GET" })
     await assertOwner(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("reports")
-      .select("id, reporter_id, target_type, target_id, reason, status, created_at")
+      .select("id, reporter_id, target_type:target_kind, target_id, reason, status, created_at")
       .eq("status", "open").order("created_at", { ascending: false }).limit(200);
     if (error) throw new Error(error.message);
     return data ?? [];
