@@ -66,6 +66,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
     title: "You",
     items: [
       { to: "/profile", label: "Garage (profile)" },
+      { to: "/saved", label: "Saved", hint: "Bookmarked posts · vault" },
       { to: "/notifications", label: "Notifications" },
       { to: "/messages", label: "Messages" },
       { to: "/settings", label: "Settings", hint: "Account · privacy · appearance" },
