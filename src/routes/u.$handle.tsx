@@ -139,3 +139,88 @@ function PublicProfile() {
     </div>
   );
 }
+
+function FollowActions({ profileId, handle }: { profileId: string; handle: string }) {
+  const nav = useNavigate();
+  const [uid, setUid] = useState<string | null | undefined>(undefined);
+  const [following, setFollowing] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!alive) return;
+      const u = data.user?.id ?? null;
+      setUid(u);
+      if (u && u !== profileId) {
+        supabase
+          .from("follows")
+          .select("follower_id", { count: "exact", head: true })
+          .eq("follower_id", u)
+          .eq("followee_id", profileId)
+          .then(({ count }) => {
+            if (alive) setFollowing((count ?? 0) > 0);
+          });
+      }
+    });
+    return () => { alive = false; };
+  }, [profileId]);
+
+  if (uid === undefined) {
+    return <div className="mt-6 h-9" aria-hidden />;
+  }
+
+  if (!uid) {
+    return (
+      <div className="mt-6 flex gap-2">
+        <Link to="/auth" className="btn-solid mono-tag">FOLLOW</Link>
+        <Link to="/auth" className="btn-ghost mono-tag">MESSAGE</Link>
+      </div>
+    );
+  }
+
+  if (uid === profileId) {
+    return (
+      <div className="mt-6 flex gap-2">
+        <Link to="/profile/edit" className="btn-solid mono-tag">EDIT PROFILE</Link>
+      </div>
+    );
+  }
+
+  const toggle = async () => {
+    if (busy) return;
+    setBusy(true);
+    const next = !following;
+    setFollowing(next);
+    void haptic(next ? "medium" : "light");
+    try {
+      if (next) await follow({ data: { followee_id: profileId } });
+      else await unfollow({ data: { followee_id: profileId } });
+      toast.success(next ? `Following @${handle}` : `Unfollowed @${handle}`);
+    } catch (e: any) {
+      setFollowing(!next);
+      toast.error(e?.message ?? "Could not update follow");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-6 flex gap-2">
+      <button
+        onClick={toggle}
+        disabled={busy}
+        className={following ? "btn-ghost mono-tag" : "btn-solid mono-tag"}
+      >
+        {following ? "FOLLOWING" : "FOLLOW"}
+      </button>
+      <button
+        onClick={() => nav({ to: "/messages" })}
+        className="btn-ghost mono-tag"
+      >
+        MESSAGE
+      </button>
+    </div>
+  );
+}
+
