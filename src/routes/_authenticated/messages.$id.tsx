@@ -201,6 +201,15 @@ function ChannelPage() {
           {send.isPending ? "…" : "SEND"}
         </button>
       </form>
+
+      <ReportBlockSheet
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        targetKind="message"
+        targetId={reportMsg?.id ?? id}
+        authorId={reportMsg?.authorId}
+        authorHandle={undefined}
+      />
     </div>
   );
 }
