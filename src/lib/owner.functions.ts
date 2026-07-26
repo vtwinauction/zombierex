@@ -390,7 +390,7 @@ export const listOpenReports = createServerFn({ method: "GET" })
     await assertOwner(context.supabase, context.userId);
     const { data, error } = await context.supabase
       .from("reports")
-      .select("id, reporter_id, target_kind, target_id, reason, status, created_at")
+      .select("id, reporter_id, target_type:target_kind, target_id, reason, status, created_at")
       .eq("status", "open").order("created_at", { ascending: false }).limit(200);
     if (error) throw new Error(error.message);
     return data ?? [];
