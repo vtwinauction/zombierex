@@ -62,11 +62,12 @@ export async function bootstrapNative(router: Router<any, any>) {
     } catch { /* ignore */ }
   }
 
-  // App lifecycle + Android back button
+  // App lifecycle + Android back button + deep links
   const appMod = await loadPlugin<{
     App: {
-      addListener: (event: string, cb: (data: { isActive?: boolean }) => void | Promise<void>) => Promise<unknown>;
+      addListener: (event: string, cb: (data: { isActive?: boolean; url?: string }) => void | Promise<void>) => Promise<unknown>;
       exitApp: () => Promise<void>;
+      getLaunchUrl?: () => Promise<{ url?: string } | null>;
     };
   }>("@capacitor/app");
   if (appMod) {
@@ -79,8 +80,43 @@ export async function bootstrapNative(router: Router<any, any>) {
         if (!isActive) { try { window.speechSynthesis?.cancel(); } catch { /* ignore */ } }
         window.dispatchEvent(new CustomEvent("zx:appstate", { detail: { isActive } }));
       });
+      // Universal / custom-scheme deep link handling — normalize to in-app path.
+      const handleUrl = (raw?: string) => {
+        if (!raw) return;
+        try {
+          const u = new URL(raw);
+          const path = (u.pathname || "/") + (u.search || "") + (u.hash || "");
+          if (path && path !== window.location.pathname + window.location.search) {
+            router.navigate({ to: path });
+          }
+        } catch { /* ignore malformed */ }
+      };
+      await appMod.App.addListener("appUrlOpen", (data) => handleUrl(data.url));
+      try {
+        const launch = await appMod.App.getLaunchUrl?.();
+        handleUrl(launch?.url);
+      } catch { /* ignore */ }
     } catch { /* ignore */ }
   }
+
+  // Network status → CSS class + custom event for offline UI
+  const net = await loadPlugin<{
+    Network: {
+      addListener: (event: string, cb: (status: { connected: boolean; connectionType?: string }) => void) => Promise<unknown>;
+      getStatus: () => Promise<{ connected: boolean; connectionType?: string }>;
+    };
+  }>("@capacitor/network");
+  if (net) {
+    try {
+      const applyStatus = (s: { connected: boolean; connectionType?: string }) => {
+        document.documentElement.classList.toggle("zx-offline", !s.connected);
+        window.dispatchEvent(new CustomEvent("zx:network", { detail: s }));
+      };
+      applyStatus(await net.Network.getStatus());
+      await net.Network.addListener("networkStatusChange", applyStatus);
+    } catch { /* ignore */ }
+  }
+
 
   // Keyboard height CSS var
   const kb = await loadPlugin<{
