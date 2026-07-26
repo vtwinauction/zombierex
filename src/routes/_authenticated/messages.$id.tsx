@@ -111,12 +111,17 @@ function ChannelPage() {
     <div className="flex flex-col" style={{ minHeight: "100svh" }}>
       <header className="sticky top-0 z-10 hairline-b px-4 py-3 flex items-center gap-3" style={{ background: "var(--color-bone)" }}>
         <Link to="/messages" className="mono-tag" style={{ color: "var(--color-ash)" }}>← BACK</Link>
-        <p className="mono-tag" style={{ color: "var(--color-signal)" }}>CH · {id.slice(0, 6).toUpperCase()}</p>
-        {peerTyping && <span className="mono-tag ml-auto" style={{ color: "var(--color-ash)" }}>TYPING…</span>}
+        {peer?.avatar_url && <img src={peer.avatar_url} alt="" className="h-8 w-8 hairline object-cover" />}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[13px] font-bold">{peer?.display_name ?? peer?.username ?? `CH · ${id.slice(0, 6).toUpperCase()}`}</p>
+          <p className="mono-tag" style={{ color: peerTyping ? "var(--color-signal)" : "var(--color-ash)" }}>
+            {peerTyping ? "TYPING…" : peer?.username ? `@${peer.username}` : "CHANNEL"}
+          </p>
+        </div>
         <button
           aria-label="More"
           onClick={() => { setReportMsg(null); setReportOpen(true); }}
-          className={`tap grid h-8 w-8 place-items-center rounded-full ${peerTyping ? "" : "ml-auto"}`}
+          className="tap grid h-8 w-8 place-items-center rounded-full"
           style={{ color: "var(--color-ash)" }}
         >
           <MoreVertical size={16} />
