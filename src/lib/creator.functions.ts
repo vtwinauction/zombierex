@@ -297,7 +297,7 @@ export const getCreatorDashboard = createServerFn({ method: "GET" })
       context.supabase.from("creator_tips").select("amount_cents").eq("creator_id", cp.id).gte("created_at", sinceIso),
       context.supabase.from("collab_requests").select("*", { count: "exact", head: true })
         .eq("creator_id", cp.id).eq("status", "new"),
-      context.supabase.from("posts").select("id, kind, caption, cover_url, likes_count, comments_count, views_count, created_at")
+      context.supabase.from("posts").select("id, kind, caption, thumbnail_url, media_url, likes_count, comments_count, views_count, created_at")
         .eq("author_id", context.userId).order("likes_count", { ascending: false }).limit(5),
     ]);
 
