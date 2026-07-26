@@ -83,7 +83,7 @@ export const getGroupRide = createServerFn({ method: "GET" })
       .eq("group_ride_id", data.id);
     const userIds = (membersRaw ?? []).map((m) => m.user_id);
     const { data: profs } = userIds.length
-      ? await supabase.from("profiles").select("id, username, display_name, avatar_url").in("id", userIds)
+      ? await supabase.from("profiles").select("id, handle, display_name, avatar_url").in("id", userIds)
       : { data: [] as any[] };
     const profMap = new Map((profs ?? []).map((p: any) => [p.id, p]));
     const members = (membersRaw ?? []).map((m) => ({ ...m, profiles: profMap.get(m.user_id) ?? null }));

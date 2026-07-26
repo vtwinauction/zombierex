@@ -221,12 +221,12 @@ export const listUsersForOwner = createServerFn({ method: "GET" })
     await assertOwner(context.supabase, context.userId);
     let q = context.supabase
       .from("profiles")
-      .select("id, display_name, username, avatar_url, is_verified, is_suspended, is_premium, xp_total, level, created_at", { count: "exact" })
+      .select("id, display_name, handle, avatar_url, is_verified, is_suspended, is_premium, xp_total, level, created_at", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(data.offset, data.offset + data.limit - 1);
     if (data.search) {
       const term = `%${data.search.trim()}%`;
-      q = q.or(`display_name.ilike.${term},username.ilike.${term}`);
+      q = q.or(`display_name.ilike.${term},handle.ilike.${term}`);
     }
     if (data.onlySuspended) q = q.eq("is_suspended", true);
     if (data.onlyVerified) q = q.eq("is_verified", true);

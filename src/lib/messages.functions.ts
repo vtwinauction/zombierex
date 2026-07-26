@@ -38,7 +38,7 @@ export const listConversations = createServerFn({ method: "GET" })
       new Set((allMembers ?? []).filter((m: any) => m.user_id !== uid).map((m: any) => m.user_id))
     );
     const { data: profiles } = otherIds.length
-      ? await sb.from("profiles").select("id, display_name, username, avatar_url").in("id", otherIds)
+      ? await sb.from("profiles").select("id, display_name, handle, avatar_url").in("id", otherIds)
       : { data: [] as any[] };
     const pMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
 
@@ -90,7 +90,7 @@ export const getMessages = createServerFn({ method: "GET" })
 
     const senderIds = Array.from(new Set((msgs ?? []).map((m: any) => m.sender_id)));
     const { data: profiles } = senderIds.length
-      ? await sb.from("profiles").select("id, display_name, username, avatar_url").in("id", senderIds)
+      ? await sb.from("profiles").select("id, display_name, handle, avatar_url").in("id", senderIds)
       : { data: [] as any[] };
     const pMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
 
@@ -104,7 +104,7 @@ export const getMessages = createServerFn({ method: "GET" })
     if (peer?.user_id) {
       const { data: pp } = await sb
         .from("profiles")
-        .select("id, display_name, username, avatar_url")
+        .select("id, display_name, handle, avatar_url")
         .eq("id", peer.user_id)
         .maybeSingle();
       peerProfile = pp ?? null;
