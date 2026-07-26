@@ -1,6 +1,7 @@
 import { useState, type ComponentType, type CSSProperties } from "react";
 import { HeartIcon, CommentIcon, ShareIcon, BookmarkIcon } from "./icons/SocialIcons";
 import { useInteractionState } from "@/hooks/useInteractionState";
+import { haptic } from "@/lib/native";
 
 export type InteractionCounts = {
   likes: number;
@@ -87,6 +88,12 @@ export function InteractionBar({
             (key === "like" && liked) || (key === "save" && saved);
 
           const onClick = () => {
+            // Native haptic feedback — no-op on web (or navigator.vibrate fallback).
+            if (key === "like")        void haptic(liked ? "light" : "medium");
+            else if (key === "save")   void haptic("light");
+            else if (key === "share")  void haptic("medium");
+            else if (key === "comment") void haptic("light");
+
             if (key === "like") toggleLike();
             else if (key === "save") toggleSave();
             else if (key === "share") share();
