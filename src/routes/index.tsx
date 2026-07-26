@@ -78,6 +78,9 @@ function PulseStat({ label, value, tone }: { label: string; value: string; tone?
 function HomePage() {
   const [tab, setTab] = useState<"for_you" | "following">("for_you");
   const [commentTarget, setCommentTarget] = useState<string | null>(null);
+  const [reportTarget, setReportTarget] = useState<null | {
+    kind: ReportTargetKind; id?: string; authorId?: string; handle?: string;
+  }>(null);
   const featured = reels[1];
   const gridReels = [reels[0], reels[2], reels[3]];
   const suggestedCreators = users.slice(0, 6);
