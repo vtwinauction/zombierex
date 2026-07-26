@@ -94,6 +94,22 @@ export const getMessages = createServerFn({ method: "GET" })
       : { data: [] as any[] };
     const pMap = new Map((profiles ?? []).map((p: any) => [p.id, p]));
 
+    // Channel meta: peer profile + peer last_read_at (for read receipts)
+    const { data: members } = await sb
+      .from("conversation_members")
+      .select("user_id, last_read_at")
+      .eq("conversation_id", data.conversationId);
+    const peer = (members ?? []).find((m: any) => m.user_id !== context.userId);
+    let peerProfile: any = null;
+    if (peer?.user_id) {
+      const { data: pp } = await sb
+        .from("profiles")
+        .select("id, display_name, username, avatar_url")
+        .eq("id", peer.user_id)
+        .maybeSingle();
+      peerProfile = pp ?? null;
+    }
+
     // Mark as read
     await sb
       .from("conversation_members")
@@ -101,7 +117,7 @@ export const getMessages = createServerFn({ method: "GET" })
       .eq("conversation_id", data.conversationId)
       .eq("user_id", context.userId);
 
-    return (msgs ?? []).map((m: any) => ({
+    const messages = (msgs ?? []).map((m: any) => ({
       id: m.id,
       conversationId: m.conversation_id,
       senderId: m.sender_id,
@@ -111,6 +127,12 @@ export const getMessages = createServerFn({ method: "GET" })
       mine: m.sender_id === context.userId,
       sender: pMap.get(m.sender_id) ?? null,
     }));
+
+    return {
+      messages,
+      peer: peerProfile,
+      peerLastReadAt: peer?.last_read_at ?? null,
+    };
   });
 
 export const sendMessage = createServerFn({ method: "POST" })
