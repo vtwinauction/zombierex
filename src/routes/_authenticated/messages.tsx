@@ -105,5 +105,6 @@ function MessagesPage() {
         })}
       </ul>
     </div>
+    </PullToRefresh>
   );
 }
