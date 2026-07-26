@@ -51,6 +51,7 @@ function ReelsPage() {
             name: a.display_name || a.handle || "Rider",
             avatar: a.avatar_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${a.id ?? r.author_id}`,
             verified: !!a.is_verified,
+            location: a.location || "",
           },
           video: r.media_url || "",
           poster: r.thumbnail_url || r.media_url || "",
