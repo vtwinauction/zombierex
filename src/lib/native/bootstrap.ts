@@ -26,9 +26,22 @@ export async function bootstrapNative(router: Router<any, any>) {
   started = true;
   if (!isNative()) return;
 
+  // Install navigator.geolocation shim first so any early consumers use it.
+  try {
+    const { installGeolocationBridge } = await import("./geolocation-bridge");
+    await installGeolocationBridge();
+  } catch { /* ignore */ }
+
+  // Register for push notifications (best-effort, non-blocking).
+  try {
+    const { registerPushNotifications } = await import("./push");
+    void registerPushNotifications();
+  } catch { /* ignore */ }
+
   // Splash screen
   const splash = await loadPlugin<{ SplashScreen: { hide: (o?: { fadeOutDuration?: number }) => Promise<void> } }>("@capacitor/splash-screen");
   try { await splash?.SplashScreen.hide({ fadeOutDuration: 250 }); } catch { /* ignore */ }
+
 
   // Status bar theming
   const sb = await loadPlugin<{
