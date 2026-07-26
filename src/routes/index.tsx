@@ -17,7 +17,8 @@ import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
-import { listFeed } from "@/lib/feed.functions";
+import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
 
