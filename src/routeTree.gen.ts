@@ -26,6 +26,7 @@ import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
+import { Route as LegalComplianceRouteImport } from './routes/legal.compliance'
 import { Route as JudgeLeaderboardsRouteImport } from './routes/judge.leaderboards'
 import { Route as CreatorIdRouteImport } from './routes/creator.$id'
 import { Route as CommunitiesSlugRouteImport } from './routes/communities.$slug'
@@ -207,6 +208,11 @@ const SosTokenRoute = SosTokenRouteImport.update({
 const MarketplaceIdRoute = MarketplaceIdRouteImport.update({
   id: '/marketplace_/$id',
   path: '/marketplace/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalComplianceRoute = LegalComplianceRouteImport.update({
+  id: '/legal/compliance',
+  path: '/legal/compliance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JudgeLeaderboardsRoute = JudgeLeaderboardsRouteImport.update({
@@ -780,6 +786,7 @@ export interface FileRoutesByFullPath {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/compliance': typeof LegalComplianceRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
@@ -893,6 +900,7 @@ export interface FileRoutesByTo {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/compliance': typeof LegalComplianceRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities': typeof CommunitiesIndexRoute
@@ -1011,6 +1019,7 @@ export interface FileRoutesById {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/compliance': typeof LegalComplianceRoute
   '/marketplace_/$id': typeof MarketplaceIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/communities/': typeof CommunitiesIndexRoute
@@ -1129,6 +1138,7 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/compliance'
     | '/marketplace/$id'
     | '/sos/$token'
     | '/communities/'
@@ -1242,6 +1252,7 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/compliance'
     | '/marketplace/$id'
     | '/sos/$token'
     | '/communities'
@@ -1359,6 +1370,7 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/compliance'
     | '/marketplace_/$id'
     | '/sos/$token'
     | '/communities/'
@@ -1465,6 +1477,7 @@ export interface RootRouteChildren {
   CommunitiesSlugRoute: typeof CommunitiesSlugRouteWithChildren
   CreatorIdRoute: typeof CreatorIdRoute
   JudgeLeaderboardsRoute: typeof JudgeLeaderboardsRoute
+  LegalComplianceRoute: typeof LegalComplianceRoute
   MarketplaceIdRoute: typeof MarketplaceIdRoute
   SosTokenRoute: typeof SosTokenRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
@@ -1598,6 +1611,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace/$id'
       fullPath: '/marketplace/$id'
       preLoaderRoute: typeof MarketplaceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/compliance': {
+      id: '/legal/compliance'
+      path: '/legal/compliance'
+      fullPath: '/legal/compliance'
+      preLoaderRoute: typeof LegalComplianceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/judge/leaderboards': {
@@ -2569,6 +2589,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunitiesSlugRoute: CommunitiesSlugRouteWithChildren,
   CreatorIdRoute: CreatorIdRoute,
   JudgeLeaderboardsRoute: JudgeLeaderboardsRoute,
+  LegalComplianceRoute: LegalComplianceRoute,
   MarketplaceIdRoute: MarketplaceIdRoute,
   SosTokenRoute: SosTokenRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
