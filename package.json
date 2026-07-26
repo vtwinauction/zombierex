@@ -16,7 +16,8 @@
     "cap:open:ios": "cap open ios",
     "cap:open:android": "cap open android",
     "cap:run:ios": "cap run ios",
-    "cap:run:android": "cap run android"
+    "cap:run:android": "cap run android",
+    "cap:assets": "npx @capacitor/assets generate --iconBackgroundColor '#08090b' --splashBackgroundColor '#08090b' --assetPath resources"
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.11",
