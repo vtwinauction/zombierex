@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getListing } from "@/lib/marketplace.functions";
 
-export const Route = createFileRoute("/_authenticated/checkout/$id")({
+export const Route = createFileRoute("/_authenticated/checkout/order/$id")({
   head: () => ({ meta: [{ title: "Checkout · ZOMBIEREX" }] }),
   component: Checkout,
 });

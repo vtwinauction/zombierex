@@ -49,7 +49,7 @@ function PlansPage() {
       const plan = (plans as any[]).find((p) => p.code === code);
       if (plan && plan.price_cents > 0 && newSub?.id) {
         const co = await checkoutFn({ data: { subscription_id: newSub.id } });
-        nav({ to: "/checkout/$paymentId", params: { paymentId: co.payment_id } });
+        nav({ to: "/checkout/payment/$paymentId", params: { paymentId: co.payment_id } });
       } else {
         nav({ to: "/vendor" });
       }

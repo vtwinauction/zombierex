@@ -147,7 +147,7 @@ function ListingDetail() {
           {l.status === "active" && (
             <div className="space-y-2.5">
               <button
-                onClick={() => navigate({ to: "/checkout/$id", params: { id: l.id } })}
+                onClick={() => navigate({ to: "/checkout/order/$id", params: { id: l.id } })}
                 className="tap group w-full flex items-center justify-between px-5 py-4"
                 style={{ background: "var(--color-ink)", color: "#FFFFFF" }}
               >
