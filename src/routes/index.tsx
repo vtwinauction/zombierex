@@ -634,6 +634,7 @@ function HomePage() {
         onClose={() => setCommentTarget(null)}
       />
     </div>
+    </PullToRefresh>
   );
 }
 
