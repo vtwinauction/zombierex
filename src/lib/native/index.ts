@@ -67,8 +67,8 @@ export async function share(input: ShareInput): Promise<{ ok: boolean }> {
     } catch { return { ok: false }; }
   }
   // Final fallback: copy URL to clipboard.
-  if (input.url && typeof navigator !== "undefined" && navigator.clipboard) {
-    try { await navigator.clipboard.writeText(input.url); return { ok: true }; } catch { /* ignore */ }
+  if (input.url && typeof navigator !== "undefined" && "clipboard" in navigator) {
+    try { await (navigator as Navigator).clipboard.writeText(input.url); return { ok: true }; } catch { /* ignore */ }
   }
   return { ok: false };
 }
