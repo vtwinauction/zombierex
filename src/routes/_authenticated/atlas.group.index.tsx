@@ -8,6 +8,7 @@ import { useState } from "react";
 import { ArrowLeft, Users, Plus, LogIn, Radio } from "lucide-react";
 import { toast } from "sonner";
 import { createGroupRide, joinGroupRide, listMyGroupRides } from "@/lib/group-rides.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/atlas/group/")({
   head: () => ({
@@ -56,6 +57,7 @@ function GroupHub() {
   }
 
   return (
+    <PullToRefresh onRefresh={() => mine.refetch()}>
     <div className="min-h-svh pb-24">
       <header className="flex items-center gap-3 border-b border-line px-4 py-3">
         <Link to="/atlas" className="tap grid h-9 w-9 place-items-center rounded-full bg-paper-2">
@@ -156,5 +158,6 @@ function GroupHub() {
         )}
       </section>
     </div>
+    </PullToRefresh>
   );
 }

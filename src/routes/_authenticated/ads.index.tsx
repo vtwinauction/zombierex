@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listMyCampaigns, updateCampaignStatus } from "@/lib/ads.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/ads/")({
   head: () => ({ meta: [{ title: "Ads Manager · ZOMBIEREX" }] }),
@@ -14,6 +15,7 @@ function AdsManager() {
   const q = useQuery({ queryKey: ["ads", "my"], queryFn: () => list() });
 
   return (
+    <PullToRefresh onRefresh={() => q.refetch()}>
     <div className="pb-32">
       <header className="flex items-start justify-between px-5 pt-8">
         <div>
@@ -96,5 +98,6 @@ function AdsManager() {
         })}
       </div>
     </div>
+    </PullToRefresh>
   );
 }

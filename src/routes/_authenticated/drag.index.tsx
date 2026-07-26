@@ -5,6 +5,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyDragRuns } from "@/lib/drag.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/drag/")({
   head: () => ({
@@ -25,7 +26,7 @@ const STATUS: Record<string, { label: string; color: string }> = {
 
 function DragHub() {
   const listFn = useServerFn(listMyDragRuns);
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["drag", "mine"],
     queryFn: () => listFn(),
     staleTime: 10_000,
@@ -33,6 +34,7 @@ function DragHub() {
   const runs = data ?? [];
 
   return (
+    <PullToRefresh onRefresh={() => refetch()}>
     <div className="min-h-svh pb-24">
       <div className="px-4 pt-4">
         <div className="flex items-start justify-between gap-3">
@@ -118,6 +120,7 @@ function DragHub() {
 
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 

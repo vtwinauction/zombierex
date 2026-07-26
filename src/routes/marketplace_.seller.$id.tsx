@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getSellerProfile, listSellerReviews } from "@/lib/marketplace.functions";
+import { PullToRefresh } from "@/components/PullToRefresh";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/marketplace_/seller/$id")({
   head: ({ params }) => ({ meta: [{ title: `Seller · ${params.id.slice(0, 8)} · ZOMBIEREX` }] }),
@@ -16,6 +18,7 @@ function SellerPage() {
   const { id } = Route.useParams();
   const getFn = useServerFn(getSellerProfile);
   const revFn = useServerFn(listSellerReviews);
+  const qc = useQueryClient();
 
   const { data } = useQuery({ queryKey: ["seller", id], queryFn: () => getFn({ data: { id } }) });
   const { data: reviews } = useQuery({ queryKey: ["seller-reviews", id], queryFn: () => revFn({ data: { seller_id: id, limit: 20 } }) });
@@ -24,6 +27,10 @@ function SellerPage() {
   const listings = ((data as any)?.active_listings ?? []) as any[];
 
   return (
+    <PullToRefresh onRefresh={async () => { await Promise.all([
+      qc.invalidateQueries({ queryKey: ["seller", id] }),
+      qc.invalidateQueries({ queryKey: ["seller-reviews", id] }),
+    ]); }}>
     <div className="pb-24">
 
       <div className="px-4 pt-6">
@@ -80,6 +87,7 @@ function SellerPage() {
         </div>
       </div>
     </div>
+    </PullToRefresh>
   );
 }
 

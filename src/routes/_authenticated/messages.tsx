@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { listConversations } from "@/lib/messages.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { PullToRefresh } from "@/components/PullToRefresh";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({ meta: [
@@ -46,6 +47,7 @@ function MessagesPage() {
   const totalUnread = rows.reduce((s: number, c: any) => s + (c.unread || 0), 0);
 
   return (
+    <PullToRefresh onRefresh={() => q.refetch()}>
     <div>
       <div className="px-4 pt-6">
         <div className="flex items-end justify-between">
@@ -103,5 +105,6 @@ function MessagesPage() {
         })}
       </ul>
     </div>
+    </PullToRefresh>
   );
 }
