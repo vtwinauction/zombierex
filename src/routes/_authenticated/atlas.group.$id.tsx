@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Copy, Radio, LogOut, Square, Users, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { confirmDialog } from "@/lib/confirm";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getGroupRide, sendGroupPing, leaveGroupRide, endGroupRide,
