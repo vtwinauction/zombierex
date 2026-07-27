@@ -221,7 +221,7 @@ function RewardsPage() {
         ) : (
           <div className="divide-y divide-border rounded-xl border border-border bg-card">
             {(leaderboard.data?.rows ?? []).map((r: any, i: number) => (
-              <div key={r.id} className="flex items-center gap-3 p-3">
+              <div key={r.id ?? `lb-${i}`} className="flex items-center gap-3 p-3">
                 <div
                   className={`w-6 text-center text-sm font-bold ${
                     i === 0 ? "text-[hsl(var(--rex-signal,140_90%_50%))]" : "text-muted-foreground"
