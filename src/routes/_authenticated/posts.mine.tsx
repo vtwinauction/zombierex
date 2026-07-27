@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyPosts, deletePost } from "@/lib/feed.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/posts/mine")({
   head: () => ({
