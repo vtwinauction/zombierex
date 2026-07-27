@@ -195,7 +195,12 @@ export const markMatchReady = createServerFn({ method: "POST" })
     if (!isA && !isB) throw new Error("Not your match");
     if (!["lobby", "armed"].includes(m.status)) throw new Error("Match already started");
 
-    const patch: Record<string, unknown> = isA ? { ready_a: data.ready } : { ready_b: data.ready };
+    type MatchUpdate = {
+      ready_a?: boolean; ready_b?: boolean;
+      status?: "lobby" | "armed" | "countdown" | "live" | "finished" | "void";
+      green_at?: string | null;
+    };
+    const patch: MatchUpdate = isA ? { ready_a: data.ready } : { ready_b: data.ready };
     const bothReady = (isA ? data.ready : m.ready_a) && (isB ? data.ready : m.ready_b);
     if (bothReady) {
       patch.status = "countdown";
@@ -209,6 +214,7 @@ export const markMatchReady = createServerFn({ method: "POST" })
     if (uErr) throw new Error(uErr.message);
     return { ok: true, green_at: patch.green_at ?? null };
   });
+
 
 export const pushMatchTelemetry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
