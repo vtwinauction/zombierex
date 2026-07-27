@@ -608,7 +608,7 @@ function LiveTab({ eventId, isHost }: { eventId: string; isHost: boolean }) {
   async function post() {
     if (!body.trim()) return;
     try { await announce({ data: { event_id: eventId, body } }); setBody(""); qc.invalidateQueries({ queryKey: ["event-announcements", eventId] }); }
-    catch (e: any) { alert(e?.message ?? "Only the host can post announcements"); }
+    catch (e: any) { toast.error(e?.message ?? "Only the host can post announcements"); }
   }
   return (
     <div className="px-4 pt-4 space-y-3">
