@@ -35,7 +35,7 @@ function SessionsPage() {
     if (error) setMsg(error.message); else setMsg("Signed out of other devices.");
   };
   const signOutEverywhere = async () => {
-    if (!confirm("Sign out of ALL devices, including this one?")) return;
+    if (!(await confirmDialog({ title: "Sign out everywhere?", description: "You'll be signed out on this device and every other device.", destructive: true, confirmLabel: "Sign out all" }))) return;
     await supabase.auth.signOut({ scope: "global" });
     navigate({ to: "/auth", replace: true });
   };
