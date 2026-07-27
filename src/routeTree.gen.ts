@@ -130,6 +130,7 @@ import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/publ
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
+import { Route as AuthenticatedDragMatchIdRouteImport } from './routes/_authenticated/drag.match.$id'
 import { Route as AuthenticatedCommunitiesSlugManageRouteImport } from './routes/_authenticated/communities.$slug.manage'
 import { Route as AuthenticatedCheckoutPaymentPaymentIdRouteImport } from './routes/_authenticated/checkout.payment.$paymentId'
 import { Route as AuthenticatedCheckoutOrderIdRouteImport } from './routes/_authenticated/checkout.order.$id'
@@ -793,6 +794,12 @@ const AuthenticatedEventsIdEditRoute =
     path: '/events/$id/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDragMatchIdRoute =
+  AuthenticatedDragMatchIdRouteImport.update({
+    id: '/drag/match/$id',
+    path: '/drag/match/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCommunitiesSlugManageRoute =
   AuthenticatedCommunitiesSlugManageRouteImport.update({
     id: '/communities/$slug/manage',
@@ -959,6 +966,7 @@ export interface FileRoutesByFullPath {
   '/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
   '/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
+  '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1086,6 +1094,7 @@ export interface FileRoutesByTo {
   '/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
   '/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
+  '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1218,6 +1227,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
   '/_authenticated/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/_authenticated/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
+  '/_authenticated/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1350,6 +1360,7 @@ export interface FileRouteTypes {
     | '/checkout/order/$id'
     | '/checkout/payment/$paymentId'
     | '/communities/$slug/manage'
+    | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
     | '/post/$id/edit'
@@ -1477,6 +1488,7 @@ export interface FileRouteTypes {
     | '/checkout/order/$id'
     | '/checkout/payment/$paymentId'
     | '/communities/$slug/manage'
+    | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
     | '/post/$id/edit'
@@ -1608,6 +1620,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/order/$id'
     | '/_authenticated/checkout/payment/$paymentId'
     | '/_authenticated/communities/$slug/manage'
+    | '/_authenticated/drag/match/$id'
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
     | '/_authenticated/post/$id/edit'
@@ -2510,6 +2523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEventsIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/drag/match/$id': {
+      id: '/_authenticated/drag/match/$id'
+      path: '/drag/match/$id'
+      fullPath: '/drag/match/$id'
+      preLoaderRoute: typeof AuthenticatedDragMatchIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/communities/$slug/manage': {
       id: '/_authenticated/communities/$slug/manage'
       path: '/communities/$slug/manage'
@@ -2742,6 +2762,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckoutOrderIdRoute: typeof AuthenticatedCheckoutOrderIdRoute
   AuthenticatedCheckoutPaymentPaymentIdRoute: typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   AuthenticatedCommunitiesSlugManageRoute: typeof AuthenticatedCommunitiesSlugManageRoute
+  AuthenticatedDragMatchIdRoute: typeof AuthenticatedDragMatchIdRoute
   AuthenticatedEventsIdEditRoute: typeof AuthenticatedEventsIdEditRoute
   AuthenticatedJudgeSubmitEventSlugRoute: typeof AuthenticatedJudgeSubmitEventSlugRoute
   AuthenticatedPostIdEditRoute: typeof AuthenticatedPostIdEditRoute
@@ -2805,6 +2826,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedCheckoutPaymentPaymentIdRoute,
   AuthenticatedCommunitiesSlugManageRoute:
     AuthenticatedCommunitiesSlugManageRoute,
+  AuthenticatedDragMatchIdRoute: AuthenticatedDragMatchIdRoute,
   AuthenticatedEventsIdEditRoute: AuthenticatedEventsIdEditRoute,
   AuthenticatedJudgeSubmitEventSlugRoute:
     AuthenticatedJudgeSubmitEventSlugRoute,
