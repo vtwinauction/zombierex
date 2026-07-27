@@ -24,14 +24,24 @@ export const listActiveStories = createServerFn({ method: "GET" }).handler(async
   const sb = publicClient();
   const { data, error } = await sb
     .from("stories")
-    .select(
-      "id, author_id, kind, media_url, thumbnail_url, caption, label, created_at, expires_at, author:profiles!stories_author_id_fkey(id, display_name, handle, avatar_url, is_verified)"
-    )
+    .select("id, author_id, kind, media_url, thumbnail_url, caption, label, created_at, expires_at")
     .gt("expires_at", new Date().toISOString())
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) throw new Error(error.message);
-  return { items: data ?? [] };
+  const rows = data ?? [];
+  const authorIds = Array.from(new Set(rows.map((r) => r.author_id)));
+  let profilesById = new Map<string, { id: string; display_name: string | null; handle: string | null; avatar_url: string | null; is_verified: boolean | null }>();
+  if (authorIds.length) {
+    const { data: profs, error: pErr } = await sb
+      .from("profiles")
+      .select("id, display_name, handle, avatar_url, is_verified")
+      .in("id", authorIds);
+    if (pErr) throw new Error(pErr.message);
+    profilesById = new Map((profs ?? []).map((p) => [p.id, p]));
+  }
+  const items = rows.map((r) => ({ ...r, author: profilesById.get(r.author_id) ?? null }));
+  return { items };
 });
 
 export const createStory = createServerFn({ method: "POST" })
