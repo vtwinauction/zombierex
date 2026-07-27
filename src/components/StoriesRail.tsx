@@ -97,9 +97,7 @@ export function StoriesRail() {
         } as Story;
       });
 
-    // Signed-out preview: keep the atmospheric demo tiles when we have nothing live yet.
-    const base = realMapped.length > 0 || signedIn ? realMapped : storiesV2.slice(1);
-    return [ME_TILE, ...base].map((s, i) => ({
+    return [ME_TILE, ...realMapped].map((s, i) => ({
       ...s,
       seen: i === 0 ? false : s.seen || seen.has(s.id),
     }));
