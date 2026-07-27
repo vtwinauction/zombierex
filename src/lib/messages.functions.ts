@@ -137,7 +137,7 @@ export const getMessages = createServerFn({ method: "GET" })
 
 export const sendMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     conversationId: z.string().uuid(),
     body: z.string().max(4000).default(""),
     mediaUrl: z.string().url().max(2048).optional(),

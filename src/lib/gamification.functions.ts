@@ -32,7 +32,7 @@ const XP_TABLE: Record<string, number> = {
 // -------- XP + streak --------
 export const awardXp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       kind: z.string().min(2).max(48),
       amount: z.number().int().min(1).max(1000).optional(),
@@ -179,7 +179,7 @@ export const listAchievements = createServerFn({ method: "GET" })
 
 export const setFeaturedBadge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ slug: z.string().nullable() }).parse(raw))
+  .validator((raw) => z.object({ slug: z.string().nullable() }).parse(raw))
   .handler(async ({ data, context }) => {
     // verify user has unlocked it (or clearing)
     if (data.slug) {
@@ -223,7 +223,7 @@ export const listMyChallenges = createServerFn({ method: "GET" })
 
 export const claimChallenge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ challenge_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ challenge_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: challenge } = await context.supabase
       .from("gamification_challenges")
@@ -276,7 +276,7 @@ export const claimChallenge = createServerFn({ method: "POST" })
 // -------- Leaderboards --------
 export const getLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       board: z.enum(["xp", "creators", "communities"]).default("xp"),
       limit: z.number().int().min(5).max(100).default(25),
@@ -310,7 +310,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
 // -------- Referrals --------
 export const claimReferral = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ code: z.string().min(4).max(24) }).parse(raw))
+  .validator((raw) => z.object({ code: z.string().min(4).max(24) }).parse(raw))
   .handler(async ({ data, context }) => {
     const code = data.code.toUpperCase().trim();
     const { data: referrer } = await context.supabase
@@ -351,7 +351,7 @@ export const claimReferral = createServerFn({ method: "POST" })
 // -------- Premium --------
 export const activatePremium = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       tier: z.enum(["apex", "legend"]).default("apex"),
       months: z.number().int().min(1).max(24).default(1),

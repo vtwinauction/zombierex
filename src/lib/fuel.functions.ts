@@ -37,7 +37,7 @@ function haversine(a: { lat: number; lng: number }, b: { lat: number; lng: numbe
 }
 
 export const findFuelNearby = createServerFn({ method: "POST" })
-  .inputValidator((d) => Input.parse(d))
+  .validator((d) => Input.parse(d))
   .handler(async ({ data }): Promise<{ stations: FuelStation[]; error: string | null }> => {
     const LOVABLE = process.env.LOVABLE_API_KEY;
     const GKEY = process.env.GOOGLE_MAPS_API_KEY;

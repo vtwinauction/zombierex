@@ -32,7 +32,7 @@ export const listContacts = createServerFn({ method: "GET" })
 
 export const upsertContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Contact.parse(d))
+  .validator((d) => Contact.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const row = { ...data, user_id: userId };
@@ -47,7 +47,7 @@ export const upsertContact = createServerFn({ method: "POST" })
 
 export const deleteContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase
@@ -72,7 +72,7 @@ const AlertInput = z.object({
 
 export const triggerSOS = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => AlertInput.parse(d))
+  .validator((d) => AlertInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: contacts } = await supabase
@@ -111,7 +111,7 @@ const PingInput = z.object({
 
 export const pushSOSPing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => PingInput.parse(d))
+  .validator((d) => PingInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error: pErr } = await supabase.from("sos_pings").insert({
@@ -139,7 +139,7 @@ export const pushSOSPing = createServerFn({ method: "POST" })
 
 export const closeSOS = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({
       id: z.string().uuid(),
       status: z.enum(["cancelled", "resolved"]),

@@ -25,7 +25,7 @@ function serverPublic() {
 }
 
 export const listComments = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     post_id: z.string().uuid(),
     limit: z.number().int().min(1).max(200).default(100),
   }).parse(raw))
@@ -44,7 +44,7 @@ export const listComments = createServerFn({ method: "GET" })
 
 export const addComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     post_id: z.string().uuid(),
     body: z.string().trim().min(1).max(2000),
     parent_id: z.string().uuid().nullable().optional(),
@@ -72,7 +72,7 @@ export const addComment = createServerFn({ method: "POST" })
 
 export const deleteComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("comments")

@@ -39,7 +39,7 @@ export const CATEGORIES = [
  * ============================================================ */
 
 export const discoverCommunities = createServerFn({ method: "GET" })
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       q: z.string().trim().max(80).optional(),
       category: z.string().max(40).optional(),
@@ -70,7 +70,7 @@ export const discoverCommunities = createServerFn({ method: "GET" })
   });
 
 export const getCommunityBySlug = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ slug: z.string().min(1).max(80) }).parse(raw))
+  .validator((raw) => z.object({ slug: z.string().min(1).max(80) }).parse(raw))
   .handler(async ({ data }) => {
     const sb = serverPublic();
     const { data: club, error } = await sb.from("clubs")
@@ -125,7 +125,7 @@ const CreateInput = z.object({
 
 export const createCommunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => CreateInput.parse(raw))
+  .validator((raw) => CreateInput.parse(raw))
   .handler(async ({ data, context }) => {
     const { data: club, error } = await context.supabase.from("clubs").insert({
       ...data,
@@ -139,7 +139,7 @@ export const createCommunity = createServerFn({ method: "POST" })
 
 export const updateCommunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     id: z.string().uuid(),
     patch: CreateInput.partial().omit({ slug: true }),
   }).parse(raw))
@@ -156,7 +156,7 @@ export const updateCommunity = createServerFn({ method: "POST" })
 
 export const joinCommunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     club_id: z.string().uuid(),
     message: z.string().trim().max(500).optional(),
   }).parse(raw))
@@ -181,7 +181,7 @@ export const joinCommunity = createServerFn({ method: "POST" })
 
 export const leaveCommunity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ club_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ club_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("club_members")
       .delete().eq("club_id", data.club_id).eq("user_id", context.userId);
@@ -191,7 +191,7 @@ export const leaveCommunity = createServerFn({ method: "POST" })
 
 export const decideRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     request_id: z.string().uuid(),
     approve: z.boolean(),
   }).parse(raw))
@@ -215,7 +215,7 @@ export const decideRequest = createServerFn({ method: "POST" })
 
 export const setMemberRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     club_id: z.string().uuid(),
     user_id: z.string().uuid(),
     role: z.enum(["moderator","member"]),
@@ -230,7 +230,7 @@ export const setMemberRole = createServerFn({ method: "POST" })
 
 export const removeMember = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     club_id: z.string().uuid(),
     user_id: z.string().uuid(),
   }).parse(raw))
@@ -247,7 +247,7 @@ export const removeMember = createServerFn({ method: "POST" })
 
 export const pinPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     post_id: z.string().uuid(),
     pinned: z.boolean(),
   }).parse(raw))
@@ -260,7 +260,7 @@ export const pinPost = createServerFn({ method: "POST" })
 
 export const deleteCommunityPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ post_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ post_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("posts")
       .update({ deleted_at: new Date().toISOString() }).eq("id", data.post_id);
@@ -274,7 +274,7 @@ export const deleteCommunityPost = createServerFn({ method: "POST" })
 
 export const createCommunityEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     club_id: z.string().uuid().optional(),
     title: z.string().trim().min(3).max(120),
     description: z.string().trim().max(4000).optional(),
@@ -299,7 +299,7 @@ export const createCommunityEvent = createServerFn({ method: "POST" })
 
 export const rsvpEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     event_id: z.string().uuid(),
     status: z.enum(["going","interested","cant"]).default("going"),
   }).parse(raw))
@@ -317,7 +317,7 @@ export const rsvpEvent = createServerFn({ method: "POST" })
 
 export const createCommunityPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       club_id: z.string().uuid(),
       caption: z.string().trim().max(2200).optional(),
@@ -347,7 +347,7 @@ export const createCommunityPost = createServerFn({ method: "POST" })
  * ============================================================ */
 
 export const listCommunityBadges = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ club_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ club_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data }) => {
     const sb = serverPublic();
     const { data: rows, error } = await sb.from("club_badges")
@@ -360,7 +360,7 @@ export const listCommunityBadges = createServerFn({ method: "GET" })
 
 export const awardBadge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     club_id: z.string().uuid(),
     user_id: z.string().uuid(),
     code: z.string().trim().min(2).max(40),
@@ -378,7 +378,7 @@ export const awardBadge = createServerFn({ method: "POST" })
  * ============================================================ */
 
 export const listChallenges = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     club_id: z.string().uuid(),
     active_only: z.boolean().default(true),
   }).parse(raw))
@@ -396,7 +396,7 @@ export const listChallenges = createServerFn({ method: "GET" })
 
 export const createChallenge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     club_id: z.string().uuid(),
     title: z.string().trim().min(3).max(120),
     description: z.string().trim().max(2000).optional(),
@@ -416,7 +416,7 @@ export const createChallenge = createServerFn({ method: "POST" })
 
 export const submitChallengeEntry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     challenge_id: z.string().uuid(),
     post_id: z.string().uuid(),
   }).parse(raw))
@@ -428,7 +428,7 @@ export const submitChallengeEntry = createServerFn({ method: "POST" })
   });
 
 export const challengeLeaderboard = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ challenge_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ challenge_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data }) => {
     const sb = serverPublic();
     const { data: entries, error } = await sb.from("challenge_entries")
@@ -450,7 +450,7 @@ export const challengeLeaderboard = createServerFn({ method: "GET" })
 
 export const toggleChallengeVote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ entry_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ entry_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: existing } = await context.supabase.from("challenge_entry_votes")
       .select("id").eq("entry_id", data.entry_id).eq("user_id", context.userId).maybeSingle();
@@ -467,7 +467,7 @@ export const toggleChallengeVote = createServerFn({ method: "POST" })
   });
 
 export const getChallenge = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data }) => {
     const sb = serverPublic();
     const { data: row, error } = await sb.from("weekly_challenges")
@@ -479,7 +479,7 @@ export const getChallenge = createServerFn({ method: "GET" })
 
 export const myChallengeVotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ entry_ids: z.array(z.string().uuid()).max(100) }).parse(raw))
+  .validator((raw) => z.object({ entry_ids: z.array(z.string().uuid()).max(100) }).parse(raw))
   .handler(async ({ data, context }) => {
     if (data.entry_ids.length === 0) return [] as string[];
     const { data: rows } = await context.supabase.from("challenge_entry_votes")

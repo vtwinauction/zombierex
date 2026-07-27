@@ -46,7 +46,7 @@ export const listActiveStories = createServerFn({ method: "GET" }).handler(async
 
 export const createStory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z
       .object({
         media_url: z.string().url(),
@@ -78,7 +78,7 @@ export const createStory = createServerFn({ method: "POST" })
 
 export const deleteStory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;

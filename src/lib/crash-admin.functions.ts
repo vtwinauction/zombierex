@@ -18,7 +18,7 @@ export type CrashRow = {
 
 export const listCrashReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: z.infer<typeof ListInput>) => ListInput.parse(data ?? {}))
+  .validator((data: z.infer<typeof ListInput>) => ListInput.parse(data ?? {}))
   .handler(async ({ data, context }) => {
     // Verify the caller is actually an admin — supabase RLS also blocks
     // non-admin reads, but returning a clean error avoids leaking the shape.

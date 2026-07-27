@@ -192,7 +192,7 @@ function computeRun(pts: z.infer<typeof Point>[]): ComputedRun {
 
 export const submitDragRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => SubmitInput.parse(d))
+  .validator((d) => SubmitInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const computed = computeRun(data.points);
@@ -274,7 +274,7 @@ export const listMyDragRuns = createServerFn({ method: "GET" })
 
 export const getDragRun = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: run, error } = await context.supabase
       .from("drag_runs").select("*").eq("id", data.id).maybeSingle();
@@ -285,7 +285,7 @@ export const getDragRun = createServerFn({ method: "GET" })
 
 export const listDragLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     kind: z.enum(["motorcycle", "car"]).default("motorcycle"),
     metric: z.enum(["quarter_mile_s", "zero_to_100_kmh_s", "eighth_mile_s", "top_speed_kmh"]).default("quarter_mile_s"),
   }).parse(d ?? {}))
@@ -306,7 +306,7 @@ export const listDragLeaderboard = createServerFn({ method: "GET" })
 
 export const deleteDragRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("drag_runs").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
@@ -318,7 +318,7 @@ export const deleteDragRun = createServerFn({ method: "POST" })
  */
 export const coachDragRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: run, error } = await context.supabase
       .from("drag_runs").select("*").eq("id", data.id).maybeSingle();

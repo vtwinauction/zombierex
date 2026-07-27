@@ -84,7 +84,7 @@ const ListingInput = z.object({
 /* ================= CREATE / UPDATE / DELETE ================= */
 export const createListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => ListingInput.parse(raw))
+  .validator((raw) => ListingInput.parse(raw))
   .handler(async ({ data, context }) => {
     const { photos, ...row } = data;
     const insert: any = {
@@ -108,7 +108,7 @@ export const createListing = createServerFn({ method: "POST" })
 
 export const updateListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     id: z.string().uuid(),
     patch: ListingInput.partial().omit({ photos: true }),
     status: z.enum(["active","sold","archived","draft"]).optional(),
@@ -126,7 +126,7 @@ export const updateListing = createServerFn({ method: "POST" })
 
 export const deleteListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("listings").delete().eq("id", data.id).eq("seller_id", context.userId);
@@ -162,7 +162,7 @@ const LISTING_SELECT =
   "id, seller_id, title, price_cents, currency, category, condition, brand, model, year, mileage_km, city, region, country, is_negotiable, is_featured, hero_image_url, saves_count, views_count, published_at, created_at, status";
 
 export const listListings = createServerFn({ method: "GET" })
-  .inputValidator((raw) => ListFilters.parse(raw ?? {}))
+  .validator((raw) => ListFilters.parse(raw ?? {}))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const userId = (data.scope === "mine" || data.scope === "saved") ? await getOptionalUserId() : null;
@@ -212,7 +212,7 @@ export const listListings = createServerFn({ method: "GET" })
   });
 
 export const getListing = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const userId = await getOptionalUserId();
@@ -240,7 +240,7 @@ export const getListing = createServerFn({ method: "GET" })
 /* ================= SAVE / UNSAVE ================= */
 export const toggleSaveListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: existing } = await context.supabase.from("listing_saves")
       .select("listing_id").eq("user_id", context.userId).eq("listing_id", data.id).maybeSingle();
@@ -257,7 +257,7 @@ export const toggleSaveListing = createServerFn({ method: "POST" })
 /* ================= REPORTS ================= */
 export const reportListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     id: z.string().uuid(),
     reason: z.string().trim().min(2).max(80),
     note: z.string().trim().max(1000).optional(),
@@ -273,7 +273,7 @@ export const reportListing = createServerFn({ method: "POST" })
 /* ================= SELLER REVIEWS ================= */
 export const submitSellerReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     seller_id: z.string().uuid(),
     listing_id: z.string().uuid().optional(),
     rating: z.number().int().min(1).max(5),
@@ -289,7 +289,7 @@ export const submitSellerReview = createServerFn({ method: "POST" })
   });
 
 export const listSellerReviews = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ seller_id: z.string().uuid(), limit: z.number().int().max(50).default(20) }).parse(raw))
+  .validator((raw) => z.object({ seller_id: z.string().uuid(), limit: z.number().int().max(50).default(20) }).parse(raw))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: rows, error } = await sb.from("seller_reviews")
@@ -305,7 +305,7 @@ export const listSellerReviews = createServerFn({ method: "GET" })
 
 /* ================= SELLER PROFILE ================= */
 export const getSellerProfile = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const userId = await getOptionalUserId();

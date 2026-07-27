@@ -15,7 +15,7 @@ function randCode() {
 
 export const createGroupRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({
       title: z.string().trim().min(1).max(80).default("Group Ride"),
       meet_lat: z.number().optional().nullable(),
@@ -55,7 +55,7 @@ export const createGroupRide = createServerFn({ method: "POST" })
 
 export const joinGroupRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ code: z.string().trim().min(4).max(12) }).parse(d))
+  .validator((d) => z.object({ code: z.string().trim().min(4).max(12) }).parse(d))
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     const code = data.code.toUpperCase();
@@ -72,7 +72,7 @@ export const joinGroupRide = createServerFn({ method: "POST" })
 
 export const getGroupRide = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     const { data: ride } = await supabase.from("group_rides").select("*").eq("id", data.id).maybeSingle();
@@ -102,7 +102,7 @@ export const getGroupRide = createServerFn({ method: "GET" })
 
 export const sendGroupPing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({
       group_ride_id: z.string().uuid(),
       lat: z.number(),
@@ -129,7 +129,7 @@ export const sendGroupPing = createServerFn({ method: "POST" })
 
 export const leaveGroupRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ group_ride_id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ group_ride_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     await supabase
@@ -142,7 +142,7 @@ export const leaveGroupRide = createServerFn({ method: "POST" })
 
 export const endGroupRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ group_ride_id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ group_ride_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     const { error } = await supabase

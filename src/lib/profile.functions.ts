@@ -80,7 +80,7 @@ export const getMyProfileMetrics = createServerFn({ method: "GET" })
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       handle: HandleSchema.optional(),
       display_name: z.string().trim().min(1).max(80).optional(),
@@ -137,7 +137,7 @@ export const getMyRoles = createServerFn({ method: "GET" })
  */
 export const upsertMyVehicle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       nickname: z.string().trim().min(1).max(80).optional(),
       make: z.string().trim().min(1).max(60).optional(),

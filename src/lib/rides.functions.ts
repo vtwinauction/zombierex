@@ -30,7 +30,7 @@ const RideInput = z.object({
 
 export const createRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => RideInput.parse(d))
+  .validator((d) => RideInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
@@ -58,7 +58,7 @@ export const listMyRides = createServerFn({ method: "GET" })
 
 export const getRide = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("rides")
@@ -72,7 +72,7 @@ export const getRide = createServerFn({ method: "GET" })
 
 export const updateRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({
       id: z.string().uuid(),
       title: z.string().max(140).optional().nullable(),
@@ -90,7 +90,7 @@ export const updateRide = createServerFn({ method: "POST" })
 
 export const deleteRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("rides").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
