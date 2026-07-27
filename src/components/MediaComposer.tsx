@@ -80,11 +80,13 @@ type MediaItem = {
   adjust: EditorAdjust;
   overlays: Overlay[];
   strokes: Stroke[];
-  // video-only
+  // video-only (metadata; server render worker will apply these)
   trimStart?: number;
   trimEnd?: number;
   muted?: boolean;
   speed?: number;
+  coverAt?: number;      // seconds — frame to use as thumbnail_url
+  coverBlobUrl?: string; // in-memory object URL of extracted cover
 };
 
 const defaultAdjust: EditorAdjust = {
@@ -103,8 +105,98 @@ function newItem(file: File): MediaItem {
     trimStart: kind === "video" ? 0 : undefined,
     trimEnd: kind === "video" ? undefined : undefined,
     muted: false, speed: 1,
+    coverAt: kind === "video" ? 0 : undefined,
   };
 }
+
+/* ------------ Post-type flow (Prompt 9) ------------ */
+
+export type PostType = "post" | "reel" | "story" | "telemetry";
+
+const POST_TYPE_META: Record<PostType, {
+  label: string;
+  tag: string;
+  desc: string;
+  accept: string;
+  maxItems: number;
+  requiresMedia: boolean;
+}> = {
+  post: {
+    label: "Post",
+    tag: "FEED · PERMANENT",
+    desc: "1–10 photos or one video. Any aspect. Lives in your feed forever.",
+    accept: "image/*,video/*",
+    maxItems: 10,
+    requiresMedia: false, // text-only allowed
+  },
+  reel: {
+    label: "Reel",
+    tag: "VERTICAL · 9:16 · ≤90s",
+    desc: "One vertical video, up to 90 seconds. Plays in the Reels feed.",
+    accept: "video/*",
+    maxItems: 1,
+    requiresMedia: true,
+  },
+  story: {
+    label: "Story",
+    tag: "EPHEMERAL · 24H · ≤15s",
+    desc: "One photo or short vertical clip. Disappears in 24 hours.",
+    accept: "image/*,video/*",
+    maxItems: 1,
+    requiresMedia: true,
+  },
+  telemetry: {
+    label: "Telemetry",
+    tag: "RIDE · DRAG · DATA",
+    desc: "Publish a ride or drag session as a data post. Pulls from your latest session.",
+    accept: "",
+    maxItems: 0,
+    requiresMedia: false,
+  },
+};
+
+const POST_TYPE_STORAGE_KEY = "zrex:composer.lastType";
+
+function loadLastPostType(): PostType {
+  if (typeof window === "undefined") return "post";
+  try {
+    const v = window.localStorage.getItem(POST_TYPE_STORAGE_KEY);
+    if (v === "post" || v === "reel" || v === "story" || v === "telemetry") return v;
+  } catch { /* ignore */ }
+  return "post";
+}
+
+function persistLastPostType(t: PostType) {
+  if (typeof window === "undefined") return;
+  try { window.localStorage.setItem(POST_TYPE_STORAGE_KEY, t); } catch { /* ignore */ }
+}
+
+/** Extract a single frame from a video File at the given time as a JPEG Blob. */
+async function extractVideoFrame(file: File, atSec: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement("video");
+    v.preload = "auto"; v.muted = true; v.playsInline = true; v.src = url;
+    const cleanup = () => { try { URL.revokeObjectURL(url); } catch { /* noop */ } };
+    v.onloadedmetadata = () => {
+      const t = Math.max(0, Math.min(atSec, (v.duration || 0) - 0.05));
+      v.currentTime = t;
+    };
+    v.onseeked = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext("2d")!.drawImage(v, 0, 0);
+        c.toBlob((b) => {
+          cleanup();
+          b ? resolve(b) : reject(new Error("Cover frame export failed"));
+        }, "image/jpeg", 0.85);
+      } catch (e) { cleanup(); reject(e as Error); }
+    };
+    v.onerror = () => { cleanup(); reject(new Error("Video load failed")); };
+  });
+}
+
 
 function filterCss(m: MediaItem): string {
   const preset = FILTERS.find((f) => f.id === m.filter)?.css ?? "";
