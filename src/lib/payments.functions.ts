@@ -99,11 +99,11 @@ export const confirmMockPayment = createServerFn({ method: "POST" })
     }).parse(raw),
   )
   .handler(async ({ data, context }) => {
-    // Production guard: without the explicit opt-in, refuse. This closes the
-    // free-subscription exploit where any authenticated user could flip their
-    // own mock payment to "succeeded" and activate a paid plan.
-    if (process.env.ALLOW_MOCK_PAYMENTS !== "1" && process.env.NODE_ENV === "production") {
-      throw new Error("Mock payment confirmation is disabled in production");
+    // Fail closed: mock confirmation is disabled unless explicitly opted-in.
+    // Previously guarded by NODE_ENV, which is undefined in Workers → any
+    // authenticated user could self-activate a paid subscription.
+    if (process.env.ALLOW_MOCK_PAYMENTS !== "1") {
+      throw new Error("Mock payment confirmation is disabled");
     }
 
     const { data: payment, error } = await context.supabase

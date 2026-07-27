@@ -30,9 +30,34 @@ function serverPublic() {
 const SYSTEM_BRAND =
   "You are REX, the in-app AI companion for ZOMBIEREX — an exclusive social platform for motorcycle and automotive enthusiasts. You are concise, knowledgeable about bikes/cars/motorsport, and speak with quiet confidence. You never invent app features that don't exist.";
 
+/**
+ * Per-user AI rate limiting. Runs before any Gateway call so anon abuse and
+ * bursty clients can't drain the shared LOVABLE_API_KEY credits.
+ */
+async function assertAiLimit(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  bucket: "ai_assist" | "ai_chat" | "ai_search",
+  maxPerHour: number,
+) {
+  const { error } = await supabase.rpc("check_rate_limit", {
+    _bucket: bucket,
+    _max_hits: maxPerHour,
+    _window_seconds: 3600,
+  });
+  if (error) {
+    throw new Error(
+      error.message.includes("rate_limit_exceeded")
+        ? "AI usage limit reached — try again in a little while."
+        : error.message,
+    );
+  }
+}
+
 /* ─────────────────────────────  CONTENT ASSIST  ───────────────────────────── */
 
 export const suggestCaption = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) =>
     z.object({
       context: z.string().trim().max(600).optional(),
@@ -40,7 +65,8 @@ export const suggestCaption = createServerFn({ method: "POST" })
       kind: z.enum(["image", "video", "reel", "story", "listing", "event"]).optional(),
     }).parse(raw),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const prompt = [
       `Vibe: ${data.vibe ?? "cinematic"}. Format: ${data.kind ?? "image"}.`,
       data.context ? `Context: ${data.context}` : "Context: (a motorcycle or automotive post)",
@@ -54,8 +80,10 @@ export const suggestCaption = createServerFn({ method: "POST" })
   });
 
 export const suggestHashtags = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ context: z.string().trim().min(1).max(600) }).parse(raw))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const out = await aiCompleteJson<{ hashtags?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
       {
@@ -70,8 +98,10 @@ export const suggestHashtags = createServerFn({ method: "POST" })
   });
 
 export const suggestTitle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ context: z.string().trim().min(1).max(1000) }).parse(raw))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const out = await aiCompleteJson<{ titles?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
       {
@@ -83,13 +113,15 @@ export const suggestTitle = createServerFn({ method: "POST" })
   });
 
 export const improveText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) =>
     z.object({
       text: z.string().trim().min(1).max(4000),
       mode: z.enum(["grammar", "shorten", "expand", "polish"]).default("polish"),
     }).parse(raw),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const instr: Record<string, string> = {
       grammar: "Fix grammar and typos only. Preserve tone and length.",
       shorten: "Rewrite tighter and shorter, preserve meaning.",
@@ -104,13 +136,15 @@ export const improveText = createServerFn({ method: "POST" })
   });
 
 export const translateText = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) =>
     z.object({
       text: z.string().trim().min(1).max(4000),
       target: z.string().trim().min(2).max(20).default("English"),
     }).parse(raw),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const out = await aiComplete([
       { role: "system", content: SYSTEM_BRAND },
       { role: "user", content: `Translate to ${data.target}. Return only the translation, no notes.\n\n${data.text}` },
@@ -128,8 +162,10 @@ const CATEGORY_ENUM = [
 ] as const;
 
 export const categorizeContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ text: z.string().trim().min(1).max(2000) }).parse(raw))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const out = await aiCompleteJson<{ categories?: string[]; primary?: string; brands?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
       {
@@ -151,8 +187,10 @@ export const categorizeContent = createServerFn({ method: "POST" })
 /* ────────────────────────────  MODERATION  ─────────────────────────── */
 
 export const moderateContent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ text: z.string().trim().min(1).max(4000) }).parse(raw))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const out = await aiCompleteJson<{
       flagged?: boolean;
       severity?: "low" | "medium" | "high";
@@ -180,8 +218,10 @@ export const moderateContent = createServerFn({ method: "POST" })
 /* ────────────────────────────  SMART SEARCH  ─────────────────────────── */
 
 export const smartSearchParse = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ q: z.string().trim().min(1).max(200) }).parse(raw))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_search", 60);
     const out = await aiCompleteJson<{
       intent?: string;
       keywords?: string[];
@@ -206,8 +246,10 @@ export const smartSearchParse = createServerFn({ method: "POST" })
   });
 
 export const autocompleteSearch = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ q: z.string().trim().min(1).max(80) }).parse(raw))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_search", 60);
     const out = await aiCompleteJson<{ suggestions?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
       {
@@ -221,7 +263,9 @@ export const autocompleteSearch = createServerFn({ method: "POST" })
   });
 
 export const trendingSearches = createServerFn({ method: "GET" })
-  .handler(async () => {
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAiLimit(context.supabase, "ai_search", 60);
     // Blend of live data (recent hashtags) + a small AI-curated seed.
     const sb = serverPublic();
     const { data } = await sb
@@ -422,6 +466,7 @@ You help users inside the ZOMBIEREX app. When useful, suggest specific in-app de
 Keep replies short (2-6 sentences) unless the user asks for depth. Use plain language.`;
 
 export const assistantChat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) =>
     z.object({
       messages: z.array(z.object({
@@ -430,7 +475,8 @@ export const assistantChat = createServerFn({ method: "POST" })
       })).min(1).max(20),
     }).parse(raw),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_chat", 30);
     const msgs: ChatMessage[] = [
       { role: "system", content: ASSISTANT_SYSTEM },
       ...data.messages,

@@ -47,9 +47,12 @@ export async function aiComplete(
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
+    // Log the full upstream body server-side for debugging; return a generic
+    // message to callers so provider errors, keys, or PII never leak client-side.
+    console.error(`[ai-gateway] upstream error status=${res.status} body=${text}`);
     if (res.status === 429) throw new Error("AI rate limit — try again in a moment.");
     if (res.status === 402) throw new Error("AI credits exhausted for this workspace.");
-    throw new Error(`AI gateway error [${res.status}]: ${text.slice(0, 300)}`);
+    throw new Error("AI service temporarily unavailable. Please try again.");
   }
 
   const data = (await res.json()) as {

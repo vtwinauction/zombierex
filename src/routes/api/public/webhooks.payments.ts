@@ -53,8 +53,8 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
         if (fetchErr) return new Response(fetchErr.message, { status: 500 });
         if (!payment) return new Response("Payment not found", { status: 404 });
 
-        // Dedupe: refuse to re-process a payment already in a terminal state,
-        // and refuse to re-apply the same provider_ref.
+        // Dedupe: refuse to re-apply the same provider_ref on a payment
+        // already in a terminal state.
         if (payment.status === "succeeded" || payment.status === "failed") {
           return Response.json({ ok: true, deduped: true, status: payment.status });
         }
@@ -63,15 +63,28 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
         }
 
         const nextStatus = payload.status === "succeeded" ? "succeeded" : "failed";
-        await supabaseAdmin
+
+        // Atomic dedupe: only transition pending → terminal. If another
+        // concurrent delivery already flipped the row, `.eq("status","pending")`
+        // matches zero rows and we short-circuit as a duplicate.
+        const { data: updated, error: updErr } = await supabaseAdmin
           .from("payments")
           .update({ status: nextStatus, provider_ref: payload.provider_ref ?? null })
-          .eq("id", payment.id);
+          .eq("id", payment.id)
+          .eq("status", "pending")
+          .select("id");
+        if (updErr) {
+          console.error("[webhook/payments] payment update failed", updErr);
+          return new Response("Payment update failed", { status: 500 });
+        }
+        if (!updated || updated.length === 0) {
+          return Response.json({ ok: true, deduped: true, status: payment.status });
+        }
 
         if (nextStatus === "succeeded" && payment.subscription_id) {
           const periodEnd = new Date();
           periodEnd.setMonth(periodEnd.getMonth() + 1);
-          await supabaseAdmin
+          const { error: subErr } = await supabaseAdmin
             .from("subscriptions")
             .update({
               status: "active",
@@ -79,6 +92,12 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
               current_period_end: periodEnd.toISOString(),
             })
             .eq("id", payment.subscription_id);
+          if (subErr) {
+            // Non-2xx so the provider retries — payment succeeded but the
+            // subscription didn't activate; we must not silently swallow.
+            console.error("[webhook/payments] subscription activation failed", subErr);
+            return new Response("Subscription activation failed", { status: 500 });
+          }
         }
 
         return Response.json({ ok: true, status: nextStatus });
