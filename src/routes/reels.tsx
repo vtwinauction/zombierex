@@ -25,7 +25,7 @@ export const Route = createFileRoute("/reels")({
   component: ReelsPage,
 });
 
-const mockFeed: Reel[] = [...reels, ...reels, ...reels];
+
 
 function ReelsPage() {
   const scrollerRef = useRef<HTMLDivElement>(null);
