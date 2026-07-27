@@ -32,11 +32,17 @@ export const createChallenge = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const handle = data.opponent_handle.replace(/^@/, "").trim();
-    const { data: opp, error: oppErr } = await supabase
-      .from("profiles").select("id, handle").ilike("handle", handle).maybeSingle();
+    if (!handle) throw new Error("Enter a rider handle");
+    const { data: opps, error: oppErr } = await supabase
+      .from("profiles")
+      .select("id, handle, display_name")
+      .or(`handle.ilike.${handle},display_name.ilike.${handle}`)
+      .limit(2);
     if (oppErr) throw new Error(oppErr.message);
-    if (!opp) throw new Error(`No rider found with handle @${handle}`);
+    const opp = opps?.[0];
+    if (!opp) throw new Error(`No rider found matching "${handle}". Check the handle and try again.`);
     if (opp.id === userId) throw new Error("You cannot challenge yourself");
+
 
     const { data: row, error } = await supabase
       .from("drag_challenges")
