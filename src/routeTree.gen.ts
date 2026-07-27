@@ -98,6 +98,7 @@ import { Route as AuthenticatedEventsIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDragRunRouteImport } from './routes/_authenticated/drag.run'
 import { Route as AuthenticatedDragRaceRouteImport } from './routes/_authenticated/drag.race'
 import { Route as AuthenticatedDragLeaderboardsRouteImport } from './routes/_authenticated/drag.leaderboards'
+import { Route as AuthenticatedDragChallengeRouteImport } from './routes/_authenticated/drag.challenge'
 import { Route as AuthenticatedDragIdRouteImport } from './routes/_authenticated/drag.$id'
 import { Route as AuthenticatedCreatorTiersRouteImport } from './routes/_authenticated/creator.tiers'
 import { Route as AuthenticatedCreatorDashboardRouteImport } from './routes/_authenticated/creator.dashboard'
@@ -613,6 +614,12 @@ const AuthenticatedDragLeaderboardsRoute =
     path: '/drag/leaderboards',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDragChallengeRoute =
+  AuthenticatedDragChallengeRouteImport.update({
+    id: '/drag/challenge',
+    path: '/drag/challenge',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDragIdRoute = AuthenticatedDragIdRouteImport.update({
   id: '/drag/$id',
   path: '/drag/$id',
@@ -899,6 +906,7 @@ export interface FileRoutesByFullPath {
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
+  '/drag/challenge': typeof AuthenticatedDragChallengeRoute
   '/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
@@ -1025,6 +1033,7 @@ export interface FileRoutesByTo {
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
+  '/drag/challenge': typeof AuthenticatedDragChallengeRoute
   '/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
@@ -1156,6 +1165,7 @@ export interface FileRoutesById {
   '/_authenticated/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
   '/_authenticated/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/_authenticated/drag/$id': typeof AuthenticatedDragIdRoute
+  '/_authenticated/drag/challenge': typeof AuthenticatedDragChallengeRoute
   '/_authenticated/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/_authenticated/drag/race': typeof AuthenticatedDragRaceRoute
   '/_authenticated/drag/run': typeof AuthenticatedDragRunRoute
@@ -1287,6 +1297,7 @@ export interface FileRouteTypes {
     | '/creator/dashboard'
     | '/creator/tiers'
     | '/drag/$id'
+    | '/drag/challenge'
     | '/drag/leaderboards'
     | '/drag/race'
     | '/drag/run'
@@ -1413,6 +1424,7 @@ export interface FileRouteTypes {
     | '/creator/dashboard'
     | '/creator/tiers'
     | '/drag/$id'
+    | '/drag/challenge'
     | '/drag/leaderboards'
     | '/drag/race'
     | '/drag/run'
@@ -1543,6 +1555,7 @@ export interface FileRouteTypes {
     | '/_authenticated/creator/dashboard'
     | '/_authenticated/creator/tiers'
     | '/_authenticated/drag/$id'
+    | '/_authenticated/drag/challenge'
     | '/_authenticated/drag/leaderboards'
     | '/_authenticated/drag/race'
     | '/_authenticated/drag/run'
@@ -2273,6 +2286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDragLeaderboardsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/drag/challenge': {
+      id: '/_authenticated/drag/challenge'
+      path: '/drag/challenge'
+      fullPath: '/drag/challenge'
+      preLoaderRoute: typeof AuthenticatedDragChallengeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/drag/$id': {
       id: '/_authenticated/drag/$id'
       path: '/drag/$id'
@@ -2701,6 +2721,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCreatorDashboardRoute: typeof AuthenticatedCreatorDashboardRoute
   AuthenticatedCreatorTiersRoute: typeof AuthenticatedCreatorTiersRoute
   AuthenticatedDragIdRoute: typeof AuthenticatedDragIdRoute
+  AuthenticatedDragChallengeRoute: typeof AuthenticatedDragChallengeRoute
   AuthenticatedDragLeaderboardsRoute: typeof AuthenticatedDragLeaderboardsRoute
   AuthenticatedDragRaceRoute: typeof AuthenticatedDragRaceRoute
   AuthenticatedDragRunRoute: typeof AuthenticatedDragRunRoute
@@ -2760,6 +2781,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreatorDashboardRoute: AuthenticatedCreatorDashboardRoute,
   AuthenticatedCreatorTiersRoute: AuthenticatedCreatorTiersRoute,
   AuthenticatedDragIdRoute: AuthenticatedDragIdRoute,
+  AuthenticatedDragChallengeRoute: AuthenticatedDragChallengeRoute,
   AuthenticatedDragLeaderboardsRoute: AuthenticatedDragLeaderboardsRoute,
   AuthenticatedDragRaceRoute: AuthenticatedDragRaceRoute,
   AuthenticatedDragRunRoute: AuthenticatedDragRunRoute,
