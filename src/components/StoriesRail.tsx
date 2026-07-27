@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { storiesV2 } from "@/lib/mock-data";
+
 import type { Story } from "@/lib/types";
 import { listActiveStories } from "@/lib/stories.functions";
 import { supabase } from "@/integrations/supabase/client";
