@@ -537,8 +537,10 @@ export function MediaComposer({ onDone }: Props) {
 
   return (
     <div className="pb-40" style={{ background: "var(--color-obsidian, #0a0a0b)", minHeight: "100dvh" }}>
-      {/* Hidden native pickers */}
-      <input ref={pickGallery} type="file" accept="image/*,video/*" multiple hidden
+      {/* Hidden native pickers — accept flags depend on the chosen post type */}
+      <input ref={pickGallery} type="file"
+        accept={typeMeta.accept || "image/*,video/*"}
+        multiple={typeMeta.maxItems > 1} hidden
         onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
       <input ref={pickCamera} type="file" accept="image/*" capture="environment" hidden
         onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
@@ -549,51 +551,161 @@ export function MediaComposer({ onDone }: Props) {
       <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3"
         style={{ background: "rgba(10,10,11,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--color-hair)" }}>
         <button onClick={onDone} className="mono-tag tap px-2 py-1" style={{ color: "var(--color-titanium)" }}>← Close</button>
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ STUDIO</p>
-        <button onClick={() => setShowPreview(true)} className="mono-tag tap px-2 py-1" style={{ color: "var(--color-ink)" }}>Preview</button>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ STUDIO · {typeMeta.label.toUpperCase()}</p>
+        <button onClick={() => setShowPreview(true)} disabled={!activeItem}
+          className="mono-tag tap px-2 py-1" style={{ color: activeItem ? "var(--color-ink)" : "var(--color-titanium)", opacity: activeItem ? 1 : 0.4 }}>
+          Preview
+        </button>
       </header>
 
-      {/* Empty state → picker */}
-      {!items.length && (
+      {/* Step 1 — Post-type picker */}
+      {!typeConfirmed && (
         <div className="px-5 pt-8">
-          <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>Compose</h1>
-          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Pick from your library or use the camera. Up to 10 items.</p>
+          <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>What are you posting?</h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Choose a type. Each has its own editor and constraints.</p>
           <div className="mt-6 grid grid-cols-1 gap-2">
-            <PickerButton label="Photo & video library" onClick={() => pickGallery.current?.click()} accent />
-            <PickerButton label="Take a photo" onClick={async () => {
-              const { pickNativePhoto } = await import("@/lib/native/camera");
-              const f = await pickNativePhoto("photo");
-              if (f) {
-                const dt = new DataTransfer(); dt.items.add(f); addFiles(dt.files);
-              } else { pickCamera.current?.click(); }
-            }} />
-            <PickerButton label="Record a video" onClick={() => pickVideo.current?.click()} />
-
+            {(Object.keys(POST_TYPE_META) as PostType[]).map((t) => {
+              const meta = POST_TYPE_META[t];
+              const active = postType === t;
+              return (
+                <button key={t}
+                  onClick={() => setPostType(t)}
+                  className="tap rounded-lg px-4 py-4 text-left"
+                  style={{
+                    background: active ? "rgba(198,255,61,0.08)" : "var(--color-graphite)",
+                    border: `1px solid ${active ? "var(--color-neon)" : "var(--color-hair-strong)"}`,
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[15px] font-semibold" style={{ color: active ? "var(--color-neon)" : "var(--color-ink)" }}>{meta.label}</span>
+                    <span className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 9 }}>{meta.tag}</span>
+                  </div>
+                  <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>{meta.desc}</p>
+                </button>
+              );
+            })}
           </div>
-          <div className="mt-8">
-            <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>OR</p>
-            <textarea
-              value={caption} onChange={(e) => setCaption(e.target.value)}
-              rows={4} placeholder="Say something…"
-              className="w-full rounded-lg px-3 py-2 text-[13px]"
-              style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
-            />
-            <button
-              onClick={() => publish.mutate()}
-              disabled={!caption.trim() || publish.isPending}
-              className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
-              style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
-            >
-              {publish.isPending ? "Publishing…" : "Publish text only"}
-            </button>
-            {publish.error && (
-              <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>
-                {(publish.error as Error).message}
-              </p>
+          <button
+            onClick={() => { persistLastPostType(postType); setTypeConfirmed(true); }}
+            className="tap mt-6 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em" }}
+          >
+            Continue as {typeMeta.label}
+          </button>
+        </div>
+      )}
+
+      {/* Step 2 — Media picker (empty state) or telemetry entry */}
+      {typeConfirmed && !items.length && postType !== "telemetry" && (
+        <div className="px-5 pt-8">
+          <button onClick={() => setTypeConfirmed(false)} className="mono-tag tap" style={{ color: "var(--color-titanium)" }}>
+            ← Change type
+          </button>
+          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>New {typeMeta.label}</h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>{typeMeta.tag}</p>
+          <div className="mt-6 grid grid-cols-1 gap-2">
+            {postType !== "reel" && (
+              <PickerButton label="Photo & video library" onClick={() => pickGallery.current?.click()} accent />
             )}
+            {postType === "reel" && (
+              <PickerButton label="Choose a video" onClick={() => pickGallery.current?.click()} accent />
+            )}
+            {postType !== "reel" && (
+              <PickerButton label="Take a photo" onClick={async () => {
+                const { pickNativePhoto } = await import("@/lib/native/camera");
+                const f = await pickNativePhoto("photo");
+                if (f) { const dt = new DataTransfer(); dt.items.add(f); addFiles(dt.files); }
+                else { pickCamera.current?.click(); }
+              }} />
+            )}
+            <PickerButton label="Record a video" onClick={() => pickVideo.current?.click()} />
+          </div>
+
+          {postType === "post" && !typeMeta.requiresMedia && (
+            <div className="mt-8">
+              <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>OR</p>
+              <textarea
+                value={caption} onChange={(e) => setCaption(e.target.value)}
+                rows={4} placeholder="Say something…"
+                className="w-full rounded-lg px-3 py-2 text-[13px]"
+                style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+              />
+              <button
+                onClick={() => publish.mutate()}
+                disabled={!caption.trim() || publish.isPending}
+                className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
+                style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
+              >
+                {publish.isPending ? "Publishing…" : "Publish text only"}
+              </button>
+              {publish.error && (
+                <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Telemetry — no media path, publish as data post */}
+      {typeConfirmed && postType === "telemetry" && (
+        <div className="px-5 pt-8">
+          <button onClick={() => setTypeConfirmed(false)} className="mono-tag tap" style={{ color: "var(--color-titanium)" }}>
+            ← Change type
+          </button>
+          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>Telemetry post</h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Add a caption. Your latest ride or drag session is attached automatically.</p>
+          <textarea
+            value={caption} onChange={(e) => setCaption(e.target.value)}
+            rows={4} placeholder="What was this run?"
+            className="mt-4 w-full rounded-lg px-3 py-2 text-[13px]"
+            style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+          />
+          <button
+            onClick={() => publish.mutate()}
+            disabled={!caption.trim() || publish.isPending}
+            className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
+          >
+            {publish.isPending ? "Publishing…" : "Publish telemetry"}
+          </button>
+          {publish.error && (
+            <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>
+          )}
+        </div>
+      )}
+
+      {/* Type-switch warning modal */}
+      {typeSwitchWarn && (
+        <div className="fixed inset-0 z-50 grid place-items-center p-6" style={{ background: "rgba(0,0,0,0.75)" }}>
+          <div className="w-full max-w-sm rounded-xl p-5"
+            style={{ background: "var(--color-obsidian, #0a0a0b)", border: "1px solid var(--color-hair-strong)" }}>
+            <p className="serif text-lg italic" style={{ color: "var(--color-ink)" }}>Switch to {POST_TYPE_META[typeSwitchWarn].label}?</p>
+            <p className="mono-tag mt-2" style={{ color: "var(--color-silver)", textTransform: "none" }}>
+              Your current media isn't compatible with {POST_TYPE_META[typeSwitchWarn].label}. Switching will clear it.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setTypeSwitchWarn(null)}
+                className="mono-tag tap flex-1 rounded-full py-2"
+                style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}>
+                Keep media
+              </button>
+              <button
+                onClick={() => {
+                  items.forEach((i) => URL.revokeObjectURL(i.previewUrl));
+                  setItems([]); setActive(0);
+                  const t = typeSwitchWarn; setTypeSwitchWarn(null);
+                  setPostType(t); persistLastPostType(t);
+                }}
+                className="mono-tag tap flex-1 rounded-full py-2"
+                style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
+                Clear & switch
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+
 
       {/* Editor */}
       {items.length > 0 && activeItem && (
