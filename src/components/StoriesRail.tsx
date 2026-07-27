@@ -347,12 +347,24 @@ function StoryViewer({
       </div>
 
       {/* media */}
-      <img
-        src={current.cover}
-        alt={current.label ?? ""}
-        className="max-h-[100svh] w-full object-contain"
-        draggable={false}
-      />
+      {current.kind === "video" && (current.mediaUrl || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(current.cover)) ? (
+        <video
+          key={current.id}
+          src={current.mediaUrl ?? current.cover}
+          poster={current.cover}
+          autoPlay
+          playsInline
+          muted={false}
+          className="max-h-[100svh] w-full object-contain"
+        />
+      ) : (
+        <img
+          src={current.cover}
+          alt={current.label ?? ""}
+          className="max-h-[100svh] w-full object-contain"
+          draggable={false}
+        />
+      )}
 
       {/* prev / next tap zones */}
       <button
