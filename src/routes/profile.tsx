@@ -241,7 +241,11 @@ function ProfilePage() {
               className="shrink-0 rounded-full p-[2px]"
               style={{ background: "var(--color-line)" }}
             >
-              <img src={p?.avatar_url || me.avatar} alt="" className="h-16 w-16 rounded-full object-cover" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-1)" }} />
+              {p?.avatar_url ? (
+                <img src={p.avatar_url} alt="" className="h-16 w-16 rounded-full object-cover" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-1)" }} />
+              ) : (
+                <div className="h-16 w-16 rounded-full" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-2)" }} />
+              )}
             </div>
 
             <div className="min-w-0">
@@ -444,19 +448,13 @@ function ProfilePage() {
                 </Link>
               );
             })}
-            {myPosts.length === 0 && reels.map((r, i) => (
-              <div key={r.id} className="relative aspect-[3/4] overflow-hidden rounded-lg" style={{ background: "var(--color-paper-2)" }}>
-                <img src={r.poster} alt="" className="h-full w-full object-cover" />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--color-neon)" }} />
-                  <span className="mono-num text-[10px] font-bold text-white">{r.views}</span>
-                </div>
-                <div className="absolute right-1 top-1 rounded px-1 py-0.5 text-[8px] font-bold tracking-wider text-white" style={{ background: "rgba(0,0,0,0.65)" }}>
-                  {String(i + 1).padStart(2, "0")}
-                </div>
+            {myPosts.length === 0 && !myPostsQuery.isLoading && (
+              <div className="col-span-3 flex flex-col items-center justify-center rounded-xl py-10 text-center"
+                style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
+                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No posts yet</p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Upload your first ride to fill your grid.</p>
               </div>
-            ))}
+            )}
           </div>
         )}
 
