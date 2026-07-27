@@ -89,6 +89,7 @@ import { Route as AuthenticatedRidesIdRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedProfileEditRouteImport } from './routes/_authenticated/profile.edit'
 import { Route as AuthenticatedPostsMineRouteImport } from './routes/_authenticated/posts.mine'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
+import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace_.new'
 import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace_.dashboard'
@@ -567,6 +568,12 @@ const AuthenticatedPostNewRoute = AuthenticatedPostNewRouteImport.update({
   path: '/post/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOwnerAnalyticsRoute =
+  AuthenticatedOwnerAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -868,7 +875,7 @@ export interface FileRoutesByFullPath {
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/owner': typeof AuthenticatedOwnerRoute
+  '/owner': typeof AuthenticatedOwnerRouteWithChildren
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -923,6 +930,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
+  '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/post/new': typeof AuthenticatedPostNewRoute
   '/posts/mine': typeof AuthenticatedPostsMineRoute
   '/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -998,7 +1006,7 @@ export interface FileRoutesByTo {
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/owner': typeof AuthenticatedOwnerRoute
+  '/owner': typeof AuthenticatedOwnerRouteWithChildren
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -1051,6 +1059,7 @@ export interface FileRoutesByTo {
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
+  '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/post/new': typeof AuthenticatedPostNewRoute
   '/posts/mine': typeof AuthenticatedPostsMineRoute
   '/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -1129,7 +1138,7 @@ export interface FileRoutesById {
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
-  '/_authenticated/owner': typeof AuthenticatedOwnerRoute
+  '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
@@ -1184,6 +1193,7 @@ export interface FileRoutesById {
   '/_authenticated/marketplace_/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
   '/_authenticated/marketplace_/new': typeof AuthenticatedMarketplaceNewRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
+  '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
   '/_authenticated/posts/mine': typeof AuthenticatedPostsMineRoute
   '/_authenticated/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -1317,6 +1327,7 @@ export interface FileRouteTypes {
     | '/marketplace/dashboard'
     | '/marketplace/new'
     | '/messages/$id'
+    | '/owner/analytics'
     | '/post/new'
     | '/posts/mine'
     | '/profile/edit'
@@ -1445,6 +1456,7 @@ export interface FileRouteTypes {
     | '/marketplace/dashboard'
     | '/marketplace/new'
     | '/messages/$id'
+    | '/owner/analytics'
     | '/post/new'
     | '/posts/mine'
     | '/profile/edit'
@@ -1577,6 +1589,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marketplace_/dashboard'
     | '/_authenticated/marketplace_/new'
     | '/_authenticated/messages/$id'
+    | '/_authenticated/owner/analytics'
     | '/_authenticated/post/new'
     | '/_authenticated/posts/mine'
     | '/_authenticated/profile/edit'
@@ -2236,6 +2249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPostNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/owner/analytics': {
+      id: '/_authenticated/owner/analytics'
+      path: '/analytics'
+      fullPath: '/owner/analytics'
+      preLoaderRoute: typeof AuthenticatedOwnerAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/messages/$id': {
       id: '/_authenticated/messages/$id'
       path: '/$id'
@@ -2637,6 +2657,17 @@ const AuthenticatedMessagesRouteWithChildren =
     AuthenticatedMessagesRouteChildren,
   )
 
+interface AuthenticatedOwnerRouteChildren {
+  AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
+}
+
+const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
+  AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
+}
+
+const AuthenticatedOwnerRouteWithChildren =
+  AuthenticatedOwnerRoute._addFileChildren(AuthenticatedOwnerRouteChildren)
+
 interface AuthenticatedSettingsRouteChildren {
   AuthenticatedSettingsAboutRoute: typeof AuthenticatedSettingsAboutRoute
   AuthenticatedSettingsAccessibilityRoute: typeof AuthenticatedSettingsAccessibilityRoute
@@ -2718,7 +2749,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
-  AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRoute
+  AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
   AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
@@ -2779,7 +2810,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
-  AuthenticatedOwnerRoute: AuthenticatedOwnerRoute,
+  AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,
   AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
   AuthenticatedSavedRoute: AuthenticatedSavedRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
