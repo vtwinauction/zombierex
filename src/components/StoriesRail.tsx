@@ -346,23 +346,27 @@ function StoryViewer({
         </button>
       </div>
 
-      {/* media */}
-      {current.kind === "video" && (current.mediaUrl || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(current.cover)) ? (
+      {/* media — detect video by kind OR file extension so mis-tagged uploads still play */}
+      {(current.kind === "video" || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(current.mediaUrl ?? current.cover ?? "")) ? (
         <video
           key={current.id}
           src={current.mediaUrl ?? current.cover}
-          poster={current.cover}
+          poster={current.cover !== current.mediaUrl ? current.cover : undefined}
           autoPlay
           playsInline
-          muted={false}
+          muted
+          controls={false}
+          onLoadedMetadata={(e) => { (e.currentTarget as HTMLVideoElement).play().catch(() => {}); }}
           className="max-h-[100svh] w-full object-contain"
         />
       ) : (
         <img
+          key={current.id}
           src={current.cover}
           alt={current.label ?? ""}
           className="max-h-[100svh] w-full object-contain"
           draggable={false}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.15"; }}
         />
       )}
 
