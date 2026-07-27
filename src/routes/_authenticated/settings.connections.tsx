@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SettingsScreen, Card, GhostButton } from "@/components/SettingsScreen";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/settings/connections")({
   head: () => ({ meta: [{ title: "Connected accounts · Settings · ZOMBIEREX" }, { name: "description", content: "Link Google, Apple or Instagram to your ZOMBIEREX account." }] }),
