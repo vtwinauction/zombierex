@@ -10,6 +10,7 @@ import {
   requestAccountDeletion,
 } from "@/lib/security.functions";
 import { fmtRelative } from "@/lib/i18n";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/security")({
   head: () => ({
