@@ -242,7 +242,7 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
           poster={reel.poster}
           forcePlay={active && !paused}
           muted={muted}
-          onProgress={(t, d) => { setProgress(d ? t / d : 0); if (d && d !== duration) setDuration(d); }}
+          onTime={(t, d) => { setProgress(d ? t / d : 0); if (d && d !== duration) setDuration(d); }}
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (

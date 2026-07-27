@@ -25,7 +25,7 @@ export function AutoplayVideo({
   poster,
   forcePlay,
   muted = true,
-  onProgress,
+  onTime,
   threshold = 0.6,
   className,
   onClick,
@@ -65,11 +65,11 @@ export function AutoplayVideo({
   // Progress
   useEffect(() => {
     const el = ref.current;
-    if (!el || !onProgress) return;
-    const on = () => onProgress(el.currentTime, el.duration || 0);
+    if (!el || !onTime) return;
+    const on = () => onTime(el.currentTime, el.duration || 0);
     el.addEventListener("timeupdate", on);
     return () => el.removeEventListener("timeupdate", on);
-  }, [onProgress]);
+  }, [onTime]);
 
   return (
     <video
