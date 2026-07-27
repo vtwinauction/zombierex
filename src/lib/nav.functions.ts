@@ -14,7 +14,7 @@ const NavInput = z.object({
 });
 
 export const planRoute = createServerFn({ method: "POST" })
-  .inputValidator((d) => NavInput.parse(d))
+  .validator((d) => NavInput.parse(d))
   .handler(async ({ data }) => {
     const LOVABLE_KEY = process.env.LOVABLE_API_KEY;
     const GMAPS_KEY = process.env.GOOGLE_MAPS_API_KEY;

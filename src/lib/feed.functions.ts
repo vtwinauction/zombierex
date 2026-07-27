@@ -25,7 +25,7 @@ function serverPublic() {
 }
 
 export const listFeed = createServerFn({ method: "GET" })
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       limit: z.number().int().min(1).max(50).default(20),
       cursor: z.string().datetime().optional(),
@@ -54,7 +54,7 @@ export const listFeed = createServerFn({ method: "GET" })
  */
 export const listAuthedFeed = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       limit: z.number().int().min(1).max(50).default(20),
       cursor: z.string().datetime().optional(),
@@ -101,7 +101,7 @@ export const listAuthedFeed = createServerFn({ method: "GET" })
   });
 
 export const getPostPublic = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data }) => {
     const supabase = serverPublic();
     const { data: row, error } = await supabase
@@ -114,7 +114,7 @@ export const getPostPublic = createServerFn({ method: "GET" })
   });
 
 export const getProfileByHandlePublic = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ handle: z.string().trim().min(1).max(32) }).parse(raw))
+  .validator((raw) => z.object({ handle: z.string().trim().min(1).max(32) }).parse(raw))
   .handler(async ({ data }) => {
     const supabase = serverPublic();
     const handle = data.handle.replace(/^@/, "");
@@ -139,7 +139,7 @@ export const getProfileByHandlePublic = createServerFn({ method: "GET" })
 
 export const createPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       kind: z.enum(["video", "photo", "telemetry", "event"]).default("photo"),
       caption: z.string().trim().max(2200).optional(),
@@ -205,7 +205,7 @@ export const listMySavedPosts = createServerFn({ method: "GET" })
 
 export const getMyPost = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("posts")
@@ -219,7 +219,7 @@ export const getMyPost = createServerFn({ method: "GET" })
 
 export const updatePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       id: z.string().uuid(),
       caption: z.string().trim().max(2200).optional(),
@@ -248,7 +248,7 @@ export const updatePost = createServerFn({ method: "POST" })
 
 export const deletePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("posts")
@@ -261,7 +261,7 @@ export const deletePost = createServerFn({ method: "POST" })
 
 export const react = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       post_id: z.string().uuid(),
       kind: z.enum(["like", "save", "share"]),
@@ -277,7 +277,7 @@ export const react = createServerFn({ method: "POST" })
 
 export const unreact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       post_id: z.string().uuid(),
       kind: z.enum(["like", "save", "share"]),
@@ -296,7 +296,7 @@ export const unreact = createServerFn({ method: "POST" })
 
 export const follow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ followee_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ followee_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     if (data.followee_id === context.userId) throw new Error("Cannot follow yourself");
     const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
@@ -314,7 +314,7 @@ export const follow = createServerFn({ method: "POST" })
 
 export const unfollow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ followee_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ followee_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("follows")

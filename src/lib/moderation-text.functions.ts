@@ -5,7 +5,7 @@ import { moderateText } from "./moderation-text.server";
 
 export const checkTextSafety = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       text: z.string().min(1).max(8000),
       surface: z.enum(["post", "comment", "dm", "bio", "listing"]).optional(),

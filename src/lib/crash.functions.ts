@@ -16,7 +16,7 @@ const CrashSchema = z.object({
 });
 
 export const submitCrashReport = createServerFn({ method: "POST" })
-  .inputValidator((data: z.infer<typeof CrashSchema>) => CrashSchema.parse(data))
+  .validator((data: z.infer<typeof CrashSchema>) => CrashSchema.parse(data))
   .handler(async ({ data }) => {
     const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
     const supabase = createClient<Database>(process.env.SUPABASE_URL!, key, {

@@ -33,7 +33,7 @@ const SYSTEM_BRAND =
 /* ─────────────────────────────  CONTENT ASSIST  ───────────────────────────── */
 
 export const suggestCaption = createServerFn({ method: "POST" })
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       context: z.string().trim().max(600).optional(),
       vibe: z.enum(["technical", "hype", "cinematic", "casual", "poetic"]).optional(),
@@ -54,7 +54,7 @@ export const suggestCaption = createServerFn({ method: "POST" })
   });
 
 export const suggestHashtags = createServerFn({ method: "POST" })
-  .inputValidator((raw) => z.object({ context: z.string().trim().min(1).max(600) }).parse(raw))
+  .validator((raw) => z.object({ context: z.string().trim().min(1).max(600) }).parse(raw))
   .handler(async ({ data }) => {
     const out = await aiCompleteJson<{ hashtags?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
@@ -70,7 +70,7 @@ export const suggestHashtags = createServerFn({ method: "POST" })
   });
 
 export const suggestTitle = createServerFn({ method: "POST" })
-  .inputValidator((raw) => z.object({ context: z.string().trim().min(1).max(1000) }).parse(raw))
+  .validator((raw) => z.object({ context: z.string().trim().min(1).max(1000) }).parse(raw))
   .handler(async ({ data }) => {
     const out = await aiCompleteJson<{ titles?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
@@ -83,7 +83,7 @@ export const suggestTitle = createServerFn({ method: "POST" })
   });
 
 export const improveText = createServerFn({ method: "POST" })
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       text: z.string().trim().min(1).max(4000),
       mode: z.enum(["grammar", "shorten", "expand", "polish"]).default("polish"),
@@ -104,7 +104,7 @@ export const improveText = createServerFn({ method: "POST" })
   });
 
 export const translateText = createServerFn({ method: "POST" })
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       text: z.string().trim().min(1).max(4000),
       target: z.string().trim().min(2).max(20).default("English"),
@@ -128,7 +128,7 @@ const CATEGORY_ENUM = [
 ] as const;
 
 export const categorizeContent = createServerFn({ method: "POST" })
-  .inputValidator((raw) => z.object({ text: z.string().trim().min(1).max(2000) }).parse(raw))
+  .validator((raw) => z.object({ text: z.string().trim().min(1).max(2000) }).parse(raw))
   .handler(async ({ data }) => {
     const out = await aiCompleteJson<{ categories?: string[]; primary?: string; brands?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
@@ -151,7 +151,7 @@ export const categorizeContent = createServerFn({ method: "POST" })
 /* ────────────────────────────  MODERATION  ─────────────────────────── */
 
 export const moderateContent = createServerFn({ method: "POST" })
-  .inputValidator((raw) => z.object({ text: z.string().trim().min(1).max(4000) }).parse(raw))
+  .validator((raw) => z.object({ text: z.string().trim().min(1).max(4000) }).parse(raw))
   .handler(async ({ data }) => {
     const out = await aiCompleteJson<{
       flagged?: boolean;
@@ -180,7 +180,7 @@ export const moderateContent = createServerFn({ method: "POST" })
 /* ────────────────────────────  SMART SEARCH  ─────────────────────────── */
 
 export const smartSearchParse = createServerFn({ method: "POST" })
-  .inputValidator((raw) => z.object({ q: z.string().trim().min(1).max(200) }).parse(raw))
+  .validator((raw) => z.object({ q: z.string().trim().min(1).max(200) }).parse(raw))
   .handler(async ({ data }) => {
     const out = await aiCompleteJson<{
       intent?: string;
@@ -206,7 +206,7 @@ export const smartSearchParse = createServerFn({ method: "POST" })
   });
 
 export const autocompleteSearch = createServerFn({ method: "POST" })
-  .inputValidator((raw) => z.object({ q: z.string().trim().min(1).max(80) }).parse(raw))
+  .validator((raw) => z.object({ q: z.string().trim().min(1).max(80) }).parse(raw))
   .handler(async ({ data }) => {
     const out = await aiCompleteJson<{ suggestions?: string[] }>([
       { role: "system", content: SYSTEM_BRAND },
@@ -245,7 +245,7 @@ export const trendingSearches = createServerFn({ method: "GET" })
  */
 export const recommendedForYou = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       surface: z.enum(["feed", "reels", "communities", "events", "marketplace", "creators", "hashtags", "users"]),
       limit: z.number().int().min(1).max(20).default(8),
@@ -343,7 +343,7 @@ export const recommendedForYou = createServerFn({ method: "POST" })
 
 export const onboardingRecommendations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       interests: z.array(z.string().trim().min(1).max(40)).max(12),
     }).parse(raw),
@@ -422,7 +422,7 @@ You help users inside the ZOMBIEREX app. When useful, suggest specific in-app de
 Keep replies short (2-6 sentences) unless the user asks for depth. Use plain language.`;
 
 export const assistantChat = createServerFn({ method: "POST" })
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       messages: z.array(z.object({
         role: z.enum(["user", "assistant"]),

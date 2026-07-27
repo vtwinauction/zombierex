@@ -52,7 +52,7 @@ const EventInput = z.object({
 
 export const createEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => EventInput.parse(raw))
+  .validator((raw) => EventInput.parse(raw))
   .handler(async ({ data, context }) => {
     const payload = {
       ...data,
@@ -70,7 +70,7 @@ export const createEvent = createServerFn({ method: "POST" })
 
 export const updateEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({ id: z.string().uuid(), patch: EventInput.partial() }).parse(raw),
   )
   .handler(async ({ data, context }) => {
@@ -87,7 +87,7 @@ export const updateEvent = createServerFn({ method: "POST" })
 
 export const cancelEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("events")
@@ -99,7 +99,7 @@ export const cancelEvent = createServerFn({ method: "POST" })
   });
 
 export const listEvents = createServerFn({ method: "GET" })
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z
       .object({
         scope: z.enum(["upcoming", "featured", "week", "month", "past", "mine"]).default("upcoming"),
@@ -155,7 +155,7 @@ export const listEvents = createServerFn({ method: "GET" })
 
 export const getEvent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: event, error } = await context.supabase
       .from("events")
@@ -202,7 +202,7 @@ export const getEvent = createServerFn({ method: "GET" })
 
 export const rsvpEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       event_id: z.string().uuid(),
       status: z.enum(["going", "interested", "not_going"]),
@@ -240,7 +240,7 @@ export const rsvpEvent = createServerFn({ method: "POST" })
 
 export const listAttendees = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       event_id: z.string().uuid(),
       status: z.enum(["going", "interested"]).default("going"),
@@ -260,7 +260,7 @@ export const listAttendees = createServerFn({ method: "GET" })
 
 export const checkInEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       event_id: z.string().uuid(),
       lat: z.number().optional().nullable(),
@@ -282,7 +282,7 @@ export const checkInEvent = createServerFn({ method: "POST" })
 
 export const listEventComments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({ event_id: z.string().uuid(), limit: z.number().int().min(1).max(100).default(50) }).parse(raw),
   )
   .handler(async ({ data, context }) => {
@@ -298,7 +298,7 @@ export const listEventComments = createServerFn({ method: "GET" })
 
 export const commentOnEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({ event_id: z.string().uuid(), body: z.string().trim().min(1).max(2000) }).parse(raw),
   )
   .handler(async ({ data, context }) => {
@@ -313,7 +313,7 @@ export const commentOnEvent = createServerFn({ method: "POST" })
 
 export const listEventPhotos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({ event_id: z.string().uuid(), limit: z.number().int().min(1).max(100).default(60) }).parse(raw),
   )
   .handler(async ({ data, context }) => {
@@ -329,7 +329,7 @@ export const listEventPhotos = createServerFn({ method: "GET" })
 
 export const addEventPhoto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       event_id: z.string().uuid(),
       media_url: z.string().url(),
@@ -355,7 +355,7 @@ export const addEventPhoto = createServerFn({ method: "POST" })
 
 export const listAnnouncements = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ event_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ event_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("event_announcements")
@@ -369,7 +369,7 @@ export const listAnnouncements = createServerFn({ method: "GET" })
 
 export const announceEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       event_id: z.string().uuid(),
       title: z.string().max(160).optional(),
@@ -393,7 +393,7 @@ export const announceEvent = createServerFn({ method: "POST" })
 
 export const inviteToEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       event_id: z.string().uuid(),
       invitee_ids: z.array(z.string().uuid()).min(1).max(50),

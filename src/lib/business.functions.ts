@@ -32,7 +32,7 @@ const VENDOR_PUBLIC_COLS =
 /* ================= PUBLIC PROFILE ================= */
 
 export const getBusinessBySlug = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({ slug: z.string().trim().min(1).max(64) }).parse(raw))
+  .validator((raw) => z.object({ slug: z.string().trim().min(1).max(64) }).parse(raw))
   .handler(async ({ data }) => {
     const sb = publicClient();
     const { data: v, error } = await sb.from("vendors_public" as any)
@@ -128,7 +128,7 @@ const ShowcaseItem = z.object({
 
 export const updateBusinessShowcase = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     gallery: z.array(z.string().url()).max(30).optional(),
     portfolio: z.array(ShowcaseItem).max(20).optional(),
     services_showcase: z.array(ShowcaseItem).max(20).optional(),
@@ -153,7 +153,7 @@ export const updateBusinessShowcase = createServerFn({ method: "POST" })
 
 export const submitBusinessReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     vendor_id: z.string().uuid(),
     rating: z.number().int().min(1).max(5),
     body: z.string().trim().max(1000).optional(),

@@ -83,7 +83,7 @@ const CreativeInput = z.object({
 
 export const createCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     campaign: CampaignInput,
     creative: CreativeInput,
   }).parse(raw))
@@ -114,7 +114,7 @@ export const listMyCampaigns = createServerFn({ method: "GET" })
 
 export const getCampaign = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const [{ data: camp, error }, { data: creatives }, { data: recent }] = await Promise.all([
       context.supabase.from("ad_campaigns").select("*").eq("id", data.id).maybeSingle(),
@@ -128,7 +128,7 @@ export const getCampaign = createServerFn({ method: "GET" })
 
 export const updateCampaignStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     id: z.string().uuid(),
     status: z.enum(["pending","active","paused","completed"]),
   }).parse(raw))
@@ -142,7 +142,7 @@ export const updateCampaignStatus = createServerFn({ method: "POST" })
 
 export const deleteCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ad_campaigns")
       .delete().eq("id", data.id).eq("owner_id", context.userId);
@@ -154,7 +154,7 @@ export const deleteCampaign = createServerFn({ method: "POST" })
 
 export const getCampaignAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: camp } = await context.supabase.from("ad_campaigns")
       .select("owner_id, impressions_count, clicks_count, engagements_count, spent_cents, budget_total_cents")
@@ -200,7 +200,7 @@ export const getCampaignAnalytics = createServerFn({ method: "GET" })
 /* =========================== PUBLIC SPONSORED SLOTS =========================== */
 
 export const listSponsoredCreatives = createServerFn({ method: "GET" })
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     placement: PlacementEnum,
     limit: z.number().int().min(1).max(10).default(3),
   }).parse(raw))
@@ -226,7 +226,7 @@ export const listSponsoredCreatives = createServerFn({ method: "GET" })
 
 export const logAdEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({
+  .validator((raw) => z.object({
     campaign_id: z.string().uuid(),
     creative_id: z.string().uuid().optional(),
     kind: z.enum(["impression","click","engagement","conversion"]),

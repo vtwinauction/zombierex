@@ -56,7 +56,7 @@ const RouteInput = z.object({
 /* ------------------------------ Reads ------------------------------ */
 
 export const listPublicRoutes = createServerFn({ method: "GET" })
-  .inputValidator((d: { limit?: number; region?: string | null; difficulty?: string | null; surface?: string | null } = {}) => d)
+  .validator((d: { limit?: number; region?: string | null; difficulty?: string | null; surface?: string | null } = {}) => d)
   .handler(async ({ data }) => {
     const s = publicClient();
     let q = s.from("routes" as any)
@@ -73,7 +73,7 @@ export const listPublicRoutes = createServerFn({ method: "GET" })
   });
 
 export const getRoute = createServerFn({ method: "GET" })
-  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
     const s = publicClient();
     const { data: route, error } = await s.from("routes" as any).select("*").eq("id", data.id).maybeSingle();
@@ -114,7 +114,7 @@ export const listSavedRoutes = createServerFn({ method: "GET" })
 
 export const createRoute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: z.input<typeof RouteInput>) => RouteInput.parse(d))
+  .validator((d: z.input<typeof RouteInput>) => RouteInput.parse(d))
   .handler(async ({ data, context }) => {
     const first = data.path[0];
     const last = data.path[data.path.length - 1];
@@ -150,7 +150,7 @@ export const createRoute = createServerFn({ method: "POST" })
 
 export const deleteRoute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("routes" as any).delete().eq("id", data.id).eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
@@ -159,7 +159,7 @@ export const deleteRoute = createServerFn({ method: "POST" })
 
 export const toggleSaveRoute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: existing } = await context.supabase.from("route_saves" as any)
       .select("route_id").eq("user_id", context.userId).eq("route_id", data.id).maybeSingle();
@@ -173,7 +173,7 @@ export const toggleSaveRoute = createServerFn({ method: "POST" })
 
 export const startRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("route_rides" as any).insert({ user_id: context.userId, route_id: data.id });
     if (error) throw new Error(error.message);
@@ -184,7 +184,7 @@ export const startRide = createServerFn({ method: "POST" })
 
 export const searchPlacesNearby = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { lat: number; lng: number; kind: string; query?: string; radius?: number }) =>
+  .validator((d: { lat: number; lng: number; kind: string; query?: string; radius?: number }) =>
     z.object({
       lat: z.number(), lng: z.number(),
       kind: z.enum(POI_KINDS),
@@ -240,7 +240,7 @@ const BBox = z.object({
 });
 
 export const listCommunityPois = createServerFn({ method: "GET" })
-  .inputValidator((d: { minLat?: number; maxLat?: number; minLng?: number; maxLng?: number; kind?: string; limit?: number } = {}) => d)
+  .validator((d: { minLat?: number; maxLat?: number; minLng?: number; maxLng?: number; kind?: string; limit?: number } = {}) => d)
   .handler(async ({ data }) => {
     const s = publicClient();
     let q = s.from("community_pois" as any)
@@ -262,7 +262,7 @@ export const listCommunityPois = createServerFn({ method: "GET" })
 
 export const createCommunityPoi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     name: z.string().trim().min(1).max(120),
     kind: z.enum(COMMUNITY_POI_KINDS).default("custom"),
     lat: z.number().min(-90).max(90),
@@ -283,7 +283,7 @@ export const createCommunityPoi = createServerFn({ method: "POST" })
 
 export const deleteCommunityPoi = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("community_pois" as any)
@@ -302,7 +302,7 @@ export const deleteCommunityPoi = createServerFn({ method: "POST" })
  */
 export const suggestPoisForRoute = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({
+  .validator((d: unknown) => z.object({
     path: z.array(z.object({ lat: z.number(), lng: z.number() })).min(2).max(2000),
     kinds: z.array(z.enum(POI_KINDS)).min(1).max(6).default(["hotel","food","fuel","scenic"] as any),
     samples: z.number().int().min(1).max(6).default(3),

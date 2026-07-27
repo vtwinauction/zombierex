@@ -44,7 +44,7 @@ const ApplySchema = z.object({
 
 export const applyAsCreator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => ApplySchema.parse(raw))
+  .validator((raw) => ApplySchema.parse(raw))
   .handler(async ({ data, context }) => {
     const payload = {
       user_id: context.userId,
@@ -76,7 +76,7 @@ export const getMyCreatorProfile = createServerFn({ method: "GET" })
 
 export const updateMyCreatorProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     ApplySchema.partial().extend({
       featured_post_ids: z.array(z.string().uuid()).max(6).optional(),
     }).parse(raw),
@@ -97,7 +97,7 @@ export const updateMyCreatorProfile = createServerFn({ method: "POST" })
 
 export const getCreatorProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ user_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ user_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: cp, error } = await context.supabase
       .from("creator_profiles")
@@ -122,7 +122,7 @@ export const getCreatorProfile = createServerFn({ method: "GET" })
 
 export const listCreators = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       scope: z.enum(["trending", "rising", "featured", "recommended", "local", "top"]).default("trending"),
       category: z.enum(CREATOR_CATEGORIES).optional(),
@@ -187,7 +187,7 @@ export const listMyTiers = createServerFn({ method: "GET" })
 
 export const upsertTier = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => TierInput.extend({ id: z.string().uuid().optional() }).parse(raw))
+  .validator((raw) => TierInput.extend({ id: z.string().uuid().optional() }).parse(raw))
   .handler(async ({ data, context }) => {
     const cid = await getMyCreatorId(context.supabase, context.userId);
     const row = { creator_id: cid, ...data };
@@ -201,7 +201,7 @@ export const upsertTier = createServerFn({ method: "POST" })
 
 export const deleteTier = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const cid = await getMyCreatorId(context.supabase, context.userId);
     const { error } = await context.supabase.from("creator_tiers").delete().eq("id", data.id).eq("creator_id", cid);
@@ -212,7 +212,7 @@ export const deleteTier = createServerFn({ method: "POST" })
 /* ============ SUBSCRIPTIONS ============ */
 export const subscribeToCreator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ creator_id: z.string().uuid(), tier_id: z.string().uuid().nullable().optional() }).parse(raw))
+  .validator((raw) => z.object({ creator_id: z.string().uuid(), tier_id: z.string().uuid().nullable().optional() }).parse(raw))
   .handler(async ({ data, context }) => {
     const period_end = new Date(); period_end.setMonth(period_end.getMonth() + 1);
     const { data: row, error } = await context.supabase
@@ -233,7 +233,7 @@ export const subscribeToCreator = createServerFn({ method: "POST" })
 
 export const cancelSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ creator_id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ creator_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("creator_subscriptions")
@@ -247,7 +247,7 @@ export const cancelSubscription = createServerFn({ method: "POST" })
 /* ============ TIPS ============ */
 export const tipCreator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       creator_id: z.string().uuid(),
       amount_cents: z.number().int().min(100).max(1_000_000),
@@ -340,7 +340,7 @@ export const getCreatorDashboard = createServerFn({ method: "GET" })
 /* ============ COLLAB INBOX ============ */
 export const listMyCollabInbox = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({ status: z.enum(["new","read","replied","accepted","declined","archived","all"]).default("all") }).parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
@@ -365,7 +365,7 @@ export const listMyCollabInbox = createServerFn({ method: "GET" })
 
 export const sendCollabRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       creator_id: z.string().uuid(),
       brand_name: z.string().trim().min(1).max(120),
@@ -400,7 +400,7 @@ export const sendCollabRequest = createServerFn({ method: "POST" })
 
 export const updateCollabStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) =>
+  .validator((raw) =>
     z.object({
       id: z.string().uuid(),
       status: z.enum(["new","read","replied","accepted","declined","archived"]),
@@ -446,7 +446,7 @@ export const listMyDrafts = createServerFn({ method: "GET" })
 
 export const saveDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => DraftInput.extend({ id: z.string().uuid().optional() }).parse(raw))
+  .validator((raw) => DraftInput.extend({ id: z.string().uuid().optional() }).parse(raw))
   .handler(async ({ data, context }) => {
     const row = { author_id: context.userId, ...data };
     const q = data.id
@@ -459,7 +459,7 @@ export const saveDraft = createServerFn({ method: "POST" })
 
 export const deleteDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("post_drafts").delete().eq("id", data.id).eq("author_id", context.userId);
     if (error) throw new Error(error.message);
@@ -482,7 +482,7 @@ export const listMyScheduled = createServerFn({ method: "GET" })
 
 export const schedulePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => DraftInput.extend({ id: z.string().uuid().optional(), publish_at: z.string().datetime() }).parse(raw))
+  .validator((raw) => DraftInput.extend({ id: z.string().uuid().optional(), publish_at: z.string().datetime() }).parse(raw))
   .handler(async ({ data, context }) => {
     const row = { author_id: context.userId, status: "pending" as const, ...data };
     const q = data.id
@@ -495,7 +495,7 @@ export const schedulePost = createServerFn({ method: "POST" })
 
 export const cancelScheduled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
+  .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
       .from("scheduled_posts")
