@@ -242,12 +242,24 @@ export function MediaComposer({ onDone }: Props) {
 
   useEffect(() => () => items.forEach((i) => URL.revokeObjectURL(i.previewUrl)), []); // cleanup on unmount
 
+  const typeMeta = POST_TYPE_META[postType];
+
+  const acceptsFile = useCallback((f: File): boolean => {
+    if (postType === "reel") return f.type.startsWith("video/");
+    if (postType === "story" || postType === "post") return f.type.startsWith("image/") || f.type.startsWith("video/");
+    return false;
+  }, [postType]);
+
   const addFiles = useCallback((files: FileList | null) => {
     if (!files || !files.length) return;
-    const next = Array.from(files).slice(0, 10 - items.length).map(newItem);
+    if (postType === "telemetry") return;
+    const allowed = Array.from(files).filter(acceptsFile);
+    if (!allowed.length) return;
+    const remaining = Math.max(0, typeMeta.maxItems - items.length);
+    const next = allowed.slice(0, remaining).map(newItem);
     setItems((prev) => [...prev, ...next]);
     if (!items.length && next.length) setActive(0);
-  }, [items.length]);
+  }, [items.length, postType, typeMeta.maxItems, acceptsFile]);
 
   // Consume camera capture handed off from the status-bar long-press
   useEffect(() => {
