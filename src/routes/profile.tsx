@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Phone, Share2, Settings as SettingsIcon } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
-import { me, myVehicles, rider, achievements, workshopHistory, reels } from "@/lib/mock-data";
 import { getMyProfileMetrics, upsertMyVehicle } from "@/lib/profile.functions";
 import { listMyPosts } from "@/lib/feed.functions";
 
@@ -72,15 +71,15 @@ function ProfilePage() {
   const live = metricsQuery.data;
   const p = live?.profile;
   const v = live?.vehicle;
-  const mockBike = myVehicles[0];
 
+  const hasVehicle = !!v;
   const bike = {
-    id: v?.id ?? mockBike.id,
-    name: v ? (v.nickname || `${v.year ?? ""} ${v.make} ${v.model}`.trim()) : mockBike.name,
-    year: v?.year ?? mockBike.year,
-    type: v ? (v.kind === "car" ? "Car" : "Motorcycle") : mockBike.type,
-    cover: v?.hero_image_url || mockBike.cover,
-    hp: v ? estimateHp(v.spec as Record<string, unknown>, v.kind) : mockBike.hp,
+    id: v?.id ?? "unassigned",
+    name: v ? (v.nickname || `${v.year ?? ""} ${v.make} ${v.model}`.trim()) : "No vehicle yet",
+    year: v?.year ?? null,
+    type: v ? (v.kind === "car" ? "Car" : "Motorcycle") : "—",
+    cover: v?.hero_image_url || "",
+    hp: v ? estimateHp(v.spec as Record<string, unknown>, v.kind) : 0,
   };
   const profileCover = p?.cover_url || "";
   const heroImage = coverBroken || !profileCover ? bike.cover : profileCover;
@@ -89,32 +88,32 @@ function ProfilePage() {
     setCoverBroken(false);
   }, [profileCover]);
 
-  const level = p?.level ?? rider.level;
-  const xp = p?.xp_total ?? rider.xp;
-  const xpFloor = p ? xpForLevel(level) : 0;
-  const xpNext = p ? xpForLevel(level + 1) : rider.xpToNext;
+  const level = p?.level ?? 1;
+  const xp = p?.xp_total ?? 0;
+  const xpFloor = xpForLevel(level);
+  const xpNext = xpForLevel(level + 1);
   const xpSpan = Math.max(1, xpNext - xpFloor);
   const xpPct = Math.max(0, Math.min(100, Math.round(((xp - xpFloor) / xpSpan) * 100)));
-  const xpDisplay = p ? Math.max(0, xp - xpFloor) : rider.xp;
-  const xpNextDisplay = p ? Math.max(1, xpNext - xpFloor) : rider.xpToNext;
+  const xpDisplay = Math.max(0, xp - xpFloor);
+  const xpNextDisplay = Math.max(1, xpNext - xpFloor);
 
-  const totalAch = live?.totalAchievements ?? achievements.length;
-  const earnedCount = live?.earnedCount ?? achievements.filter((a) => a.earned).length;
-  const achList = (live?.achievements?.length
-    ? live.achievements.map((a) => ({ id: a.slug, title: a.title, detail: a.detail, rarity: a.tier, earned: a.earned }))
-    : achievements.map((a) => ({ id: a.id, title: a.title, detail: a.detail, rarity: a.rarity, earned: a.earned })));
+  const totalAch = live?.totalAchievements ?? 0;
+  const earnedCount = live?.earnedCount ?? 0;
+  const achList = (live?.achievements ?? []).map((a) => ({
+    id: a.slug, title: a.title, detail: a.detail, rarity: a.tier, earned: a.earned,
+  }));
 
-  const followers = p?.followers_count ?? 12_400;
-  const postsCount = p?.posts_count ?? 47;
+  const followers = p?.followers_count ?? 0;
+  const postsCount = p?.posts_count ?? 0;
   const listingsCount = p?.listings_count ?? 0;
 
-  const topSpeed = bike.hp + 45;
+  const topSpeed = hasVehicle ? bike.hp + 45 : 0;
   const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n));
 
-  const displayName = p?.display_name || p?.handle || me.handle.replace("@", "");
-  const location = p?.location || me.location;
-  const title = p ? `LEVEL ${level} · ${(p.tier || "ROOKIE").toString().toUpperCase()}` : rider.title.toUpperCase();
-  const idLabel = (p?.id ?? me.id).slice(0, 8).toUpperCase();
+  const displayName = p?.display_name || p?.handle || "Rider";
+  const location = p?.location || "";
+  const title = `LEVEL ${level} · ${(p?.tier || "ROOKIE").toString().toUpperCase()}`;
+  const idLabel = (p?.id ?? "").slice(0, 8).toUpperCase();
 
   const showToast = (message: string) => {
     setToast(message);
