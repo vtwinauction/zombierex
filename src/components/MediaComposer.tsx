@@ -380,7 +380,15 @@ export function MediaComposer({ onDone }: Props) {
             bucket: "posts",
             onProgress: (p) => setProgress((prev) => ({ ...prev, [m.id]: p })),
           });
-          uploaded.push({ ...res, kind: m.kind });
+          let coverUrl: string | undefined;
+          if (m.kind === "video") {
+            try {
+              const frame = await extractVideoFrame(m.file, m.coverAt ?? 0);
+              const coverRes = await uploadWithRetry(frame, { userId, bucket: "posts" });
+              coverUrl = coverRes.url;
+            } catch { /* fall back to media URL as thumb */ }
+          }
+          uploaded.push({ ...res, kind: m.kind, coverUrl });
         } catch (e) {
           setFailed((f) => [...f, m.id]);
           throw e;
@@ -388,8 +396,11 @@ export function MediaComposer({ onDone }: Props) {
       }
 
       const first = uploaded[0];
+      // Route on the user's chosen post type, not the media inspection.
       const kind: "photo" | "video" | "telemetry" =
-        first?.kind === "video" ? "video" : "photo";
+        postType === "telemetry" ? "telemetry"
+        : postType === "reel" ? "video"
+        : first?.kind === "video" ? "video" : "photo";
 
       // AI safety scan on the first image (fail-open on gateway error).
       if (first && first.kind === "image") {
@@ -442,12 +453,12 @@ export function MediaComposer({ onDone }: Props) {
       const musicFooter = music ? `\n\n♪ ${music.title} — ${music.artist}` : "";
       const captionWithMusic = (caption.trim() + musicFooter).trim();
 
-      // Post-as-story path: 24h ephemeral, no feed post.
-      if (postAsStory && first) {
+      // Story path: 24h ephemeral, no feed post.
+      if (postType === "story" && first) {
         await postStory({
           data: {
             media_url: first.url,
-            thumbnail_url: first.url,
+            thumbnail_url: first.coverUrl ?? first.url,
             kind: first.kind === "video" ? "video" : "photo",
             caption: caption.trim() || undefined,
           },
@@ -455,13 +466,29 @@ export function MediaComposer({ onDone }: Props) {
         return { scheduled: false, story: true };
       }
 
+      // Stash non-destructive video edit metadata locally so a future render
+      // worker can apply trim/mute/speed/overlays/music to the raw upload.
+      if (first?.kind === "video" && typeof window !== "undefined") {
+        try {
+          const edits = items.filter((m) => m.kind === "video").map((m) => ({
+            trimStart: m.trimStart ?? 0, trimEnd: m.trimEnd, muted: !!m.muted,
+            speed: m.speed ?? 1, coverAt: m.coverAt ?? 0, filter: m.filter,
+            adjust: m.adjust, overlays: m.overlays, music: music,
+          }));
+          const key = "zrex:pending_video_edits";
+          const prev = JSON.parse(window.localStorage.getItem(key) || "[]");
+          prev.push({ mediaUrl: first.url, at: Date.now(), edits });
+          window.localStorage.setItem(key, JSON.stringify(prev.slice(-50)));
+        } catch { /* ignore */ }
+      }
+
       await post({
         data: {
           kind,
           caption: captionWithMusic || undefined,
           media_url: first?.url,
-          thumbnail_url: first?.url,
-          is_reel: kind === "video",
+          thumbnail_url: first?.coverUrl ?? first?.url,
+          is_reel: postType === "reel",
         },
       });
       return { scheduled: false, story: false };
