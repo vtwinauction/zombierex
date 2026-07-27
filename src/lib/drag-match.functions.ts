@@ -52,14 +52,22 @@ export const createChallenge = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Fire a notification for the opponent
-    await supabase.from("notifications").insert({
-      user_id: opp.id,
-      kind: "system",
-      title: "Drag challenge received",
-      body: `You've been challenged to a ${data.strip_mode === "quarter" ? "1/4 mile" : "1/8 mile"} drag race.`,
-      data: { challenge_id: row.id, kind: "drag_challenge" },
-    }).then(() => null).catch(() => null);
+    // Fire a notification for the opponent (best effort)
+    try {
+      await supabase.from("notifications").insert({
+        user_id: opp.id,
+        actor_id: userId,
+        kind: "system",
+        payload: {
+          title: "Drag challenge received",
+          body: `You've been challenged to a ${data.strip_mode === "quarter" ? "1/4 mile" : "1/8 mile"} drag race.`,
+          challenge_id: row.id,
+          kind: "drag_challenge",
+        },
+      });
+    } catch { /* noop */ }
+
+
 
     return { id: row.id as string };
   });
