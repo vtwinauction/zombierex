@@ -1111,50 +1111,53 @@ function Slider({ label, value, min, max, step, onChange, onReset }: {
 function VideoControls({ m, onPatch }: { m: MediaItem; onPatch: (p: Partial<MediaItem>) => void }) {
   const vidRef = useRef<HTMLVideoElement>(null);
   const [dur, setDur] = useState(0);
-  const trimStart = m.trimStart ?? 0;
-  const trimEnd = m.trimEnd ?? dur;
+  const coverAt = m.coverAt ?? 0;
   return (
     <div className="space-y-3">
       <video ref={vidRef} src={m.previewUrl} className="w-full rounded"
         onLoadedMetadata={(e) => setDur((e.currentTarget as HTMLVideoElement).duration || 0)}
-        controls muted={m.muted} playsInline />
+        controls playsInline />
+
+      {/* Cover-frame picker — this one actually works. */}
       {dur > 0 && (
-        <>
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Trim start</span>
-              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{trimStart.toFixed(1)}s</span>
-            </div>
-            <input type="range" min={0} max={dur} step={0.1} value={trimStart}
-              onChange={(e) => onPatch({ trimStart: Math.min(Number(e.target.value), trimEnd - 0.1) })}
-              className="w-full accent-[var(--color-neon)]" />
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Cover frame</span>
+            <span className="mono-tag" style={{ color: "var(--color-neon)" }}>{coverAt.toFixed(1)}s</span>
           </div>
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Trim end</span>
-              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{trimEnd.toFixed(1)}s</span>
-            </div>
-            <input type="range" min={0} max={dur} step={0.1} value={trimEnd}
-              onChange={(e) => onPatch({ trimEnd: Math.max(Number(e.target.value), trimStart + 0.1) })}
-              className="w-full accent-[var(--color-neon)]" />
-          </div>
-        </>
-      )}
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Playback speed</span>
-          <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{(m.speed ?? 1).toFixed(2)}×</span>
+          <input type="range" min={0} max={dur} step={0.1} value={coverAt}
+            onChange={(e) => {
+              const t = Number(e.target.value);
+              onPatch({ coverAt: t });
+              if (vidRef.current) { try { vidRef.current.currentTime = t; } catch { /* noop */ } }
+            }}
+            className="w-full accent-[var(--color-neon)]" />
+          <p className="mono-tag mt-1" style={{ color: "var(--color-titanium)", fontSize: 10, textTransform: "none" }}>
+            Scrub to pick the thumbnail shown in the feed and on your profile.
+          </p>
         </div>
-        <input type="range" min={0.25} max={2} step={0.05} value={m.speed ?? 1}
-          onChange={(e) => onPatch({ speed: Number(e.target.value) })} className="w-full accent-[var(--color-neon)]" />
+      )}
+
+      {/* Everything below is honest about not doing anything yet. */}
+      <div className="rounded-lg p-3" style={{ background: "var(--color-graphite)", border: "1px dashed var(--color-hair-strong)" }}>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ COMING SOON</p>
+        <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", textTransform: "none", fontSize: 11 }}>
+          Trim, mute, playback speed, overlays and music-mix for video need a server-side render pass.
+          We&rsquo;re building it. Your upload publishes raw for now.
+        </p>
+        <div className="mt-3 space-y-2 opacity-50 pointer-events-none select-none" aria-disabled="true">
+          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
+            <span>Trim</span><span>—</span>
+          </div>
+          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
+            <span>Playback speed</span><span>1.00×</span>
+          </div>
+          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
+            <span>Mute audio</span><span>off</span>
+          </div>
+        </div>
       </div>
-      <label className="mono-tag flex items-center gap-2" style={{ color: "var(--color-ink)" }}>
-        <input type="checkbox" checked={!!m.muted} onChange={(e) => onPatch({ muted: e.target.checked })} />
-        Mute audio
-      </label>
-      <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>
-        Advanced video encoding (merging clips, voice-over, music mix) runs during server-side rendering after upload.
-      </p>
     </div>
   );
 }
+
