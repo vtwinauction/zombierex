@@ -24,7 +24,6 @@ import { PullToRefresh } from "@/components/PullToRefresh";
 import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
 import { AutoplayVideo, isVideoUrl } from "@/components/AutoplayVideo";
 import { useDoubleTap } from "@/hooks/useDoubleTap";
-import { useState as useStateReact } from "react";
 import { Volume2, VolumeX, Heart } from "lucide-react";
 
 export const Route = createFileRoute("/")({
