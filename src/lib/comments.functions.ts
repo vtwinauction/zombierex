@@ -56,6 +56,12 @@ export const addComment = createServerFn({ method: "POST" })
     if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
       ? "You're commenting too fast — try again in a bit."
       : rlErr.message);
+    // Server-side text moderation (fail-open on gateway errors).
+    const { moderateText } = await import("./moderation-text.server");
+    const verdict = await moderateText(data.body);
+    if (!verdict.safe && !verdict.skipped) {
+      throw new Error(`Comment blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+    }
     const { data: row, error } = await context.supabase
       .from("comments")
       .insert({
