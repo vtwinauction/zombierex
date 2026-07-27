@@ -23,11 +23,12 @@ type Reel = {
 import { RiderMark } from "@/components/RiderBadge";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "@/components/icons/RexIcons";
 import { ReportBlockSheet } from "@/components/ReportBlockSheet";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Volume2, VolumeX, Play } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { AutoplayVideo, isVideoUrl } from "@/components/AutoplayVideo";
 
 export const Route = createFileRoute("/reels")({
   head: () => ({
