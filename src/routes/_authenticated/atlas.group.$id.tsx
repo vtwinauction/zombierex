@@ -134,7 +134,7 @@ function GroupLive() {
     nav({ to: "/atlas/group" });
   }
   async function onEnd() {
-    if (!confirm("End this ride for everyone?")) return;
+    if (!(await confirmDialog({ title: "End this ride for everyone?", destructive: true, confirmLabel: "End ride" }))) return;
     try {
       await endFn({ data: { group_ride_id: id } });
       toast.success("Ride ended");
