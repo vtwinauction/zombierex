@@ -78,7 +78,7 @@ function ReelsPage() {
           views: r.views_count ?? 0,
         } as Reel;
       });
-    return mapped.length > 0 ? mapped : mockFeed;
+    return mapped;
   }, [live.data]);
 
   useEffect(() => {
