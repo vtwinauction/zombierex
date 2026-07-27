@@ -124,6 +124,8 @@ export type Story = {
   user: User;
   kind: StoryKind;
   cover: string;
+  /** Full media URL for video stories (cover stays as poster/thumbnail). */
+  mediaUrl?: string;
   seen?: boolean;
   live?: boolean;
   label?: string;
