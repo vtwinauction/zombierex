@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { storiesV2 } from "@/lib/mock-data";
+
 import type { Story } from "@/lib/types";
 import { listActiveStories } from "@/lib/stories.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -97,9 +97,7 @@ export function StoriesRail() {
         } as Story;
       });
 
-    // Signed-out preview: keep the atmospheric demo tiles when we have nothing live yet.
-    const base = realMapped.length > 0 || signedIn ? realMapped : storiesV2.slice(1);
-    return [ME_TILE, ...base].map((s, i) => ({
+    return [ME_TILE, ...realMapped].map((s, i) => ({
       ...s,
       seen: i === 0 ? false : s.seen || seen.has(s.id),
     }));

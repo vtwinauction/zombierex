@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { reels, type Reel } from "@/lib/mock-data";
+import type { Reel } from "@/lib/mock-data";
 import { RiderMark } from "@/components/RiderBadge";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "@/components/icons/RexIcons";
 import { ReportBlockSheet } from "@/components/ReportBlockSheet";
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/reels")({
   component: ReelsPage,
 });
 
-const mockFeed: Reel[] = [...reels, ...reels, ...reels];
+
 
 function ReelsPage() {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,7 @@ function ReelsPage() {
           views: r.views_count ?? 0,
         } as Reel;
       });
-    return mapped.length > 0 ? mapped : mockFeed;
+    return mapped;
   }, [live.data]);
 
   useEffect(() => {
