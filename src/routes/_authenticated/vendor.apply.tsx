@@ -37,7 +37,7 @@ type FormState = {
 
 const STEPS = ["Business", "Contact", "Location", "Documents", "Review"] as const;
 
-export function ApplyPage() {
+function ApplyPage() {
   const { data: vendor } = useSuspenseQuery(vendorQuery);
   const [step, setStep] = useState(0);
   const [err, setErr] = useState<string | null>(null);
