@@ -370,7 +370,7 @@ export function MediaComposer({ onDone }: Props) {
       if (!items.length && !caption.trim()) throw new Error("Add media or a caption");
 
       setFailed([]);
-      const uploaded: Array<{ url: string; contentType: string; path: string; kind: MediaItem["kind"] }> = [];
+      const uploaded: Array<{ url: string; contentType: string; path: string; kind: MediaItem["kind"]; coverUrl?: string }> = [];
 
       for (const m of items) {
         try {
