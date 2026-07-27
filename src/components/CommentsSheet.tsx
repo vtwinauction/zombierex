@@ -187,7 +187,7 @@ export function CommentsSheet({
         aria-label={title}
         className="absolute inset-x-0 bottom-0 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
         style={{
-          height: "82vh",
+          height: "min(68vh, 640px)",
           background: "var(--color-paper-0)",
           color: "var(--color-ink-0)",
           borderTop: "1px solid var(--color-line)",
