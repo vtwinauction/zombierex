@@ -1,6 +1,6 @@
 /**
  * Biometric authentication wrapper (FaceID / TouchID / Fingerprint).
- * Uses @capacitor-community/biometric-auth when available on native, and
+ * Uses @aparajita/capacitor-biometric-auth when available on native, and
  * falls back to WebAuthn platform authenticator on the web when possible.
  * All calls are safe to invoke on any platform — they resolve gracefully.
  */
@@ -11,7 +11,7 @@ type NativeBio = any;
 
 async function loadNative(): Promise<NativeBio | null> {
   try {
-    const name = "@capacitor-community/biometric-auth";
+    const name = "@aparajita/capacitor-biometric-auth";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mod: any = await import(/* @vite-ignore */ name);
     return mod?.BiometricAuth ?? mod?.default ?? mod ?? null;
