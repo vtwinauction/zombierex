@@ -466,6 +466,7 @@ You help users inside the ZOMBIEREX app. When useful, suggest specific in-app de
 Keep replies short (2-6 sentences) unless the user asks for depth. Use plain language.`;
 
 export const assistantChat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((raw) =>
     z.object({
       messages: z.array(z.object({
@@ -474,7 +475,8 @@ export const assistantChat = createServerFn({ method: "POST" })
       })).min(1).max(20),
     }).parse(raw),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_chat", 30);
     const msgs: ChatMessage[] = [
       { role: "system", content: ASSISTANT_SYSTEM },
       ...data.messages,
