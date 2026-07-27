@@ -52,7 +52,7 @@ function RideDetail() {
   }
 
   async function remove() {
-    if (!confirm("Delete this ride?")) return;
+    if (!(await confirmDialog({ title: "Delete this ride?", destructive: true, confirmLabel: "Delete" }))) return;
     await del({ data: { id } });
     nav({ to: "/rides" });
   }
