@@ -3,14 +3,13 @@
  * -----------------------------------------------------------------
  * Offline-friendly action queue for social interactions
  * (like / save / share). Applies optimistic updates immediately,
- * persists pending mutations to localStorage, and drains them
- * whenever the network is (or becomes) available.
- *
- * There is no real backend yet — `sendMock` simulates latency and
- * fails while the browser reports `navigator.onLine === false` or
- * when a synthetic "force offline" flag is set. This lets the UI
- * exercise queued / retrying / failed states end-to-end.
+ * persists pending mutations to localStorage, and drains them by
+ * calling the real backend (`react` / `unreact`) whenever the
+ * network is (or becomes) available. A synthetic "force offline"
+ * flag is available for exercising queued / retrying / failed
+ * states end-to-end from the UI.
  */
+
 
 export type InteractionKind = "like" | "unlike" | "save" | "unsave" | "share";
 
@@ -97,7 +96,7 @@ export function setForceOffline(v: boolean) {
 }
 
 /** Real network transport — sends the queued action to the backend. */
-async function sendMock(action: QueuedAction): Promise<void> {
+async function sendAction(action: QueuedAction): Promise<void> {
   if (!isOnline()) throw new Error("offline");
   const { react, unreact } = await import("@/lib/feed.functions");
   try {
@@ -160,7 +159,7 @@ async function drain() {
       emit();
 
       try {
-        await sendMock(next);
+        await sendAction(next);
         // success — drop it
         queue = queue.filter((a) => a.id !== next.id);
         persist();

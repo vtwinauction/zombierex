@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Phone, Share2, Settings as SettingsIcon } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
-import { me, myVehicles, rider, achievements, workshopHistory, reels } from "@/lib/mock-data";
 import { getMyProfileMetrics, upsertMyVehicle } from "@/lib/profile.functions";
 import { listMyPosts } from "@/lib/feed.functions";
 
@@ -72,15 +71,15 @@ function ProfilePage() {
   const live = metricsQuery.data;
   const p = live?.profile;
   const v = live?.vehicle;
-  const mockBike = myVehicles[0];
 
+  const hasVehicle = !!v;
   const bike = {
-    id: v?.id ?? mockBike.id,
-    name: v ? (v.nickname || `${v.year ?? ""} ${v.make} ${v.model}`.trim()) : mockBike.name,
-    year: v?.year ?? mockBike.year,
-    type: v ? (v.kind === "car" ? "Car" : "Motorcycle") : mockBike.type,
-    cover: v?.hero_image_url || mockBike.cover,
-    hp: v ? estimateHp(v.spec as Record<string, unknown>, v.kind) : mockBike.hp,
+    id: v?.id ?? "unassigned",
+    name: v ? (v.nickname || `${v.year ?? ""} ${v.make} ${v.model}`.trim()) : "No vehicle yet",
+    year: v?.year ?? null,
+    type: v ? (v.kind === "car" ? "Car" : "Motorcycle") : "—",
+    cover: v?.hero_image_url || "",
+    hp: v ? estimateHp(v.spec as Record<string, unknown>, v.kind) : 0,
   };
   const profileCover = p?.cover_url || "";
   const heroImage = coverBroken || !profileCover ? bike.cover : profileCover;
@@ -89,32 +88,32 @@ function ProfilePage() {
     setCoverBroken(false);
   }, [profileCover]);
 
-  const level = p?.level ?? rider.level;
-  const xp = p?.xp_total ?? rider.xp;
-  const xpFloor = p ? xpForLevel(level) : 0;
-  const xpNext = p ? xpForLevel(level + 1) : rider.xpToNext;
+  const level = p?.level ?? 1;
+  const xp = p?.xp_total ?? 0;
+  const xpFloor = xpForLevel(level);
+  const xpNext = xpForLevel(level + 1);
   const xpSpan = Math.max(1, xpNext - xpFloor);
   const xpPct = Math.max(0, Math.min(100, Math.round(((xp - xpFloor) / xpSpan) * 100)));
-  const xpDisplay = p ? Math.max(0, xp - xpFloor) : rider.xp;
-  const xpNextDisplay = p ? Math.max(1, xpNext - xpFloor) : rider.xpToNext;
+  const xpDisplay = Math.max(0, xp - xpFloor);
+  const xpNextDisplay = Math.max(1, xpNext - xpFloor);
 
-  const totalAch = live?.totalAchievements ?? achievements.length;
-  const earnedCount = live?.earnedCount ?? achievements.filter((a) => a.earned).length;
-  const achList = (live?.achievements?.length
-    ? live.achievements.map((a) => ({ id: a.slug, title: a.title, detail: a.detail, rarity: a.tier, earned: a.earned }))
-    : achievements.map((a) => ({ id: a.id, title: a.title, detail: a.detail, rarity: a.rarity, earned: a.earned })));
+  const totalAch = live?.totalAchievements ?? 0;
+  const earnedCount = live?.earnedCount ?? 0;
+  const achList = (live?.achievements ?? []).map((a) => ({
+    id: a.slug, title: a.title, detail: a.detail, rarity: a.tier, earned: a.earned,
+  }));
 
-  const followers = p?.followers_count ?? 12_400;
-  const postsCount = p?.posts_count ?? 47;
+  const followers = p?.followers_count ?? 0;
+  const postsCount = p?.posts_count ?? 0;
   const listingsCount = p?.listings_count ?? 0;
 
-  const topSpeed = bike.hp + 45;
+  const topSpeed = hasVehicle ? bike.hp + 45 : 0;
   const fmt = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n));
 
-  const displayName = p?.display_name || p?.handle || me.handle.replace("@", "");
-  const location = p?.location || me.location;
-  const title = p ? `LEVEL ${level} · ${(p.tier || "ROOKIE").toString().toUpperCase()}` : rider.title.toUpperCase();
-  const idLabel = (p?.id ?? me.id).slice(0, 8).toUpperCase();
+  const displayName = p?.display_name || p?.handle || "Rider";
+  const location = p?.location || "";
+  const title = `LEVEL ${level} · ${(p?.tier || "ROOKIE").toString().toUpperCase()}`;
+  const idLabel = (p?.id ?? "").slice(0, 8).toUpperCase();
 
   const showToast = (message: string) => {
     setToast(message);
@@ -242,7 +241,11 @@ function ProfilePage() {
               className="shrink-0 rounded-full p-[2px]"
               style={{ background: "var(--color-line)" }}
             >
-              <img src={p?.avatar_url || me.avatar} alt="" className="h-16 w-16 rounded-full object-cover" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-1)" }} />
+              {p?.avatar_url ? (
+                <img src={p.avatar_url} alt="" className="h-16 w-16 rounded-full object-cover" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-1)" }} />
+              ) : (
+                <div className="h-16 w-16 rounded-full" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-2)" }} />
+              )}
             </div>
 
             <div className="min-w-0">
@@ -445,50 +448,47 @@ function ProfilePage() {
                 </Link>
               );
             })}
-            {myPosts.length === 0 && reels.map((r, i) => (
-              <div key={r.id} className="relative aspect-[3/4] overflow-hidden rounded-lg" style={{ background: "var(--color-paper-2)" }}>
-                <img src={r.poster} alt="" className="h-full w-full object-cover" />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--color-neon)" }} />
-                  <span className="mono-num text-[10px] font-bold text-white">{r.views}</span>
-                </div>
-                <div className="absolute right-1 top-1 rounded px-1 py-0.5 text-[8px] font-bold tracking-wider text-white" style={{ background: "rgba(0,0,0,0.65)" }}>
-                  {String(i + 1).padStart(2, "0")}
-                </div>
+            {myPosts.length === 0 && !myPostsQuery.isLoading && (
+              <div className="col-span-3 flex flex-col items-center justify-center rounded-xl py-10 text-center"
+                style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
+                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No posts yet</p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Upload your first ride to fill your grid.</p>
               </div>
-            ))}
+            )}
           </div>
         )}
 
 
         {tab === "GARAGE" && (
           <div className="space-y-3">
-            {myVehicles.map((v) => (
-              <article key={v.id} className="overflow-hidden rounded-2xl" style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}>
-                <div className="relative h-44 w-full">
-                  <img src={v.cover} alt="" className="h-full w-full object-cover" />
+            {hasVehicle && v ? (
+              <article className="overflow-hidden rounded-2xl" style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}>
+                <div className="relative h-44 w-full" style={{ background: "var(--color-paper-2)" }}>
+                  {v.hero_image_url ? (
+                    <img src={v.hero_image_url} alt="" className="h-full w-full object-cover" />
+                  ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute bottom-2 left-3">
-                    <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>UNIT V·{v.id.toUpperCase()}</p>
-                    <p className="serif text-lg text-white" style={{ letterSpacing: "-0.02em" }}>{v.name}</p>
+                    <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>UNIT V·{v.id.slice(0, 8).toUpperCase()}</p>
+                    <p className="serif text-lg text-white" style={{ letterSpacing: "-0.02em" }}>{bike.name}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-px" style={{ background: "var(--color-line)" }}>
-                  <SubCell k="YEAR"  v={String(v.year)} dot="#00e5ff" />
-                  <SubCell k="POWER" v={String(v.hp)} u="hp" dot="var(--color-neon)" />
-                  <SubCell k="MODS"  v={String(v.mods.length)} dot="#ff9500" />
+                  <SubCell k="YEAR"  v={v.year ? String(v.year) : "—"} dot="#00e5ff" />
+                  <SubCell k="POWER" v={String(bike.hp)} u="hp" dot="var(--color-neon)" />
+                  <SubCell k="TYPE"  v={bike.type} dot="#ff9500" />
                 </div>
-                <ul>
-                  {v.mods.map((m, i) => (
-                    <li key={m} className="flex items-center gap-3 border-t px-3 py-2.5" style={{ borderColor: "var(--color-line)" }}>
-                      <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>M·{String(i + 1).padStart(2, "0")}</span>
-                      <span className="text-[13px]" style={{ color: "var(--color-ink-0)" }}>{m}</span>
-                    </li>
-                  ))}
-                </ul>
               </article>
-            ))}
+            ) : (
+              <div className="rounded-2xl p-6 text-center" style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
+                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No vehicle yet</p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Add your machine from Edit profile to build your garage.</p>
+                <Link to="/profile/edit" className="tap mt-3 inline-block rounded-full px-4 py-2 text-[12px] font-bold"
+                  style={{ background: "var(--color-neon)", color: "#000" }}>
+                  Add vehicle
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -520,30 +520,13 @@ function ProfilePage() {
         )}
 
         {tab === "LOG" && (
-          <ul className="overflow-hidden rounded-2xl" style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}>
-            {workshopHistory.map((w, i) => (
-              <li key={w.id} className="grid grid-cols-[38px_1fr_auto] items-start gap-3 px-4 py-3" style={{ borderTop: i === 0 ? "none" : "1px solid var(--color-line)" }}>
-                <div>
-                  <span className="serif text-lg" style={{ color: "var(--color-ink-3)" }}>{String(i + 1).padStart(2, "0")}</span>
-                  <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>{w.date}</p>
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium" style={{ color: "var(--color-ink-0)" }}>{w.title}</p>
-                  <p className="mono-tag mt-0.5" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>{w.shop} · {w.mileage}</p>
-                </div>
-                <div className="text-right">
-                  <p className="mono-num text-[13px] font-bold" style={{ color: "var(--color-ink-0)" }}>{w.cost}</p>
-                  <p className="mono-tag mt-0.5" style={{
-                    color: w.status === "upcoming" ? "#ff9500" : "var(--color-neon-deep)",
-                    fontSize: 8.5,
-                    letterSpacing: "0.18em",
-                  }}>{w.status.toUpperCase()}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="rounded-2xl p-6 text-center" style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
+            <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No workshop log yet</p>
+            <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Service entries you record will appear here.</p>
+          </div>
         )}
       </div>
+
 
       {contactOpen && (
         <ContactModal profile={p} onClose={() => setContactOpen(false)} />
