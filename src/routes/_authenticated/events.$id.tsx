@@ -10,6 +10,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { confirmDialog } from "@/lib/confirm";
 import {
   getEvent,
   rsvpEvent,
@@ -412,7 +413,7 @@ function EventDetail() {
       </div>
 
       <div className="pb-24">
-        {tab === "ABOUT" && <AboutTab e={e} isHost={isHost} onCancel={async () => { if (!confirm("Cancel this event?")) return; await cancelFn({ data: { id } }); qc.invalidateQueries({ queryKey: ["event", id] }); }} />}
+        {tab === "ABOUT" && <AboutTab e={e} isHost={isHost} onCancel={async () => { if (!(await confirmDialog({ title: "Cancel this event?", destructive: true, confirmLabel: "Cancel event" }))) return; await cancelFn({ data: { id } }); qc.invalidateQueries({ queryKey: ["event", id] }); }} />}
         {tab === "LIVE" && <LiveTab eventId={id} isHost={isHost} />}
         {tab === "PHOTOS" && <PhotosTab eventId={id} />}
         {tab === "ATTENDEES" && <AttendeesTab eventId={id} />}
@@ -607,7 +608,7 @@ function LiveTab({ eventId, isHost }: { eventId: string; isHost: boolean }) {
   async function post() {
     if (!body.trim()) return;
     try { await announce({ data: { event_id: eventId, body } }); setBody(""); qc.invalidateQueries({ queryKey: ["event-announcements", eventId] }); }
-    catch (e: any) { alert(e?.message ?? "Only the host can post announcements"); }
+    catch (e: any) { toast.error(e?.message ?? "Only the host can post announcements"); }
   }
   return (
     <div className="px-4 pt-4 space-y-3">

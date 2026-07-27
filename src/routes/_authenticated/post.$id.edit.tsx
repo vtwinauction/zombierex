@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyPost, updatePost, deletePost } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage, uploadWithRetry } from "@/lib/media-upload";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/post/$id/edit")({
   head: () => ({
@@ -228,7 +229,7 @@ function EditPostPage() {
         {error && <p className="text-[12px]" style={{ color: "#ff6b6b" }}>{error}</p>}
 
         <button
-          onClick={() => confirm("Delete this post?") && del.mutate()}
+          onClick={async () => { if (await confirmDialog({ title: "Delete this post?", destructive: true, confirmLabel: "Delete" })) del.mutate(); }}
           className="tap w-full rounded-lg px-4 py-3 text-[13px]"
           style={{ border: "1px solid rgba(255,80,80,0.5)", color: "#ff6b6b" }}
         >

@@ -60,6 +60,7 @@ function PublicProfile() {
   const { data } = useSuspenseQuery(profileQO(Route.useParams().handle));
   const p: any = data!.profile;
   const posts: any[] = data!.posts;
+  const restricted: boolean = Boolean((data as any)?.restricted);
 
   return (
     <div className="pb-24">
@@ -104,8 +105,17 @@ function PublicProfile() {
 
 
         <div className="mt-8">
-          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>POSTS · {posts.length}</p>
-          {posts.length === 0 ? (
+          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+            POSTS · {restricted ? "LOCKED" : posts.length}
+          </p>
+          {restricted ? (
+            <div className="mt-6 card-surface p-8 text-center">
+              <p className="mono-tag" style={{ color: "var(--color-ash)" }}>PRIVATE ACCOUNT</p>
+              <p className="mt-2 text-sm" style={{ color: "var(--color-ash)" }}>
+                Follow @{p.handle} to see their posts.
+              </p>
+            </div>
+          ) : posts.length === 0 ? (
             <p className="mt-6 text-center text-sm" style={{ color: "var(--color-ash)" }}>No posts yet.</p>
           ) : (
             <ul className="mt-3 grid grid-cols-3 gap-1">
@@ -119,7 +129,7 @@ function PublicProfile() {
                         isVid ? (
                           <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />
                         ) : (
-                          <img src={src} alt="" className="h-full w-full object-cover" loading="lazy" />
+                          <img src={src} alt={post.caption ? `Post: ${String(post.caption).slice(0, 80)}` : `Post by @${p.handle}`} className="h-full w-full object-cover" loading="lazy" />
                         )
                       ) : (
                         <div className="grid h-full w-full place-items-center" style={{ background: "var(--color-mist)" }}>

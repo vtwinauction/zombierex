@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SettingsScreen, Card, Field, TextInput, PrimaryButton, GhostButton } from "@/components/SettingsScreen";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/settings/twofa")({
   head: () => ({ meta: [{ title: "Two-step verification · Settings · ZOMBIEREX" }, { name: "description", content: "Add an extra layer of security when signing in with an authenticator app." }] }),
@@ -37,7 +38,7 @@ function TwoFAPage() {
     setEnroll(null); setCode(""); setMsg("Two-step verification enabled."); load();
   };
   const remove = async (id: string) => {
-    if (!confirm("Disable two-step verification?")) return;
+    if (!(await confirmDialog({ title: "Disable two-step verification?", destructive: true, confirmLabel: "Disable" }))) return;
     const { error } = await supabase.auth.mfa.unenroll({ factorId: id });
     if (error) setErr(error.message); else load();
   };

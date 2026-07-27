@@ -296,6 +296,7 @@ export const recommendedForYou = createServerFn({ method: "POST" })
     }).parse(raw),
   )
   .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 60);
     const { supabase, userId } = context;
 
     // Signal: recent reactions & follows.
@@ -392,7 +393,8 @@ export const onboardingRecommendations = createServerFn({ method: "POST" })
       interests: z.array(z.string().trim().min(1).max(40)).max(12),
     }).parse(raw),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    await assertAiLimit(context.supabase, "ai_assist", 20);
     const sb = serverPublic();
     const [clubs, events, listings, creators] = await Promise.all([
       sb.from("clubs").select("id, slug, name, description, members_count, banner_url").order("members_count", { ascending: false }).limit(20),

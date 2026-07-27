@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SettingsScreen, Card, GhostButton } from "@/components/SettingsScreen";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/settings/connections")({
   head: () => ({ meta: [{ title: "Connected accounts · Settings · ZOMBIEREX" }, { name: "description", content: "Link Google, Apple or Instagram to your ZOMBIEREX account." }] }),
@@ -32,7 +33,7 @@ function ConnectionsPage() {
   const unlink = async (id: string) => {
     const target = identities.find((i) => i.id === id);
     if (!target) return;
-    if (!confirm(`Disconnect ${target.provider}?`)) return;
+    if (!(await confirmDialog({ title: `Disconnect ${target.provider}?`, destructive: true, confirmLabel: "Disconnect" }))) return;
     const { error } = await (supabase.auth as any).unlinkIdentity(target);
     if (error) setMsg(error.message); else load();
   };

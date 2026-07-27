@@ -120,18 +120,25 @@ export const getProfileByHandlePublic = createServerFn({ method: "GET" })
     const handle = data.handle.replace(/^@/, "");
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, is_business")
+      .select("id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, is_business, is_private, allow_messages")
       .eq("handle", handle)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!profile) return null;
+    // Privacy enforcement: unauthenticated / public callers only see posts
+    // for non-private accounts. Private profiles surface identity + counts
+    // but hide their post grid; a signed-in caller can fetch full data via
+    // an authenticated endpoint after follow status is established.
+    if ((profile as any).is_private) {
+      return { profile, posts: [], restricted: true as const };
+    }
     const { data: posts } = await supabase
       .from("posts")
       .select("id, kind, caption, media_url, thumbnail_url, created_at")
       .eq("author_id", profile.id)
       .order("created_at", { ascending: false })
       .limit(36);
-    return { profile, posts: posts ?? [] };
+    return { profile, posts: posts ?? [], restricted: false as const };
   });
 
 

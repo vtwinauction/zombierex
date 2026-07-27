@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Copy, Radio, LogOut, Square, Users, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { confirmDialog } from "@/lib/confirm";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getGroupRide, sendGroupPing, leaveGroupRide, endGroupRide,
@@ -133,7 +134,7 @@ function GroupLive() {
     nav({ to: "/atlas/group" });
   }
   async function onEnd() {
-    if (!confirm("End this ride for everyone?")) return;
+    if (!(await confirmDialog({ title: "End this ride for everyone?", destructive: true, confirmLabel: "End ride" }))) return;
     try {
       await endFn({ data: { group_ride_id: id } });
       toast.success("Ride ended");

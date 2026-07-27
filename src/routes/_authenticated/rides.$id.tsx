@@ -7,6 +7,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useState } from "react";
 import { getRide, updateRide, deleteRide } from "@/lib/rides.functions";
 import { ridePathToGpx, downloadGpx } from "@/lib/gpx";
+import { confirmDialog } from "@/lib/confirm";
 
 const RouteMap = lazy(() => import("@/components/RouteMap"));
 
@@ -51,7 +52,7 @@ function RideDetail() {
   }
 
   async function remove() {
-    if (!confirm("Delete this ride?")) return;
+    if (!(await confirmDialog({ title: "Delete this ride?", destructive: true, confirmLabel: "Delete" }))) return;
     await del({ data: { id } });
     nav({ to: "/rides" });
   }
