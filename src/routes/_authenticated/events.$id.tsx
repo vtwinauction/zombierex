@@ -10,6 +10,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { confirmDialog } from "@/lib/confirm";
 import {
   getEvent,
   rsvpEvent,
