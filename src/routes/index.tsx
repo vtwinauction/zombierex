@@ -11,7 +11,8 @@ import {
 } from "@/components/icons/RexIcons";
 import { Bell, MessageCircle, Map, Store, CalendarDays, Users, Bluetooth, Gauge } from "lucide-react";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
-import { reels, storiesV2, posts, chats, users, clubs } from "@/lib/mock-data";
+import { reels, posts, chats, users, clubs } from "@/lib/mock-data";
+import { StoriesRail } from "@/components/StoriesRail";
 import { useFollow } from "@/hooks/useFollow";
 import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
