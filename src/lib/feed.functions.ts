@@ -172,9 +172,17 @@ export const createPost = createServerFn({ method: "POST" })
         throw new Error(`Caption blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
       }
     }
-    if (data.media_url && (data.kind === "photo" || data.kind === "video")) {
+    // Only classify still images. Video frames need a dedicated pipeline; a
+    // video URL sent to the image classifier confuses the model and can
+    // wrongly block a legitimate upload. Prefer the thumbnail when present.
+    const imageUrl = data.kind === "photo"
+      ? data.media_url
+      : data.kind === "video"
+        ? data.thumbnail_url
+        : undefined;
+    if (imageUrl) {
       const { moderateImageUrl } = await import("./moderation-image.server");
-      const verdict = await moderateImageUrl(data.media_url);
+      const verdict = await moderateImageUrl(imageUrl);
       if (!verdict.safe && !verdict.skipped) {
         throw new Error(`Image blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
       }
