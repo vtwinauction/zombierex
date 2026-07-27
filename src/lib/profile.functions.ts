@@ -17,7 +17,7 @@ export const getMyProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("profiles")
-      .select("id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, contact_phone, contact_email, contact_dm_enabled, is_business, business_address")
+      .select("id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, contact_phone, contact_email, contact_dm_enabled, is_business, business_address, is_private, allow_messages")
       .eq("id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -94,6 +94,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       contact_dm_enabled: z.boolean().optional(),
       is_business: z.boolean().optional(),
       business_address: z.string().trim().max(240).optional().or(z.literal("")),
+      is_private: z.boolean().optional(),
+      allow_messages: z.enum(["everyone", "followers", "none"]).optional(),
     }).parse(raw),
   )
   .handler(async ({ data, context }) => {
