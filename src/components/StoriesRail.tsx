@@ -93,6 +93,7 @@ export function StoriesRail() {
           },
           kind: (r.kind as Story["kind"]) ?? "photo",
           cover: r.thumbnail_url || r.media_url,
+          mediaUrl: r.media_url ?? undefined,
           label: r.label ?? undefined,
         } as Story;
       });
