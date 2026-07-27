@@ -6,6 +6,7 @@ import { Heart, Share2, MessageCircle, Flag, ArrowRight, ChevronRight, BadgeChec
 import { getListing, toggleSaveListing, reportListing, updateListing, deleteListing } from "@/lib/marketplace.functions";
 import { startDirectMessage } from "@/lib/messages.functions";
 import { addToCart } from "@/lib/cart.functions";
+import { confirmDialog } from "@/lib/confirm";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -199,7 +200,7 @@ function ListingDetail() {
               setDmPending(true);
               const res: any = await startDM({ data: { recipientId: l.seller.id } });
               navigate({ to: "/messages/$id", params: { id: res.id } });
-            } catch (e: any) { alert(e?.message ?? "Could not open chat"); }
+            } catch (e: any) { toast.error(e?.message ?? "Could not open chat"); }
             finally { setDmPending(false); }
           }} />
           <IconAction icon={<Flag className="h-[18px] w-[18px]" strokeWidth={1.5} />} label="REPORT" muted onClick={() => setReportOpen(true)} />
@@ -266,7 +267,7 @@ function ListingDetail() {
           <div className="grid grid-cols-2 gap-2">
             <button onClick={() => markSold.mutate()} className="tap border py-3 mono-tag font-bold"
               style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}>MARK SOLD</button>
-            <button onClick={() => { if (confirm("Delete listing?")) del2.mutate(); }}
+            <button onClick={async () => { if (await confirmDialog({ title: "Delete listing?", description: "This cannot be undone.", destructive: true, confirmLabel: "Delete" })) del2.mutate(); }}
               className="tap border py-3 mono-tag font-bold"
               style={{ borderColor: "#ff3d3d", color: "#ff3d3d" }}>DELETE</button>
           </div>

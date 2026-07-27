@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SettingsScreen, Card, GhostButton } from "@/components/SettingsScreen";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/settings/sessions")({
   head: () => ({ meta: [{ title: "Sessions · Settings · ZOMBIEREX" }, { name: "description", content: "See where you're signed in and sign out other devices." }] }),

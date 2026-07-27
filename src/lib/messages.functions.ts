@@ -187,6 +187,38 @@ export const startDirectMessage = createServerFn({ method: "POST" })
     const sb = context.supabase;
     if (data.recipientId === context.userId) throw new Error("Cannot DM yourself");
 
+    // Privacy enforcement: honor the recipient's allow_messages preference.
+    // - "none": always reject
+    // - "followers": require the recipient to follow the sender
+    // - "everyone" (default): allowed
+    const { data: recipient } = await sb
+      .from("profiles")
+      .select("allow_messages")
+      .eq("id", data.recipientId)
+      .maybeSingle();
+    const pref = ((recipient as any)?.allow_messages ?? "everyone") as "everyone" | "followers" | "none";
+    if (pref === "none") {
+      throw new Error("This user isn't accepting messages.");
+    }
+    if (pref === "followers") {
+      const { count } = await sb
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("follower_id", data.recipientId)
+        .eq("followee_id", context.userId);
+      if (!count) throw new Error("This user only accepts messages from people they follow.");
+    }
+
+    // Block check — either direction blocks the conversation.
+    const { data: blocks } = await (sb as any)
+      .from("user_blocks")
+      .select("blocker_id, blocked_id")
+      .or(
+        `and(blocker_id.eq.${context.userId},blocked_id.eq.${data.recipientId}),` +
+        `and(blocker_id.eq.${data.recipientId},blocked_id.eq.${context.userId})`,
+      );
+    if (blocks && blocks.length > 0) throw new Error("Unable to start conversation.");
+
     // Look for existing DM containing both users
     const { data: mine } = await sb.from("conversation_members").select("conversation_id").eq("user_id", context.userId);
     const { data: theirs } = await sb.from("conversation_members").select("conversation_id").eq("user_id", data.recipientId);

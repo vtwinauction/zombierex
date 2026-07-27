@@ -23,6 +23,7 @@ import { FirstRunTour } from "@/components/FirstRunTour";
 import { PushPrimer } from "@/components/PushPrimer";
 import { installAnalytics, track } from "@/lib/analytics";
 import { Toaster } from "@/components/ui/sonner";
+import { ConfirmHost } from "@/lib/confirm";
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 
@@ -201,6 +202,7 @@ function RootComponent() {
         <AppLockGate />
         <FirstRunTour />
         <Toaster position="top-center" richColors closeButton />
+        <ConfirmHost />
       </div>
 
     </QueryClientProvider>
