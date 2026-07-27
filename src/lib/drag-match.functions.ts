@@ -145,14 +145,21 @@ export const respondChallenge = createServerFn({ method: "POST" })
     await supabase.from("drag_challenges")
       .update({ status: "accepted", match_id: match.id }).eq("id", ch.id);
 
-    // Notify challenger
-    await supabase.from("notifications").insert({
-      user_id: ch.challenger_id,
-      kind: "system",
-      title: "Challenge accepted",
-      body: "Your opponent accepted the drag challenge. Meet at the lobby.",
-      data: { match_id: match.id, kind: "drag_match" },
-    }).then(() => null).catch(() => null);
+    // Notify challenger (best effort)
+    try {
+      await supabase.from("notifications").insert({
+        user_id: ch.challenger_id,
+        actor_id: userId,
+        kind: "system",
+        payload: {
+          title: "Challenge accepted",
+          body: "Your opponent accepted the drag challenge. Meet at the lobby.",
+          match_id: match.id,
+          kind: "drag_match",
+        },
+      });
+    } catch { /* noop */ }
+
 
     return { status: "accepted" as const, match_id: match.id as string };
   });
