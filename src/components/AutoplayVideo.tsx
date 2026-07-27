@@ -13,7 +13,8 @@ export type AutoplayVideoProps = Omit<VideoHTMLAttributes<HTMLVideoElement>, "mu
   /** External mute control. Default true (autoplay policy). */
   muted?: boolean;
   /** Called with current time / duration each rAF-throttled tick. */
-  onProgress?: (t: number, d: number) => void;
+  /** Called with current time / duration each timeupdate. */
+  onTime?: (t: number, d: number) => void;
   /** Threshold at which autoplay kicks in. */
   threshold?: number;
   className?: string;
