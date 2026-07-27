@@ -137,7 +137,7 @@ function SecurityCenter() {
   }
 
   async function onDeleteRequest() {
-    if (!confirm("Request permanent account deletion? This cannot be undone.")) return;
+    if (!(await confirmDialog({ title: "Request account deletion?", description: "This cannot be undone. Our team will process within 30 days.", destructive: true, confirmLabel: "Request deletion" }))) return;
     setBusy("del");
     try {
       await callDelete({ data: { reason: "user_request" } });
