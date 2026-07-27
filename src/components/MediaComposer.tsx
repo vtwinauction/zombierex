@@ -755,9 +755,10 @@ export function MediaComposer({ onDone }: Props) {
 
           {/* Tabs */}
           <div className="mt-4 flex px-3" style={{ borderBottom: "1px solid var(--color-hair)" }}>
-            {((activeItem.kind === "video"
-              ? ["filters", "adjust", "video"]
-              : ["filters", "adjust", "text", "draw", "music"]) as const).map((t) => (
+            {(activeItem.kind === "video"
+              ? (["filters", "adjust", "video"] as const)
+              : (["filters", "adjust", "text", "draw", "music"] as const)
+            ).map((t) => (
               <button key={t} onClick={() => setTab(t)} className="tap flex-1 py-2 text-[11px] uppercase tracking-wider"
                 style={{ color: tab === t ? "var(--color-neon)" : "var(--color-silver)", borderBottom: tab === t ? "2px solid var(--color-neon)" : "2px solid transparent" }}
               >{t}</button>
