@@ -33,7 +33,7 @@ function ConnectionsPage() {
   const unlink = async (id: string) => {
     const target = identities.find((i) => i.id === id);
     if (!target) return;
-    if (!confirm(`Disconnect ${target.provider}?`)) return;
+    if (!(await confirmDialog({ title: `Disconnect ${target.provider}?`, destructive: true, confirmLabel: "Disconnect" }))) return;
     const { error } = await (supabase.auth as any).unlinkIdentity(target);
     if (error) setMsg(error.message); else load();
   };
