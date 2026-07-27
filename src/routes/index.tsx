@@ -526,24 +526,16 @@ function HomePage() {
               </button>
             </div>
 
-            {/* square media */}
-            <div className="relative">
-              <img src={p.image} alt="" className="block aspect-square w-full object-cover" />
-              {p.vehicle && (
-                <div
-                  className="absolute right-3 top-3 flex max-w-[calc(100%-24px)] items-center gap-1.5 rounded-full px-2.5 py-1"
-                  style={{
-                    background: "rgba(10,10,10,0.55)",
-                    backdropFilter: "blur(14px) saturate(160%)",
-                    border: "1px solid rgba(255,255,255,0.18)",
-                  }}
-                >
-                  <Gauge size={12} className="shrink-0" style={{ color: "var(--color-neon)" }} strokeWidth={2.2} />
-                  <span className="truncate text-[11px] font-semibold text-white">{p.vehicle.name}</span>
-                  <span className="mono-num shrink-0 text-[10px]" style={{ color: "var(--color-neon)" }}>{p.vehicle.hp}hp</span>
-                </div>
-              )}
-            </div>
+            {/* square media — video autoplays in view, double-tap to like */}
+            <FeedMedia
+              image={p.image}
+              video={p.video}
+              poster={p.poster || p.image}
+              alt={p.caption || "Post"}
+              vehicle={p.vehicle}
+              onDoubleTap={() => { /* optimistic like handled by InteractionBar tap; heart burst rendered inside */ }}
+            />
+
 
             {/* interaction bar */}
             <div className="px-2 pt-4">
