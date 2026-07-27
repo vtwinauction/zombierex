@@ -176,6 +176,9 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
   const [saved, setSaved] = useState(false);
   const [followed, setFollowed] = useState(reel.followed);
   const [muted, setMuted] = useState(true);
+  const [paused, setPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(reel.duration || 0);
   const [lastTap, setLastTap] = useState(0);
   const [heartPing, setHeartPing] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
@@ -187,6 +190,7 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
   ]);
   const [reportOpen, setReportOpen] = useState(false);
 
+  const hasVideo = isVideoUrl(reel.video);
 
   function onTap() {
     if (commentsOpen) return;
@@ -195,6 +199,8 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
       if (!liked) setLiked(true);
       setHeartPing(true);
       setTimeout(() => setHeartPing(false), 620);
+    } else if (hasVideo) {
+      setPaused((p) => !p);
     } else {
       setMuted((m) => !m);
     }
@@ -230,33 +236,62 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
       style={{ scrollSnapAlign: "start", scrollSnapStop: "always" }}
       onClick={onTap}
     >
-      <img
-        src={reel.poster}
-        alt=""
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{ animation: active ? "ken-burns 18s ease-in-out infinite alternate" : "none" }}
-      />
+      {hasVideo ? (
+        <AutoplayVideo
+          src={reel.video!}
+          poster={reel.poster}
+          forcePlay={active && !paused}
+          muted={muted}
+          onProgress={(t, d) => { setProgress(d ? t / d : 0); if (d && d !== duration) setDuration(d); }}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <img
+          src={reel.poster}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ animation: active ? "ken-burns 18s ease-in-out infinite alternate" : "none" }}
+        />
+      )}
       <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.9) 100%)" }} />
 
-      <span
-        className="absolute right-3 top-[calc(env(safe-area-inset-top)+58px)] rounded-full px-2 py-1 text-[10px] font-semibold tracking-wider text-white"
-        style={{ background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.2)", fontFamily: "var(--font-mono)" }}
+      {paused && hasVideo && active && (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center">
+          <span
+            className="grid h-20 w-20 place-items-center rounded-full text-white"
+            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.25)" }}
+          >
+            <Play size={36} fill="currentColor" />
+          </span>
+        </div>
+      )}
+
+      <button
+        onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
+        aria-label={muted ? "Unmute" : "Mute"}
+        className="tap absolute right-3 grid h-9 w-9 place-items-center rounded-full text-white"
+        style={{
+          top: "calc(env(safe-area-inset-top) + 58px)",
+          background: "rgba(0,0,0,0.5)",
+          border: "1px solid rgba(255,255,255,0.2)",
+        }}
       >
-        {muted ? "MUTED · TAP" : "SOUND ON"}
-      </span>
+        {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+      </button>
 
       <button
         onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
         aria-label="More options"
         className="tap absolute right-3 grid h-9 w-9 place-items-center rounded-full text-white"
         style={{
-          top: "calc(env(safe-area-inset-top) + 92px)",
+          top: "calc(env(safe-area-inset-top) + 100px)",
           background: "rgba(0,0,0,0.5)",
           border: "1px solid rgba(255,255,255,0.2)",
         }}
       >
         <MoreVertical size={16} />
       </button>
+
 
 
       {heartPing && (
