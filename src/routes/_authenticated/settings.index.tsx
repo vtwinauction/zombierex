@@ -235,7 +235,7 @@ function SettingRow({ it, prefs, update }: {
       case "select-messages":    return <Select value={prefs.allowMessages} onChange={(v) => update("allowMessages", v as Prefs["allowMessages"])} options={[["everyone","Everyone"],["followers","Followers"],["none","No one"]]} />;
       case "select-quality":     return <Select value={prefs.downloadQuality} onChange={(v) => update("downloadQuality", v as Prefs["downloadQuality"])} options={[["auto","Auto"],["high","High"],["data-saver","Data saver"]]} />;
       case "select-autoplay":    return <Select value={prefs.autoplay} onChange={(v) => update("autoplay", v as Prefs["autoplay"])} options={[["always","Always"],["wifi","Wi-Fi only"],["never","Never"]]} />;
-      case "clear-cache":        return <ActionBtn label="Clear" onClick={() => { try { caches?.keys?.().then((k) => k.forEach((n) => caches.delete(n))); } catch {} alert("Cache cleared"); }} />;
+      case "clear-cache":        return <ActionBtn label="Clear" onClick={() => { try { caches?.keys?.().then((k) => k.forEach((n) => caches.delete(n))); } catch {} toast.success("Cache cleared"); }} />;
       default:
         return <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>Soon</span>;
     }
