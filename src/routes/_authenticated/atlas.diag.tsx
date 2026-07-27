@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Bluetooth, Gauge, Play, Square, AlertTriangle, Trash2, RefreshCw, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { confirmDialog } from "@/lib/confirm";
 import { ObdClient, PID_META, createDemoStream, isWebBluetoothSupported, type ObdPid, type ObdReading } from "@/lib/obd";
 
 export const Route = createFileRoute("/_authenticated/atlas/diag")({
