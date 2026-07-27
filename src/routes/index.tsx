@@ -190,44 +190,10 @@ function HomePage() {
          STORIES RAIL
          ================================================== */}
       <section className="mt-4">
-        <div className="no-scrollbar flex gap-3.5 overflow-x-auto px-4 pb-3">
-          {storiesV2.map((s, i) => {
-            const isYou = i === 0;
-            const ringClass = s.live ? "story-ring-live" : s.seen ? "story-ring-seen" : "story-ring";
-            return (
-              <button key={s.id} className="tap shrink-0 flex flex-col items-center" style={{ width: 68 }}>
-                <div className={ringClass}>
-                  <div style={{ background: "var(--color-paper-0)", padding: 2, borderRadius: 999 }}>
-                    <div className="relative h-[60px] w-[60px] overflow-hidden rounded-full">
-                      <img src={s.cover} alt="" className="h-full w-full object-cover" />
-                      {isYou && (
-                        <span
-                          className="absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full text-[13px] font-bold leading-none"
-                          style={{ background: "var(--color-neon)", color: "var(--color-ink-0)", boxShadow: "0 0 0 2px #ffffff" }}
-                        >
-                          +
-                        </span>
-                      )}
-                      {s.live && (
-                        <span
-                          className="absolute inset-x-1 bottom-1 rounded-sm py-[1px] text-center"
-                          style={{ background: "var(--color-ember)", color: "white", fontSize: 8, letterSpacing: "0.14em", fontWeight: 700, fontFamily: "var(--font-mono)" }}
-                        >
-                          LIVE
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <p className="mt-1.5 max-w-[64px] truncate text-[11px]" style={{ color: "var(--color-ink-2)" }}>
-                  {isYou ? "Your story" : s.user.handle.replace("@", "")}
-                </p>
-              </button>
-            );
-          })}
-        </div>
+        <StoriesRail />
         <div style={{ height: 1, background: "var(--color-line)" }} />
       </section>
+
 
       {/* ==================================================
          FEED TABS — For You / Following
