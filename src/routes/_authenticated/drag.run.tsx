@@ -73,7 +73,7 @@ function NewRun() {
       catch (e) { console.warn("Coach failed", e); }
       finally { setCoachLoading(false); }
     },
-    onError: (e: any) => alert(e?.message ?? "Submit failed"),
+    onError: (e: any) => toast.error(e?.message ?? "Submit failed"),
   });
 
   return (
