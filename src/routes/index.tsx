@@ -814,3 +814,101 @@ function BluetoothPill() {
     </button>
   );
 }
+
+/**
+ * FeedMedia — IG-style square media surface.
+ * - Renders `<video>` with muted autoplay when in view for video posts.
+ * - Double-tap to like with a heart burst.
+ * - Tap the mute chip to unmute video.
+ */
+function FeedMedia({
+  image,
+  video,
+  poster,
+  alt,
+  vehicle,
+  onDoubleTap,
+}: {
+  image?: string;
+  video?: string;
+  poster?: string;
+  alt?: string;
+  vehicle?: { name: string; hp: number } | null;
+  onDoubleTap?: () => void;
+}) {
+  const [muted, setMuted] = useState(true);
+  const [liked, setLiked] = useState(false);
+  const hasVideo = isVideoUrl(video);
+  const { onClick, burstAt } = useDoubleTap({
+    onDoubleTap: () => { if (!liked) setLiked(true); onDoubleTap?.(); },
+  });
+
+  return (
+    <div className="relative select-none" onClick={onClick}>
+      {hasVideo ? (
+        <AutoplayVideo
+          src={video!}
+          poster={poster}
+          muted={muted}
+          className="block aspect-square w-full object-cover"
+        />
+      ) : (
+        <img
+          src={image}
+          alt={alt ?? ""}
+          className="block aspect-square w-full object-cover"
+          draggable={false}
+        />
+      )}
+
+      {/* heart burst on double-tap */}
+      {burstAt && (
+        <span
+          key={burstAt.k}
+          className="pointer-events-none absolute z-10"
+          style={{
+            left: burstAt.x,
+            top: burstAt.y,
+            transform: "translate(-50%, -50%)",
+            color: "var(--color-neon)",
+            filter: "drop-shadow(0 8px 24px rgba(0,200,83,0.55))",
+            animation: "heart-ping 620ms ease-out forwards",
+          }}
+        >
+          <Heart size={96} fill="currentColor" strokeWidth={0} />
+        </span>
+      )}
+
+      {hasVideo && (
+        <button
+          onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="tap absolute bottom-3 right-3 grid h-8 w-8 place-items-center rounded-full text-white"
+          style={{
+            background: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.2)",
+          }}
+        >
+          {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+        </button>
+      )}
+
+      {vehicle && (
+        <div
+          className="absolute right-3 top-3 flex max-w-[calc(100%-24px)] items-center gap-1.5 rounded-full px-2.5 py-1"
+          style={{
+            background: "rgba(10,10,10,0.55)",
+            backdropFilter: "blur(14px) saturate(160%)",
+            border: "1px solid rgba(255,255,255,0.18)",
+          }}
+        >
+          <Gauge size={12} className="shrink-0" style={{ color: "var(--color-neon)" }} strokeWidth={2.2} />
+          <span className="truncate text-[11px] font-semibold text-white">{vehicle.name}</span>
+          <span className="mono-num shrink-0 text-[10px]" style={{ color: "var(--color-neon)" }}>{vehicle.hp}hp</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
