@@ -7,6 +7,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useState } from "react";
 import { getRide, updateRide, deleteRide } from "@/lib/rides.functions";
 import { ridePathToGpx, downloadGpx } from "@/lib/gpx";
+import { confirmDialog } from "@/lib/confirm";
 
 const RouteMap = lazy(() => import("@/components/RouteMap"));
 
