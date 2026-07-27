@@ -22,6 +22,9 @@ import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
+import { AutoplayVideo, isVideoUrl } from "@/components/AutoplayVideo";
+import { useDoubleTap } from "@/hooks/useDoubleTap";
+import { Volume2, VolumeX, Heart } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -111,6 +114,8 @@ function HomePage() {
     const a = r.author ?? {};
     const mins = Math.max(1, Math.round((Date.now() - new Date(r.created_at).getTime()) / 60000));
     const timeAgo = mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.round(mins/60)}h` : `${Math.round(mins/1440)}d`;
+    const media = r.media_url || r.thumbnail_url || "";
+    const isVid = r.kind === "video" || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(media);
     return {
       id: `db:${r.id}`,
       dbId: r.id as string,
@@ -122,7 +127,9 @@ function HomePage() {
         location: a.location || "",
       },
       timeAgo,
-      image: r.media_url || r.thumbnail_url || "",
+      image: media,
+      video: isVid ? r.media_url || "" : "",
+      poster: r.thumbnail_url || (isVid ? "" : media),
       vehicle: null as any,
       likes: r.likes_count ?? 0,
       comments: r.comments_count ?? 0,
@@ -522,24 +529,16 @@ function HomePage() {
               </button>
             </div>
 
-            {/* square media */}
-            <div className="relative">
-              <img src={p.image} alt="" className="block aspect-square w-full object-cover" />
-              {p.vehicle && (
-                <div
-                  className="absolute right-3 top-3 flex max-w-[calc(100%-24px)] items-center gap-1.5 rounded-full px-2.5 py-1"
-                  style={{
-                    background: "rgba(10,10,10,0.55)",
-                    backdropFilter: "blur(14px) saturate(160%)",
-                    border: "1px solid rgba(255,255,255,0.18)",
-                  }}
-                >
-                  <Gauge size={12} className="shrink-0" style={{ color: "var(--color-neon)" }} strokeWidth={2.2} />
-                  <span className="truncate text-[11px] font-semibold text-white">{p.vehicle.name}</span>
-                  <span className="mono-num shrink-0 text-[10px]" style={{ color: "var(--color-neon)" }}>{p.vehicle.hp}hp</span>
-                </div>
-              )}
-            </div>
+            {/* square media — video autoplays in view, double-tap to like */}
+            <FeedMedia
+              image={p.image}
+              video={p.video}
+              poster={p.poster || p.image}
+              alt={p.caption || "Post"}
+              vehicle={p.vehicle}
+              onDoubleTap={() => { /* optimistic like handled by InteractionBar tap; heart burst rendered inside */ }}
+            />
+
 
             {/* interaction bar */}
             <div className="px-2 pt-4">
@@ -815,3 +814,101 @@ function BluetoothPill() {
     </button>
   );
 }
+
+/**
+ * FeedMedia — IG-style square media surface.
+ * - Renders `<video>` with muted autoplay when in view for video posts.
+ * - Double-tap to like with a heart burst.
+ * - Tap the mute chip to unmute video.
+ */
+function FeedMedia({
+  image,
+  video,
+  poster,
+  alt,
+  vehicle,
+  onDoubleTap,
+}: {
+  image?: string;
+  video?: string;
+  poster?: string;
+  alt?: string;
+  vehicle?: { name: string; hp: number } | null;
+  onDoubleTap?: () => void;
+}) {
+  const [muted, setMuted] = useState(true);
+  const [liked, setLiked] = useState(false);
+  const hasVideo = isVideoUrl(video);
+  const { onClick, burstAt } = useDoubleTap({
+    onDoubleTap: () => { if (!liked) setLiked(true); onDoubleTap?.(); },
+  });
+
+  return (
+    <div className="relative select-none" onClick={onClick}>
+      {hasVideo ? (
+        <AutoplayVideo
+          src={video!}
+          poster={poster}
+          muted={muted}
+          className="block aspect-square w-full object-cover"
+        />
+      ) : (
+        <img
+          src={image}
+          alt={alt ?? ""}
+          className="block aspect-square w-full object-cover"
+          draggable={false}
+        />
+      )}
+
+      {/* heart burst on double-tap */}
+      {burstAt && (
+        <span
+          key={burstAt.k}
+          className="pointer-events-none absolute z-10"
+          style={{
+            left: burstAt.x,
+            top: burstAt.y,
+            transform: "translate(-50%, -50%)",
+            color: "var(--color-neon)",
+            filter: "drop-shadow(0 8px 24px rgba(0,200,83,0.55))",
+            animation: "heart-ping 620ms ease-out forwards",
+          }}
+        >
+          <Heart size={96} fill="currentColor" strokeWidth={0} />
+        </span>
+      )}
+
+      {hasVideo && (
+        <button
+          onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="tap absolute bottom-3 right-3 grid h-8 w-8 place-items-center rounded-full text-white"
+          style={{
+            background: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(10px)",
+            border: "1px solid rgba(255,255,255,0.2)",
+          }}
+        >
+          {muted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+        </button>
+      )}
+
+      {vehicle && (
+        <div
+          className="absolute right-3 top-3 flex max-w-[calc(100%-24px)] items-center gap-1.5 rounded-full px-2.5 py-1"
+          style={{
+            background: "rgba(10,10,10,0.55)",
+            backdropFilter: "blur(14px) saturate(160%)",
+            border: "1px solid rgba(255,255,255,0.18)",
+          }}
+        >
+          <Gauge size={12} className="shrink-0" style={{ color: "var(--color-neon)" }} strokeWidth={2.2} />
+          <span className="truncate text-[11px] font-semibold text-white">{vehicle.name}</span>
+          <span className="mono-num shrink-0 text-[10px]" style={{ color: "var(--color-neon)" }}>{vehicle.hp}hp</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
