@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { getMyPost, updatePost, deletePost } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { compressImage, uploadWithRetry } from "@/lib/media-upload";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/post/$id/edit")({
   head: () => ({
