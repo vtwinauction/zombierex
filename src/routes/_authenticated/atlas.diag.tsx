@@ -123,7 +123,7 @@ function DiagPage() {
 
   const clearDtcs = async () => {
     if (!clientRef.current) return;
-    if (!confirm("Clear all trouble codes? This resets the check-engine light and freeze-frame data.")) return;
+    if (!(await confirmDialog({ title: "Clear all trouble codes?", description: "Resets the check-engine light and freeze-frame data.", destructive: true, confirmLabel: "Clear codes" }))) return;
     await clientRef.current.clearDtcs();
     setDtcs([]);
     appendLog("DTCs cleared");
