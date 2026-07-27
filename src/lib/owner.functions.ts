@@ -97,6 +97,59 @@ export const getOwnerMetrics = createServerFn({ method: "GET" })
     };
   });
 
+// 30-day analytics rollup — event totals and per-day trend.
+export const getOwnerAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertOwner(context.supabase, context.userId);
+    const sb = context.supabase;
+    const since = new Date(Date.now() - 30 * 86_400_000).toISOString();
+
+    const { data, error } = await sb
+      .from("analytics_events")
+      .select("event, created_at, user_id")
+      .gte("created_at", since)
+      .order("created_at", { ascending: false })
+      .limit(20000);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+
+    // Aggregate by event
+    const byEvent: Record<string, number> = {};
+    // Aggregate by day (YYYY-MM-DD)
+    const byDay: Record<string, number> = {};
+    const uniqueUsers = new Set<string>();
+    for (const r of rows) {
+      byEvent[r.event] = (byEvent[r.event] ?? 0) + 1;
+      const day = new Date(r.created_at).toISOString().slice(0, 10);
+      byDay[day] = (byDay[day] ?? 0) + 1;
+      if (r.user_id) uniqueUsers.add(r.user_id);
+    }
+
+    // Build 30-day continuous series
+    const series: Array<{ day: string; count: number }> = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86_400_000).toISOString().slice(0, 10);
+      series.push({ day: d, count: byDay[d] ?? 0 });
+    }
+
+    const topEvents = Object.entries(byEvent)
+      .map(([event, count]) => ({ event, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 12);
+
+    return {
+      totalEvents: rows.length,
+      uniqueUsers: uniqueUsers.size,
+      topEvents,
+      series,
+      windowDays: 30,
+      generatedAt: new Date().toISOString(),
+    };
+  });
+
+
+
 // ─────────────────────────────────────────────────────────────
 // FEATURE FLAGS
 // ─────────────────────────────────────────────────────────────
