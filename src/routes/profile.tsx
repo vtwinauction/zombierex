@@ -461,31 +461,34 @@ function ProfilePage() {
 
         {tab === "GARAGE" && (
           <div className="space-y-3">
-            {myVehicles.map((v) => (
-              <article key={v.id} className="overflow-hidden rounded-2xl" style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}>
-                <div className="relative h-44 w-full">
-                  <img src={v.cover} alt="" className="h-full w-full object-cover" />
+            {hasVehicle && v ? (
+              <article className="overflow-hidden rounded-2xl" style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}>
+                <div className="relative h-44 w-full" style={{ background: "var(--color-paper-2)" }}>
+                  {v.hero_image_url ? (
+                    <img src={v.hero_image_url} alt="" className="h-full w-full object-cover" />
+                  ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute bottom-2 left-3">
-                    <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>UNIT V·{v.id.toUpperCase()}</p>
-                    <p className="serif text-lg text-white" style={{ letterSpacing: "-0.02em" }}>{v.name}</p>
+                    <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>UNIT V·{v.id.slice(0, 8).toUpperCase()}</p>
+                    <p className="serif text-lg text-white" style={{ letterSpacing: "-0.02em" }}>{bike.name}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-px" style={{ background: "var(--color-line)" }}>
-                  <SubCell k="YEAR"  v={String(v.year)} dot="#00e5ff" />
-                  <SubCell k="POWER" v={String(v.hp)} u="hp" dot="var(--color-neon)" />
-                  <SubCell k="MODS"  v={String(v.mods.length)} dot="#ff9500" />
+                  <SubCell k="YEAR"  v={v.year ? String(v.year) : "—"} dot="#00e5ff" />
+                  <SubCell k="POWER" v={String(bike.hp)} u="hp" dot="var(--color-neon)" />
+                  <SubCell k="TYPE"  v={bike.type} dot="#ff9500" />
                 </div>
-                <ul>
-                  {v.mods.map((m, i) => (
-                    <li key={m} className="flex items-center gap-3 border-t px-3 py-2.5" style={{ borderColor: "var(--color-line)" }}>
-                      <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>M·{String(i + 1).padStart(2, "0")}</span>
-                      <span className="text-[13px]" style={{ color: "var(--color-ink-0)" }}>{m}</span>
-                    </li>
-                  ))}
-                </ul>
               </article>
-            ))}
+            ) : (
+              <div className="rounded-2xl p-6 text-center" style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
+                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No vehicle yet</p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Add your machine from Edit profile to build your garage.</p>
+                <Link to="/profile/edit" className="tap mt-3 inline-block rounded-full px-4 py-2 text-[12px] font-bold"
+                  style={{ background: "var(--color-neon)", color: "#000" }}>
+                  Add vehicle
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
@@ -517,30 +520,13 @@ function ProfilePage() {
         )}
 
         {tab === "LOG" && (
-          <ul className="overflow-hidden rounded-2xl" style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}>
-            {workshopHistory.map((w, i) => (
-              <li key={w.id} className="grid grid-cols-[38px_1fr_auto] items-start gap-3 px-4 py-3" style={{ borderTop: i === 0 ? "none" : "1px solid var(--color-line)" }}>
-                <div>
-                  <span className="serif text-lg" style={{ color: "var(--color-ink-3)" }}>{String(i + 1).padStart(2, "0")}</span>
-                  <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>{w.date}</p>
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium" style={{ color: "var(--color-ink-0)" }}>{w.title}</p>
-                  <p className="mono-tag mt-0.5" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>{w.shop} · {w.mileage}</p>
-                </div>
-                <div className="text-right">
-                  <p className="mono-num text-[13px] font-bold" style={{ color: "var(--color-ink-0)" }}>{w.cost}</p>
-                  <p className="mono-tag mt-0.5" style={{
-                    color: w.status === "upcoming" ? "#ff9500" : "var(--color-neon-deep)",
-                    fontSize: 8.5,
-                    letterSpacing: "0.18em",
-                  }}>{w.status.toUpperCase()}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="rounded-2xl p-6 text-center" style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
+            <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No workshop log yet</p>
+            <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Service entries you record will appear here.</p>
+          </div>
         )}
       </div>
+
 
       {contactOpen && (
         <ContactModal profile={p} onClose={() => setContactOpen(false)} />
