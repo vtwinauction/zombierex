@@ -111,6 +111,8 @@ function HomePage() {
     const a = r.author ?? {};
     const mins = Math.max(1, Math.round((Date.now() - new Date(r.created_at).getTime()) / 60000));
     const timeAgo = mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.round(mins/60)}h` : `${Math.round(mins/1440)}d`;
+    const media = r.media_url || r.thumbnail_url || "";
+    const isVid = r.kind === "video" || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(media);
     return {
       id: `db:${r.id}`,
       dbId: r.id as string,
@@ -122,7 +124,9 @@ function HomePage() {
         location: a.location || "",
       },
       timeAgo,
-      image: r.media_url || r.thumbnail_url || "",
+      image: media,
+      video: isVid ? r.media_url || "" : "",
+      poster: r.thumbnail_url || (isVid ? "" : media),
       vehicle: null as any,
       likes: r.likes_count ?? 0,
       comments: r.comments_count ?? 0,
