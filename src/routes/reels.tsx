@@ -399,18 +399,24 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
         </div>
       </div>
 
-      {/* Progress rail */}
+      {/* Progress rail — real video time when video, timed animation for stills */}
       <div className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: "rgba(255,255,255,0.12)" }}>
         <div
-          key={`${idx}-${active}`}
+          key={`${idx}-${active}-${hasVideo}`}
           style={{
             height: "100%",
             background: "var(--color-neon)",
-            animation: active ? `reel-progress ${reel.duration}s linear forwards` : "none",
-            width: active ? undefined : 0,
+            width: hasVideo ? `${Math.min(100, progress * 100)}%` : active ? undefined : 0,
+            animation: hasVideo
+              ? "none"
+              : active
+              ? `reel-progress ${reel.duration}s linear forwards`
+              : "none",
+            transition: hasVideo ? "width 120ms linear" : undefined,
           }}
         />
       </div>
+
 
       {/* Comment sheet */}
       {commentsOpen && (
