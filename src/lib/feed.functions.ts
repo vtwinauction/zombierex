@@ -156,6 +156,22 @@ export const createPost = createServerFn({ method: "POST" })
     if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
       ? "You're posting too fast — take a breather and try again in a bit."
       : rlErr.message);
+    // Server-side moderation — client checks are advisory only. Fail-open on
+    // gateway errors (skipped=true), fail-closed on explicit unsafe verdicts.
+    if (data.caption && data.caption.trim().length >= 3) {
+      const { moderateText } = await import("./moderation-text.server");
+      const verdict = await moderateText(data.caption);
+      if (!verdict.safe && !verdict.skipped) {
+        throw new Error(`Caption blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+      }
+    }
+    if (data.media_url && (data.kind === "photo" || data.kind === "video")) {
+      const { moderateImageUrl } = await import("./moderation-image.server");
+      const verdict = await moderateImageUrl(data.media_url);
+      if (!verdict.safe && !verdict.skipped) {
+        throw new Error(`Image blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+      }
+    }
     const { data: row, error } = await context.supabase
       .from("posts")
       .insert({ ...data, author_id: context.userId })
