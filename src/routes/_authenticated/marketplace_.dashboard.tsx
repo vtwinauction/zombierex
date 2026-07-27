@@ -24,7 +24,7 @@ function Dashboard() {
   async function markSold(id: string) { await updateFn({ data: { id, patch: {}, status: "sold" } }); refetch(); }
   async function archive(id: string) { await updateFn({ data: { id, patch: {}, status: "archived" } }); refetch(); }
   async function activate(id: string) { await updateFn({ data: { id, patch: {}, status: "active" } }); refetch(); }
-  async function remove(id: string) { if (confirm("Delete listing?")) { await delFn({ data: { id } }); refetch(); } }
+  async function remove(id: string) { if (await confirmDialog({ title: "Delete listing?", destructive: true, confirmLabel: "Delete" })) { await delFn({ data: { id } }); refetch(); } }
 
   return (
     <PullToRefresh onRefresh={() => refetch()}>
