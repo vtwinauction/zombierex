@@ -1,7 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { Reel } from "@/lib/mock-data";
+type Reel = {
+  id: string;
+  user: { id: string; handle: string; displayName: string; avatar: string; verified?: boolean; badge?: string };
+  vehicle?: { name: string; year?: number };
+  poster: string;
+  caption: string;
+  hashtags: string[];
+  location?: string;
+  music: { title: string; artist: string };
+  likes: number;
+  comments: number;
+  shares: number;
+  views: string;
+  followed?: boolean;
+  duration: number;
+  taggedProduct?: { name: string; price: string };
+};
 import { RiderMark } from "@/components/RiderBadge";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "@/components/icons/RexIcons";
 import { ReportBlockSheet } from "@/components/ReportBlockSheet";

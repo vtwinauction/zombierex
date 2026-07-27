@@ -19,18 +19,7 @@ export type CommentItem = {
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const localStore = new Map<string, CommentItem[]>();
 
-function seedLocal(targetId: string): CommentItem[] {
-  if (localStore.has(targetId)) return localStore.get(targetId)!;
-  const initial: CommentItem[] = [
-    { id: "s1", author: "apex_rex", body: "Insane throttle response 🔥", createdAt: Date.now() - 3600_000, likes: 12 },
-    { id: "s2", author: "nitro_kid", body: "What tires you running?", createdAt: Date.now() - 1800_000, likes: 3 },
-    { id: "s3", author: "torque_dan", body: "Michelin Power 6.", createdAt: Date.now() - 1500_000, parentId: "s2", likes: 1 },
-  ];
-  localStore.set(targetId, initial);
-  return initial;
-}
 
 export function CommentsSheet({
   open,
@@ -66,11 +55,9 @@ export function CommentsSheet({
     staleTime: 15_000,
   });
 
-  const [localItems, setLocalItems] = useState<CommentItem[]>(() =>
-    isLive ? [] : seedLocal(raw),
-  );
+  const [localItems, setLocalItems] = useState<CommentItem[]>([]);
   useEffect(() => {
-    if (open && !isLive) setLocalItems([...seedLocal(raw)]);
+    if (open && !isLive) setLocalItems([]);
   }, [open, raw, isLive]);
 
   const items: CommentItem[] = isLive
