@@ -336,6 +336,19 @@ export function MediaComposer({ onDone }: Props) {
       const musicFooter = music ? `\n\n♪ ${music.title} — ${music.artist}` : "";
       const captionWithMusic = (caption.trim() + musicFooter).trim();
 
+      // Post-as-story path: 24h ephemeral, no feed post.
+      if (postAsStory && first) {
+        await postStory({
+          data: {
+            media_url: first.url,
+            thumbnail_url: first.url,
+            kind: first.kind === "video" ? "video" : "photo",
+            caption: caption.trim() || undefined,
+          },
+        });
+        return { scheduled: false, story: true };
+      }
+
       await post({
         data: {
           kind,
@@ -345,12 +358,16 @@ export function MediaComposer({ onDone }: Props) {
           is_reel: kind === "video",
         },
       });
-      return { scheduled: false };
+      return { scheduled: false, story: false };
     },
     onSuccess: (r) => {
       if (!r.scheduled) {
-        queryClient.invalidateQueries({ queryKey: ["feed"] });
-        queryClient.invalidateQueries({ queryKey: ["profile"] });
+        if (r.story) {
+          queryClient.invalidateQueries({ queryKey: ["stories", "active"] });
+        } else {
+          queryClient.invalidateQueries({ queryKey: ["feed"] });
+          queryClient.invalidateQueries({ queryKey: ["profile"] });
+        }
         onDone?.();
       }
     },
