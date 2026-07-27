@@ -30,6 +30,30 @@ function serverPublic() {
 const SYSTEM_BRAND =
   "You are REX, the in-app AI companion for ZOMBIEREX — an exclusive social platform for motorcycle and automotive enthusiasts. You are concise, knowledgeable about bikes/cars/motorsport, and speak with quiet confidence. You never invent app features that don't exist.";
 
+/**
+ * Per-user AI rate limiting. Runs before any Gateway call so anon abuse and
+ * bursty clients can't drain the shared LOVABLE_API_KEY credits.
+ */
+async function assertAiLimit(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any,
+  bucket: "ai_assist" | "ai_chat" | "ai_search",
+  maxPerHour: number,
+) {
+  const { error } = await supabase.rpc("check_rate_limit", {
+    _bucket: bucket,
+    _max_hits: maxPerHour,
+    _window_seconds: 3600,
+  });
+  if (error) {
+    throw new Error(
+      error.message.includes("rate_limit_exceeded")
+        ? "AI usage limit reached — try again in a little while."
+        : error.message,
+    );
+  }
+}
+
 /* ─────────────────────────────  CONTENT ASSIST  ───────────────────────────── */
 
 export const suggestCaption = createServerFn({ method: "POST" })
