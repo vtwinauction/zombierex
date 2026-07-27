@@ -899,46 +899,38 @@ export function MediaComposer({ onDone }: Props) {
               <label className="mono-tag flex items-center gap-2" style={{ color: "var(--color-silver)" }}>
                 Schedule
                 <input type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)}
-                  disabled={postAsStory}
-                  className="rounded px-2 py-1 text-[11px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)", opacity: postAsStory ? 0.4 : 1 }} />
+                  disabled={postType === "story"}
+                  className="rounded px-2 py-1 text-[11px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)", opacity: postType === "story" ? 0.4 : 1 }} />
               </label>
-              <button onClick={draftSave} className="mono-tag tap px-3 py-1.5" style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)", borderRadius: 999 }}>
+              <button onClick={draftSave} disabled={postType === "story"}
+                className="mono-tag tap px-3 py-1.5"
+                style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)", borderRadius: 999, opacity: postType === "story" ? 0.4 : 1 }}>
                 {savedDraftId ? "Draft saved ✓" : "Save draft"}
               </button>
             </div>
 
-            <label
-              className="mono-tag mt-3 flex items-center justify-between gap-2 rounded-lg px-3 py-2 tap"
-              style={{
-                background: postAsStory ? "rgba(198,255,61,0.08)" : "var(--color-graphite)",
-                border: `1px solid ${postAsStory ? "var(--color-neon)" : "var(--color-hair)"}`,
-                color: "var(--color-ink)",
-              }}
+            <button
+              onClick={() => { setTypeConfirmed(false); }}
+              className="mono-tag tap mt-3 w-full rounded-lg px-3 py-2 text-left"
+              style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", color: "var(--color-silver)", textTransform: "none" }}
             >
-              <span className="flex flex-col">
-                <span style={{ color: postAsStory ? "var(--color-neon)" : "var(--color-ink)" }}>
-                  ◆ POST AS STORY · 24H
-                </span>
-                <span className="mono-tag" style={{ color: "var(--color-silver)", textTransform: "none", fontSize: 10 }}>
-                  Ephemeral. Appears in the Stories rail, not the feed. Disables scheduling.
-                </span>
-              </span>
-              <input
-                type="checkbox"
-                checked={postAsStory}
-                onChange={(e) => { setPostAsStory(e.target.checked); if (e.target.checked) setScheduleAt(""); }}
-                className="h-4 w-4 accent-[var(--color-neon)]"
-              />
-            </label>
+              Publishing as <span style={{ color: "var(--color-neon)" }}>◆ {typeMeta.label.toUpperCase()}</span> · {typeMeta.tag} — <span style={{ textDecoration: "underline" }}>change</span>
+            </button>
 
             {publish.error && <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>}
 
-            <button onClick={() => publish.mutate()} disabled={publish.isPending || (postAsStory && !items.length)}
+            <button onClick={() => publish.mutate()} disabled={publish.isPending || (typeMeta.requiresMedia && !items.length)}
               className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
               style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em", opacity: publish.isPending ? 0.5 : 1 }}
             >
-              {publish.isPending ? "Uploading…" : postAsStory ? "Share to Story" : scheduleAt ? "Save & schedule" : "Publish"}
+              {publish.isPending
+                ? "Uploading…"
+                : postType === "story" ? "Share to Story"
+                : postType === "reel" ? "Publish Reel"
+                : scheduleAt ? "Save & schedule"
+                : "Publish"}
             </button>
+
           </div>
         </>
       )}
