@@ -80,11 +80,13 @@ type MediaItem = {
   adjust: EditorAdjust;
   overlays: Overlay[];
   strokes: Stroke[];
-  // video-only
+  // video-only (metadata; server render worker will apply these)
   trimStart?: number;
   trimEnd?: number;
   muted?: boolean;
   speed?: number;
+  coverAt?: number;      // seconds — frame to use as thumbnail_url
+  coverBlobUrl?: string; // in-memory object URL of extracted cover
 };
 
 const defaultAdjust: EditorAdjust = {
@@ -103,8 +105,98 @@ function newItem(file: File): MediaItem {
     trimStart: kind === "video" ? 0 : undefined,
     trimEnd: kind === "video" ? undefined : undefined,
     muted: false, speed: 1,
+    coverAt: kind === "video" ? 0 : undefined,
   };
 }
+
+/* ------------ Post-type flow (Prompt 9) ------------ */
+
+export type PostType = "post" | "reel" | "story" | "telemetry";
+
+const POST_TYPE_META: Record<PostType, {
+  label: string;
+  tag: string;
+  desc: string;
+  accept: string;
+  maxItems: number;
+  requiresMedia: boolean;
+}> = {
+  post: {
+    label: "Post",
+    tag: "FEED · PERMANENT",
+    desc: "1–10 photos or one video. Any aspect. Lives in your feed forever.",
+    accept: "image/*,video/*",
+    maxItems: 10,
+    requiresMedia: false, // text-only allowed
+  },
+  reel: {
+    label: "Reel",
+    tag: "VERTICAL · 9:16 · ≤90s",
+    desc: "One vertical video, up to 90 seconds. Plays in the Reels feed.",
+    accept: "video/*",
+    maxItems: 1,
+    requiresMedia: true,
+  },
+  story: {
+    label: "Story",
+    tag: "EPHEMERAL · 24H · ≤15s",
+    desc: "One photo or short vertical clip. Disappears in 24 hours.",
+    accept: "image/*,video/*",
+    maxItems: 1,
+    requiresMedia: true,
+  },
+  telemetry: {
+    label: "Telemetry",
+    tag: "RIDE · DRAG · DATA",
+    desc: "Publish a ride or drag session as a data post. Pulls from your latest session.",
+    accept: "",
+    maxItems: 0,
+    requiresMedia: false,
+  },
+};
+
+const POST_TYPE_STORAGE_KEY = "zrex:composer.lastType";
+
+function loadLastPostType(): PostType {
+  if (typeof window === "undefined") return "post";
+  try {
+    const v = window.localStorage.getItem(POST_TYPE_STORAGE_KEY);
+    if (v === "post" || v === "reel" || v === "story" || v === "telemetry") return v;
+  } catch { /* ignore */ }
+  return "post";
+}
+
+function persistLastPostType(t: PostType) {
+  if (typeof window === "undefined") return;
+  try { window.localStorage.setItem(POST_TYPE_STORAGE_KEY, t); } catch { /* ignore */ }
+}
+
+/** Extract a single frame from a video File at the given time as a JPEG Blob. */
+async function extractVideoFrame(file: File, atSec: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement("video");
+    v.preload = "auto"; v.muted = true; v.playsInline = true; v.src = url;
+    const cleanup = () => { try { URL.revokeObjectURL(url); } catch { /* noop */ } };
+    v.onloadedmetadata = () => {
+      const t = Math.max(0, Math.min(atSec, (v.duration || 0) - 0.05));
+      v.currentTime = t;
+    };
+    v.onseeked = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.getContext("2d")!.drawImage(v, 0, 0);
+        c.toBlob((b) => {
+          cleanup();
+          b ? resolve(b) : reject(new Error("Cover frame export failed"));
+        }, "image/jpeg", 0.85);
+      } catch (e) { cleanup(); reject(e as Error); }
+    };
+    v.onerror = () => { cleanup(); reject(new Error("Video load failed")); };
+  });
+}
+
 
 function filterCss(m: MediaItem): string {
   const preset = FILTERS.find((f) => f.id === m.filter)?.css ?? "";
@@ -132,7 +224,9 @@ export function MediaComposer({ onDone }: Props) {
   const [progress, setProgress] = useState<Record<string, UploadProgress>>({});
   const [failed, setFailed] = useState<string[]>([]);
   const [scheduleAt, setScheduleAt] = useState<string>("");
-  const [postAsStory, setPostAsStory] = useState(false);
+  const [postType, setPostType] = useState<PostType>(() => loadLastPostType());
+  const [typeConfirmed, setTypeConfirmed] = useState(false);
+  const [typeSwitchWarn, setTypeSwitchWarn] = useState<PostType | null>(null);
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
   const pickGallery = useRef<HTMLInputElement>(null);
   const pickCamera = useRef<HTMLInputElement>(null);
@@ -148,12 +242,24 @@ export function MediaComposer({ onDone }: Props) {
 
   useEffect(() => () => items.forEach((i) => URL.revokeObjectURL(i.previewUrl)), []); // cleanup on unmount
 
+  const typeMeta = POST_TYPE_META[postType];
+
+  const acceptsFile = useCallback((f: File): boolean => {
+    if (postType === "reel") return f.type.startsWith("video/");
+    if (postType === "story" || postType === "post") return f.type.startsWith("image/") || f.type.startsWith("video/");
+    return false;
+  }, [postType]);
+
   const addFiles = useCallback((files: FileList | null) => {
     if (!files || !files.length) return;
-    const next = Array.from(files).slice(0, 10 - items.length).map(newItem);
+    if (postType === "telemetry") return;
+    const allowed = Array.from(files).filter(acceptsFile);
+    if (!allowed.length) return;
+    const remaining = Math.max(0, typeMeta.maxItems - items.length);
+    const next = allowed.slice(0, remaining).map(newItem);
     setItems((prev) => [...prev, ...next]);
     if (!items.length && next.length) setActive(0);
-  }, [items.length]);
+  }, [items.length, postType, typeMeta.maxItems, acceptsFile]);
 
   // Consume camera capture handed off from the status-bar long-press
   useEffect(() => {
@@ -264,7 +370,7 @@ export function MediaComposer({ onDone }: Props) {
       if (!items.length && !caption.trim()) throw new Error("Add media or a caption");
 
       setFailed([]);
-      const uploaded: Array<{ url: string; contentType: string; path: string; kind: MediaItem["kind"] }> = [];
+      const uploaded: Array<{ url: string; contentType: string; path: string; kind: MediaItem["kind"]; coverUrl?: string }> = [];
 
       for (const m of items) {
         try {
@@ -274,7 +380,15 @@ export function MediaComposer({ onDone }: Props) {
             bucket: "posts",
             onProgress: (p) => setProgress((prev) => ({ ...prev, [m.id]: p })),
           });
-          uploaded.push({ ...res, kind: m.kind });
+          let coverUrl: string | undefined;
+          if (m.kind === "video") {
+            try {
+              const frame = await extractVideoFrame(m.file, m.coverAt ?? 0);
+              const coverRes = await uploadWithRetry(frame, { userId, bucket: "posts" });
+              coverUrl = coverRes.url;
+            } catch { /* fall back to media URL as thumb */ }
+          }
+          uploaded.push({ ...res, kind: m.kind, coverUrl });
         } catch (e) {
           setFailed((f) => [...f, m.id]);
           throw e;
@@ -282,8 +396,11 @@ export function MediaComposer({ onDone }: Props) {
       }
 
       const first = uploaded[0];
+      // Route on the user's chosen post type, not the media inspection.
       const kind: "photo" | "video" | "telemetry" =
-        first?.kind === "video" ? "video" : "photo";
+        postType === "telemetry" ? "telemetry"
+        : postType === "reel" ? "video"
+        : first?.kind === "video" ? "video" : "photo";
 
       // AI safety scan on the first image (fail-open on gateway error).
       if (first && first.kind === "image") {
@@ -336,12 +453,12 @@ export function MediaComposer({ onDone }: Props) {
       const musicFooter = music ? `\n\n♪ ${music.title} — ${music.artist}` : "";
       const captionWithMusic = (caption.trim() + musicFooter).trim();
 
-      // Post-as-story path: 24h ephemeral, no feed post.
-      if (postAsStory && first) {
+      // Story path: 24h ephemeral, no feed post.
+      if (postType === "story" && first) {
         await postStory({
           data: {
             media_url: first.url,
-            thumbnail_url: first.url,
+            thumbnail_url: first.coverUrl ?? first.url,
             kind: first.kind === "video" ? "video" : "photo",
             caption: caption.trim() || undefined,
           },
@@ -349,13 +466,29 @@ export function MediaComposer({ onDone }: Props) {
         return { scheduled: false, story: true };
       }
 
+      // Stash non-destructive video edit metadata locally so a future render
+      // worker can apply trim/mute/speed/overlays/music to the raw upload.
+      if (first?.kind === "video" && typeof window !== "undefined") {
+        try {
+          const edits = items.filter((m) => m.kind === "video").map((m) => ({
+            trimStart: m.trimStart ?? 0, trimEnd: m.trimEnd, muted: !!m.muted,
+            speed: m.speed ?? 1, coverAt: m.coverAt ?? 0, filter: m.filter,
+            adjust: m.adjust, overlays: m.overlays, music: music,
+          }));
+          const key = "zrex:pending_video_edits";
+          const prev = JSON.parse(window.localStorage.getItem(key) || "[]");
+          prev.push({ mediaUrl: first.url, at: Date.now(), edits });
+          window.localStorage.setItem(key, JSON.stringify(prev.slice(-50)));
+        } catch { /* ignore */ }
+      }
+
       await post({
         data: {
           kind,
           caption: captionWithMusic || undefined,
           media_url: first?.url,
-          thumbnail_url: first?.url,
-          is_reel: kind === "video",
+          thumbnail_url: first?.coverUrl ?? first?.url,
+          is_reel: postType === "reel",
         },
       });
       return { scheduled: false, story: false };
@@ -404,8 +537,10 @@ export function MediaComposer({ onDone }: Props) {
 
   return (
     <div className="pb-40" style={{ background: "var(--color-obsidian, #0a0a0b)", minHeight: "100dvh" }}>
-      {/* Hidden native pickers */}
-      <input ref={pickGallery} type="file" accept="image/*,video/*" multiple hidden
+      {/* Hidden native pickers — accept flags depend on the chosen post type */}
+      <input ref={pickGallery} type="file"
+        accept={typeMeta.accept || "image/*,video/*"}
+        multiple={typeMeta.maxItems > 1} hidden
         onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
       <input ref={pickCamera} type="file" accept="image/*" capture="environment" hidden
         onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
@@ -416,51 +551,161 @@ export function MediaComposer({ onDone }: Props) {
       <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3"
         style={{ background: "rgba(10,10,11,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--color-hair)" }}>
         <button onClick={onDone} className="mono-tag tap px-2 py-1" style={{ color: "var(--color-titanium)" }}>← Close</button>
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ STUDIO</p>
-        <button onClick={() => setShowPreview(true)} className="mono-tag tap px-2 py-1" style={{ color: "var(--color-ink)" }}>Preview</button>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ STUDIO · {typeMeta.label.toUpperCase()}</p>
+        <button onClick={() => setShowPreview(true)} disabled={!activeItem}
+          className="mono-tag tap px-2 py-1" style={{ color: activeItem ? "var(--color-ink)" : "var(--color-titanium)", opacity: activeItem ? 1 : 0.4 }}>
+          Preview
+        </button>
       </header>
 
-      {/* Empty state → picker */}
-      {!items.length && (
+      {/* Step 1 — Post-type picker */}
+      {!typeConfirmed && (
         <div className="px-5 pt-8">
-          <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>Compose</h1>
-          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Pick from your library or use the camera. Up to 10 items.</p>
+          <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>What are you posting?</h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Choose a type. Each has its own editor and constraints.</p>
           <div className="mt-6 grid grid-cols-1 gap-2">
-            <PickerButton label="Photo & video library" onClick={() => pickGallery.current?.click()} accent />
-            <PickerButton label="Take a photo" onClick={async () => {
-              const { pickNativePhoto } = await import("@/lib/native/camera");
-              const f = await pickNativePhoto("photo");
-              if (f) {
-                const dt = new DataTransfer(); dt.items.add(f); addFiles(dt.files);
-              } else { pickCamera.current?.click(); }
-            }} />
-            <PickerButton label="Record a video" onClick={() => pickVideo.current?.click()} />
-
+            {(Object.keys(POST_TYPE_META) as PostType[]).map((t) => {
+              const meta = POST_TYPE_META[t];
+              const active = postType === t;
+              return (
+                <button key={t}
+                  onClick={() => setPostType(t)}
+                  className="tap rounded-lg px-4 py-4 text-left"
+                  style={{
+                    background: active ? "rgba(198,255,61,0.08)" : "var(--color-graphite)",
+                    border: `1px solid ${active ? "var(--color-neon)" : "var(--color-hair-strong)"}`,
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[15px] font-semibold" style={{ color: active ? "var(--color-neon)" : "var(--color-ink)" }}>{meta.label}</span>
+                    <span className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 9 }}>{meta.tag}</span>
+                  </div>
+                  <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>{meta.desc}</p>
+                </button>
+              );
+            })}
           </div>
-          <div className="mt-8">
-            <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>OR</p>
-            <textarea
-              value={caption} onChange={(e) => setCaption(e.target.value)}
-              rows={4} placeholder="Say something…"
-              className="w-full rounded-lg px-3 py-2 text-[13px]"
-              style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
-            />
-            <button
-              onClick={() => publish.mutate()}
-              disabled={!caption.trim() || publish.isPending}
-              className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
-              style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
-            >
-              {publish.isPending ? "Publishing…" : "Publish text only"}
-            </button>
-            {publish.error && (
-              <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>
-                {(publish.error as Error).message}
-              </p>
+          <button
+            onClick={() => { persistLastPostType(postType); setTypeConfirmed(true); }}
+            className="tap mt-6 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em" }}
+          >
+            Continue as {typeMeta.label}
+          </button>
+        </div>
+      )}
+
+      {/* Step 2 — Media picker (empty state) or telemetry entry */}
+      {typeConfirmed && !items.length && postType !== "telemetry" && (
+        <div className="px-5 pt-8">
+          <button onClick={() => setTypeConfirmed(false)} className="mono-tag tap" style={{ color: "var(--color-titanium)" }}>
+            ← Change type
+          </button>
+          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>New {typeMeta.label}</h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>{typeMeta.tag}</p>
+          <div className="mt-6 grid grid-cols-1 gap-2">
+            {postType !== "reel" && (
+              <PickerButton label="Photo & video library" onClick={() => pickGallery.current?.click()} accent />
             )}
+            {postType === "reel" && (
+              <PickerButton label="Choose a video" onClick={() => pickGallery.current?.click()} accent />
+            )}
+            {postType !== "reel" && (
+              <PickerButton label="Take a photo" onClick={async () => {
+                const { pickNativePhoto } = await import("@/lib/native/camera");
+                const f = await pickNativePhoto("photo");
+                if (f) { const dt = new DataTransfer(); dt.items.add(f); addFiles(dt.files); }
+                else { pickCamera.current?.click(); }
+              }} />
+            )}
+            <PickerButton label="Record a video" onClick={() => pickVideo.current?.click()} />
+          </div>
+
+          {postType === "post" && !typeMeta.requiresMedia && (
+            <div className="mt-8">
+              <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>OR</p>
+              <textarea
+                value={caption} onChange={(e) => setCaption(e.target.value)}
+                rows={4} placeholder="Say something…"
+                className="w-full rounded-lg px-3 py-2 text-[13px]"
+                style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+              />
+              <button
+                onClick={() => publish.mutate()}
+                disabled={!caption.trim() || publish.isPending}
+                className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
+                style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
+              >
+                {publish.isPending ? "Publishing…" : "Publish text only"}
+              </button>
+              {publish.error && (
+                <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Telemetry — no media path, publish as data post */}
+      {typeConfirmed && postType === "telemetry" && (
+        <div className="px-5 pt-8">
+          <button onClick={() => setTypeConfirmed(false)} className="mono-tag tap" style={{ color: "var(--color-titanium)" }}>
+            ← Change type
+          </button>
+          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>Telemetry post</h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Add a caption. Your latest ride or drag session is attached automatically.</p>
+          <textarea
+            value={caption} onChange={(e) => setCaption(e.target.value)}
+            rows={4} placeholder="What was this run?"
+            className="mt-4 w-full rounded-lg px-3 py-2 text-[13px]"
+            style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+          />
+          <button
+            onClick={() => publish.mutate()}
+            disabled={!caption.trim() || publish.isPending}
+            className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
+          >
+            {publish.isPending ? "Publishing…" : "Publish telemetry"}
+          </button>
+          {publish.error && (
+            <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>
+          )}
+        </div>
+      )}
+
+      {/* Type-switch warning modal */}
+      {typeSwitchWarn && (
+        <div className="fixed inset-0 z-50 grid place-items-center p-6" style={{ background: "rgba(0,0,0,0.75)" }}>
+          <div className="w-full max-w-sm rounded-xl p-5"
+            style={{ background: "var(--color-obsidian, #0a0a0b)", border: "1px solid var(--color-hair-strong)" }}>
+            <p className="serif text-lg italic" style={{ color: "var(--color-ink)" }}>Switch to {POST_TYPE_META[typeSwitchWarn].label}?</p>
+            <p className="mono-tag mt-2" style={{ color: "var(--color-silver)", textTransform: "none" }}>
+              Your current media isn't compatible with {POST_TYPE_META[typeSwitchWarn].label}. Switching will clear it.
+            </p>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => setTypeSwitchWarn(null)}
+                className="mono-tag tap flex-1 rounded-full py-2"
+                style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}>
+                Keep media
+              </button>
+              <button
+                onClick={() => {
+                  items.forEach((i) => URL.revokeObjectURL(i.previewUrl));
+                  setItems([]); setActive(0);
+                  const t = typeSwitchWarn; setTypeSwitchWarn(null);
+                  setPostType(t); persistLastPostType(t);
+                }}
+                className="mono-tag tap flex-1 rounded-full py-2"
+                style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
+                Clear & switch
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+
 
       {/* Editor */}
       {items.length > 0 && activeItem && (
@@ -510,7 +755,10 @@ export function MediaComposer({ onDone }: Props) {
 
           {/* Tabs */}
           <div className="mt-4 flex px-3" style={{ borderBottom: "1px solid var(--color-hair)" }}>
-            {(["filters", "adjust", "text", "draw", "music", ...(activeItem.kind === "video" ? ["video"] as const : [])] as const).map((t) => (
+            {(activeItem.kind === "video"
+              ? (["filters", "adjust", "video"] as const)
+              : (["filters", "adjust", "text", "draw", "music"] as const)
+            ).map((t) => (
               <button key={t} onClick={() => setTab(t)} className="tap flex-1 py-2 text-[11px] uppercase tracking-wider"
                 style={{ color: tab === t ? "var(--color-neon)" : "var(--color-silver)", borderBottom: tab === t ? "2px solid var(--color-neon)" : "2px solid transparent" }}
               >{t}</button>
@@ -654,46 +902,38 @@ export function MediaComposer({ onDone }: Props) {
               <label className="mono-tag flex items-center gap-2" style={{ color: "var(--color-silver)" }}>
                 Schedule
                 <input type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)}
-                  disabled={postAsStory}
-                  className="rounded px-2 py-1 text-[11px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)", opacity: postAsStory ? 0.4 : 1 }} />
+                  disabled={postType === "story"}
+                  className="rounded px-2 py-1 text-[11px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)", opacity: postType === "story" ? 0.4 : 1 }} />
               </label>
-              <button onClick={draftSave} className="mono-tag tap px-3 py-1.5" style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)", borderRadius: 999 }}>
+              <button onClick={draftSave} disabled={postType === "story"}
+                className="mono-tag tap px-3 py-1.5"
+                style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)", borderRadius: 999, opacity: postType === "story" ? 0.4 : 1 }}>
                 {savedDraftId ? "Draft saved ✓" : "Save draft"}
               </button>
             </div>
 
-            <label
-              className="mono-tag mt-3 flex items-center justify-between gap-2 rounded-lg px-3 py-2 tap"
-              style={{
-                background: postAsStory ? "rgba(198,255,61,0.08)" : "var(--color-graphite)",
-                border: `1px solid ${postAsStory ? "var(--color-neon)" : "var(--color-hair)"}`,
-                color: "var(--color-ink)",
-              }}
+            <button
+              onClick={() => { setTypeConfirmed(false); }}
+              className="mono-tag tap mt-3 w-full rounded-lg px-3 py-2 text-left"
+              style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", color: "var(--color-silver)", textTransform: "none" }}
             >
-              <span className="flex flex-col">
-                <span style={{ color: postAsStory ? "var(--color-neon)" : "var(--color-ink)" }}>
-                  ◆ POST AS STORY · 24H
-                </span>
-                <span className="mono-tag" style={{ color: "var(--color-silver)", textTransform: "none", fontSize: 10 }}>
-                  Ephemeral. Appears in the Stories rail, not the feed. Disables scheduling.
-                </span>
-              </span>
-              <input
-                type="checkbox"
-                checked={postAsStory}
-                onChange={(e) => { setPostAsStory(e.target.checked); if (e.target.checked) setScheduleAt(""); }}
-                className="h-4 w-4 accent-[var(--color-neon)]"
-              />
-            </label>
+              Publishing as <span style={{ color: "var(--color-neon)" }}>◆ {typeMeta.label.toUpperCase()}</span> · {typeMeta.tag} — <span style={{ textDecoration: "underline" }}>change</span>
+            </button>
 
             {publish.error && <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>}
 
-            <button onClick={() => publish.mutate()} disabled={publish.isPending || (postAsStory && !items.length)}
+            <button onClick={() => publish.mutate()} disabled={publish.isPending || (typeMeta.requiresMedia && !items.length)}
               className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
               style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em", opacity: publish.isPending ? 0.5 : 1 }}
             >
-              {publish.isPending ? "Uploading…" : postAsStory ? "Share to Story" : scheduleAt ? "Save & schedule" : "Publish"}
+              {publish.isPending
+                ? "Uploading…"
+                : postType === "story" ? "Share to Story"
+                : postType === "reel" ? "Publish Reel"
+                : scheduleAt ? "Save & schedule"
+                : "Publish"}
             </button>
+
           </div>
         </>
       )}
@@ -874,50 +1114,53 @@ function Slider({ label, value, min, max, step, onChange, onReset }: {
 function VideoControls({ m, onPatch }: { m: MediaItem; onPatch: (p: Partial<MediaItem>) => void }) {
   const vidRef = useRef<HTMLVideoElement>(null);
   const [dur, setDur] = useState(0);
-  const trimStart = m.trimStart ?? 0;
-  const trimEnd = m.trimEnd ?? dur;
+  const coverAt = m.coverAt ?? 0;
   return (
     <div className="space-y-3">
       <video ref={vidRef} src={m.previewUrl} className="w-full rounded"
         onLoadedMetadata={(e) => setDur((e.currentTarget as HTMLVideoElement).duration || 0)}
-        controls muted={m.muted} playsInline />
+        controls playsInline />
+
+      {/* Cover-frame picker — this one actually works. */}
       {dur > 0 && (
-        <>
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Trim start</span>
-              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{trimStart.toFixed(1)}s</span>
-            </div>
-            <input type="range" min={0} max={dur} step={0.1} value={trimStart}
-              onChange={(e) => onPatch({ trimStart: Math.min(Number(e.target.value), trimEnd - 0.1) })}
-              className="w-full accent-[var(--color-neon)]" />
+        <div>
+          <div className="mb-1 flex items-center justify-between">
+            <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Cover frame</span>
+            <span className="mono-tag" style={{ color: "var(--color-neon)" }}>{coverAt.toFixed(1)}s</span>
           </div>
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Trim end</span>
-              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{trimEnd.toFixed(1)}s</span>
-            </div>
-            <input type="range" min={0} max={dur} step={0.1} value={trimEnd}
-              onChange={(e) => onPatch({ trimEnd: Math.max(Number(e.target.value), trimStart + 0.1) })}
-              className="w-full accent-[var(--color-neon)]" />
-          </div>
-        </>
-      )}
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Playback speed</span>
-          <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{(m.speed ?? 1).toFixed(2)}×</span>
+          <input type="range" min={0} max={dur} step={0.1} value={coverAt}
+            onChange={(e) => {
+              const t = Number(e.target.value);
+              onPatch({ coverAt: t });
+              if (vidRef.current) { try { vidRef.current.currentTime = t; } catch { /* noop */ } }
+            }}
+            className="w-full accent-[var(--color-neon)]" />
+          <p className="mono-tag mt-1" style={{ color: "var(--color-titanium)", fontSize: 10, textTransform: "none" }}>
+            Scrub to pick the thumbnail shown in the feed and on your profile.
+          </p>
         </div>
-        <input type="range" min={0.25} max={2} step={0.05} value={m.speed ?? 1}
-          onChange={(e) => onPatch({ speed: Number(e.target.value) })} className="w-full accent-[var(--color-neon)]" />
+      )}
+
+      {/* Everything below is honest about not doing anything yet. */}
+      <div className="rounded-lg p-3" style={{ background: "var(--color-graphite)", border: "1px dashed var(--color-hair-strong)" }}>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ COMING SOON</p>
+        <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", textTransform: "none", fontSize: 11 }}>
+          Trim, mute, playback speed, overlays and music-mix for video need a server-side render pass.
+          We&rsquo;re building it. Your upload publishes raw for now.
+        </p>
+        <div className="mt-3 space-y-2 opacity-50 pointer-events-none select-none" aria-disabled="true">
+          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
+            <span>Trim</span><span>—</span>
+          </div>
+          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
+            <span>Playback speed</span><span>1.00×</span>
+          </div>
+          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
+            <span>Mute audio</span><span>off</span>
+          </div>
+        </div>
       </div>
-      <label className="mono-tag flex items-center gap-2" style={{ color: "var(--color-ink)" }}>
-        <input type="checkbox" checked={!!m.muted} onChange={(e) => onPatch({ muted: e.target.checked })} />
-        Mute audio
-      </label>
-      <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>
-        Advanced video encoding (merging clips, voice-over, music mix) runs during server-side rendering after upload.
-      </p>
     </div>
   );
 }
+
