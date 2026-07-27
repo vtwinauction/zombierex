@@ -305,9 +305,12 @@ export const finalizeMatch = createServerFn({ method: "POST" })
 
     // XP payout — best effort
     if (winner_id && m.stake_xp > 0) {
-      await supabase.from("xp_events").insert({
-        user_id: winner_id, amount: m.stake_xp, kind: "drag_match_win", ref_id: m.id,
-      }).then(() => null).catch(() => null);
+      try {
+        await supabase.from("xp_events").insert({
+          user_id: winner_id, amount: m.stake_xp, kind: "drag_match_win", ref_id: m.id,
+        });
+      } catch { /* noop */ }
     }
     return { ok: true, winner_id, margin_s };
   });
+
