@@ -3615,6 +3615,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          allow_messages: string
           avatar_url: string | null
           bio: string | null
           business_address: string | null
@@ -3632,6 +3633,7 @@ export type Database = {
           id: string
           is_business: boolean
           is_premium: boolean
+          is_private: boolean
           is_suspended: boolean
           is_verified: boolean
           last_checkin_at: string | null
@@ -3655,6 +3657,7 @@ export type Database = {
           xp_total: number
         }
         Insert: {
+          allow_messages?: string
           avatar_url?: string | null
           bio?: string | null
           business_address?: string | null
@@ -3672,6 +3675,7 @@ export type Database = {
           id: string
           is_business?: boolean
           is_premium?: boolean
+          is_private?: boolean
           is_suspended?: boolean
           is_verified?: boolean
           last_checkin_at?: string | null
@@ -3695,6 +3699,7 @@ export type Database = {
           xp_total?: number
         }
         Update: {
+          allow_messages?: string
           avatar_url?: string | null
           bio?: string | null
           business_address?: string | null
@@ -3712,6 +3717,7 @@ export type Database = {
           id?: string
           is_business?: boolean
           is_premium?: boolean
+          is_private?: boolean
           is_suspended?: boolean
           is_verified?: boolean
           last_checkin_at?: string | null
