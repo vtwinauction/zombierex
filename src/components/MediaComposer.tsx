@@ -224,7 +224,9 @@ export function MediaComposer({ onDone }: Props) {
   const [progress, setProgress] = useState<Record<string, UploadProgress>>({});
   const [failed, setFailed] = useState<string[]>([]);
   const [scheduleAt, setScheduleAt] = useState<string>("");
-  const [postAsStory, setPostAsStory] = useState(false);
+  const [postType, setPostType] = useState<PostType>(() => loadLastPostType());
+  const [typeConfirmed, setTypeConfirmed] = useState(false);
+  const [typeSwitchWarn, setTypeSwitchWarn] = useState<PostType | null>(null);
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
   const pickGallery = useRef<HTMLInputElement>(null);
   const pickCamera = useRef<HTMLInputElement>(null);
