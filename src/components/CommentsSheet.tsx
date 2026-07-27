@@ -136,7 +136,6 @@ export function CommentsSheet({
         likes: 0,
       };
       const merged = [...localItems, next];
-      localStore.set(raw, merged);
       setLocalItems(merged);
       onSubmitted?.();
     }
@@ -152,7 +151,6 @@ export function CommentsSheet({
         ? { ...it, likedByMe: !it.likedByMe, likes: (it.likes ?? 0) + (it.likedByMe ? -1 : 1) }
         : it,
     );
-    localStore.set(raw, merged);
     setLocalItems(merged);
     void haptic("light");
   };

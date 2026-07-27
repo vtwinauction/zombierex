@@ -3,8 +3,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 type Reel = {
   id: string;
-  user: { id: string; handle: string; displayName: string; avatar: string; verified?: boolean; badge?: string };
+  user: { id: string; handle: string; avatar: string; verified?: boolean; name?: string; location?: string };
   vehicle?: { name: string; year?: number };
+  video?: string;
   poster: string;
   caption: string;
   hashtags: string[];
@@ -13,7 +14,8 @@ type Reel = {
   likes: number;
   comments: number;
   shares: number;
-  views: string;
+  saves?: number;
+  views: number | string;
   followed?: boolean;
   duration: number;
   taggedProduct?: { name: string; price: string };
