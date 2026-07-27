@@ -53,21 +53,34 @@ function DragHub() {
           </Link>
         </div>
 
-        <Link to="/drag/race" className="tap mt-4 block overflow-hidden rounded-2xl border p-4"
+        <Link to="/drag/challenge" className="tap mt-4 block overflow-hidden rounded-2xl border p-4"
           style={{
-            borderColor: "rgba(0,200,83,0.4)",
+            borderColor: "rgba(0,200,83,0.5)",
             background: "linear-gradient(120deg,#050505,#0f2015)",
-            boxShadow: "0 12px 32px rgba(0,200,83,0.20)",
+            boxShadow: "0 12px 32px rgba(0,200,83,0.22)",
           }}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="mono-caps text-[10px] font-black" style={{ color: "#00c853", letterSpacing: "0.24em" }}>◆ RACE MODE · LIVE</p>
-              <h2 className="serif mt-1 text-2xl" style={{ color: "#f5f5f5" }}>Christmas Tree · Dual HUD · AI Ghost</h2>
-              <p className="mt-1 text-xs" style={{ color: "#c0c0c0" }}>Immersive drag strip with reaction timing, live opponent and AI race analysis.</p>
+              <p className="mono-caps text-[10px] font-black" style={{ color: "#00c853", letterSpacing: "0.24em" }}>◆ CHALLENGE A RIDER · LIVE</p>
+              <h2 className="serif mt-1 text-2xl" style={{ color: "#f5f5f5" }}>Real rider vs real rider</h2>
+              <p className="mt-1 text-xs" style={{ color: "#c0c0c0" }}>Send a challenge, both accept, synchronized green light, live GPS in both lanes.</p>
             </div>
             <span className="mono-caps text-[10px] font-black" style={{ color: "#050505", background: "#00c853", padding: "10px 14px" }}>▶ RACE</span>
           </div>
         </Link>
+
+        <Link to="/drag/race" className="tap mt-3 block overflow-hidden rounded-2xl border p-3"
+          style={{ borderColor: "var(--color-hair)", background: "var(--color-graphite)" }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}>◇ PRACTICE · SOLO</p>
+              <p className="mt-1 text-sm font-bold" style={{ color: "var(--color-ink)" }}>Race an AI ghost opponent</p>
+              <p className="mt-1 text-xs" style={{ color: "var(--color-ink-3)" }}>Christmas Tree · dual HUD · AI race analysis</p>
+            </div>
+            <span className="mono-caps text-[10px]" style={{ color: "var(--color-silver)" }}>PRACTICE</span>
+          </div>
+        </Link>
+
 
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Link to="/drag/leaderboards" search={{ kind: "motorcycle", metric: "quarter_mile_s" }} className="tap rounded-lg border p-4" style={{ borderColor: "var(--color-hair)", background: "var(--color-graphite)" }}>

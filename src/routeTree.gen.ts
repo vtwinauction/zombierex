@@ -98,6 +98,7 @@ import { Route as AuthenticatedEventsIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDragRunRouteImport } from './routes/_authenticated/drag.run'
 import { Route as AuthenticatedDragRaceRouteImport } from './routes/_authenticated/drag.race'
 import { Route as AuthenticatedDragLeaderboardsRouteImport } from './routes/_authenticated/drag.leaderboards'
+import { Route as AuthenticatedDragChallengeRouteImport } from './routes/_authenticated/drag.challenge'
 import { Route as AuthenticatedDragIdRouteImport } from './routes/_authenticated/drag.$id'
 import { Route as AuthenticatedCreatorTiersRouteImport } from './routes/_authenticated/creator.tiers'
 import { Route as AuthenticatedCreatorDashboardRouteImport } from './routes/_authenticated/creator.dashboard'
@@ -129,6 +130,7 @@ import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/publ
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
+import { Route as AuthenticatedDragMatchIdRouteImport } from './routes/_authenticated/drag.match.$id'
 import { Route as AuthenticatedCommunitiesSlugManageRouteImport } from './routes/_authenticated/communities.$slug.manage'
 import { Route as AuthenticatedCheckoutPaymentPaymentIdRouteImport } from './routes/_authenticated/checkout.payment.$paymentId'
 import { Route as AuthenticatedCheckoutOrderIdRouteImport } from './routes/_authenticated/checkout.order.$id'
@@ -613,6 +615,12 @@ const AuthenticatedDragLeaderboardsRoute =
     path: '/drag/leaderboards',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDragChallengeRoute =
+  AuthenticatedDragChallengeRouteImport.update({
+    id: '/drag/challenge',
+    path: '/drag/challenge',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDragIdRoute = AuthenticatedDragIdRouteImport.update({
   id: '/drag/$id',
   path: '/drag/$id',
@@ -786,6 +794,12 @@ const AuthenticatedEventsIdEditRoute =
     path: '/events/$id/edit',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDragMatchIdRoute =
+  AuthenticatedDragMatchIdRouteImport.update({
+    id: '/drag/match/$id',
+    path: '/drag/match/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCommunitiesSlugManageRoute =
   AuthenticatedCommunitiesSlugManageRouteImport.update({
     id: '/communities/$slug/manage',
@@ -899,6 +913,7 @@ export interface FileRoutesByFullPath {
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
+  '/drag/challenge': typeof AuthenticatedDragChallengeRoute
   '/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
@@ -951,6 +966,7 @@ export interface FileRoutesByFullPath {
   '/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
   '/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
+  '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1025,6 +1041,7 @@ export interface FileRoutesByTo {
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
+  '/drag/challenge': typeof AuthenticatedDragChallengeRoute
   '/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
@@ -1077,6 +1094,7 @@ export interface FileRoutesByTo {
   '/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
   '/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
+  '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1156,6 +1174,7 @@ export interface FileRoutesById {
   '/_authenticated/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
   '/_authenticated/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/_authenticated/drag/$id': typeof AuthenticatedDragIdRoute
+  '/_authenticated/drag/challenge': typeof AuthenticatedDragChallengeRoute
   '/_authenticated/drag/leaderboards': typeof AuthenticatedDragLeaderboardsRoute
   '/_authenticated/drag/race': typeof AuthenticatedDragRaceRoute
   '/_authenticated/drag/run': typeof AuthenticatedDragRunRoute
@@ -1208,6 +1227,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout/order/$id': typeof AuthenticatedCheckoutOrderIdRoute
   '/_authenticated/checkout/payment/$paymentId': typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   '/_authenticated/communities/$slug/manage': typeof AuthenticatedCommunitiesSlugManageRoute
+  '/_authenticated/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1287,6 +1307,7 @@ export interface FileRouteTypes {
     | '/creator/dashboard'
     | '/creator/tiers'
     | '/drag/$id'
+    | '/drag/challenge'
     | '/drag/leaderboards'
     | '/drag/race'
     | '/drag/run'
@@ -1339,6 +1360,7 @@ export interface FileRouteTypes {
     | '/checkout/order/$id'
     | '/checkout/payment/$paymentId'
     | '/communities/$slug/manage'
+    | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
     | '/post/$id/edit'
@@ -1413,6 +1435,7 @@ export interface FileRouteTypes {
     | '/creator/dashboard'
     | '/creator/tiers'
     | '/drag/$id'
+    | '/drag/challenge'
     | '/drag/leaderboards'
     | '/drag/race'
     | '/drag/run'
@@ -1465,6 +1488,7 @@ export interface FileRouteTypes {
     | '/checkout/order/$id'
     | '/checkout/payment/$paymentId'
     | '/communities/$slug/manage'
+    | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
     | '/post/$id/edit'
@@ -1543,6 +1567,7 @@ export interface FileRouteTypes {
     | '/_authenticated/creator/dashboard'
     | '/_authenticated/creator/tiers'
     | '/_authenticated/drag/$id'
+    | '/_authenticated/drag/challenge'
     | '/_authenticated/drag/leaderboards'
     | '/_authenticated/drag/race'
     | '/_authenticated/drag/run'
@@ -1595,6 +1620,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout/order/$id'
     | '/_authenticated/checkout/payment/$paymentId'
     | '/_authenticated/communities/$slug/manage'
+    | '/_authenticated/drag/match/$id'
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
     | '/_authenticated/post/$id/edit'
@@ -2273,6 +2299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDragLeaderboardsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/drag/challenge': {
+      id: '/_authenticated/drag/challenge'
+      path: '/drag/challenge'
+      fullPath: '/drag/challenge'
+      preLoaderRoute: typeof AuthenticatedDragChallengeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/drag/$id': {
       id: '/_authenticated/drag/$id'
       path: '/drag/$id'
@@ -2490,6 +2523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEventsIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/drag/match/$id': {
+      id: '/_authenticated/drag/match/$id'
+      path: '/drag/match/$id'
+      fullPath: '/drag/match/$id'
+      preLoaderRoute: typeof AuthenticatedDragMatchIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/communities/$slug/manage': {
       id: '/_authenticated/communities/$slug/manage'
       path: '/communities/$slug/manage'
@@ -2701,6 +2741,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCreatorDashboardRoute: typeof AuthenticatedCreatorDashboardRoute
   AuthenticatedCreatorTiersRoute: typeof AuthenticatedCreatorTiersRoute
   AuthenticatedDragIdRoute: typeof AuthenticatedDragIdRoute
+  AuthenticatedDragChallengeRoute: typeof AuthenticatedDragChallengeRoute
   AuthenticatedDragLeaderboardsRoute: typeof AuthenticatedDragLeaderboardsRoute
   AuthenticatedDragRaceRoute: typeof AuthenticatedDragRaceRoute
   AuthenticatedDragRunRoute: typeof AuthenticatedDragRunRoute
@@ -2721,6 +2762,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCheckoutOrderIdRoute: typeof AuthenticatedCheckoutOrderIdRoute
   AuthenticatedCheckoutPaymentPaymentIdRoute: typeof AuthenticatedCheckoutPaymentPaymentIdRoute
   AuthenticatedCommunitiesSlugManageRoute: typeof AuthenticatedCommunitiesSlugManageRoute
+  AuthenticatedDragMatchIdRoute: typeof AuthenticatedDragMatchIdRoute
   AuthenticatedEventsIdEditRoute: typeof AuthenticatedEventsIdEditRoute
   AuthenticatedJudgeSubmitEventSlugRoute: typeof AuthenticatedJudgeSubmitEventSlugRoute
   AuthenticatedPostIdEditRoute: typeof AuthenticatedPostIdEditRoute
@@ -2760,6 +2802,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreatorDashboardRoute: AuthenticatedCreatorDashboardRoute,
   AuthenticatedCreatorTiersRoute: AuthenticatedCreatorTiersRoute,
   AuthenticatedDragIdRoute: AuthenticatedDragIdRoute,
+  AuthenticatedDragChallengeRoute: AuthenticatedDragChallengeRoute,
   AuthenticatedDragLeaderboardsRoute: AuthenticatedDragLeaderboardsRoute,
   AuthenticatedDragRaceRoute: AuthenticatedDragRaceRoute,
   AuthenticatedDragRunRoute: AuthenticatedDragRunRoute,
@@ -2783,6 +2826,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedCheckoutPaymentPaymentIdRoute,
   AuthenticatedCommunitiesSlugManageRoute:
     AuthenticatedCommunitiesSlugManageRoute,
+  AuthenticatedDragMatchIdRoute: AuthenticatedDragMatchIdRoute,
   AuthenticatedEventsIdEditRoute: AuthenticatedEventsIdEditRoute,
   AuthenticatedJudgeSubmitEventSlugRoute:
     AuthenticatedJudgeSubmitEventSlugRoute,

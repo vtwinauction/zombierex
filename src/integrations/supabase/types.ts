@@ -1429,6 +1429,166 @@ export type Database = {
           },
         ]
       }
+      drag_challenges: {
+        Row: {
+          challenger_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          match_id: string | null
+          message: string | null
+          opponent_id: string
+          stake_xp: number
+          status: string
+          strip_mode: string
+          tree_mode: string
+          updated_at: string
+        }
+        Insert: {
+          challenger_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          match_id?: string | null
+          message?: string | null
+          opponent_id: string
+          stake_xp?: number
+          status?: string
+          strip_mode?: string
+          tree_mode?: string
+          updated_at?: string
+        }
+        Update: {
+          challenger_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          match_id?: string | null
+          message?: string | null
+          opponent_id?: string
+          stake_xp?: number
+          status?: string
+          strip_mode?: string
+          tree_mode?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      drag_match_telemetry: {
+        Row: {
+          accuracy_m: number | null
+          created_at: string
+          distance_m: number
+          id: number
+          lat: number | null
+          lng: number | null
+          match_id: string
+          rider_id: string
+          speed_kmh: number
+          t_ms: number
+        }
+        Insert: {
+          accuracy_m?: number | null
+          created_at?: string
+          distance_m?: number
+          id?: number
+          lat?: number | null
+          lng?: number | null
+          match_id: string
+          rider_id: string
+          speed_kmh?: number
+          t_ms: number
+        }
+        Update: {
+          accuracy_m?: number | null
+          created_at?: string
+          distance_m?: number
+          id?: number
+          lat?: number | null
+          lng?: number | null
+          match_id?: string
+          rider_id?: string
+          speed_kmh?: number
+          t_ms?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drag_match_telemetry_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "drag_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      drag_matches: {
+        Row: {
+          challenge_id: string | null
+          created_at: string
+          green_at: string | null
+          id: string
+          margin_s: number | null
+          ready_a: boolean
+          ready_b: boolean
+          result_a: Json | null
+          result_b: Json | null
+          rider_a: string
+          rider_b: string
+          stake_xp: number
+          status: string
+          strip_mode: string
+          tree_mode: string
+          updated_at: string
+          winner_id: string | null
+        }
+        Insert: {
+          challenge_id?: string | null
+          created_at?: string
+          green_at?: string | null
+          id?: string
+          margin_s?: number | null
+          ready_a?: boolean
+          ready_b?: boolean
+          result_a?: Json | null
+          result_b?: Json | null
+          rider_a: string
+          rider_b: string
+          stake_xp?: number
+          status?: string
+          strip_mode?: string
+          tree_mode?: string
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Update: {
+          challenge_id?: string | null
+          created_at?: string
+          green_at?: string | null
+          id?: string
+          margin_s?: number | null
+          ready_a?: boolean
+          ready_b?: boolean
+          result_a?: Json | null
+          result_b?: Json | null
+          rider_a?: string
+          rider_b?: string
+          stake_xp?: number
+          status?: string
+          strip_mode?: string
+          tree_mode?: string
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drag_matches_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "drag_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       drag_run_points: {
         Row: {
           accuracy_m: number | null
@@ -5430,6 +5590,10 @@ export type Database = {
       }
       is_conversation_member: {
         Args: { _conv: string; _user: string }
+        Returns: boolean
+      }
+      is_drag_match_participant: {
+        Args: { _match: string; _user: string }
         Returns: boolean
       }
       is_group_ride_member: {
