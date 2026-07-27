@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress } from "@/lib/media-upload";
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
+import { createStory } from "@/lib/stories.functions";
 import { moderateImage } from "@/lib/moderation-image.functions";
 import { checkTextSafety } from "@/lib/moderation-text.functions";
 import { MusicLibrary, type SelectedTrack } from "@/components/MusicLibrary";
