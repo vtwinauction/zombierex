@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { reels, type Reel } from "@/lib/mock-data";
+import type { Reel } from "@/lib/mock-data";
 import { RiderMark } from "@/components/RiderBadge";
 import { IconClaw, IconVisor, IconMechClaw, IconBoneMark } from "@/components/icons/RexIcons";
 import { ReportBlockSheet } from "@/components/ReportBlockSheet";
