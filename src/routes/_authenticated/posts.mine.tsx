@@ -74,8 +74,8 @@ function MyPostsPage() {
                   Edit
                 </Link>
                 <button
-                  onClick={() => {
-                    if (confirm("Delete this post? This cannot be undone.")) del.mutate(p.id);
+                  onClick={async () => {
+                    if (await confirmDialog({ title: "Delete this post?", description: "This cannot be undone.", destructive: true, confirmLabel: "Delete" })) del.mutate(p.id);
                   }}
                   className="tap rounded-md px-3 py-1 text-[11px] font-semibold"
                   style={{ border: "1px solid rgba(255,80,80,0.5)", color: "#ff6b6b" }}
