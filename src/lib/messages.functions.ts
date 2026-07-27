@@ -150,6 +150,21 @@ export const sendMessage = createServerFn({ method: "POST" })
     if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
       ? "You're sending messages too fast — wait a moment."
       : rlErr.message);
+    // Server-side moderation — fail-open on gateway errors.
+    if (data.body && data.body.trim().length >= 3) {
+      const { moderateText } = await import("./moderation-text.server");
+      const verdict = await moderateText(data.body);
+      if (!verdict.safe && !verdict.skipped) {
+        throw new Error(`Message blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+      }
+    }
+    if (data.mediaUrl) {
+      const { moderateImageUrl } = await import("./moderation-image.server");
+      const verdict = await moderateImageUrl(data.mediaUrl);
+      if (!verdict.safe && !verdict.skipped) {
+        throw new Error(`Image blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+      }
+    }
     const { data: row, error } = await context.supabase
       .from("messages")
       .insert({
