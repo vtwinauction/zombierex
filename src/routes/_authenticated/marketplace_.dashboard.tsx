@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getSellerDashboard, updateListing, deleteListing } from "@/lib/marketplace.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/marketplace_/dashboard")({
   head: () => ({ meta: [{ title: "Seller Dashboard · ZOMBIEREX" }] }),
