@@ -16,7 +16,7 @@ import { StoriesRail } from "@/components/StoriesRail";
 import { useFollow } from "@/hooks/useFollow";
 import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
 import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
