@@ -20,7 +20,7 @@ export type AutoplayVideoProps = Omit<VideoHTMLAttributes<HTMLVideoElement>, "mu
   className?: string;
 };
 
-export function AutoplayVideo({
+export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(function AutoplayVideo({
   src,
   poster,
   forcePlay,
@@ -30,8 +30,9 @@ export function AutoplayVideo({
   className,
   onClick,
   ...rest
-}: AutoplayVideoProps) {
+}, forwardedRef) {
   const ref = useRef<HTMLVideoElement>(null);
+  useImperativeHandle(forwardedRef, () => ref.current as HTMLVideoElement, []);
   const [inView, setInView] = useState(false);
 
   // Visibility
