@@ -122,6 +122,44 @@ function NotificationsPage() {
 
   const rows = q.data ?? [];
   const unread = rows.filter((r) => !r.read_at).length;
+  const visible = useMemo(
+    () => (filter === "unread" ? rows.filter((r) => !r.read_at) : rows),
+    [rows, filter],
+  );
+
+  function hrefFor(n: NotifRow): string | null {
+    const pay = (n.payload ?? {}) as Record<string, unknown>;
+    const postId = (pay.post_id as string) || (pay.postId as string);
+    const actorHandle = (pay.actor_handle as string) || (pay.actor_username as string);
+    const threadId = (pay.thread_id as string) || (pay.threadId as string);
+    const listingId = (pay.listing_id as string) || (pay.listingId as string);
+    const eventId = (pay.event_id as string) || (pay.eventId as string);
+    switch (n.kind) {
+      case "like":
+      case "comment":
+      case "mention":
+        return postId ? `/post/${postId}` : null;
+      case "follow":
+        return actorHandle ? `/u/${actorHandle}` : null;
+      case "message":
+        return threadId ? `/messages/${threadId}` : "/messages";
+      case "marketplace":
+      case "order":
+        return listingId ? `/marketplace/${listingId}` : "/marketplace";
+      case "event":
+      case "booking":
+        return eventId ? `/events/${eventId}` : "/events";
+      default:
+        return null;
+    }
+  }
+
+  function handleOpen(n: NotifRow) {
+    if (!n.read_at) markOneMut.mutate(n.id);
+    const href = hrefFor(n);
+    if (href) router.navigate({ to: href });
+  }
+
 
   return (
     <PullToRefresh onRefresh={async () => { await qc.invalidateQueries({ queryKey: ["notifications"] }); }}>
