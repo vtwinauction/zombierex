@@ -45,6 +45,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
+import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as AuthenticatedOwnerRouteImport } from './routes/_authenticated/owner'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -324,6 +325,11 @@ const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
 const AuthenticatedRewardsRoute = AuthenticatedRewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOwnerRoute = AuthenticatedOwnerRouteImport.update({
@@ -910,6 +916,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -1046,6 +1053,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -1183,6 +1191,7 @@ export interface FileRoutesById {
   '/_authenticated/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
@@ -1322,6 +1331,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/onboarding'
     | '/owner'
+    | '/referrals'
     | '/rewards'
     | '/saved'
     | '/security'
@@ -1458,6 +1468,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/onboarding'
     | '/owner'
+    | '/referrals'
     | '/rewards'
     | '/saved'
     | '/security'
@@ -1594,6 +1605,7 @@ export interface FileRouteTypes {
     | '/_authenticated/messages'
     | '/_authenticated/onboarding'
     | '/_authenticated/owner'
+    | '/_authenticated/referrals'
     | '/_authenticated/rewards'
     | '/_authenticated/saved'
     | '/_authenticated/security'
@@ -2007,6 +2019,13 @@ declare module '@tanstack/react-router' {
       path: '/rewards'
       fullPath: '/rewards'
       preLoaderRoute: typeof AuthenticatedRewardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/referrals': {
+      id: '/_authenticated/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof AuthenticatedReferralsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/owner': {
@@ -2853,6 +2872,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
+  AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
   AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
@@ -2915,6 +2935,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMessagesRoute: AuthenticatedMessagesRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,
+  AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
   AuthenticatedSavedRoute: AuthenticatedSavedRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
