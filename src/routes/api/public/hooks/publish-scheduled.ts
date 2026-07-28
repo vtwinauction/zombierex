@@ -35,8 +35,8 @@ export const Route = createFileRoute("/api/public/hooks/publish-scheduled")({
 
         for (const s of due) {
           const media = Array.isArray(s.media_urls) ? s.media_urls : [];
-          const kind = ["video", "photo", "telemetry", "event"].includes(s.kind) ? s.kind : "photo";
-          const insertRow: Record<string, unknown> = {
+          const kind = (["video", "photo", "telemetry", "event"].includes(s.kind) ? s.kind : "photo") as "video" | "photo" | "telemetry" | "event";
+          const insertRow = {
             author_id: s.author_id,
             kind,
             caption: s.caption ?? null,
