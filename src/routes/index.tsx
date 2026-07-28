@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InteractionBar } from "@/components/InteractionBar";
 import { CommentsSheet } from "@/components/CommentsSheet";
 import { RiderMark } from "@/components/RiderBadge";
@@ -105,12 +105,18 @@ function HomePage() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
     return () => { alive = false; sub.subscription.unsubscribe(); };
   }, []);
-  const liveFeed = useQuery({
+  const liveFeed = useInfiniteQuery({
     queryKey: ["feed", "live", signedIn ? "authed" : "anon"],
-    queryFn: () => (signedIn ? fetchAuthedFeed({ data: { limit: 20 } }) : fetchFeed({ data: { limit: 20 } })),
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam }) =>
+      signedIn
+        ? fetchAuthedFeed({ data: { limit: 20, cursor: pageParam } })
+        : fetchFeed({ data: { limit: 20, cursor: pageParam } }),
+    getNextPageParam: (last: any) => last?.nextCursor ?? undefined,
     staleTime: 30_000,
   });
-  const realPosts = (liveFeed.data?.items ?? []).map((r: any) => {
+  const allItems = (liveFeed.data?.pages ?? []).flatMap((p: any) => p?.items ?? []);
+  const realPosts = allItems.map((r: any) => {
     const a = r.author ?? {};
     const mins = Math.max(1, Math.round((Date.now() - new Date(r.created_at).getTime()) / 60000));
     const timeAgo = mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.round(mins/60)}h` : `${Math.round(mins/1440)}d`;
@@ -140,6 +146,21 @@ function HomePage() {
   // C-10: no mock fallback. Empty feed shows real emptiness, not sample data.
   const feedPosts = realPosts;
   const feedIsEmpty = !liveFeed.isLoading && realPosts.length === 0;
+
+  // IntersectionObserver sentinel — auto-load next page as user scrolls.
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting && liveFeed.hasNextPage && !liveFeed.isFetchingNextPage) {
+        liveFeed.fetchNextPage();
+      }
+    }, { rootMargin: "600px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [liveFeed.hasNextPage, liveFeed.isFetchingNextPage, liveFeed.fetchNextPage]);
+
 
 
 
