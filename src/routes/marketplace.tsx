@@ -5,6 +5,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { Search, SlidersHorizontal, ArrowUpDown, Plus, MapPin, Star } from "lucide-react";
 import { listListings, LISTING_CATEGORIES, LISTING_CONDITIONS } from "@/lib/marketplace.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { AutoplayVideo, isVideoUrl } from "@/components/AutoplayVideo";
+
+function HeroMedia({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  if (isVideoUrl(src)) {
+    return <AutoplayVideo src={src} className={className} muted />;
+  }
+  return <img src={src} alt={alt} className={className} loading="lazy" />;
+}
 
 export const Route = createFileRoute("/marketplace")({
   head: () => ({
@@ -274,11 +282,10 @@ function FeaturedCard({ listing }: { listing: any }) {
       >
         <div className="relative aspect-[16/10] w-full overflow-hidden" style={{ background: "var(--color-paper-2)" }}>
           {l.hero_image_url ? (
-            <img
+            <HeroMedia
               src={l.hero_image_url}
               alt={l.title}
               className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.02]"
-              loading="lazy"
             />
           ) : null}
           <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5">
@@ -363,11 +370,10 @@ function ListingCard({ listing }: { listing: any }) {
     >
       <div className="relative aspect-square w-full overflow-hidden" style={{ background: "var(--color-paper-2)" }}>
         {l.hero_image_url ? (
-          <img
+          <HeroMedia
             src={l.hero_image_url}
             alt={l.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            loading="lazy"
           />
         ) : null}
         <div className="pointer-events-none absolute left-2 top-2 flex flex-wrap gap-1">
