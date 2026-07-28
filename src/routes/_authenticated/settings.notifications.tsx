@@ -110,7 +110,7 @@ function NotifPrefsPage() {
     const ok = await confirmDialog({
       title: "Revoke device?",
       description: `${label} will stop receiving push notifications until it re-registers.`,
-      confirmText: "Revoke",
+      confirmLabel: "Revoke",
       destructive: true,
     });
     if (ok) revokeM.mutate(id);
