@@ -116,10 +116,11 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
               if ((full as any).order_id) {
                 const { data: order } = await supabaseAdmin
                   .from("orders")
-                  .select("seller_id")
+                  .select("vendor_id")
                   .eq("id", (full as any).order_id)
                   .maybeSingle();
-                sellerId = (order as any)?.seller_id ?? null;
+                sellerId = (order as any)?.vendor_id ?? null;
+
               }
               const { settleTransaction } = await import("@/lib/finance.server");
               await settleTransaction({
