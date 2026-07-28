@@ -142,6 +142,7 @@ import { Route as ApiPublicHooksFanoutPushRouteImport } from './routes/api/publi
 import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
 import { Route as AuthenticatedOwnerFinanceTransactionsRouteImport } from './routes/_authenticated/owner.finance.transactions'
+import { Route as AuthenticatedOwnerFinanceSellersRouteImport } from './routes/_authenticated/owner.finance.sellers'
 import { Route as AuthenticatedOwnerFinancePaymentsRouteImport } from './routes/_authenticated/owner.finance.payments'
 import { Route as AuthenticatedOwnerFinanceCommissionsRouteImport } from './routes/_authenticated/owner.finance.commissions'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
@@ -878,6 +879,12 @@ const AuthenticatedOwnerFinanceTransactionsRoute =
     path: '/transactions',
     getParentRoute: () => AuthenticatedOwnerFinanceRoute,
   } as any)
+const AuthenticatedOwnerFinanceSellersRoute =
+  AuthenticatedOwnerFinanceSellersRouteImport.update({
+    id: '/sellers',
+    path: '/sellers',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
 const AuthenticatedOwnerFinancePaymentsRoute =
   AuthenticatedOwnerFinancePaymentsRouteImport.update({
     id: '/payments',
@@ -1088,6 +1095,7 @@ export interface FileRoutesByFullPath {
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
   '/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
@@ -1231,6 +1239,7 @@ export interface FileRoutesByTo {
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
   '/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
@@ -1380,6 +1389,7 @@ export interface FileRoutesById {
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/_authenticated/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/_authenticated/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/_authenticated/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
   '/_authenticated/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
@@ -1529,6 +1539,7 @@ export interface FileRouteTypes {
     | '/judge/submit/$eventSlug'
     | '/owner/finance/commissions'
     | '/owner/finance/payments'
+    | '/owner/finance/sellers'
     | '/owner/finance/transactions'
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
@@ -1672,6 +1683,7 @@ export interface FileRouteTypes {
     | '/judge/submit/$eventSlug'
     | '/owner/finance/commissions'
     | '/owner/finance/payments'
+    | '/owner/finance/sellers'
     | '/owner/finance/transactions'
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
@@ -1820,6 +1832,7 @@ export interface FileRouteTypes {
     | '/_authenticated/judge/submit/$eventSlug'
     | '/_authenticated/owner/finance/commissions'
     | '/_authenticated/owner/finance/payments'
+    | '/_authenticated/owner/finance/sellers'
     | '/_authenticated/owner/finance/transactions'
     | '/_authenticated/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
@@ -2814,6 +2827,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerFinanceTransactionsRouteImport
       parentRoute: typeof AuthenticatedOwnerFinanceRoute
     }
+    '/_authenticated/owner/finance/sellers': {
+      id: '/_authenticated/owner/finance/sellers'
+      path: '/sellers'
+      fullPath: '/owner/finance/sellers'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceSellersRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
     '/_authenticated/owner/finance/payments': {
       id: '/_authenticated/owner/finance/payments'
       path: '/payments'
@@ -2959,6 +2979,7 @@ const AuthenticatedMessagesRouteWithChildren =
 interface AuthenticatedOwnerFinanceRouteChildren {
   AuthenticatedOwnerFinanceCommissionsRoute: typeof AuthenticatedOwnerFinanceCommissionsRoute
   AuthenticatedOwnerFinancePaymentsRoute: typeof AuthenticatedOwnerFinancePaymentsRoute
+  AuthenticatedOwnerFinanceSellersRoute: typeof AuthenticatedOwnerFinanceSellersRoute
   AuthenticatedOwnerFinanceTransactionsRoute: typeof AuthenticatedOwnerFinanceTransactionsRoute
   AuthenticatedOwnerFinanceIndexRoute: typeof AuthenticatedOwnerFinanceIndexRoute
 }
@@ -2969,6 +2990,8 @@ const AuthenticatedOwnerFinanceRouteChildren: AuthenticatedOwnerFinanceRouteChil
       AuthenticatedOwnerFinanceCommissionsRoute,
     AuthenticatedOwnerFinancePaymentsRoute:
       AuthenticatedOwnerFinancePaymentsRoute,
+    AuthenticatedOwnerFinanceSellersRoute:
+      AuthenticatedOwnerFinanceSellersRoute,
     AuthenticatedOwnerFinanceTransactionsRoute:
       AuthenticatedOwnerFinanceTransactionsRoute,
     AuthenticatedOwnerFinanceIndexRoute: AuthenticatedOwnerFinanceIndexRoute,
