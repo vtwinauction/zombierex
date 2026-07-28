@@ -27,6 +27,7 @@ import { Route as CommunitiesIndexRouteImport } from './routes/communities.index
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
 import { Route as ReelsIdRouteImport } from './routes/reels.$id'
+import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
@@ -229,6 +230,11 @@ const ReelsIdRoute = ReelsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => ReelsRoute,
+} as any)
+const PostIdRoute = PostIdRouteImport.update({
+  id: '/post/$id',
+  path: '/post/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PIdRoute = PIdRouteImport.update({
   id: '/p/$id',
@@ -893,6 +899,7 @@ export interface FileRoutesByFullPath {
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
+  '/post/$id': typeof PostIdRoute
   '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/u/$handle': typeof UHandleRoute
@@ -1022,6 +1029,7 @@ export interface FileRoutesByTo {
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
+  '/post/$id': typeof PostIdRoute
   '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/u/$handle': typeof UHandleRoute
@@ -1156,6 +1164,7 @@ export interface FileRoutesById {
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace_/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
+  '/post/$id': typeof PostIdRoute
   '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
   '/u/$handle': typeof UHandleRoute
@@ -1290,6 +1299,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/marketplace/$id'
     | '/p/$id'
+    | '/post/$id'
     | '/reels/$id'
     | '/sos/$token'
     | '/u/$handle'
@@ -1419,6 +1429,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/marketplace/$id'
     | '/p/$id'
+    | '/post/$id'
     | '/reels/$id'
     | '/sos/$token'
     | '/u/$handle'
@@ -1552,6 +1563,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/marketplace_/$id'
     | '/p/$id'
+    | '/post/$id'
     | '/reels/$id'
     | '/sos/$token'
     | '/u/$handle'
@@ -1673,6 +1685,7 @@ export interface RootRouteChildren {
   LegalTermsRoute: typeof LegalTermsRoute
   MarketplaceIdRoute: typeof MarketplaceIdRoute
   PIdRoute: typeof PIdRoute
+  PostIdRoute: typeof PostIdRoute
   SosTokenRoute: typeof SosTokenRoute
   UHandleRoute: typeof UHandleRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
@@ -1814,6 +1827,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/reels/$id'
       preLoaderRoute: typeof ReelsIdRouteImport
       parentRoute: typeof ReelsRoute
+    }
+    '/post/$id': {
+      id: '/post/$id'
+      path: '/post/$id'
+      fullPath: '/post/$id'
+      preLoaderRoute: typeof PostIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/p/$id': {
       id: '/p/$id'
@@ -2932,6 +2952,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalTermsRoute: LegalTermsRoute,
   MarketplaceIdRoute: MarketplaceIdRoute,
   PIdRoute: PIdRoute,
+  PostIdRoute: PostIdRoute,
   SosTokenRoute: SosTokenRoute,
   UHandleRoute: UHandleRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
