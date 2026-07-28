@@ -2,4 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /_authenticated/
 Disallow: /api/
-Sitemap: https://rev-n-roll-connect.lovable.app/sitemap.xml
+Disallow: /owner/
+Disallow: /admin/
+
+Sitemap: /sitemap.xml
