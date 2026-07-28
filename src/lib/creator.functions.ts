@@ -505,3 +505,69 @@ export const cancelScheduled = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// -------- Creator payouts ledger --------
+export const getMyPayoutsLedger = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: creator } = await context.supabase
+      .from("creator_profiles")
+      .select("id, subscribers_count, tips_total_cents, status")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (!creator) {
+      return { is_creator: false, tips: [], subscriptions: [], summary: null };
+    }
+
+    const [{ data: tips }, { data: subs }] = await Promise.all([
+      context.supabase
+        .from("creator_tips")
+        .select("id, amount_cents, currency, message, created_at, supporter_id")
+        .eq("creator_id", creator.id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      context.supabase
+        .from("creator_subscriptions")
+        .select("id, status, current_period_end, created_at, subscriber_id, tier_id")
+        .eq("creator_id", creator.id)
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
+
+    const supporterIds = Array.from(new Set([
+      ...(tips ?? []).map((t) => t.supporter_id),
+      ...(subs ?? []).map((s) => s.subscriber_id),
+    ]));
+    let profiles: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
+    if (supporterIds.length > 0) {
+      const { data: rows } = await context.supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", supporterIds);
+      for (const row of rows ?? []) {
+        profiles[row.id] = { display_name: row.display_name, avatar_url: row.avatar_url };
+      }
+    }
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const tipsMonth = (tips ?? [])
+      .filter((t) => new Date(t.created_at) >= monthStart)
+      .reduce((sum, t) => sum + (t.amount_cents ?? 0), 0);
+    const activeSubs = (subs ?? []).filter((s) => s.status === "active").length;
+
+    return {
+      is_creator: true,
+      summary: {
+        lifetime_tips_cents: creator.tips_total_cents ?? 0,
+        tips_this_month_cents: tipsMonth,
+        subscribers: creator.subscribers_count ?? 0,
+        active_subscriptions: activeSubs,
+        status: creator.status,
+      },
+      tips: (tips ?? []).map((t) => ({ ...t, supporter: profiles[t.supporter_id] ?? null })),
+      subscriptions: (subs ?? []).map((s) => ({ ...s, subscriber: profiles[s.subscriber_id] ?? null })),
+    };
+  });
+

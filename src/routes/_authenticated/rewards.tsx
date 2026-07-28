@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -110,7 +110,9 @@ function RewardsPage() {
       <div className="mx-4 mt-3 grid grid-cols-3 gap-3">
         <StatTile icon={<Flame className="h-5 w-5" />} label="STREAK" value={`${s?.streak_days ?? 0}d`} />
         <StatTile icon={<Award className="h-5 w-5" />} label="BADGES" value={`${s?.achievements_unlocked ?? 0}`} />
-        <StatTile icon={<Users className="h-5 w-5" />} label="INVITES" value={`${s?.referrals ?? 0}`} />
+        <Link to="/referrals" className="contents">
+          <StatTile icon={<Users className="h-5 w-5" />} label="INVITES ▸" value={`${s?.referrals ?? 0}`} />
+        </Link>
       </div>
 
       {/* Daily check-in */}

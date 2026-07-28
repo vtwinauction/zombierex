@@ -45,6 +45,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticated/security'
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
+import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
 import { Route as AuthenticatedOwnerRouteImport } from './routes/_authenticated/owner'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -104,6 +105,7 @@ import { Route as AuthenticatedDragChallengeRouteImport } from './routes/_authen
 import { Route as AuthenticatedDragIdRouteImport } from './routes/_authenticated/drag.$id'
 import { Route as AuthenticatedCreatorTiersRouteImport } from './routes/_authenticated/creator.tiers'
 import { Route as AuthenticatedCreatorScheduledRouteImport } from './routes/_authenticated/creator.scheduled'
+import { Route as AuthenticatedCreatorPayoutsRouteImport } from './routes/_authenticated/creator.payouts'
 import { Route as AuthenticatedCreatorDashboardRouteImport } from './routes/_authenticated/creator.dashboard'
 import { Route as AuthenticatedCreatorCollabsRouteImport } from './routes/_authenticated/creator.collabs'
 import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authenticated/creator.apply'
@@ -324,6 +326,11 @@ const AuthenticatedSavedRoute = AuthenticatedSavedRouteImport.update({
 const AuthenticatedRewardsRoute = AuthenticatedRewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOwnerRoute = AuthenticatedOwnerRouteImport.update({
@@ -655,6 +662,12 @@ const AuthenticatedCreatorScheduledRoute =
     path: '/creator/scheduled',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCreatorPayoutsRoute =
+  AuthenticatedCreatorPayoutsRouteImport.update({
+    id: '/creator/payouts',
+    path: '/creator/payouts',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCreatorDashboardRoute =
   AuthenticatedCreatorDashboardRouteImport.update({
     id: '/creator/dashboard',
@@ -910,6 +923,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -953,6 +967,7 @@ export interface FileRoutesByFullPath {
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
+  '/creator/payouts': typeof AuthenticatedCreatorPayoutsRoute
   '/creator/scheduled': typeof AuthenticatedCreatorScheduledRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
@@ -1046,6 +1061,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/referrals': typeof AuthenticatedReferralsRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
   '/security': typeof AuthenticatedSecurityRoute
@@ -1087,6 +1103,7 @@ export interface FileRoutesByTo {
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
+  '/creator/payouts': typeof AuthenticatedCreatorPayoutsRoute
   '/creator/scheduled': typeof AuthenticatedCreatorScheduledRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
@@ -1183,6 +1200,7 @@ export interface FileRoutesById {
   '/_authenticated/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
+  '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
   '/_authenticated/security': typeof AuthenticatedSecurityRoute
@@ -1226,6 +1244,7 @@ export interface FileRoutesById {
   '/_authenticated/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/_authenticated/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/_authenticated/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
+  '/_authenticated/creator/payouts': typeof AuthenticatedCreatorPayoutsRoute
   '/_authenticated/creator/scheduled': typeof AuthenticatedCreatorScheduledRoute
   '/_authenticated/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/_authenticated/drag/$id': typeof AuthenticatedDragIdRoute
@@ -1322,6 +1341,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/onboarding'
     | '/owner'
+    | '/referrals'
     | '/rewards'
     | '/saved'
     | '/security'
@@ -1365,6 +1385,7 @@ export interface FileRouteTypes {
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
+    | '/creator/payouts'
     | '/creator/scheduled'
     | '/creator/tiers'
     | '/drag/$id'
@@ -1458,6 +1479,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/onboarding'
     | '/owner'
+    | '/referrals'
     | '/rewards'
     | '/saved'
     | '/security'
@@ -1499,6 +1521,7 @@ export interface FileRouteTypes {
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
+    | '/creator/payouts'
     | '/creator/scheduled'
     | '/creator/tiers'
     | '/drag/$id'
@@ -1594,6 +1617,7 @@ export interface FileRouteTypes {
     | '/_authenticated/messages'
     | '/_authenticated/onboarding'
     | '/_authenticated/owner'
+    | '/_authenticated/referrals'
     | '/_authenticated/rewards'
     | '/_authenticated/saved'
     | '/_authenticated/security'
@@ -1637,6 +1661,7 @@ export interface FileRouteTypes {
     | '/_authenticated/creator/apply'
     | '/_authenticated/creator/collabs'
     | '/_authenticated/creator/dashboard'
+    | '/_authenticated/creator/payouts'
     | '/_authenticated/creator/scheduled'
     | '/_authenticated/creator/tiers'
     | '/_authenticated/drag/$id'
@@ -2007,6 +2032,13 @@ declare module '@tanstack/react-router' {
       path: '/rewards'
       fullPath: '/rewards'
       preLoaderRoute: typeof AuthenticatedRewardsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/referrals': {
+      id: '/_authenticated/referrals'
+      path: '/referrals'
+      fullPath: '/referrals'
+      preLoaderRoute: typeof AuthenticatedReferralsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/owner': {
@@ -2420,6 +2452,13 @@ declare module '@tanstack/react-router' {
       path: '/creator/scheduled'
       fullPath: '/creator/scheduled'
       preLoaderRoute: typeof AuthenticatedCreatorScheduledRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/creator/payouts': {
+      id: '/_authenticated/creator/payouts'
+      path: '/creator/payouts'
+      fullPath: '/creator/payouts'
+      preLoaderRoute: typeof AuthenticatedCreatorPayoutsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/creator/dashboard': {
@@ -2853,6 +2892,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
+  AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
   AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
   AuthenticatedSecurityRoute: typeof AuthenticatedSecurityRoute
@@ -2873,6 +2913,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCreatorApplyRoute: typeof AuthenticatedCreatorApplyRoute
   AuthenticatedCreatorCollabsRoute: typeof AuthenticatedCreatorCollabsRoute
   AuthenticatedCreatorDashboardRoute: typeof AuthenticatedCreatorDashboardRoute
+  AuthenticatedCreatorPayoutsRoute: typeof AuthenticatedCreatorPayoutsRoute
   AuthenticatedCreatorScheduledRoute: typeof AuthenticatedCreatorScheduledRoute
   AuthenticatedCreatorTiersRoute: typeof AuthenticatedCreatorTiersRoute
   AuthenticatedDragIdRoute: typeof AuthenticatedDragIdRoute
@@ -2915,6 +2956,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMessagesRoute: AuthenticatedMessagesRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,
+  AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
   AuthenticatedSavedRoute: AuthenticatedSavedRoute,
   AuthenticatedSecurityRoute: AuthenticatedSecurityRoute,
@@ -2935,6 +2977,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreatorApplyRoute: AuthenticatedCreatorApplyRoute,
   AuthenticatedCreatorCollabsRoute: AuthenticatedCreatorCollabsRoute,
   AuthenticatedCreatorDashboardRoute: AuthenticatedCreatorDashboardRoute,
+  AuthenticatedCreatorPayoutsRoute: AuthenticatedCreatorPayoutsRoute,
   AuthenticatedCreatorScheduledRoute: AuthenticatedCreatorScheduledRoute,
   AuthenticatedCreatorTiersRoute: AuthenticatedCreatorTiersRoute,
   AuthenticatedDragIdRoute: AuthenticatedDragIdRoute,
