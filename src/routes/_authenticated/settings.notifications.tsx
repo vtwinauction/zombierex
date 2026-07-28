@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SettingsScreen, Card } from "@/components/SettingsScreen";
 import { getMyPreferences, updateMyPreferences } from "@/lib/notifications.functions";
+import { listMyDevices, revokeMyDevice, sendTestPush } from "@/lib/devices.functions";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/settings/notifications")({
   head: () => ({
@@ -48,10 +50,18 @@ function NotifPrefsPage() {
   const qc = useQueryClient();
   const getPrefs = useServerFn(getMyPreferences);
   const updatePrefs = useServerFn(updateMyPreferences);
+  const listDevices = useServerFn(listMyDevices);
+  const revokeDevice = useServerFn(revokeMyDevice);
+  const testPush = useServerFn(sendTestPush);
 
   const prefsQ = useQuery({
     queryKey: ["notifications", "preferences", "mine"],
     queryFn: async () => await getPrefs(),
+  });
+
+  const devicesQ = useQuery({
+    queryKey: ["notifications", "devices", "mine"],
+    queryFn: async () => await listDevices(),
   });
 
   const [p, setP] = useState<Prefs>(DEF);
@@ -69,10 +79,41 @@ function NotifPrefsPage() {
     onError: (e: any) => toast.error(e?.message ?? "Failed to save"),
   });
 
+  const revokeM = useMutation({
+    mutationFn: async (id: string) => revokeDevice({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Device revoked");
+      qc.invalidateQueries({ queryKey: ["notifications", "devices", "mine"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to revoke"),
+  });
+
+  const testM = useMutation({
+    mutationFn: async () => testPush({}),
+    onSuccess: (r: any) => {
+      if (r?.reason === "no_devices") toast.info("No devices registered yet — open the ZOMBIEREX app on your phone once to register.");
+      else if (r?.reason === "fcm_not_configured") toast.error("Push service isn't configured.");
+      else if (r?.reason === "all_failed") toast.error("All devices failed to deliver.");
+      else toast.success(`Test push sent to ${r?.sent ?? 0} device(s)`);
+      qc.invalidateQueries({ queryKey: ["notifications", "devices", "mine"] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Failed to send test push"),
+  });
+
   const set = <K extends keyof Prefs>(key: K, v: Prefs[K]) => {
     const next = { ...p, [key]: v };
     setP(next);
     saveM.mutate({ [key]: v } as Partial<Prefs>);
+  };
+
+  const onRevoke = async (id: string, label: string) => {
+    const ok = await confirmDialog({
+      title: "Revoke device?",
+      description: `${label} will stop receiving push notifications until it re-registers.`,
+      confirmLabel: "Revoke",
+      destructive: true,
+    });
+    if (ok) revokeM.mutate(id);
   };
 
   return (
@@ -124,6 +165,49 @@ function NotifPrefsPage() {
               </Card>
             ))}
           </div>
+
+          <p className="mono-tag mt-6 mb-2 px-1" style={{ color: "var(--color-silver)" }}>CONNECTED DEVICES</p>
+          <Card>
+            {devicesQ.isLoading ? (
+              <p className="text-[12px]" style={{ color: "var(--color-silver)" }}>Loading devices…</p>
+            ) : (devicesQ.data?.length ?? 0) === 0 ? (
+              <p className="text-[12px]" style={{ color: "var(--color-silver)" }}>
+                No devices registered. Open the ZOMBIEREX app on your phone to enable push.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {devicesQ.data!.map((d: any) => (
+                  <li key={d.id} className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[13px] uppercase tracking-wide" style={{ color: "var(--color-ink)" }}>
+                        {d.platform}
+                      </p>
+                      <p className="mono-tag text-[10px]" style={{ color: "var(--color-silver)" }}>
+                        {d.token_preview} · updated {new Date(d.updated_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onRevoke(d.id, `${d.platform} device`)}
+                      className="tap text-[11px] uppercase tracking-wide px-2 py-1 rounded border"
+                      style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}
+                    >
+                      Revoke
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--color-hair-strong)" }}>
+              <button
+                onClick={() => testM.mutate()}
+                disabled={testM.isPending}
+                className="tap text-[12px] uppercase tracking-wide px-3 py-2 rounded"
+                style={{ background: "var(--color-neon)", color: "#000", opacity: testM.isPending ? 0.6 : 1 }}
+              >
+                {testM.isPending ? "Sending…" : "Send test push"}
+              </button>
+            </div>
+          </Card>
 
           <p className="mono-tag mt-4" style={{ color: "var(--color-silver)", fontSize: 10 }}>
             {saveM.isPending ? "SAVING…" : "SYNCED TO BACKEND"}
