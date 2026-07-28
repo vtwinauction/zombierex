@@ -254,9 +254,28 @@ function ReelsPage() {
         className="no-scrollbar h-full w-full overflow-y-auto"
         style={{ scrollSnapType: "y mandatory", WebkitOverflowScrolling: "touch" }}
       >
+        {live.isLoading && feed.length === 0 && (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Loading reels</p>
+          </div>
+        )}
+        {!live.isLoading && live.isError && (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-8 text-center">
+            <p className="text-sm text-muted-foreground">Couldn't load reels right now.</p>
+            <button onClick={() => live.refetch()} className="rounded-full border border-border px-5 py-2 text-xs uppercase tracking-[0.2em]">Retry</button>
+          </div>
+        )}
+        {!live.isLoading && !live.isError && feed.length === 0 && (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-8 text-center">
+            <p className="text-sm text-muted-foreground">No reels yet. Be the first to post a video.</p>
+            <Link to="/create" className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground">Create</Link>
+          </div>
+        )}
         {feed.map((r, i) => (
           <ReelSlide key={`${r.id}-${i}`} reel={r} idx={i} active={activeIdx === i} />
         ))}
+
       </div>
 
     </div>
