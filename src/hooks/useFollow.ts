@@ -37,8 +37,10 @@ export function useFollow(id: string, label?: string) {
     async (e?: { stopPropagation?: () => void; preventDefault?: () => void }) => {
       e?.stopPropagation?.();
       e?.preventDefault?.();
+      if (!isUuid) { toast.error("This rider isn't on the network yet"); return; }
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { toast.error("Sign in to follow riders"); return; }
+
       const next = !following;
       setFollowing(next); // optimistic
       void haptic(next ? "medium" : "light");
