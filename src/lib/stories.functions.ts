@@ -34,7 +34,7 @@ export const listActiveStories = createServerFn({ method: "GET" }).handler(async
   let profilesById = new Map<string, { id: string; display_name: string | null; handle: string | null; avatar_url: string | null; is_verified: boolean | null }>();
   if (authorIds.length) {
     const { data: profs, error: pErr } = await sb
-      .from("profiles")
+      .from("profiles_public")
       .select("id, display_name, handle, avatar_url, is_verified")
       .in("id", authorIds);
     if (pErr) throw new Error(pErr.message);
