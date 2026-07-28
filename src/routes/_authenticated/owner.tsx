@@ -409,14 +409,16 @@ function ContentTab() {
     const map = new Map<string, { key: string; target_type: string; target_id: string; reasons: Record<string, number>; count: number; latest: string; ids: string[] }>();
     for (const r of filtered) {
       const key = `${r.target_type}:${r.target_id}`;
-      const entry = map.get(key) ?? { key, target_type: r.target_type, target_id: r.target_id, reasons: {}, count: 0, latest: r.created_at, ids: [] };
+      const entry = map.get(key) ?? { key, target_type: r.target_type as string, target_id: r.target_id as string, reasons: {} as Record<string, number>, count: 0, latest: r.created_at as string, ids: [] as string[] };
       entry.count += 1;
-      entry.reasons[r.reason ?? "other"] = (entry.reasons[r.reason ?? "other"] ?? 0) + 1;
-      entry.ids.push(r.id);
+      const rk = (r.reason ?? "other") as string;
+      entry.reasons[rk] = (entry.reasons[rk] ?? 0) + 1;
+      entry.ids.push(r.id as string);
       if (new Date(r.created_at) > new Date(entry.latest)) entry.latest = r.created_at;
       map.set(key, entry);
     }
     return Array.from(map.values()).sort((a, b) => b.count - a.count || new Date(b.latest).getTime() - new Date(a.latest).getTime());
+
   }, [reports.data, reasonFilter, targetFilter]);
 
   const targetLink = (type: string, id: string): string | null => {
