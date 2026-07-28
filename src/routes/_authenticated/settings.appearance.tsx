@@ -27,6 +27,13 @@ function savePrefs(next: AppearancePrefs) {
   } catch {}
 }
 
+function applyPrefs(p: AppearancePrefs) {
+  if (typeof document === "undefined") return;
+  setLocale(p.language as Locale);
+  document.documentElement.classList.toggle("text-large", !!p.largeText);
+  document.documentElement.dataset.theme = p.theme;
+}
+
 export const Route = createFileRoute("/_authenticated/settings/appearance")({
   head: () => ({ meta: [
     { title: "Appearance · Settings · ZOMBIEREX" },
