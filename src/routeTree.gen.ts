@@ -97,6 +97,7 @@ import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authe
 import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace_.dashboard'
 import { Route as AuthenticatedJudgeMineRouteImport } from './routes/_authenticated/judge.mine'
 import { Route as AuthenticatedEventsNewRouteImport } from './routes/_authenticated/events.new'
+import { Route as AuthenticatedEventsMeRouteImport } from './routes/_authenticated/events.me'
 import { Route as AuthenticatedEventsIdRouteImport } from './routes/_authenticated/events.$id'
 import { Route as AuthenticatedDragRunRouteImport } from './routes/_authenticated/drag.run'
 import { Route as AuthenticatedDragRaceRouteImport } from './routes/_authenticated/drag.race'
@@ -109,6 +110,7 @@ import { Route as AuthenticatedCreatorPayoutsRouteImport } from './routes/_authe
 import { Route as AuthenticatedCreatorDashboardRouteImport } from './routes/_authenticated/creator.dashboard'
 import { Route as AuthenticatedCreatorCollabsRouteImport } from './routes/_authenticated/creator.collabs'
 import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authenticated/creator.apply'
+import { Route as AuthenticatedCreatorAnalyticsRouteImport } from './routes/_authenticated/creator.analytics'
 import { Route as AuthenticatedCommunitiesCreateRouteImport } from './routes/_authenticated/communities.create'
 import { Route as AuthenticatedBusinessShowcaseRouteImport } from './routes/_authenticated/business.showcase'
 import { Route as AuthenticatedAtlasVoiceRouteImport } from './routes/_authenticated/atlas.voice'
@@ -618,6 +620,11 @@ const AuthenticatedEventsNewRoute = AuthenticatedEventsNewRouteImport.update({
   path: '/events/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEventsMeRoute = AuthenticatedEventsMeRouteImport.update({
+  id: '/events/me',
+  path: '/events/me',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEventsIdRoute = AuthenticatedEventsIdRouteImport.update({
   id: '/events/$id',
   path: '/events/$id',
@@ -684,6 +691,12 @@ const AuthenticatedCreatorApplyRoute =
   AuthenticatedCreatorApplyRouteImport.update({
     id: '/creator/apply',
     path: '/creator/apply',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCreatorAnalyticsRoute =
+  AuthenticatedCreatorAnalyticsRouteImport.update({
+    id: '/creator/analytics',
+    path: '/creator/analytics',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCommunitiesCreateRoute =
@@ -964,6 +977,7 @@ export interface FileRoutesByFullPath {
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
+  '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
@@ -976,6 +990,7 @@ export interface FileRoutesByFullPath {
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
   '/events/$id': typeof AuthenticatedEventsIdRoute
+  '/events/me': typeof AuthenticatedEventsMeRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1100,6 +1115,7 @@ export interface FileRoutesByTo {
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
+  '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
@@ -1112,6 +1128,7 @@ export interface FileRoutesByTo {
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
   '/events/$id': typeof AuthenticatedEventsIdRoute
+  '/events/me': typeof AuthenticatedEventsMeRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1241,6 +1258,7 @@ export interface FileRoutesById {
   '/_authenticated/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/_authenticated/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/_authenticated/communities/create': typeof AuthenticatedCommunitiesCreateRoute
+  '/_authenticated/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
   '/_authenticated/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/_authenticated/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/_authenticated/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
@@ -1253,6 +1271,7 @@ export interface FileRoutesById {
   '/_authenticated/drag/race': typeof AuthenticatedDragRaceRoute
   '/_authenticated/drag/run': typeof AuthenticatedDragRunRoute
   '/_authenticated/events/$id': typeof AuthenticatedEventsIdRoute
+  '/_authenticated/events/me': typeof AuthenticatedEventsMeRoute
   '/_authenticated/events/new': typeof AuthenticatedEventsNewRoute
   '/_authenticated/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/_authenticated/marketplace_/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1382,6 +1401,7 @@ export interface FileRouteTypes {
     | '/atlas/voice'
     | '/business/showcase'
     | '/communities/create'
+    | '/creator/analytics'
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
@@ -1394,6 +1414,7 @@ export interface FileRouteTypes {
     | '/drag/race'
     | '/drag/run'
     | '/events/$id'
+    | '/events/me'
     | '/events/new'
     | '/judge/mine'
     | '/marketplace/dashboard'
@@ -1518,6 +1539,7 @@ export interface FileRouteTypes {
     | '/atlas/voice'
     | '/business/showcase'
     | '/communities/create'
+    | '/creator/analytics'
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
@@ -1530,6 +1552,7 @@ export interface FileRouteTypes {
     | '/drag/race'
     | '/drag/run'
     | '/events/$id'
+    | '/events/me'
     | '/events/new'
     | '/judge/mine'
     | '/marketplace/dashboard'
@@ -1658,6 +1681,7 @@ export interface FileRouteTypes {
     | '/_authenticated/atlas/voice'
     | '/_authenticated/business/showcase'
     | '/_authenticated/communities/create'
+    | '/_authenticated/creator/analytics'
     | '/_authenticated/creator/apply'
     | '/_authenticated/creator/collabs'
     | '/_authenticated/creator/dashboard'
@@ -1670,6 +1694,7 @@ export interface FileRouteTypes {
     | '/_authenticated/drag/race'
     | '/_authenticated/drag/run'
     | '/_authenticated/events/$id'
+    | '/_authenticated/events/me'
     | '/_authenticated/events/new'
     | '/_authenticated/judge/mine'
     | '/_authenticated/marketplace_/dashboard'
@@ -2398,6 +2423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEventsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/events/me': {
+      id: '/_authenticated/events/me'
+      path: '/events/me'
+      fullPath: '/events/me'
+      preLoaderRoute: typeof AuthenticatedEventsMeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/events/$id': {
       id: '/_authenticated/events/$id'
       path: '/events/$id'
@@ -2480,6 +2512,13 @@ declare module '@tanstack/react-router' {
       path: '/creator/apply'
       fullPath: '/creator/apply'
       preLoaderRoute: typeof AuthenticatedCreatorApplyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/creator/analytics': {
+      id: '/_authenticated/creator/analytics'
+      path: '/creator/analytics'
+      fullPath: '/creator/analytics'
+      preLoaderRoute: typeof AuthenticatedCreatorAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/communities/create': {
@@ -2910,6 +2949,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtlasVoiceRoute: typeof AuthenticatedAtlasVoiceRoute
   AuthenticatedBusinessShowcaseRoute: typeof AuthenticatedBusinessShowcaseRoute
   AuthenticatedCommunitiesCreateRoute: typeof AuthenticatedCommunitiesCreateRoute
+  AuthenticatedCreatorAnalyticsRoute: typeof AuthenticatedCreatorAnalyticsRoute
   AuthenticatedCreatorApplyRoute: typeof AuthenticatedCreatorApplyRoute
   AuthenticatedCreatorCollabsRoute: typeof AuthenticatedCreatorCollabsRoute
   AuthenticatedCreatorDashboardRoute: typeof AuthenticatedCreatorDashboardRoute
@@ -2922,6 +2962,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDragRaceRoute: typeof AuthenticatedDragRaceRoute
   AuthenticatedDragRunRoute: typeof AuthenticatedDragRunRoute
   AuthenticatedEventsIdRoute: typeof AuthenticatedEventsIdRoute
+  AuthenticatedEventsMeRoute: typeof AuthenticatedEventsMeRoute
   AuthenticatedEventsNewRoute: typeof AuthenticatedEventsNewRoute
   AuthenticatedJudgeMineRoute: typeof AuthenticatedJudgeMineRoute
   AuthenticatedMarketplaceDashboardRoute: typeof AuthenticatedMarketplaceDashboardRoute
@@ -2974,6 +3015,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtlasVoiceRoute: AuthenticatedAtlasVoiceRoute,
   AuthenticatedBusinessShowcaseRoute: AuthenticatedBusinessShowcaseRoute,
   AuthenticatedCommunitiesCreateRoute: AuthenticatedCommunitiesCreateRoute,
+  AuthenticatedCreatorAnalyticsRoute: AuthenticatedCreatorAnalyticsRoute,
   AuthenticatedCreatorApplyRoute: AuthenticatedCreatorApplyRoute,
   AuthenticatedCreatorCollabsRoute: AuthenticatedCreatorCollabsRoute,
   AuthenticatedCreatorDashboardRoute: AuthenticatedCreatorDashboardRoute,
@@ -2986,6 +3028,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDragRaceRoute: AuthenticatedDragRaceRoute,
   AuthenticatedDragRunRoute: AuthenticatedDragRunRoute,
   AuthenticatedEventsIdRoute: AuthenticatedEventsIdRoute,
+  AuthenticatedEventsMeRoute: AuthenticatedEventsMeRoute,
   AuthenticatedEventsNewRoute: AuthenticatedEventsNewRoute,
   AuthenticatedJudgeMineRoute: AuthenticatedJudgeMineRoute,
   AuthenticatedMarketplaceDashboardRoute:

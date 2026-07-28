@@ -6,6 +6,7 @@ import { Pencil, Phone, Share2, Settings as SettingsIcon } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
 import { getMyProfileMetrics, upsertMyVehicle } from "@/lib/profile.functions";
 import { listMyPosts } from "@/lib/feed.functions";
+import { ShareSheet } from "@/components/ShareSheet";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -121,41 +122,7 @@ function ProfilePage() {
     window.setTimeout(() => setToast(null), 1800);
   };
 
-  const copyProfileLink = async (url: string) => {
-    if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(url);
-      return true;
-    }
-    if (typeof document === "undefined") return false;
-    const input = document.createElement("textarea");
-    input.value = url;
-    input.setAttribute("readonly", "true");
-    input.style.position = "fixed";
-    input.style.opacity = "0";
-    document.body.appendChild(input);
-    input.select();
-    const copied = document.execCommand("copy");
-    document.body.removeChild(input);
-    return copied;
-  };
-
-  const handleShareProfile = async () => {
-    if (typeof window === "undefined") return;
-    const url = `${window.location.origin}/profile`;
-    const { share: nativeShare } = await import("@/lib/native");
-    const res = await nativeShare({
-      title: `${displayName} · ZOMBIEREX`,
-      text: `Check out ${displayName} on ZOMBIEREX`,
-      url,
-      dialogTitle: "Share profile",
-    });
-    if (res.ok) {
-      showToast("Share opened");
-      return;
-    }
-    const copied = await copyProfileLink(url);
-    showToast(copied ? "Profile link copied" : "Copy this profile link: /profile");
-  };
+  const profileShareId = p?.handle || p?.id || "me";
 
   return (
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
@@ -309,7 +276,12 @@ function ProfilePage() {
           <div className="mt-4 grid grid-cols-3 items-stretch overflow-hidden rounded-xl"
             style={{ border: "1px solid var(--color-line)", background: "var(--color-paper-0)" }}>
             <ActionBtn onClick={() => setContactOpen(true)} icon={<Phone className="h-4 w-4" />} label="Contact" accent />
-            <ActionBtn onClick={handleShareProfile} icon={<Share2 className="h-4 w-4" />} label="Share" />
+            <ShareSheet type="profile" id={profileShareId} title={displayName} subtitle={`@${p?.handle || "rider"}`}>
+              <div className="tap flex h-12 items-center justify-center gap-1.5 text-[12px] font-semibold transition-transform active:scale-[0.97]" style={{ color: "var(--color-ink-0)", borderLeft: "1px solid var(--color-line)" }}>
+                <Share2 className="h-4 w-4" />
+                <span>Share</span>
+              </div>
+            </ShareSheet>
             <ActionBtn as={Link} to="/settings" icon={<SettingsIcon className="h-4 w-4" />} label="Settings" />
           </div>
         </div>

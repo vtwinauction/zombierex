@@ -68,13 +68,22 @@ function EventsPage() {
             </p>
             <h1 className="mt-2 display-xl text-5xl uppercase leading-none">Events</h1>
           </div>
-          <Link
-            to="/events/new"
-            className="btn-solid shrink-0"
-            style={{ padding: "12px 16px", fontSize: 10, letterSpacing: "0.12em" }}
-          >
-            + HOST
-          </Link>
+          <div className="flex shrink-0 gap-2">
+            <Link
+              to="/events/me"
+              className="btn-outline shrink-0"
+              style={{ padding: "12px 16px", fontSize: 10, letterSpacing: "0.12em" }}
+            >
+              MY EVENTS
+            </Link>
+            <Link
+              to="/events/new"
+              className="btn-solid shrink-0"
+              style={{ padding: "12px 16px", fontSize: 10, letterSpacing: "0.12em" }}
+            >
+              + HOST
+            </Link>
+          </div>
         </div>
       </header>
 

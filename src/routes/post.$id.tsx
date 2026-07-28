@@ -2,12 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Share2 } from "lucide-react";
 import { getPostPublic } from "@/lib/feed.functions";
 import { InteractionBar } from "@/components/InteractionBar";
 import { CommentsSheet } from "@/components/CommentsSheet";
 import { AutoplayVideo, isVideoUrl } from "@/components/AutoplayVideo";
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { ShareSheet } from "@/components/ShareSheet";
 
 export const Route = createFileRoute("/post/$id")({
   head: ({ params }) => ({
@@ -61,11 +62,20 @@ function PostDetailPage() {
   return (
     <PullToRefresh onRefresh={async () => { await q.refetch(); }}>
       <div>
-        <div className="sticky top-0 z-30 flex items-center gap-3 px-4 py-3 hairline-b" style={{ background: "var(--color-bone, #fff)" }}>
-          <Link to="/" className="inline-flex items-center justify-center h-9 w-9 -ml-2" aria-label="Back">
-            <ArrowLeft size={20} />
-          </Link>
-          <p className="mono-tag">POST</p>
+        <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 hairline-b" style={{ background: "var(--color-bone, #fff)" }}>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="inline-flex items-center justify-center h-9 w-9 -ml-2" aria-label="Back">
+              <ArrowLeft size={20} />
+            </Link>
+            <p className="mono-tag">POST</p>
+          </div>
+          {post && (
+            <ShareSheet type="post" id={post.id} title={post.caption} subtitle={post.author?.display_name || undefined}>
+              <button className="inline-flex items-center justify-center h-9 w-9" aria-label="Share post">
+                <Share2 size={20} />
+              </button>
+            </ShareSheet>
+          )}
         </div>
 
         {q.isLoading && (

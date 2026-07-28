@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter, useNavigate } from "@tanstack/react-r
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getRoute, toggleSaveRoute, startRide } from "@/lib/routes.functions";
+import { buildGpx, downloadGpx } from "@/lib/gpx";
 import { BottomNav } from "@/components/BottomNav";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { lazy, Suspense, useState } from "react";
@@ -86,6 +87,12 @@ function RouteDetail() {
     const res = await share({ title: route.title, url, dialogTitle: "Share route" });
     if (res.ok) toast.success("Shared");
   }
+  function onExportGpx() {
+    const waypoints = (route.pois ?? []).map((p: any) => ({ lat: p.lat, lng: p.lng, name: p.name }));
+    const gpx = buildGpx(route.title, route.path ?? [], waypoints);
+    downloadGpx(`route-${route.id.slice(0, 8)}.gpx`, gpx);
+    toast.success("GPX downloaded");
+  }
 
   return (
     <div className="min-h-svh pb-32">
@@ -141,12 +148,15 @@ function RouteDetail() {
           </div>
         )}
 
-        <div className="mt-6 grid grid-cols-2 gap-2">
-          <button onClick={onSave} disabled={saving} className="tap py-3 mono-caps text-xs font-bold" style={{ background: saved ? "var(--color-graphite)" : "var(--color-graphite)", color: saved ? "var(--color-neon)" : "white", border: "1px solid var(--color-hair-strong)" }}>
+        <div className="mt-6 grid grid-cols-3 gap-2">
+          <button onClick={onSave} disabled={saving} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-graphite)", color: saved ? "var(--color-neon)" : "white", border: "1px solid var(--color-hair-strong)" }}>
             {saved ? "★ SAVED" : "☆ SAVE"}
           </button>
+          <button onClick={onExportGpx} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-graphite)", color: "white", border: "1px solid var(--color-hair-strong)" }}>
+            ↓ GPX
+          </button>
           <button onClick={onRide} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
-            ▶ RIDE THIS ROUTE
+            ▶ RIDE
           </button>
         </div>
       </div>

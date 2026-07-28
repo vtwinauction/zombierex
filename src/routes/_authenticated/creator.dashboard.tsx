@@ -31,6 +31,7 @@ function DashboardPage() {
           <h1 className="serif mt-2 text-4xl italic" style={{ color: "var(--color-ink)" }}>Dashboard</h1>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
+          <Link to="/creator/analytics" className="btn-neon" style={{ padding: "10px 12px", fontSize: 10 }}>ANALYTICS ▸</Link>
           <Link to="/creator/payouts" className="btn-neon" style={{ padding: "10px 12px", fontSize: 10 }}>PAYOUTS ▸</Link>
           <Link to="/creator/scheduled" className="btn-neon" style={{ padding: "10px 12px", fontSize: 10 }}>QUEUE ▸</Link>
           <Link to="/creator/collabs" className="btn-neon" style={{ padding: "10px 12px", fontSize: 10 }}>INBOX ▸</Link>

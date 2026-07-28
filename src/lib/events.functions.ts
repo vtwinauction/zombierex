@@ -409,3 +409,43 @@ export const inviteToEvent = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, count: rows.length };
   });
+
+export const listMyEvents = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((raw) =>
+    z.object({
+      scope: z.enum(["upcoming", "past", "hosting", "all"]).default("upcoming"),
+      limit: z.number().int().min(1).max(50).default(24),
+    }).parse(raw ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const now = new Date().toISOString();
+    const { data: rsvps } = await context.supabase
+      .from("event_rsvps")
+      .select("event_id, status")
+      .eq("user_id", context.userId)
+      .neq("status", "not_going");
+
+    const eventIds = (rsvps ?? []).map((r) => r.event_id);
+    let q = context.supabase
+      .from("events")
+      .select("id, title, cover_url, category, starts_at, ends_at, location, rsvp_count, host_id, status, is_featured, visibility")
+      .or(`id.in.(${eventIds.join(",")}),host_id.eq.${context.userId}`)
+      .neq("status", "cancelled")
+      .order("starts_at", { ascending: true })
+      .limit(data.limit);
+
+    if (data.scope === "upcoming") q = q.gte("starts_at", now);
+    if (data.scope === "past") q = q.lt("starts_at", now).order("starts_at", { ascending: false });
+    if (data.scope === "hosting") q = q.eq("host_id", context.userId).gte("starts_at", now);
+
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+
+    const rsvpMap = new Map((rsvps ?? []).map((r) => [r.event_id, r.status]));
+    return (rows ?? []).map((e: any) => ({
+      ...e,
+      my_rsvp: rsvpMap.get(e.id) ?? null,
+      is_host: e.host_id === context.userId,
+    }));
+  });

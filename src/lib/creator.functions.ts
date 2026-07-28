@@ -571,3 +571,103 @@ export const getMyPayoutsLedger = createServerFn({ method: "GET" })
     };
   });
 
+/* ============ ANALYTICS DEEP-DIVE ============ */
+export const getCreatorAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((raw) => z.object({ days: z.number().int().min(7).max(365).default(30) }).parse(raw ?? {}))
+  .handler(async ({ data, context }) => {
+    const { data: creator } = await context.supabase
+      .from("creator_profiles")
+      .select("id, user_id, subscribers_count, tips_total_cents, status, created_at")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (!creator) return null;
+
+    const since = new Date(); since.setDate(since.getDate() - data.days);
+    const sinceIso = since.toISOString();
+
+    const [{ data: posts }, { data: subs }, { data: tips }, { count: allTimePostsCount }] = await Promise.all([
+      context.supabase
+        .from("posts")
+        .select("id, created_at, likes_count, comments_count, shares_count, views_count, kind, caption, thumbnail_url")
+        .eq("author_id", context.userId)
+        .gte("created_at", sinceIso)
+        .order("created_at", { ascending: true }),
+      context.supabase
+        .from("creator_subscriptions")
+        .select("id, created_at, status, cancelled_at, tier_id")
+        .eq("creator_id", creator.id)
+        .gte("created_at", sinceIso)
+        .order("created_at", { ascending: true }),
+      context.supabase
+        .from("creator_tips")
+        .select("id, created_at, amount_cents, currency")
+        .eq("creator_id", creator.id)
+        .gte("created_at", sinceIso)
+        .order("created_at", { ascending: true }),
+      context.supabase
+        .from("posts")
+        .select("id, likes_count, comments_count, shares_count, views_count", { count: "exact", head: true })
+        .eq("author_id", context.userId),
+    ]);
+
+    const days: Record<string, { date: string; views: number; likes: number; comments: number; shares: number; posts: number; tips: number; subs: number; cancels: number }> = {};
+    const labels: string[] = [];
+    for (let i = data.days - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0, 0, 0, 0);
+      const key = d.toISOString().slice(0, 10);
+      labels.push(key);
+      days[key] = { date: key, views: 0, likes: 0, comments: 0, shares: 0, posts: 0, tips: 0, subs: 0, cancels: 0 };
+    }
+
+    for (const p of (posts ?? []) as any[]) {
+      const key = p.created_at.slice(0, 10);
+      if (!days[key]) continue;
+      days[key].posts += 1;
+      days[key].views += p.views_count ?? 0;
+      days[key].likes += p.likes_count ?? 0;
+      days[key].comments += p.comments_count ?? 0;
+      days[key].shares += p.shares_count ?? 0;
+    }
+    for (const s of (subs ?? []) as any[]) {
+      const key = s.created_at.slice(0, 10);
+      if (!days[key]) continue;
+      days[key].subs += 1;
+      if (s.status === "cancelled" && s.cancelled_at) {
+        const ckey = s.cancelled_at.slice(0, 10);
+        if (days[ckey]) days[ckey].cancels += 1;
+      }
+    }
+    for (const t of (tips ?? []) as any[]) {
+      const key = t.created_at.slice(0, 10);
+      if (!days[key]) continue;
+      days[key].tips += t.amount_cents ?? 0;
+    }
+
+    const daily = labels.map((k) => days[k]);
+    const totals = daily.reduce((a, b) => ({
+      views: a.views + b.views,
+      likes: a.likes + b.likes,
+      comments: a.comments + b.comments,
+      shares: a.shares + b.shares,
+      posts: a.posts + b.posts,
+      tips: a.tips + b.tips,
+      subs: a.subs + b.subs,
+      cancels: a.cancels + b.cancels,
+    }), { views: 0, likes: 0, comments: 0, shares: 0, posts: 0, tips: 0, subs: 0, cancels: 0 });
+
+    const topPosts = (posts ?? [])
+      .sort((a: any, b: any) => (b.views_count ?? 0) - (a.views_count ?? 0))
+      .slice(0, 5)
+      .map((p: any) => ({ id: p.id, caption: p.caption, thumbnail_url: p.thumbnail_url, views: p.views_count ?? 0, likes: p.likes_count ?? 0, comments: p.comments_count ?? 0 }));
+
+    return {
+      profile: creator,
+      period_days: data.days,
+      daily,
+      totals,
+      top_posts: topPosts,
+      all_time_posts: allTimePostsCount ?? 0,
+    };
+  });
