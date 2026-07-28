@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SettingsScreen, Card } from "@/components/SettingsScreen";
+import { setLocale, type Locale } from "@/lib/i18n";
+
 
 type AppearancePrefs = {
   theme: "dark" | "light" | "system";
