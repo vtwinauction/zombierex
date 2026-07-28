@@ -102,8 +102,37 @@ export const createSignedUploadUrl = createServerFn({ method: "POST" })
 const ReadSchema = z.object({
   bucket: z.enum(BUCKETS),
   path: PathSchema,
-  expires_in: z.number().int().min(30).max(60 * 60 * 24 * 365).default(300),
+  // H-01: cap at 15 minutes. Long-lived URLs leak content past deletion/privacy changes.
+  expires_in: z.number().int().min(30).max(900).default(300),
 });
+
+// Verify visibility via the caller's RLS-scoped client. A row the user cannot
+// see returns nothing — so the signed URL cannot bypass RLS.
+async function assertPathVisibleToUser(
+  supabase: any,
+  bucket: Bucket,
+  path: string,
+  userId: string,
+): Promise<boolean> {
+  if (path.startsWith(`${userId}/`)) return true;
+  if (bucket === "avatars") {
+    const { data } = await supabase.from("profiles").select("id").ilike("avatar_url", `%${path}%`).limit(1).maybeSingle();
+    return !!data;
+  }
+  if (bucket === "posts") {
+    const { data } = await supabase.from("posts").select("id").or(`media_url.ilike.%${path}%,thumbnail_url.ilike.%${path}%`).limit(1).maybeSingle();
+    return !!data;
+  }
+  if (bucket === "vehicles") {
+    const { data } = await supabase.from("vehicles").select("id").limit(1).maybeSingle();
+    return !!data;
+  }
+  if (bucket === "marketplace") {
+    const { data } = await supabase.from("listing_photos").select("id").ilike("url", `%${path}%`).limit(1).maybeSingle();
+    return !!data;
+  }
+  return false;
+}
 
 export const createSignedReadUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -122,10 +151,10 @@ export const createSignedReadUrl = createServerFn({ method: "POST" })
       const admin = await isAdmin(context.supabase, context.userId);
       if (!admin && (!vendor || vendor.owner_id !== context.userId))
         throw new Error("Forbidden");
+    } else {
+      const ok = await assertPathVisibleToUser(context.supabase, bucket, data.path, context.userId);
+      if (!ok) throw new Error("Forbidden");
     }
-    // Non-documents buckets are user-scoped by convention; expose to owner or
-    // anyone (avatars/posts) — clients only ask for paths they know about via
-    // rows they've already read through RLS. Keep expiry short.
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error } = await supabaseAdmin.storage
