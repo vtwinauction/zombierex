@@ -126,7 +126,30 @@ function RootComponent() {
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
     if (!import.meta.env.PROD) return;
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    let reloaded = false;
+    const activate = (reg: ServiceWorkerRegistration) => {
+      const w = reg.waiting;
+      if (!w) return;
+      try { w.postMessage({ type: "PURGE_CACHES" }); } catch { /* ignore */ }
+      try { w.postMessage({ type: "SKIP_WAITING" }); } catch { /* ignore */ }
+    };
+    navigator.serviceWorker.register("/sw.js").then((reg) => {
+      if (reg.waiting) activate(reg);
+      reg.addEventListener("updatefound", () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener("statechange", () => {
+          if (nw.state === "installed" && navigator.serviceWorker.controller) activate(reg);
+        });
+      });
+      // Poll for new versions every 30 minutes while app is open
+      setInterval(() => { reg.update().catch(() => {}); }, 30 * 60 * 1000);
+    }).catch(() => {});
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloaded) return;
+      reloaded = true;
+      window.location.reload();
+    });
   }, []);
 
   // Wire global crash reporter — installs window error + unhandledrejection
