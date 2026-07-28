@@ -41,8 +41,13 @@ export const Route = createFileRoute("/_authenticated/settings/appearance")({
 
 function AppearancePage() {
   const [prefs, setPrefs] = useState<AppearancePrefs>(DEFAULTS);
-  useEffect(() => setPrefs(loadPrefs()), []);
-  const update = (next: AppearancePrefs) => { setPrefs(next); savePrefs(next); };
+  useEffect(() => {
+    const loaded = loadPrefs();
+    setPrefs(loaded);
+    applyPrefs(loaded);
+  }, []);
+  const update = (next: AppearancePrefs) => { setPrefs(next); savePrefs(next); applyPrefs(next); };
+
 
   return (
     <SettingsScreen index="06.10" section="DISPLAY" title="Appearance & language" subtitle="Tune the interface for your device and reading preference.">
