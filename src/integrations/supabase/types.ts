@@ -5763,7 +5763,10 @@ export type Database = {
           title: string
         }[]
       }
-      get_creator_collab_email: { Args: { _creator: string }; Returns: string }
+      get_creator_collab_email: {
+        Args: { _creator_user_id: string }
+        Returns: string
+      }
       get_my_creator_profile: {
         Args: never
         Returns: {
