@@ -189,8 +189,24 @@ function NotificationsPage() {
           </button>
         </div>
 
+        <div className="flex gap-1 px-4 pt-4">
+          {(["all", "unread"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className="mono-tag px-3 py-1.5 hairline"
+              style={{
+                background: filter === f ? "var(--color-ink)" : "transparent",
+                color: filter === f ? "var(--color-bone, #fff)" : "var(--color-ash)",
+              }}
+            >
+              {f === "all" ? "ALL" : `UNREAD${unread ? ` · ${unread}` : ""}`}
+            </button>
+          ))}
+        </div>
+
         <div
-          className="mt-6 grid grid-cols-[52px_60px_1fr_auto] gap-3 px-4 py-2 hairline-t hairline-b"
+          className="mt-4 grid grid-cols-[52px_60px_1fr_auto] gap-3 px-4 py-2 hairline-t hairline-b"
           style={{ background: "var(--color-mist)" }}
         >
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>T-MINUS</span>
@@ -198,6 +214,7 @@ function NotificationsPage() {
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>EVENT</span>
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>ACT</span>
         </div>
+
 
         {signedIn === false && (
           <div className="px-4 py-10 text-center">
