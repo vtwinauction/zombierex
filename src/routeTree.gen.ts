@@ -129,6 +129,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as CommunitiesSlugChallengesChallengeIdRouteImport } from './routes/communities.$slug.challenges.$challengeId'
 import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/public/webhooks.payments'
+import { Route as ApiPublicHooksPublishScheduledRouteImport } from './routes/api/public/hooks/publish-scheduled'
 import { Route as ApiPublicHooksFanoutPushRouteImport } from './routes/api/public/hooks/fanout-push'
 import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
@@ -792,6 +793,12 @@ const ApiPublicWebhooksPaymentsRoute =
     path: '/api/public/webhooks/payments',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksPublishScheduledRoute =
+  ApiPublicHooksPublishScheduledRouteImport.update({
+    id: '/api/public/hooks/publish-scheduled',
+    path: '/api/public/hooks/publish-scheduled',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksFanoutPushRoute =
   ApiPublicHooksFanoutPushRouteImport.update({
     id: '/api/public/hooks/fanout-push',
@@ -1001,6 +1008,7 @@ export interface FileRoutesByFullPath {
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
+  '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1133,6 +1141,7 @@ export interface FileRoutesByTo {
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
+  '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1270,6 +1279,7 @@ export interface FileRoutesById {
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
+  '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1407,6 +1417,7 @@ export interface FileRouteTypes {
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
+    | '/api/public/hooks/publish-scheduled'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1539,6 +1550,7 @@ export interface FileRouteTypes {
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
+    | '/api/public/hooks/publish-scheduled'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1675,6 +1687,7 @@ export interface FileRouteTypes {
     | '/_authenticated/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
+    | '/api/public/hooks/publish-scheduled'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1722,6 +1735,7 @@ export interface RootRouteChildren {
   MarketplaceSellerIdRoute: typeof MarketplaceSellerIdRoute
   ApiPublicHooksCleanupMediaRoute: typeof ApiPublicHooksCleanupMediaRoute
   ApiPublicHooksFanoutPushRoute: typeof ApiPublicHooksFanoutPushRoute
+  ApiPublicHooksPublishScheduledRoute: typeof ApiPublicHooksPublishScheduledRoute
   ApiPublicWebhooksPaymentsRoute: typeof ApiPublicWebhooksPaymentsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -2570,6 +2584,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/publish-scheduled': {
+      id: '/api/public/hooks/publish-scheduled'
+      path: '/api/public/hooks/publish-scheduled'
+      fullPath: '/api/public/hooks/publish-scheduled'
+      preLoaderRoute: typeof ApiPublicHooksPublishScheduledRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/fanout-push': {
       id: '/api/public/hooks/fanout-push'
       path: '/api/public/hooks/fanout-push'
@@ -3005,6 +3026,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceSellerIdRoute: MarketplaceSellerIdRoute,
   ApiPublicHooksCleanupMediaRoute: ApiPublicHooksCleanupMediaRoute,
   ApiPublicHooksFanoutPushRoute: ApiPublicHooksFanoutPushRoute,
+  ApiPublicHooksPublishScheduledRoute: ApiPublicHooksPublishScheduledRoute,
   ApiPublicWebhooksPaymentsRoute: ApiPublicWebhooksPaymentsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
@@ -3013,13 +3035,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
