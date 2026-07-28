@@ -41,7 +41,7 @@ export function OwnerBroadcastBanner() {
       setItems(((data as any[]) ?? []).filter(r => !r.expires_at || Date.parse(r.expires_at) > now));
     }
     load();
-    const ch = supabase.channel("owner_broadcasts_live")
+    const ch = supabase.channel(`owner_broadcasts_live-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "owner_broadcasts" }, load)
       .subscribe();
     return () => { alive = false; supabase.removeChannel(ch); };

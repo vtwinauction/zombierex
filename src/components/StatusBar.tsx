@@ -1,6 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { Bell, Search, Menu, Bluetooth, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -44,30 +44,39 @@ export function StatusBar({ index, section }: { index: string; section: string }
     staleTime: 60_000,
   });
 
+  // Keep latest prefs/router in refs so the realtime effect only re-runs when
+  // the user changes. Re-subscribing on every prefs change reused the same
+  // channel topic and threw "cannot add postgres_changes callbacks after
+  // subscribe()", which crashed the whole page via the error boundary.
+  const prefsRef = useRef<Record<string, any>>({});
+  prefsRef.current = (prefsQ.data ?? {}) as Record<string, any>;
+  const routerRef = useRef(router);
+  routerRef.current = router;
+
   useEffect(() => {
     if (!uid) return;
     const bump = () => qc.invalidateQueries({ queryKey: ["inbox-counts"] });
-    const ch = supabase.channel(`statusbar-inbox-${uid}`)
+    const ch = supabase.channel(`statusbar-inbox-${uid}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
         (payload: any) => {
           bump();
-          const path = router.state.location.pathname;
+          const r = routerRef.current;
+          const path = r.state.location.pathname;
           if (path.startsWith("/notifications")) return;
           const row = payload?.new ?? {};
-          const prefs = (prefsQ.data ?? {}) as Record<string, any>;
-          if (!kindAllowed(row.kind, prefs)) return;
+          if (!kindAllowed(row.kind, prefsRef.current)) return;
           const p = (row.payload ?? {}) as Record<string, unknown>;
           const actor = (p.actor_handle as string) || (p.actor_name as string) || "Someone";
           const verb = (p.text as string) || labelForKind(row.kind);
           toast(`@${actor} ${verb}`, {
-            action: { label: "View", onClick: () => router.navigate({ to: "/notifications" }) },
+            action: { label: "View", onClick: () => r.navigate({ to: "/notifications" }) },
           });
         },
       )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [uid, qc, router, prefsQ.data]);
+    return () => { void supabase.removeChannel(ch); };
+  }, [uid, qc]);
 
 
   const notif = counts.data?.notifications ?? 0;

@@ -66,6 +66,7 @@ function EventDetail() {
   });
 
   const [tab, setTab] = useState<(typeof TABS)[number]>("ABOUT");
+  const [checkingIn, setCheckingIn] = useState(false);
 
   // Realtime invalidation for live surfaces
   useEffect(() => {
@@ -96,7 +97,6 @@ function EventDetail() {
   const d = new Date(e.starts_at);
 
 
-  const [checkingIn, setCheckingIn] = useState(false);
 
   async function doRsvp(status: "going" | "interested" | "not_going") {
     try {

@@ -269,7 +269,7 @@ function ReelsPage() {
         {!live.isLoading && !live.isError && feed.length === 0 && (
           <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-8 text-center">
             <p className="text-sm text-muted-foreground">No reels yet. Be the first to post a video.</p>
-            <Link to="/create" className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground">Create</Link>
+            <Link to="/post/new" className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground">Create</Link>
           </div>
         )}
         {feed.map((r, i) => (

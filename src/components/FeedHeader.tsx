@@ -49,7 +49,7 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
   useEffect(() => {
     if (!uid) return;
     const bump = () => qc.invalidateQueries({ queryKey: ["inbox-counts"] });
-    const ch = supabase.channel(`inbox-${uid}`)
+    const ch = supabase.channel(`inbox-${uid}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
         bump,

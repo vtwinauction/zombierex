@@ -32,17 +32,19 @@ export const Route = createFileRoute("/atlas/$id")({
     };
   },
   component: RouteDetail,
-  errorComponent: ({ error, reset }) => {
-    const router = useRouter();
-    return (
-      <div className="p-6 text-foreground">
-        <p>Failed to load route: {error.message}</p>
-        <button onClick={() => { reset(); router.invalidate(); }} className="mt-3 border border-border px-3 py-1 text-xs">Retry</button>
-      </div>
-    );
-  },
+  errorComponent: RouteErrorPanel,
   notFoundComponent: () => <div className="p-6 text-foreground">Route not found</div>,
 });
+
+function RouteErrorPanel({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="p-6 text-foreground">
+      <p>Failed to load route: {error.message}</p>
+      <button onClick={() => { reset(); router.invalidate(); }} className="mt-3 border border-border px-3 py-1 text-xs">Retry</button>
+    </div>
+  );
+}
 
 function RouteDetail() {
   const { data } = useSuspenseQuery(routeQuery(Route.useParams().id));
