@@ -115,9 +115,12 @@ function PlanPage() {
         <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 10 }}>
           TAP MAP TO ADD WAYPOINTS · {path.length} POINTS · {(distance/1000).toFixed(2)} KM
         </p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button onClick={undo} disabled={!path.length} className="tap mono-caps text-[10px] font-bold px-3 py-2 text-white/80 disabled:opacity-30" style={{ border: "1px solid var(--color-hair-strong)" }}>UNDO</button>
           <button onClick={clear} disabled={!path.length} className="tap mono-caps text-[10px] font-bold px-3 py-2 text-white/80 disabled:opacity-30" style={{ border: "1px solid var(--color-hair-strong)" }}>CLEAR</button>
+          <button onClick={() => fileRef.current?.click()} className="tap mono-caps text-[10px] font-bold px-3 py-2 text-white/80" style={{ border: "1px solid var(--color-hair-strong)" }}>IMPORT GPX</button>
+          <button onClick={exportDraftGpx} disabled={path.length < 2} className="tap mono-caps text-[10px] font-bold px-3 py-2 text-white/80 disabled:opacity-30" style={{ border: "1px solid var(--color-hair-strong)" }}>EXPORT GPX</button>
+          <input ref={fileRef} type="file" accept=".gpx,application/gpx+xml" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) importGpx(f); e.target.value = ""; }} />
         </div>
 
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Route title" className="w-full bg-graphite p-3 text-white border border-white/10" />
