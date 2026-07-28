@@ -133,26 +133,8 @@ function ActionCell({
   );
 }
 
-  return (
-    <Link
-      to={to}
-      aria-label={label}
-      className="tap relative grid h-9 w-9 place-items-center"
-      style={{ color: "var(--color-ink-0)", borderRadius: 10 }}
-    >
-      {children}
-      {pulse && (
-        <span
-          className="absolute right-2 top-2 h-[7px] w-[7px] rounded-full"
-          style={{
-            background: "var(--color-neon)",
-            boxShadow: "0 0 0 2px #fff",
-          }}
-        />
-      )}
-    </Link>
-  );
-}
+
+
 
 /**
  * Bluetooth pairing button — connects to action cameras / helmet cams via
