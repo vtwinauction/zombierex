@@ -3,7 +3,7 @@
  * Supports GPX 1.1 tracks and waypoints.
  */
 
-export type GpxPoint = { lat: number; lng: number; ele?: number; name?: string };
+export type GpxPoint = { lat: number; lng: number; ele?: number; name?: string; recorded_at?: string };
 
 export function parseGpx(xml: string): { path: GpxPoint[]; waypoints: GpxPoint[]; name?: string } {
   const parser = new DOMParser();
