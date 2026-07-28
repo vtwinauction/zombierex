@@ -34,11 +34,11 @@ export const listActiveStories = createServerFn({ method: "GET" }).handler(async
   let profilesById = new Map<string, { id: string; display_name: string | null; handle: string | null; avatar_url: string | null; is_verified: boolean | null }>();
   if (authorIds.length) {
     const { data: profs, error: pErr } = await sb
-      .from("profiles")
+      .from("profiles_public")
       .select("id, display_name, handle, avatar_url, is_verified")
       .in("id", authorIds);
     if (pErr) throw new Error(pErr.message);
-    profilesById = new Map((profs ?? []).map((p) => [p.id, p]));
+    profilesById = new Map((profs ?? []).filter((p): p is NonNullable<typeof p> & { id: string } => !!p.id).map((p) => [p.id, p]));
   }
   const items = rows.map((r) => ({ ...r, author: profilesById.get(r.author_id) ?? null }));
   return { items };
