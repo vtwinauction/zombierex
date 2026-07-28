@@ -314,8 +314,8 @@ function HashtagsSection({ hashtags }: { hashtags: any[] }) {
         {hashtags.map((t) => (
           <Link
             key={t.id}
-            to="/search"
-            search={{ q: t.tag } as any}
+            to="/tag/$tag"
+            params={{ tag: t.tag }}
             className="chip"
           >
             <span>#{t.tag}</span>
