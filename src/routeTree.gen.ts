@@ -129,6 +129,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as CommunitiesSlugChallengesChallengeIdRouteImport } from './routes/communities.$slug.challenges.$challengeId'
 import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/public/webhooks.payments'
+import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
@@ -790,6 +791,12 @@ const ApiPublicWebhooksPaymentsRoute =
     path: '/api/public/webhooks/payments',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksCleanupMediaRoute =
+  ApiPublicHooksCleanupMediaRouteImport.update({
+    id: '/api/public/hooks/cleanup-media',
+    path: '/api/public/hooks/cleanup-media',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedPostIdEditRoute = AuthenticatedPostIdEditRouteImport.update({
   id: '/post/$id/edit',
   path: '/post/$id/edit',
@@ -985,6 +992,7 @@ export interface FileRoutesByFullPath {
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
+  '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1115,6 +1123,7 @@ export interface FileRoutesByTo {
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
+  '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1250,6 +1259,7 @@ export interface FileRoutesById {
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
+  '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1385,6 +1395,7 @@ export interface FileRouteTypes {
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
     | '/post/$id/edit'
+    | '/api/public/hooks/cleanup-media'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1515,6 +1526,7 @@ export interface FileRouteTypes {
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
     | '/post/$id/edit'
+    | '/api/public/hooks/cleanup-media'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1649,6 +1661,7 @@ export interface FileRouteTypes {
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
     | '/_authenticated/post/$id/edit'
+    | '/api/public/hooks/cleanup-media'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1694,6 +1707,7 @@ export interface RootRouteChildren {
   JudgeEntriesIdRoute: typeof JudgeEntriesIdRoute
   JudgeEventsSlugRoute: typeof JudgeEventsSlugRoute
   MarketplaceSellerIdRoute: typeof MarketplaceSellerIdRoute
+  ApiPublicHooksCleanupMediaRoute: typeof ApiPublicHooksCleanupMediaRoute
   ApiPublicWebhooksPaymentsRoute: typeof ApiPublicWebhooksPaymentsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -2542,6 +2556,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/cleanup-media': {
+      id: '/api/public/hooks/cleanup-media'
+      path: '/api/public/hooks/cleanup-media'
+      fullPath: '/api/public/hooks/cleanup-media'
+      preLoaderRoute: typeof ApiPublicHooksCleanupMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/post/$id/edit': {
       id: '/_authenticated/post/$id/edit'
       path: '/post/$id/edit'
@@ -2961,6 +2982,7 @@ const rootRouteChildren: RootRouteChildren = {
   JudgeEntriesIdRoute: JudgeEntriesIdRoute,
   JudgeEventsSlugRoute: JudgeEventsSlugRoute,
   MarketplaceSellerIdRoute: MarketplaceSellerIdRoute,
+  ApiPublicHooksCleanupMediaRoute: ApiPublicHooksCleanupMediaRoute,
   ApiPublicWebhooksPaymentsRoute: ApiPublicWebhooksPaymentsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
