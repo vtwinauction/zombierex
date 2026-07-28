@@ -86,26 +86,10 @@ export function ridePathToGpx(title: string, path: { lat: number; lng: number; e
     s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
 
   const trkpt = path.map((p) => {
-    const eleAttr = typeof p.ele === "number" && !isNaN(p.ele) ? `
-    <ele>${p.ele.toFixed(2)}</ele>` : "";
-    const timeTag = p.recorded_at ? `
-    <time>${new Date(p.recorded_at).toISOString()}</time>` : "";
-    return `    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lng.toFixed(7)}">${eleAttr}${timeTag}
-    </trkpt>`;
-  }).join("
-");
+    const eleAttr = typeof p.ele === "number" && !isNaN(p.ele) ? `\n    <ele>${p.ele.toFixed(2)}</ele>` : "";
+    const timeTag = p.recorded_at ? `\n    <time>${new Date(p.recorded_at).toISOString()}</time>` : "";
+    return `    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lng.toFixed(7)}">${eleAttr}${timeTag}\n    </trkpt>`;
+  }).join("\n");
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="ZOMBIEREX Atlas" xmlns="http://www.topografix.com/GPX/1/1">
-  <metadata>
-    <name>${escape(title)}</name>
-    <time>${startedAt ? new Date(startedAt).toISOString() : now}</time>
-  </metadata>
-  <trk>
-    <name>${escape(title)}</name>
-    <trkseg>
-${trkpt}
-    </trkseg>
-  </trk>
-</gpx>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="ZOMBIEREX Atlas" xmlns="http://www.topografix.com/GPX/1/1">\n  <metadata>\n    <name>${escape(title)}</name>\n    <time>${startedAt ? new Date(startedAt).toISOString() : now}</time>\n  </metadata>\n  <trk>\n    <name>${escape(title)}</name>\n    <trkseg>\n${trkpt}\n    </trkseg>\n  </trk>\n</gpx>`;
 }
