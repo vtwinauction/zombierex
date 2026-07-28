@@ -12,7 +12,7 @@ import {
   listSavedPostsInCollection,
 } from "@/lib/collections.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
-import { confirmDialog } from "@/components/ConfirmDialog";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/saved")({
   head: () => ({
