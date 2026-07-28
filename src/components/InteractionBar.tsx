@@ -51,7 +51,26 @@ export function InteractionBar({
   } = useInteractionState(id, { likes: counts.likes, shares: counts.shares });
 
   const [commentDelta, setCommentDelta] = useState(0);
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressedRef = useRef(false);
   const isDark = variant === "dark";
+
+  const isPost = !!targetId && targetId !== "anon";
+  const startLongPress = () => {
+    if (!isPost) return;
+    longPressedRef.current = false;
+    longPressRef.current = setTimeout(() => {
+      longPressedRef.current = true;
+      void haptic("medium");
+      setCollectionOpen(true);
+    }, 450);
+  };
+  const cancelLongPress = () => {
+    if (longPressRef.current) clearTimeout(longPressRef.current);
+    longPressRef.current = null;
+  };
+
 
   const surface: CSSProperties = {
     background: "transparent",
