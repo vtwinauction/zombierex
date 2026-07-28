@@ -226,6 +226,22 @@ function BluetoothCell() {
   );
 }
 
+function labelForKind(kind?: string): string {
+  switch (kind) {
+    case "like": return "liked your post";
+    case "comment": return "commented on your post";
+    case "follow": return "started following you";
+    case "mention": return "mentioned you";
+    case "message": return "sent you a message";
+    case "marketplace": return "activity on your listing";
+    case "booking": return "booking update";
+    case "order": return "order update";
+    case "event": return "event update";
+    default: return "sent you a signal";
+  }
+}
+
+
 function friendlyLabel(section: string) {
   const map: Record<string, string> = {
     "HOME · TRANSMISSION": "Home",
