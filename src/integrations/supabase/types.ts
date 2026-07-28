@@ -3320,6 +3320,7 @@ export type Database = {
           id: string
           kind: Database["public"]["Enums"]["notification_kind"]
           payload: Json
+          pushed_at: string | null
           read_at: string | null
           user_id: string
         }
@@ -3329,6 +3330,7 @@ export type Database = {
           id?: string
           kind: Database["public"]["Enums"]["notification_kind"]
           payload?: Json
+          pushed_at?: string | null
           read_at?: string | null
           user_id: string
         }
@@ -3338,6 +3340,7 @@ export type Database = {
           id?: string
           kind?: Database["public"]["Enums"]["notification_kind"]
           payload?: Json
+          pushed_at?: string | null
           read_at?: string | null
           user_id?: string
         }
