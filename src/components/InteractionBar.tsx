@@ -1,7 +1,8 @@
-import { useState, type ComponentType, type CSSProperties } from "react";
+import { useRef, useState, type ComponentType, type CSSProperties } from "react";
 import { HeartIcon, CommentIcon, ShareIcon, BookmarkIcon } from "./icons/SocialIcons";
 import { useInteractionState } from "@/hooks/useInteractionState";
 import { haptic } from "@/lib/native";
+import { SaveToCollectionSheet } from "./SaveToCollectionSheet";
 
 export type InteractionCounts = {
   likes: number;
@@ -50,7 +51,26 @@ export function InteractionBar({
   } = useInteractionState(id, { likes: counts.likes, shares: counts.shares });
 
   const [commentDelta, setCommentDelta] = useState(0);
+  const [collectionOpen, setCollectionOpen] = useState(false);
+  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressedRef = useRef(false);
   const isDark = variant === "dark";
+
+  const isPost = !!targetId && targetId !== "anon";
+  const startLongPress = () => {
+    if (!isPost) return;
+    longPressedRef.current = false;
+    longPressRef.current = setTimeout(() => {
+      longPressedRef.current = true;
+      void haptic("medium");
+      setCollectionOpen(true);
+    }, 450);
+  };
+  const cancelLongPress = () => {
+    if (longPressRef.current) clearTimeout(longPressRef.current);
+    longPressRef.current = null;
+  };
+
 
   const surface: CSSProperties = {
     background: "transparent",
@@ -88,6 +108,10 @@ export function InteractionBar({
             (key === "like" && liked) || (key === "save" && saved);
 
           const onClick = () => {
+            if (key === "save" && longPressedRef.current) {
+              longPressedRef.current = false;
+              return;
+            }
             // Native haptic feedback — no-op on web (or navigator.vibrate fallback).
             if (key === "like")        void haptic(liked ? "light" : "medium");
             else if (key === "save")   void haptic("light");
@@ -104,6 +128,16 @@ export function InteractionBar({
           };
 
           const iconColor = "var(--color-neon)";
+          const longPressProps =
+            key === "save" && isPost
+              ? {
+                  onPointerDown: startLongPress,
+                  onPointerUp: cancelLongPress,
+                  onPointerLeave: cancelLongPress,
+                  onPointerCancel: cancelLongPress,
+                  onContextMenu: (e: { preventDefault: () => void }) => e.preventDefault(),
+                }
+              : {};
 
           return (
             <button
@@ -111,12 +145,13 @@ export function InteractionBar({
               key={key}
               type="button"
               onClick={onClick}
-              
-              aria-label={label}
+              {...longPressProps}
+              aria-label={key === "save" && isPost ? `${label} (hold to file in a collection)` : label}
               aria-pressed={active}
               className="tap group relative flex h-12 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl"
               style={{ background: "transparent" }}
             >
+
               <span
                 key={active ? "on" : "off"}
                 className={`transition-transform duration-200 ease-out group-active:scale-90 ${active ? "ibar-pop" : ""}`}
@@ -186,6 +221,14 @@ export function InteractionBar({
             </button>
           )}
         </div>
+      )}
+
+      {isPost && (
+        <SaveToCollectionSheet
+          postId={id}
+          open={collectionOpen}
+          onClose={() => setCollectionOpen(false)}
+        />
       )}
     </div>
   );
