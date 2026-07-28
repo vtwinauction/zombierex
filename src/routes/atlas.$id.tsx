@@ -45,8 +45,6 @@ function RouteErrorPanel({ error, reset }: { error: Error; reset: () => void }) 
     </div>
   );
 }
-  notFoundComponent: () => <div className="p-6 text-foreground">Route not found</div>,
-});
 
 function RouteDetail() {
   const { data } = useSuspenseQuery(routeQuery(Route.useParams().id));
