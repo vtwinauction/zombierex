@@ -175,7 +175,31 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [followed, setFollowed] = useState(reel.followed);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMutedState] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.sessionStorage.getItem("zrex:reels_muted") !== "0";
+  });
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  function setMuted(next: boolean | ((p: boolean) => boolean)) {
+    setMutedState((prev) => {
+      const v = typeof next === "function" ? (next as any)(prev) : next;
+      try { window.sessionStorage.setItem("zrex:reels_muted", v ? "1" : "0"); } catch {}
+      window.dispatchEvent(new CustomEvent("zrex:reels-mute", { detail: v }));
+      return v;
+    });
+  }
+  useEffect(() => {
+    const on = (e: Event) => setMutedState((e as CustomEvent).detail);
+    window.addEventListener("zrex:reels-mute", on);
+    return () => window.removeEventListener("zrex:reels-mute", on);
+  }, []);
+  // When unmuting via user gesture, kick playback so audio actually starts.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || muted) return;
+    v.muted = false;
+    v.play().catch(() => {});
+  }, [muted]);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(reel.duration || 0);
