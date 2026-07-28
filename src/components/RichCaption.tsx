@@ -27,8 +27,8 @@ export function RichCaption({
       parts.push(
         <Link
           key={`t-${i++}`}
-          to="/search"
-          search={{ q: `#${tag}` } as any}
+          to="/tag/$tag"
+          params={{ tag }}
           className="font-semibold"
           style={{ color: "var(--color-neon, #39FF14)" }}
         >

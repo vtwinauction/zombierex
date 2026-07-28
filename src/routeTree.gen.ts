@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
+import { Route as TagTagRouteImport } from './routes/tag.$tag'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
 import { Route as ReelsIdRouteImport } from './routes/reels.$id'
 import { Route as PostIdRouteImport } from './routes/post.$id'
@@ -227,6 +228,11 @@ const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
 const UHandleRoute = UHandleRouteImport.update({
   id: '/u/$handle',
   path: '/u/$handle',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TagTagRoute = TagTagRouteImport.update({
+  id: '/tag/$tag',
+  path: '/tag/$tag',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SosTokenRoute = SosTokenRouteImport.update({
@@ -957,6 +963,7 @@ export interface FileRoutesByFullPath {
   '/post/$id': typeof PostIdRoute
   '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
@@ -1095,6 +1102,7 @@ export interface FileRoutesByTo {
   '/post/$id': typeof PostIdRoute
   '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
@@ -1238,6 +1246,7 @@ export interface FileRoutesById {
   '/post/$id': typeof PostIdRoute
   '/reels/$id': typeof ReelsIdRoute
   '/sos/$token': typeof SosTokenRoute
+  '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
@@ -1381,6 +1390,7 @@ export interface FileRouteTypes {
     | '/post/$id'
     | '/reels/$id'
     | '/sos/$token'
+    | '/tag/$tag'
     | '/u/$handle'
     | '/communities/'
     | '/judge/'
@@ -1519,6 +1529,7 @@ export interface FileRouteTypes {
     | '/post/$id'
     | '/reels/$id'
     | '/sos/$token'
+    | '/tag/$tag'
     | '/u/$handle'
     | '/communities'
     | '/judge'
@@ -1661,6 +1672,7 @@ export interface FileRouteTypes {
     | '/post/$id'
     | '/reels/$id'
     | '/sos/$token'
+    | '/tag/$tag'
     | '/u/$handle'
     | '/communities/'
     | '/judge/'
@@ -1789,6 +1801,7 @@ export interface RootRouteChildren {
   PIdRoute: typeof PIdRoute
   PostIdRoute: typeof PostIdRoute
   SosTokenRoute: typeof SosTokenRoute
+  TagTagRoute: typeof TagTagRoute
   UHandleRoute: typeof UHandleRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
@@ -1917,6 +1930,13 @@ declare module '@tanstack/react-router' {
       path: '/u/$handle'
       fullPath: '/u/$handle'
       preLoaderRoute: typeof UHandleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tag/$tag': {
+      id: '/tag/$tag'
+      path: '/tag/$tag'
+      fullPath: '/tag/$tag'
+      preLoaderRoute: typeof TagTagRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sos/$token': {
@@ -3125,6 +3145,7 @@ const rootRouteChildren: RootRouteChildren = {
   PIdRoute: PIdRoute,
   PostIdRoute: PostIdRoute,
   SosTokenRoute: SosTokenRoute,
+  TagTagRoute: TagTagRoute,
   UHandleRoute: UHandleRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
