@@ -1,5 +1,5 @@
 /* ZOMBIEREX Service Worker — offline shell + navigation fallback */
-const CACHE = "zrx-v1";
+const CACHE = "zrx-v3";
 const CORE = ["/", "/favicon.ico", "/manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
@@ -11,6 +11,15 @@ self.addEventListener("activate", (e) => {
     caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING" || event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+  if (event.data === "PURGE_CACHES" || event.data?.type === "PURGE_CACHES") {
+    event.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
+  }
 });
 
 self.addEventListener("fetch", (event) => {
