@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type VideoHTMLAttributes } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type VideoHTMLAttributes } from "react";
 
 /**
  * Video that autoplays muted when visible and pauses off-screen —
@@ -20,7 +20,7 @@ export type AutoplayVideoProps = Omit<VideoHTMLAttributes<HTMLVideoElement>, "mu
   className?: string;
 };
 
-export function AutoplayVideo({
+export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(function AutoplayVideo({
   src,
   poster,
   forcePlay,
@@ -30,8 +30,9 @@ export function AutoplayVideo({
   className,
   onClick,
   ...rest
-}: AutoplayVideoProps) {
+}, forwardedRef) {
   const ref = useRef<HTMLVideoElement>(null);
+  useImperativeHandle(forwardedRef, () => ref.current as HTMLVideoElement, []);
   const [inView, setInView] = useState(false);
 
   // Visibility
@@ -85,7 +86,7 @@ export function AutoplayVideo({
       {...rest}
     />
   );
-}
+});
 
 /** True if a URL looks like a video file we can render inline. */
 export function isVideoUrl(u?: string | null): boolean {
