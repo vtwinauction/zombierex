@@ -36,12 +36,14 @@ function MessagesPage() {
   });
 
   // realtime — refetch on any new message
+  const refetchRef = useRef(q.refetch);
+  refetchRef.current = q.refetch;
   useEffect(() => {
-    const ch = supabase.channel("messages-list")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => q.refetch())
+    const ch = supabase.channel(`messages-list-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => { void refetchRef.current(); })
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [q]);
+    return () => { void supabase.removeChannel(ch); };
+  }, []);
 
   const rows = q.data ?? [];
   const totalUnread = rows.reduce((s: number, c: any) => s + (c.unread || 0), 0);

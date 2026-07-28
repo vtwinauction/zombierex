@@ -35,7 +35,7 @@ function DragChallengePage() {
 
   // Realtime — refetch on any challenge row change touching me
   useEffect(() => {
-    const ch = supabase.channel("drag-challenges")
+    const ch = supabase.channel(`drag-challenges-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "drag_challenges" }, () => refetch())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
