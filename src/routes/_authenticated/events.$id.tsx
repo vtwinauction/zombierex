@@ -97,7 +97,6 @@ function EventDetail() {
   const d = new Date(e.starts_at);
 
 
-  const [checkingIn, setCheckingIn] = useState(false);
 
   async function doRsvp(status: "going" | "interested" | "not_going") {
     try {
