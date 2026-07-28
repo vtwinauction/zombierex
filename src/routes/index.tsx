@@ -135,7 +135,7 @@ function HomePage() {
       timeAgo,
       image: media,
       video: isVid ? r.media_url || "" : "",
-      poster: r.thumbnail_url || (isVid ? "" : media),
+      poster: r.thumbnail_url || (isVid ? undefined : media) || undefined,
       vehicle: null as any,
       likes: r.likes_count ?? 0,
       comments: r.comments_count ?? 0,
