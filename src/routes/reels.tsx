@@ -262,6 +262,7 @@ function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boo
     >
       {hasVideo ? (
         <AutoplayVideo
+          ref={videoRef}
           src={reel.video!}
           poster={reel.poster}
           forcePlay={active && !paused}
