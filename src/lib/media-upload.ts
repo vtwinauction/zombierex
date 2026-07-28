@@ -25,6 +25,47 @@ const MAX_IMAGE_DIM = 1920;
 const IMAGE_QUALITY = 0.86;
 const LONG_TTL = 60 * 60 * 24 * 365; // 1 year
 
+/**
+ * Hard upload limits enforced client-side before compression / upload.
+ * Keeps the pipeline predictable and protects storage/CDN costs.
+ */
+export const UPLOAD_LIMITS = {
+  image: { maxBytes: 10 * 1024 * 1024, label: "10 MB" },
+  reel:  { maxBytes: 100 * 1024 * 1024, label: "100 MB", maxSeconds: 90 },
+  video: { maxBytes: 500 * 1024 * 1024, label: "500 MB" },
+  story: { maxBytes: 50 * 1024 * 1024, label: "50 MB", maxSeconds: 15 },
+} as const;
+
+export type UploadKind = keyof typeof UPLOAD_LIMITS;
+
+/** Return null if OK, or a human error string for a toast. */
+export function checkUploadSize(kind: UploadKind, file: File): string | null {
+  const lim = UPLOAD_LIMITS[kind];
+  if (file.size > lim.maxBytes) {
+    const mb = (file.size / 1024 / 1024).toFixed(1);
+    return `"${file.name}" is ${mb} MB — over the ${lim.label} limit for ${kind}s.`;
+  }
+  return null;
+}
+
+/** Probe a video File for duration (seconds). Resolves 0 if unreadable. */
+export async function probeVideoDuration(file: File): Promise<number> {
+  if (!file.type.startsWith("video/")) return 0;
+  const url = URL.createObjectURL(file);
+  try {
+    return await new Promise<number>((resolve) => {
+      const v = document.createElement("video");
+      v.preload = "metadata";
+      v.muted = true;
+      v.onloadedmetadata = () => resolve(Number.isFinite(v.duration) ? v.duration : 0);
+      v.onerror = () => resolve(0);
+      v.src = url;
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
 export async function compressImage(file: File): Promise<Blob> {
   if (!file.type.startsWith("image/") || file.type === "image/gif") return file;
   const isHeic = /image\/(heic|heif)/i.test(file.type) || /\.(heic|heif)$/i.test(file.name);
