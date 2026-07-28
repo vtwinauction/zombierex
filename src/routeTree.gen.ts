@@ -143,6 +143,7 @@ import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/pub
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
 import { Route as AuthenticatedOwnerFinanceTransactionsRouteImport } from './routes/_authenticated/owner.finance.transactions'
 import { Route as AuthenticatedOwnerFinanceSellersRouteImport } from './routes/_authenticated/owner.finance.sellers'
+import { Route as AuthenticatedOwnerFinancePayoutsRouteImport } from './routes/_authenticated/owner.finance.payouts'
 import { Route as AuthenticatedOwnerFinancePaymentsRouteImport } from './routes/_authenticated/owner.finance.payments'
 import { Route as AuthenticatedOwnerFinanceCommissionsRouteImport } from './routes/_authenticated/owner.finance.commissions'
 import { Route as AuthenticatedOwnerFinanceBuyersRouteImport } from './routes/_authenticated/owner.finance.buyers'
@@ -886,6 +887,12 @@ const AuthenticatedOwnerFinanceSellersRoute =
     path: '/sellers',
     getParentRoute: () => AuthenticatedOwnerFinanceRoute,
   } as any)
+const AuthenticatedOwnerFinancePayoutsRoute =
+  AuthenticatedOwnerFinancePayoutsRouteImport.update({
+    id: '/payouts',
+    path: '/payouts',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
 const AuthenticatedOwnerFinancePaymentsRoute =
   AuthenticatedOwnerFinancePaymentsRouteImport.update({
     id: '/payments',
@@ -1103,6 +1110,7 @@ export interface FileRoutesByFullPath {
   '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/owner/finance/payouts': typeof AuthenticatedOwnerFinancePayoutsRoute
   '/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
   '/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1248,6 +1256,7 @@ export interface FileRoutesByTo {
   '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/owner/finance/payouts': typeof AuthenticatedOwnerFinancePayoutsRoute
   '/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
   '/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1399,6 +1408,7 @@ export interface FileRoutesById {
   '/_authenticated/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/_authenticated/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/_authenticated/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/_authenticated/owner/finance/payouts': typeof AuthenticatedOwnerFinancePayoutsRoute
   '/_authenticated/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
   '/_authenticated/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
@@ -1550,6 +1560,7 @@ export interface FileRouteTypes {
     | '/owner/finance/buyers'
     | '/owner/finance/commissions'
     | '/owner/finance/payments'
+    | '/owner/finance/payouts'
     | '/owner/finance/sellers'
     | '/owner/finance/transactions'
     | '/post/$id/edit'
@@ -1695,6 +1706,7 @@ export interface FileRouteTypes {
     | '/owner/finance/buyers'
     | '/owner/finance/commissions'
     | '/owner/finance/payments'
+    | '/owner/finance/payouts'
     | '/owner/finance/sellers'
     | '/owner/finance/transactions'
     | '/post/$id/edit'
@@ -1845,6 +1857,7 @@ export interface FileRouteTypes {
     | '/_authenticated/owner/finance/buyers'
     | '/_authenticated/owner/finance/commissions'
     | '/_authenticated/owner/finance/payments'
+    | '/_authenticated/owner/finance/payouts'
     | '/_authenticated/owner/finance/sellers'
     | '/_authenticated/owner/finance/transactions'
     | '/_authenticated/post/$id/edit'
@@ -2847,6 +2860,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerFinanceSellersRouteImport
       parentRoute: typeof AuthenticatedOwnerFinanceRoute
     }
+    '/_authenticated/owner/finance/payouts': {
+      id: '/_authenticated/owner/finance/payouts'
+      path: '/payouts'
+      fullPath: '/owner/finance/payouts'
+      preLoaderRoute: typeof AuthenticatedOwnerFinancePayoutsRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
     '/_authenticated/owner/finance/payments': {
       id: '/_authenticated/owner/finance/payments'
       path: '/payments'
@@ -3000,6 +3020,7 @@ interface AuthenticatedOwnerFinanceRouteChildren {
   AuthenticatedOwnerFinanceBuyersRoute: typeof AuthenticatedOwnerFinanceBuyersRoute
   AuthenticatedOwnerFinanceCommissionsRoute: typeof AuthenticatedOwnerFinanceCommissionsRoute
   AuthenticatedOwnerFinancePaymentsRoute: typeof AuthenticatedOwnerFinancePaymentsRoute
+  AuthenticatedOwnerFinancePayoutsRoute: typeof AuthenticatedOwnerFinancePayoutsRoute
   AuthenticatedOwnerFinanceSellersRoute: typeof AuthenticatedOwnerFinanceSellersRoute
   AuthenticatedOwnerFinanceTransactionsRoute: typeof AuthenticatedOwnerFinanceTransactionsRoute
   AuthenticatedOwnerFinanceIndexRoute: typeof AuthenticatedOwnerFinanceIndexRoute
@@ -3012,6 +3033,8 @@ const AuthenticatedOwnerFinanceRouteChildren: AuthenticatedOwnerFinanceRouteChil
       AuthenticatedOwnerFinanceCommissionsRoute,
     AuthenticatedOwnerFinancePaymentsRoute:
       AuthenticatedOwnerFinancePaymentsRoute,
+    AuthenticatedOwnerFinancePayoutsRoute:
+      AuthenticatedOwnerFinancePayoutsRoute,
     AuthenticatedOwnerFinanceSellersRoute:
       AuthenticatedOwnerFinanceSellersRoute,
     AuthenticatedOwnerFinanceTransactionsRoute:
