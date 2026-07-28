@@ -43,6 +43,7 @@ function PlanPage() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const distance = useMemo(() => {
     let d = 0;
