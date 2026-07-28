@@ -251,6 +251,19 @@ function labelForKind(kind?: string): string {
   }
 }
 
+function kindAllowed(kind: string | undefined, prefs: Record<string, any>): boolean {
+  if (prefs?.push_enabled === false) return false;
+  const map: Record<string, string> = {
+    like: "likes", comment: "comments", follow: "follows", mention: "mentions",
+    message: "messages", marketplace: "marketplace", booking: "bookings",
+    order: "orders", vendor_update: "vendor_updates", subscription: "subscriptions",
+    event: "events",
+  };
+  const key = kind ? map[kind] : undefined;
+  if (!key) return true;
+  return prefs?.[key] !== false;
+}
+
 
 function friendlyLabel(section: string) {
   const map: Record<string, string> = {
