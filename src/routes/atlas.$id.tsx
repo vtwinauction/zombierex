@@ -148,12 +148,15 @@ function RouteDetail() {
           </div>
         )}
 
-        <div className="mt-6 grid grid-cols-2 gap-2">
-          <button onClick={onSave} disabled={saving} className="tap py-3 mono-caps text-xs font-bold" style={{ background: saved ? "var(--color-graphite)" : "var(--color-graphite)", color: saved ? "var(--color-neon)" : "white", border: "1px solid var(--color-hair-strong)" }}>
+        <div className="mt-6 grid grid-cols-3 gap-2">
+          <button onClick={onSave} disabled={saving} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-graphite)", color: saved ? "var(--color-neon)" : "white", border: "1px solid var(--color-hair-strong)" }}>
             {saved ? "★ SAVED" : "☆ SAVE"}
           </button>
+          <button onClick={onExportGpx} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-graphite)", color: "white", border: "1px solid var(--color-hair-strong)" }}>
+            ↓ GPX
+          </button>
           <button onClick={onRide} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
-            ▶ RIDE THIS ROUTE
+            ▶ RIDE
           </button>
         </div>
       </div>
