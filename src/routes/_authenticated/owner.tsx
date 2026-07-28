@@ -278,16 +278,20 @@ function UsersTab() {
 
   const suspMut = useMutation({
     mutationFn: (v: { userId: string; suspend: boolean; reason?: string }) => susp({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "users"] }),
+    onSuccess: (_d, v) => { toast.success(v.suspend ? "User suspended" : "User reinstated"); qc.invalidateQueries({ queryKey: ["owner", "users"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
   const verMut = useMutation({
     mutationFn: (v: { userId: string; verified: boolean }) => verify({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "users"] }),
+    onSuccess: (_d, v) => { toast.success(v.verified ? "Verified" : "Verification removed"); qc.invalidateQueries({ queryKey: ["owner", "users"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
   const roleMut = useMutation({
     mutationFn: (v: { userId: string; roles: any[] }) => roles({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "users"] }),
+    onSuccess: () => { toast.success("Roles updated"); qc.invalidateQueries({ queryKey: ["owner", "users"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
+
 
   return (
     <div className="space-y-3">
