@@ -86,7 +86,7 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
       {...rest}
     />
   );
-}
+});
 
 /** True if a URL looks like a video file we can render inline. */
 export function isVideoUrl(u?: string | null): boolean {
