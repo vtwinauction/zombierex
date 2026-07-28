@@ -1,7 +1,8 @@
-import { useState, type ComponentType, type CSSProperties } from "react";
+import { useRef, useState, type ComponentType, type CSSProperties } from "react";
 import { HeartIcon, CommentIcon, ShareIcon, BookmarkIcon } from "./icons/SocialIcons";
 import { useInteractionState } from "@/hooks/useInteractionState";
 import { haptic } from "@/lib/native";
+import { SaveToCollectionSheet } from "./SaveToCollectionSheet";
 
 export type InteractionCounts = {
   likes: number;
