@@ -135,7 +135,7 @@ function HomePage() {
       timeAgo,
       image: media,
       video: isVid ? r.media_url || "" : "",
-      poster: r.thumbnail_url || (isVid ? "" : media),
+      poster: r.thumbnail_url || (isVid ? undefined : media) || undefined,
       vehicle: null as any,
       likes: r.likes_count ?? 0,
       comments: r.comments_count ?? 0,
@@ -273,7 +273,11 @@ function HomePage() {
           style={{ aspectRatio: "9/14", borderRadius: 18, border: "1px solid var(--color-hair)" }}
         >
 
-          <img src={featured.poster} alt="" className="ken-burns h-full w-full object-cover" />
+          {featured.poster ? (
+            <img src={featured.poster} alt="" className="ken-burns h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
+          )}
           <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
 
           {/* top row — user + follow */}
@@ -634,7 +638,11 @@ function HomePage() {
         <div className="grid grid-cols-3 gap-1">
           {gridReels.map((r) => (
             <Link key={r.id} to="/" className="tap relative block overflow-hidden" style={{ aspectRatio: "9/16", borderRadius: 8 }}>
-              <img src={r.poster} alt="" className="h-full w-full object-cover" />
+              {r.poster ? (
+                <img src={r.poster} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
+              )}
               <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.85))" }} />
               <div className="absolute inset-x-1.5 bottom-1.5 text-white">
                 <div className="flex items-center gap-1">
@@ -885,14 +893,14 @@ function FeedMedia({
           muted={muted}
           className="block aspect-square w-full object-cover"
         />
-      ) : (
+      ) : image ? (
         <img
           src={image}
           alt={alt ?? ""}
           className="block aspect-square w-full object-cover"
           draggable={false}
         />
-      )}
+      ) : null}
 
       {/* heart burst on double-tap */}
       {burstAt && (
