@@ -100,6 +100,51 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
           }
         }
 
+        // Commission engine: record the transaction + double-entry ledger so
+        // the platform's cut is captured on every successful payment.
+        if (nextStatus === "succeeded") {
+          try {
+            const { data: full } = await supabaseAdmin
+              .from("payments")
+              .select("id, user_id, amount_cents, currency, provider, subscription_id, order_id")
+              .eq("id", payment.id)
+              .maybeSingle();
+            if (full) {
+              // Seller + category come from the order when this payment settles one.
+              let sellerId: string | null = null;
+              let category: string | null = null;
+              if ((full as any).order_id) {
+                const { data: order } = await supabaseAdmin
+                  .from("orders")
+                  .select("vendor_id")
+                  .eq("id", (full as any).order_id)
+                  .maybeSingle();
+                sellerId = (order as any)?.vendor_id ?? null;
+
+              }
+              const { settleTransaction } = await import("@/lib/finance.server");
+              await settleTransaction({
+                kind: (full as any).order_id ? "order" : (full as any).subscription_id ? "plan" : "other",
+                gross_cents: (full as any).amount_cents,
+                currency: (full as any).currency ?? "USD",
+                buyer_id: (full as any).user_id,
+                seller_id: sellerId,
+                order_id: (full as any).order_id ?? null,
+                payment_id: (full as any).id,
+                subscription_id: (full as any).subscription_id ?? null,
+                category,
+                provider: (full as any).provider ?? "mock",
+                provider_ref: payload.provider_ref ?? null,
+              });
+            }
+
+          } catch (e) {
+            console.error("[webhook/payments] settlement failed", e);
+            return new Response("Settlement failed", { status: 500 });
+          }
+        }
+
+
         return Response.json({ ok: true, status: nextStatus });
       },
     },

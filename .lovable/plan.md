@@ -1,73 +1,73 @@
-# ZOMBIEREX Audit Remediation Plan
+## Goal
 
-## Summary of findings
+Turn ZOMBIEREX from "no commission anywhere" into a marketplace where every completed transaction automatically splits into a platform cut and a seller payout, with all rates, fees, and payment rules controlled from an owner/admin panel — no redeploys.
 
-The auditor rates the project **58/100 overall, 22/100 production-ready**. Backend hygiene is genuinely strong (RLS on 109/109 tables, 100% Zod coverage on 281 server fns, hardened webhook, correct role architecture). Three layers failed:
+## Phase 1 — Money ledger (database)
 
-1. **Native shell is broken** — 12 Capacitor plugins referenced, 0 installed; `loadPlugin` uses `@vite-ignore` with variable specifiers (architecturally cannot resolve at runtime); splash never dismisses. App likely hangs on splash on device.
-2. **Security holes at the column/anon boundary** — `GRANT SELECT profiles TO anon` + broad `profiles_public_read` exposes phone/email/address of every user. `GRANT UPDATE` with no column list lets any user self-set `is_verified`, `is_suspended`, `is_premium`, `tier`, seller rating, XP. Vendors can self-verify. Ex-premium users can reactivate premium.
-3. **"Last mile" placebo features** — 4 settings screens write values nobody reads; push tokens collected but no sender; "sign out this device" only deletes a cosmetic row; Following tab filters mock data by array parity; home screen has fabricated Recent chats/suggested creators/trending counts (App Review rejection risk).
+New tables (all with GRANTs + RLS, owner/admin-only reads except the seller's own rows):
 
-Docs (`production-readiness-report.md`) contradict reality on payments, mobile, push, feed, i18n, and Vite version.
+- `fee_rules` — the configurable commission engine. Columns: scope (`default` | `category` | `seller` | `country` | `seller_type` | `promo`), scope_value, `percent_bps`, `fixed_cents`, `min_fee_cents`, `max_fee_cents`, currency, priority, `starts_at`/`ends_at`, active. Most specific active rule wins; ties broken by priority.
+- `transactions` — the single financial record for every money event (order, tip, creator sub, plan, ad). Gross, fee, net, processor fee, currency, buyer, seller, provider, provider_ref, status, refunded amount. Immutable-by-users; written by server only.
+- `ledger_entries` — double-entry lines (debit/credit, account: platform_revenue / seller_payable / processor_fees / refunds) so every dollar reconciles.
+- `payout_batches` + `payouts` — seller balance, scheduled settlement, status, provider transfer ref.
+- `refunds` — amount, reason, whether commission is clawed back, actor.
+- `payment_config` — gateway toggles, enabled methods, currencies, tax rules, service fees, refund window, withdrawal minimum/limits, settlement schedule. Single JSON-ish keyed table, read at request time.
+- Extend `payments` and `orders` with `platform_fee_cents`, `net_cents`, `fee_bps`, `transaction_id`.
+- `financial_audit_log` — every admin change to fees/config/refunds (actor, before, after, ip). Existing `tg_audit_row` trigger reused.
 
-## What I will apply now (safe, high-leverage, no device required)
+Idempotency: unique index on `(provider, provider_ref)` in `transactions` to hard-block duplicate payment application.
 
-### Phase A — SQL security & performance (pure migrations, zero build risk)
+## Phase 2 — Commission engine (server)
 
-- **C-04 · Close anonymous PII read.** Revoke `SELECT ON profiles FROM anon`, drop `profiles_public_read`, add authenticated-only policy that honours `is_private` + followers, create `profiles_public` PII-free view granted to `anon`. Repoint public fns (`getProfileByHandlePublic`, `searchAll`, public feed reads) at the view.
-- **C-05/C-06/C-07 · Column-level grants + guard trigger.** Replace blanket `GRANT UPDATE` on `profiles`/`vendors` with column-scoped grants; drop `pm_own_update` + revoke UPDATE on `premium_memberships`; drop dead `subs_owner_update`; add `tg_guard_profile_privileged` BEFORE UPDATE trigger as defence-in-depth.
-- **H-01 · Signed URLs.** Cap `expires_in` at 900s in `createSignedReadUrl`, verify row visibility per bucket (not just `documents`).
-- **H-04 · Foreign-key indexes.** Ship the 19 hot-path `CREATE INDEX CONCURRENTLY` from §4.4 plus a generator-produced batch for the rest.
-- **H-03 · `(select auth.uid())` rewrite.** Mechanical migration converting all `auth.uid()` references in policy `USING`/`WITH CHECK` to the initplan-cached form.
-- **H-08 · Real device revoke.** `revokeDevice` fetches session_id from the row and calls `supabase.auth.admin.signOut(userId, { scope: 'others' })` via admin client; dedupe `registerDevice`.
-- **H-02 partial · Bucket definitions in a migration** with size + MIME limits so fresh envs have buckets.
-- **M-07 · Rate-limit / restrict anonymous inserts** on `analytics_events` and `crash_reports`.
+`src/lib/commission.server.ts`
+- `resolveFeeRule({ category, sellerId, sellerType, country, currency, at })` → the winning rule.
+- `computeSplit(grossCents, rule)` → `{ fee_cents, net_cents, applied_rule_id }`, clamped by min/max, supporting percent, fixed, or percent+fixed.
+- Pure functions, unit-tested with vitest (rounding, clamps, promo windows, zero/negative guards).
 
-### Phase B — Frontend safety & polish (no native required)
+`src/lib/finance.server.ts`
+- `settleTransaction()` — called from the payment webhook only. Computes split, writes `transactions` + `ledger_entries`, credits seller payable, flips order to paid, fires buyer/seller notifications and receipt emails.
+- `refundTransaction()` — reverses ledger lines, optional commission clawback per config.
 
-- **C-10 · Strip fabricated content** from `routes/index.tsx`: remove `chats`/suggested creators/suggested clubs mocks, hardcoded trending counts, feed mock fallback, Following-tab parity filter. Replace with real empty states + real Following query (`author_id IN (following)`).
-- **H-05 · QueryClient defaults**: `staleTime: 60s`, `refetchOnWindowFocus: false`, scope invalidations by key domain, drop blanket `invalidateQueries()` in `__root.tsx` and on `TOKEN_REFRESHED`/`INITIAL_SESSION`.
-- **H-06 · Error surfaces.** Add `isError` fallbacks to the highest-traffic query call sites (feed, reels, marketplace, profile, communities, search).
-- **H-12 · Router defaults.** `defaultPendingMs: 200`, `defaultPreloadStaleTime: 30s`; `DefaultError` renders a generic message, hides `error.message` behind DEV.
-- **H-13 · Service worker.** Bump cache to build-hash name, add LRU cap, drop `/` navigation precache, skip SW registration inside Capacitor WebView.
-- **H-10 · Feed pagination.** Composite `(created_at, id)` keyset cursor; only null `nextCursor` when the underlying page (not the filtered result) is short; move block-list filter server-side via helper function.
-- **M-11 · Identity cleanup.** SITE_NAME → "ZOMBIEREX", robots sitemap URL, `your-site.com` placeholder.
-- **M-13 · `node:crypto`** imports in `webhooks.payments.ts`.
-- **M-15 · Server-side age gate** at signup via server fn checking DOB.
-- Rewrite `docs/production-readiness-report.md` to match reality (or replace with a redirect to DEFERRED_INTEGRATIONS.md).
+All of this runs behind the existing `/api/public/webhooks/payments` route and new server functions in `src/lib/finance.functions.ts`.
 
-### Phase C — Native shell (does require device verification you must do)
+## Phase 3 — Admin/owner control plane (UI)
 
-I will ship the code changes; **device verification is your step** (auditor is explicit: none of this is verifiable without hardware).
+New routes under `_authenticated/owner/` (role-gated by `has_any_role(owner, super_admin, admin)`, with finance actions restricted to owner/super_admin):
 
-- **C-01/C-02/C-03 · Install plugins + static imports.** Add 13 packages (`@capacitor/core`, `splash-screen`, `haptics`, `share`, `browser`, `network`, `device`, `push-notifications`, `camera`, `geolocation`, `status-bar`, `app`, `keyboard`, `@aparajita/capacitor-biometric-auth`). Replace variable `import(/* @vite-ignore */ name)` with static imports guarded by `isNative()`. Set `launchAutoHide: true`.
-- **C-12 · Lockfile.** Keep bun (per `bunfig.toml`), delete `package-lock.json`, regenerate `bun.lock`.
+- `/owner/finance` — revenue dashboard: total / today / MTD / YTD revenue, commissions earned, GMV, avg commission per transaction, counts of successful, pending, failed, refunded. Recharts line + bar charts, CSV export.
+- `/owner/finance/commissions` — CRUD for `fee_rules`: default, per-category, per-seller, per-country, promo campaigns, min/max, fixed + percent. Live preview ("a $100 sale in Parts by seller X yields $5.00 to you"). Changes apply on the next transaction, no deploy.
+- `/owner/finance/payments` — gateway config, enabled methods, currencies, tax, service fees, refund rules, withdrawal rules, settlement schedule.
+- `/owner/finance/transactions` — searchable, filterable table (date, seller, buyer, method, status), row drawer with ledger lines, actions: refund, cancel, adjust commission (audited), export CSV.
+- `/owner/finance/sellers` — approve/suspend, custom commission rate, earnings, payouts, withdrawal limits, payout schedule.
+- `/owner/finance/buyers` — purchase and payment history, disputes, refunds.
 
-## What I will not attempt in this pass (needs product/business input or is genuinely multi-week)
+Seller-facing: extend the existing payouts ledger to show gross, commission, and net per sale, plus pending balance and next payout date.
 
-- **C-08/C-09 · Native OAuth + universal-link email redirect** (needs your Apple Team ID, Android signing SHA-256, and a public HTTPS domain for the association files).
-- **C-11 · Push delivery** (needs FCM sender key + APNs auth key from you).
-- **C-13 · Deep-link association files** (needs Team ID + SHA-256).
-- **C-14 · StoreKit / Stripe Connect** (business decision, blocked on Bahrain-Stripe status).
-- **H-09 · Ranked feed** (multi-week ML/eng work).
-- **H-11 · Background location + native crash detection** (needs Android foreground service + iOS Info.plist justification + App Review submission).
-- **H-07 · Making the 4 placebo settings real** (dark mode alone is a full theming pass — I will instead remove/hide the non-functional toggles to stop the false-advertising problem, and file the real work).
-- **Accessibility sweep of 135 inputs** (I will hit the top offenders: `profile.edit`, `events.new`, `events_.$id.edit`, `ads.new`, `MediaComposer`, `auth` — the rest gets a follow-up).
+## Phase 4 — Automation
 
-## Order of operations
+- Settlement on webhook success (already the seam).
+- pg_cron → `/api/public/hooks/run-payouts` for scheduled payout batches.
+- pg_cron → `/api/public/hooks/finance-digest` for daily owner revenue email.
+- Auto invoice/receipt records + emails on settlement and refund via existing email templates.
+- Notifications to buyer and seller on paid, shipped, refunded, payout sent.
 
-1. Phase A migrations (single squashed migration file, applied via `supabase--migration`).
-2. Repoint server functions at `profiles_public` and update `revokeDevice`, `createSignedReadUrl`.
-3. Phase B frontend edits in parallel batches.
-4. Phase C native install + static imports; ask you to run `bun install`, `bun cap sync`, and test on a physical device.
-5. Rewrite `production-readiness-report.md` last so it reflects the new state.
+## Phase 5 — Real money
+
+The engine above works against the current mock provider end to end. To actually charge cards and move funds to you and to sellers, Stripe must be enabled (Paddle can't sell physical goods, which your marketplace does). Split payouts to sellers need Stripe Connect onboarding. I'll wire the provider adapter behind a `PaymentProvider` interface so adding gateways later is a new file, not a refactor.
 
 ## Technical notes
 
-- The `profiles_public` view is `security_invoker = off` so it runs as the view owner and the underlying table's per-row RLS is not consulted — the view's `WHERE` clause is the entire access control. I will keep it minimal-columns and grant it explicitly.
-- The `tg_guard_profile_privileged` trigger uses `has_any_role(auth.uid(), …)` which already exists as STABLE SECURITY DEFINER, so it composes cleanly with the column grants.
-- `H-03` rewrite: I will script the migration by enumerating `pg_policies` and emitting `ALTER POLICY` DDL rather than hand-editing 268 policies.
-- `createSignedReadUrl` ownership verification for `posts`/`marketplace`/`vehicles` will use `requireSupabaseAuth`'s user-scoped client (RLS), so a row the user cannot read produces no signed URL — no admin bypass.
-- SW skip on native: `if (window.Capacitor?.isNativePlatform?.()) return;` at the top of the registration path.
+- Fee math in integer cents only; banker-safe rounding, fee never exceeds gross.
+- Every fee-affecting read goes through one resolver, so rate changes are instant and consistent.
+- Indexes on `transactions(created_at)`, `(seller_id, status)`, `(provider, provider_ref)` for volume.
+- Provider adapters isolated in `src/lib/payments/providers/*` — modular for future gateways.
+- Owner-only RLS on all finance tables; admin sees read-only unless granted.
+- Unit tests for the commission engine; Playwright smoke test for the owner finance dashboard.
 
-Approve and I'll ship Phase A + B in one pass, then hand you Phase C with the device checklist.
+## Defaults I'll seed (changeable in the panel)
+
+Marketplace 5%, creator tips 10%, creator subscriptions 15%, vendor/premium plans 100% (your own SaaS), ads 100%. Minimum fee $0.30, no maximum.
+
+## Scope note
+
+This is a large build. I'll ship it in the phase order above so each phase is usable on its own — the ledger and engine first, then the admin panel, then automation.

@@ -92,6 +92,7 @@ import { Route as AuthenticatedRidesIdRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedProfileEditRouteImport } from './routes/_authenticated/profile.edit'
 import { Route as AuthenticatedPostsMineRouteImport } from './routes/_authenticated/posts.mine'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
+import { Route as AuthenticatedOwnerFinanceRouteImport } from './routes/_authenticated/owner.finance'
 import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace_.new'
@@ -129,16 +130,25 @@ import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminJudgeRouteImport } from './routes/_authenticated/admin.judge'
 import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
 import { Route as AuthenticatedAdminCrashesRouteImport } from './routes/_authenticated/admin.crashes'
+import { Route as AuthenticatedOwnerFinanceIndexRouteImport } from './routes/_authenticated/owner.finance.index'
 import { Route as AuthenticatedAtlasGroupIndexRouteImport } from './routes/_authenticated/atlas.group.index'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as CommunitiesSlugChallengesChallengeIdRouteImport } from './routes/communities.$slug.challenges.$challengeId'
 import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/public/webhooks.payments'
+import { Route as ApiPublicHooksRunPayoutsRouteImport } from './routes/api/public/hooks/run-payouts'
 import { Route as ApiPublicHooksPublishScheduledRouteImport } from './routes/api/public/hooks/publish-scheduled'
 import { Route as ApiPublicHooksFanoutPushRouteImport } from './routes/api/public/hooks/fanout-push'
 import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
+import { Route as AuthenticatedOwnerFinanceTransactionsRouteImport } from './routes/_authenticated/owner.finance.transactions'
+import { Route as AuthenticatedOwnerFinanceSellersRouteImport } from './routes/_authenticated/owner.finance.sellers'
+import { Route as AuthenticatedOwnerFinancePayoutsRouteImport } from './routes/_authenticated/owner.finance.payouts'
+import { Route as AuthenticatedOwnerFinancePaymentsRouteImport } from './routes/_authenticated/owner.finance.payments'
+import { Route as AuthenticatedOwnerFinanceCommissionsRouteImport } from './routes/_authenticated/owner.finance.commissions'
+import { Route as AuthenticatedOwnerFinanceBuyersRouteImport } from './routes/_authenticated/owner.finance.buyers'
+import { Route as AuthenticatedOwnerFinanceAuditRouteImport } from './routes/_authenticated/owner.finance.audit'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
 import { Route as AuthenticatedDragMatchIdRouteImport } from './routes/_authenticated/drag.match.$id'
@@ -593,6 +603,12 @@ const AuthenticatedPostNewRoute = AuthenticatedPostNewRouteImport.update({
   path: '/post/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOwnerFinanceRoute =
+  AuthenticatedOwnerFinanceRouteImport.update({
+    id: '/finance',
+    path: '/finance',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerAnalyticsRoute =
   AuthenticatedOwnerAnalyticsRouteImport.update({
     id: '/analytics',
@@ -798,6 +814,12 @@ const AuthenticatedAdminCrashesRoute =
     path: '/crashes',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedOwnerFinanceIndexRoute =
+  AuthenticatedOwnerFinanceIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
 const AuthenticatedAtlasGroupIndexRoute =
   AuthenticatedAtlasGroupIndexRouteImport.update({
     id: '/atlas/group/',
@@ -832,6 +854,12 @@ const ApiPublicWebhooksPaymentsRoute =
     path: '/api/public/webhooks/payments',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRunPayoutsRoute =
+  ApiPublicHooksRunPayoutsRouteImport.update({
+    id: '/api/public/hooks/run-payouts',
+    path: '/api/public/hooks/run-payouts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksPublishScheduledRoute =
   ApiPublicHooksPublishScheduledRouteImport.update({
     id: '/api/public/hooks/publish-scheduled',
@@ -855,6 +883,48 @@ const AuthenticatedPostIdEditRoute = AuthenticatedPostIdEditRouteImport.update({
   path: '/post/$id/edit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOwnerFinanceTransactionsRoute =
+  AuthenticatedOwnerFinanceTransactionsRouteImport.update({
+    id: '/transactions',
+    path: '/transactions',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
+const AuthenticatedOwnerFinanceSellersRoute =
+  AuthenticatedOwnerFinanceSellersRouteImport.update({
+    id: '/sellers',
+    path: '/sellers',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
+const AuthenticatedOwnerFinancePayoutsRoute =
+  AuthenticatedOwnerFinancePayoutsRouteImport.update({
+    id: '/payouts',
+    path: '/payouts',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
+const AuthenticatedOwnerFinancePaymentsRoute =
+  AuthenticatedOwnerFinancePaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
+const AuthenticatedOwnerFinanceCommissionsRoute =
+  AuthenticatedOwnerFinanceCommissionsRouteImport.update({
+    id: '/commissions',
+    path: '/commissions',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
+const AuthenticatedOwnerFinanceBuyersRoute =
+  AuthenticatedOwnerFinanceBuyersRouteImport.update({
+    id: '/buyers',
+    path: '/buyers',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
+const AuthenticatedOwnerFinanceAuditRoute =
+  AuthenticatedOwnerFinanceAuditRouteImport.update({
+    id: '/audit',
+    path: '/audit',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
 const AuthenticatedJudgeSubmitEventSlugRoute =
   AuthenticatedJudgeSubmitEventSlugRouteImport.update({
     id: '/judge/submit/$eventSlug',
@@ -1004,6 +1074,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/owner/finance': typeof AuthenticatedOwnerFinanceRouteWithChildren
   '/post/new': typeof AuthenticatedPostNewRoute
   '/posts/mine': typeof AuthenticatedPostsMineRoute
   '/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -1050,16 +1121,25 @@ export interface FileRoutesByFullPath {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
+  '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
+  '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
+  '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/owner/finance/payouts': typeof AuthenticatedOwnerFinancePayoutsRoute
+  '/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
+  '/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/atlas/group/': typeof AuthenticatedAtlasGroupIndexRoute
+  '/owner/finance/': typeof AuthenticatedOwnerFinanceIndexRoute
   '/communities/$slug/challenges/new': typeof AuthenticatedCommunitiesSlugChallengesNewRoute
   '/communities/$slug/events/new': typeof AuthenticatedCommunitiesSlugEventsNewRoute
   '/communities/$slug/post/new': typeof AuthenticatedCommunitiesSlugPostNewRoute
@@ -1189,16 +1269,25 @@ export interface FileRoutesByTo {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
+  '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
+  '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
+  '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/owner/finance/payouts': typeof AuthenticatedOwnerFinancePayoutsRoute
+  '/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
+  '/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/atlas/group': typeof AuthenticatedAtlasGroupIndexRoute
+  '/owner/finance': typeof AuthenticatedOwnerFinanceIndexRoute
   '/communities/$slug/challenges/new': typeof AuthenticatedCommunitiesSlugChallengesNewRoute
   '/communities/$slug/events/new': typeof AuthenticatedCommunitiesSlugEventsNewRoute
   '/communities/$slug/post/new': typeof AuthenticatedCommunitiesSlugPostNewRoute
@@ -1287,6 +1376,7 @@ export interface FileRoutesById {
   '/_authenticated/marketplace_/new': typeof AuthenticatedMarketplaceNewRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/_authenticated/owner/finance': typeof AuthenticatedOwnerFinanceRouteWithChildren
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
   '/_authenticated/posts/mine': typeof AuthenticatedPostsMineRoute
   '/_authenticated/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -1333,16 +1423,25 @@ export interface FileRoutesById {
   '/_authenticated/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/_authenticated/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
+  '/_authenticated/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
+  '/_authenticated/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
+  '/_authenticated/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
+  '/_authenticated/owner/finance/payouts': typeof AuthenticatedOwnerFinancePayoutsRoute
+  '/_authenticated/owner/finance/sellers': typeof AuthenticatedOwnerFinanceSellersRoute
+  '/_authenticated/owner/finance/transactions': typeof AuthenticatedOwnerFinanceTransactionsRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/atlas/group/': typeof AuthenticatedAtlasGroupIndexRoute
+  '/_authenticated/owner/finance/': typeof AuthenticatedOwnerFinanceIndexRoute
   '/_authenticated/communities/$slug/challenges/new': typeof AuthenticatedCommunitiesSlugChallengesNewRoute
   '/_authenticated/communities/$slug/events/new': typeof AuthenticatedCommunitiesSlugEventsNewRoute
   '/_authenticated/communities/$slug/post/new': typeof AuthenticatedCommunitiesSlugPostNewRoute
@@ -1431,6 +1530,7 @@ export interface FileRouteTypes {
     | '/marketplace/new'
     | '/messages/$id'
     | '/owner/analytics'
+    | '/owner/finance'
     | '/post/new'
     | '/posts/mine'
     | '/profile/edit'
@@ -1477,16 +1577,25 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/finance/audit'
+    | '/owner/finance/buyers'
+    | '/owner/finance/commissions'
+    | '/owner/finance/payments'
+    | '/owner/finance/payouts'
+    | '/owner/finance/sellers'
+    | '/owner/finance/transactions'
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/atlas/group/'
+    | '/owner/finance/'
     | '/communities/$slug/challenges/new'
     | '/communities/$slug/events/new'
     | '/communities/$slug/post/new'
@@ -1616,16 +1725,25 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/finance/audit'
+    | '/owner/finance/buyers'
+    | '/owner/finance/commissions'
+    | '/owner/finance/payments'
+    | '/owner/finance/payouts'
+    | '/owner/finance/sellers'
+    | '/owner/finance/transactions'
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/atlas/group'
+    | '/owner/finance'
     | '/communities/$slug/challenges/new'
     | '/communities/$slug/events/new'
     | '/communities/$slug/post/new'
@@ -1713,6 +1831,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marketplace_/new'
     | '/_authenticated/messages/$id'
     | '/_authenticated/owner/analytics'
+    | '/_authenticated/owner/finance'
     | '/_authenticated/post/new'
     | '/_authenticated/posts/mine'
     | '/_authenticated/profile/edit'
@@ -1759,16 +1878,25 @@ export interface FileRouteTypes {
     | '/_authenticated/drag/match/$id'
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
+    | '/_authenticated/owner/finance/audit'
+    | '/_authenticated/owner/finance/buyers'
+    | '/_authenticated/owner/finance/commissions'
+    | '/_authenticated/owner/finance/payments'
+    | '/_authenticated/owner/finance/payouts'
+    | '/_authenticated/owner/finance/sellers'
+    | '/_authenticated/owner/finance/transactions'
     | '/_authenticated/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/atlas/group/'
+    | '/_authenticated/owner/finance/'
     | '/_authenticated/communities/$slug/challenges/new'
     | '/_authenticated/communities/$slug/events/new'
     | '/_authenticated/communities/$slug/post/new'
@@ -1812,6 +1940,7 @@ export interface RootRouteChildren {
   ApiPublicHooksCleanupMediaRoute: typeof ApiPublicHooksCleanupMediaRoute
   ApiPublicHooksFanoutPushRoute: typeof ApiPublicHooksFanoutPushRoute
   ApiPublicHooksPublishScheduledRoute: typeof ApiPublicHooksPublishScheduledRoute
+  ApiPublicHooksRunPayoutsRoute: typeof ApiPublicHooksRunPayoutsRoute
   ApiPublicWebhooksPaymentsRoute: typeof ApiPublicWebhooksPaymentsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -2401,6 +2530,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPostNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/owner/finance': {
+      id: '/_authenticated/owner/finance'
+      path: '/finance'
+      fullPath: '/owner/finance'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/analytics': {
       id: '/_authenticated/owner/analytics'
       path: '/analytics'
@@ -2660,6 +2796,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCrashesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/owner/finance/': {
+      id: '/_authenticated/owner/finance/'
+      path: '/'
+      fullPath: '/owner/finance/'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceIndexRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
     '/_authenticated/atlas/group/': {
       id: '/_authenticated/atlas/group/'
       path: '/atlas/group'
@@ -2702,6 +2845,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/run-payouts': {
+      id: '/api/public/hooks/run-payouts'
+      path: '/api/public/hooks/run-payouts'
+      fullPath: '/api/public/hooks/run-payouts'
+      preLoaderRoute: typeof ApiPublicHooksRunPayoutsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/publish-scheduled': {
       id: '/api/public/hooks/publish-scheduled'
       path: '/api/public/hooks/publish-scheduled'
@@ -2729,6 +2879,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/post/$id/edit'
       preLoaderRoute: typeof AuthenticatedPostIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/owner/finance/transactions': {
+      id: '/_authenticated/owner/finance/transactions'
+      path: '/transactions'
+      fullPath: '/owner/finance/transactions'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceTransactionsRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
+    '/_authenticated/owner/finance/sellers': {
+      id: '/_authenticated/owner/finance/sellers'
+      path: '/sellers'
+      fullPath: '/owner/finance/sellers'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceSellersRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
+    '/_authenticated/owner/finance/payouts': {
+      id: '/_authenticated/owner/finance/payouts'
+      path: '/payouts'
+      fullPath: '/owner/finance/payouts'
+      preLoaderRoute: typeof AuthenticatedOwnerFinancePayoutsRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
+    '/_authenticated/owner/finance/payments': {
+      id: '/_authenticated/owner/finance/payments'
+      path: '/payments'
+      fullPath: '/owner/finance/payments'
+      preLoaderRoute: typeof AuthenticatedOwnerFinancePaymentsRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
+    '/_authenticated/owner/finance/commissions': {
+      id: '/_authenticated/owner/finance/commissions'
+      path: '/commissions'
+      fullPath: '/owner/finance/commissions'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceCommissionsRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
+    '/_authenticated/owner/finance/buyers': {
+      id: '/_authenticated/owner/finance/buyers'
+      path: '/buyers'
+      fullPath: '/owner/finance/buyers'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceBuyersRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
+    '/_authenticated/owner/finance/audit': {
+      id: '/_authenticated/owner/finance/audit'
+      path: '/audit'
+      fullPath: '/owner/finance/audit'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceAuditRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
     }
     '/_authenticated/judge/submit/$eventSlug': {
       id: '/_authenticated/judge/submit/$eventSlug'
@@ -2858,12 +3057,47 @@ const AuthenticatedMessagesRouteWithChildren =
     AuthenticatedMessagesRouteChildren,
   )
 
+interface AuthenticatedOwnerFinanceRouteChildren {
+  AuthenticatedOwnerFinanceAuditRoute: typeof AuthenticatedOwnerFinanceAuditRoute
+  AuthenticatedOwnerFinanceBuyersRoute: typeof AuthenticatedOwnerFinanceBuyersRoute
+  AuthenticatedOwnerFinanceCommissionsRoute: typeof AuthenticatedOwnerFinanceCommissionsRoute
+  AuthenticatedOwnerFinancePaymentsRoute: typeof AuthenticatedOwnerFinancePaymentsRoute
+  AuthenticatedOwnerFinancePayoutsRoute: typeof AuthenticatedOwnerFinancePayoutsRoute
+  AuthenticatedOwnerFinanceSellersRoute: typeof AuthenticatedOwnerFinanceSellersRoute
+  AuthenticatedOwnerFinanceTransactionsRoute: typeof AuthenticatedOwnerFinanceTransactionsRoute
+  AuthenticatedOwnerFinanceIndexRoute: typeof AuthenticatedOwnerFinanceIndexRoute
+}
+
+const AuthenticatedOwnerFinanceRouteChildren: AuthenticatedOwnerFinanceRouteChildren =
+  {
+    AuthenticatedOwnerFinanceAuditRoute: AuthenticatedOwnerFinanceAuditRoute,
+    AuthenticatedOwnerFinanceBuyersRoute: AuthenticatedOwnerFinanceBuyersRoute,
+    AuthenticatedOwnerFinanceCommissionsRoute:
+      AuthenticatedOwnerFinanceCommissionsRoute,
+    AuthenticatedOwnerFinancePaymentsRoute:
+      AuthenticatedOwnerFinancePaymentsRoute,
+    AuthenticatedOwnerFinancePayoutsRoute:
+      AuthenticatedOwnerFinancePayoutsRoute,
+    AuthenticatedOwnerFinanceSellersRoute:
+      AuthenticatedOwnerFinanceSellersRoute,
+    AuthenticatedOwnerFinanceTransactionsRoute:
+      AuthenticatedOwnerFinanceTransactionsRoute,
+    AuthenticatedOwnerFinanceIndexRoute: AuthenticatedOwnerFinanceIndexRoute,
+  }
+
+const AuthenticatedOwnerFinanceRouteWithChildren =
+  AuthenticatedOwnerFinanceRoute._addFileChildren(
+    AuthenticatedOwnerFinanceRouteChildren,
+  )
+
 interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
+  AuthenticatedOwnerFinanceRoute: typeof AuthenticatedOwnerFinanceRouteWithChildren
 }
 
 const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
+  AuthenticatedOwnerFinanceRoute: AuthenticatedOwnerFinanceRouteWithChildren,
 }
 
 const AuthenticatedOwnerRouteWithChildren =
@@ -3156,6 +3390,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksCleanupMediaRoute: ApiPublicHooksCleanupMediaRoute,
   ApiPublicHooksFanoutPushRoute: ApiPublicHooksFanoutPushRoute,
   ApiPublicHooksPublishScheduledRoute: ApiPublicHooksPublishScheduledRoute,
+  ApiPublicHooksRunPayoutsRoute: ApiPublicHooksRunPayoutsRoute,
   ApiPublicWebhooksPaymentsRoute: ApiPublicWebhooksPaymentsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
@@ -3164,13 +3399,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
