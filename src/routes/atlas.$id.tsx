@@ -87,6 +87,12 @@ function RouteDetail() {
     const res = await share({ title: route.title, url, dialogTitle: "Share route" });
     if (res.ok) toast.success("Shared");
   }
+  function onExportGpx() {
+    const waypoints = (route.pois ?? []).map((p: any) => ({ lat: p.lat, lng: p.lng, name: p.name }));
+    const gpx = buildGpx(route.title, route.path ?? [], waypoints);
+    downloadGpx(`route-${route.id.slice(0, 8)}.gpx`, gpx);
+    toast.success("GPX downloaded");
+  }
 
   return (
     <div className="min-h-svh pb-32">
