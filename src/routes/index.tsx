@@ -273,7 +273,11 @@ function HomePage() {
           style={{ aspectRatio: "9/14", borderRadius: 18, border: "1px solid var(--color-hair)" }}
         >
 
-          <img src={featured.poster} alt="" className="ken-burns h-full w-full object-cover" />
+          {featured.poster ? (
+            <img src={featured.poster} alt="" className="ken-burns h-full w-full object-cover" />
+          ) : (
+            <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
+          )}
           <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)" }} />
 
           {/* top row — user + follow */}
