@@ -137,6 +137,7 @@ import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/em
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as CommunitiesSlugChallengesChallengeIdRouteImport } from './routes/communities.$slug.challenges.$challengeId'
 import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/public/webhooks.payments'
+import { Route as ApiPublicHooksRunPayoutsRouteImport } from './routes/api/public/hooks/run-payouts'
 import { Route as ApiPublicHooksPublishScheduledRouteImport } from './routes/api/public/hooks/publish-scheduled'
 import { Route as ApiPublicHooksFanoutPushRouteImport } from './routes/api/public/hooks/fanout-push'
 import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
@@ -853,6 +854,12 @@ const ApiPublicWebhooksPaymentsRoute =
     path: '/api/public/webhooks/payments',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRunPayoutsRoute =
+  ApiPublicHooksRunPayoutsRouteImport.update({
+    id: '/api/public/hooks/run-payouts',
+    path: '/api/public/hooks/run-payouts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksPublishScheduledRoute =
   ApiPublicHooksPublishScheduledRouteImport.update({
     id: '/api/public/hooks/publish-scheduled',
@@ -1125,6 +1132,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1272,6 +1280,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1425,6 +1434,7 @@ export interface FileRoutesById {
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
@@ -1578,6 +1588,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1725,6 +1736,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1877,6 +1889,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
@@ -1927,6 +1940,7 @@ export interface RootRouteChildren {
   ApiPublicHooksCleanupMediaRoute: typeof ApiPublicHooksCleanupMediaRoute
   ApiPublicHooksFanoutPushRoute: typeof ApiPublicHooksFanoutPushRoute
   ApiPublicHooksPublishScheduledRoute: typeof ApiPublicHooksPublishScheduledRoute
+  ApiPublicHooksRunPayoutsRoute: typeof ApiPublicHooksRunPayoutsRoute
   ApiPublicWebhooksPaymentsRoute: typeof ApiPublicWebhooksPaymentsRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -2831,6 +2845,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhooksPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/run-payouts': {
+      id: '/api/public/hooks/run-payouts'
+      path: '/api/public/hooks/run-payouts'
+      fullPath: '/api/public/hooks/run-payouts'
+      preLoaderRoute: typeof ApiPublicHooksRunPayoutsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/publish-scheduled': {
       id: '/api/public/hooks/publish-scheduled'
       path: '/api/public/hooks/publish-scheduled'
@@ -3369,6 +3390,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksCleanupMediaRoute: ApiPublicHooksCleanupMediaRoute,
   ApiPublicHooksFanoutPushRoute: ApiPublicHooksFanoutPushRoute,
   ApiPublicHooksPublishScheduledRoute: ApiPublicHooksPublishScheduledRoute,
+  ApiPublicHooksRunPayoutsRoute: ApiPublicHooksRunPayoutsRoute,
   ApiPublicWebhooksPaymentsRoute: ApiPublicWebhooksPaymentsRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
