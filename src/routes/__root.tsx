@@ -17,6 +17,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { installAnalytics, track } from "@/lib/analytics";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/lib/confirm";
@@ -247,6 +248,12 @@ function RootComponent() {
   // Hide while scrolling down; always visible at the top of the page.
   const navHidden = !isTop && scrollDir === "down";
 
+  // Global pull-to-refresh — revalidates route loaders + all queries.
+  // Pages with their own PullToRefresh claim the gesture first (nested guard).
+  const globalRefresh = async () => {
+    await Promise.all([router.invalidate(), queryClient.invalidateQueries()]);
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="relative min-h-[100svh] bg-background text-foreground">
@@ -254,7 +261,9 @@ function RootComponent() {
           {!isImmersive && <OfflineBanner />}
           {!isImmersive && <OwnerBroadcastBanner />}
           {!isImmersive && <GlobalStatusBar />}
-          <Outlet />
+          <PullToRefresh onRefresh={globalRefresh} disabled={isImmersive}>
+            <Outlet />
+          </PullToRefresh>
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
         {shellReady && (

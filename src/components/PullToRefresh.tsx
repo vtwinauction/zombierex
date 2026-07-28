@@ -43,6 +43,11 @@ export function PullToRefresh({
     };
 
     const onStart = (e: TouchEvent) => {
+      // Nested guard: the innermost PullToRefresh claims the gesture first
+      // (events bubble inner → outer), so an outer/global one stays idle.
+      const ev = e as TouchEvent & { __ptrClaimed?: boolean };
+      if (ev.__ptrClaimed) return;
+      ev.__ptrClaimed = true;
       if (refreshing || !atTop()) return;
       startY.current = e.touches[0]?.clientY ?? null;
       pulling.current = true;

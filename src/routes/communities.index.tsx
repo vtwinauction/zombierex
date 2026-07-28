@@ -193,7 +193,7 @@ function CommunitiesPage() {
             Try a different filter — or start your own crew.
           </p>
           <Link
-            to="/communities/new"
+            to="/communities/create"
             className="mt-4 inline-block rounded-full px-5 py-2 text-[12px] font-semibold"
             style={{ background: "var(--color-neon)", color: "var(--color-ink-0)" }}
           >
