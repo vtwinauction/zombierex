@@ -251,15 +251,38 @@ export function MediaComposer({ onDone }: Props) {
     return false;
   }, [postType]);
 
-  const addFiles = useCallback((files: FileList | null) => {
+  const addFiles = useCallback(async (files: FileList | null) => {
     if (!files || !files.length) return;
     if (postType === "telemetry") return;
     const allowed = Array.from(files).filter(acceptsFile);
     if (!allowed.length) return;
     const remaining = Math.max(0, typeMeta.maxItems - items.length);
-    const next = allowed.slice(0, remaining).map(newItem);
+    const slice = allowed.slice(0, remaining);
+    const uploadKind: UploadKind =
+      postType === "reel" ? "reel" : postType === "story" ? "story" : "image";
+    const accepted: File[] = [];
+    for (const f of slice) {
+      const kindForFile: UploadKind =
+        f.type.startsWith("video/")
+          ? (postType === "reel" ? "reel" : postType === "story" ? "story" : "video")
+          : (postType === "story" ? "story" : "image");
+      const sizeErr = checkUploadSize(kindForFile, f);
+      if (sizeErr) { toast.error(sizeErr); continue; }
+      if (f.type.startsWith("video/") && (kindForFile === "reel" || kindForFile === "story")) {
+        const maxSec = UPLOAD_LIMITS[kindForFile].maxSeconds;
+        const dur = await probeVideoDuration(f);
+        if (dur && maxSec && dur > maxSec + 0.25) {
+          toast.error(`"${f.name}" is ${dur.toFixed(1)}s — max ${maxSec}s for ${kindForFile}s.`);
+          continue;
+        }
+      }
+      accepted.push(f);
+    }
+    if (!accepted.length) return;
+    const next = accepted.map(newItem);
     setItems((prev) => [...prev, ...next]);
     if (!items.length && next.length) setActive(0);
+    void uploadKind;
   }, [items.length, postType, typeMeta.maxItems, acceptsFile]);
 
   // Consume camera capture handed off from the status-bar long-press
