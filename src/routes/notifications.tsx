@@ -131,6 +131,7 @@ function NotificationsPage() {
     const pay = (n.payload ?? {}) as Record<string, unknown>;
     const postId = (pay.post_id as string) || (pay.postId as string);
     const actorHandle = (pay.actor_handle as string) || (pay.actor_username as string);
+    const ownerHandle = (pay.owner_handle as string) || (pay.post_owner_handle as string);
     const threadId = (pay.thread_id as string) || (pay.threadId as string);
     const listingId = (pay.listing_id as string) || (pay.listingId as string);
     const eventId = (pay.event_id as string) || (pay.eventId as string);
@@ -138,7 +139,8 @@ function NotificationsPage() {
       case "like":
       case "comment":
       case "mention":
-        return postId ? `/post/${postId}` : null;
+        if (postId) return `/post/${postId}`;
+        return ownerHandle ? `/u/${ownerHandle}` : null;
       case "follow":
         return actorHandle ? `/u/${actorHandle}` : null;
       case "message":
@@ -153,6 +155,7 @@ function NotificationsPage() {
         return null;
     }
   }
+
 
   function handleOpen(n: NotifRow) {
     if (!n.read_at) markOneMut.mutate(n.id);
