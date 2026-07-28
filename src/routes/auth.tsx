@@ -11,9 +11,9 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Sign in or create your ZOMBIEREX account." },
     ],
   }),
-  validateSearch: (raw) => {
+  validateSearch: (raw): { redirect?: string } => {
     const r = typeof raw.redirect === "string" && raw.redirect.startsWith("/") ? raw.redirect : undefined;
-    return { redirect: r };
+    return r ? { redirect: r } : {};
   },
   component: AuthPage,
 });
