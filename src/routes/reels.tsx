@@ -130,6 +130,61 @@ function ReelsPage() {
     }
   }, [activeIdx]);
 
+  // Pull-to-refresh on the internal snap scroller
+  const [ptrPull, setPtrPull] = useState(0);
+  const [ptrRefreshing, setPtrRefreshing] = useState(false);
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const THRESHOLD = 72;
+    const MAX = 120;
+    let startY: number | null = null;
+    let pulling = false;
+    let armed = false;
+    const onStart = (e: TouchEvent) => {
+      if (ptrRefreshing || el.scrollTop > 0) return;
+      startY = e.touches[0]?.clientY ?? null;
+      pulling = true;
+      armed = false;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!pulling || startY == null) return;
+      const dy = (e.touches[0]?.clientY ?? 0) - startY;
+      if (dy <= 0) { setPtrPull(0); return; }
+      if (el.scrollTop > 0) { setPtrPull(0); pulling = false; return; }
+      const eased = Math.min(MAX, dy * 0.55);
+      setPtrPull(eased);
+      if (eased > 4 && e.cancelable) e.preventDefault();
+      if (!armed && eased >= THRESHOLD) armed = true;
+      else if (armed && eased < THRESHOLD) armed = false;
+    };
+    const onEnd = async () => {
+      if (!pulling) return;
+      pulling = false;
+      const fire = armed;
+      startY = null;
+      if (fire && !ptrRefreshing) {
+        setPtrRefreshing(true);
+        setPtrPull(THRESHOLD);
+        try { await live.refetch(); } catch { /* ignore */ }
+        setPtrRefreshing(false);
+        setPtrPull(0);
+      } else {
+        setPtrPull(0);
+      }
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("touchcancel", onEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onEnd);
+    };
+  }, [ptrRefreshing, live]);
+
 
   return (
     <div
@@ -157,6 +212,42 @@ function ReelsPage() {
         <div style={{ width: 36 }} />
       </header>
 
+      {/* Pull-to-refresh indicator */}
+      <div
+        aria-hidden={!ptrPull && !ptrRefreshing}
+        className="pointer-events-none absolute inset-x-0 z-40 grid place-items-center"
+        style={{
+          top: "max(env(safe-area-inset-top), 14px)",
+          height: 56,
+          transform: `translateY(${ptrPull ? ptrPull - 40 : -60}px)`,
+          transition: ptrRefreshing || ptrPull ? "none" : "transform .22s ease",
+          opacity: ptrPull || ptrRefreshing ? 1 : 0,
+        }}
+      >
+        <div
+          style={{
+            width: 34, height: 34, borderRadius: 999,
+            border: "1px solid rgba(255,255,255,0.18)",
+            background: "rgba(0,0,0,0.55)",
+            backdropFilter: "blur(10px)",
+            display: "grid", placeItems: "center",
+            boxShadow: ptrPull >= 72 || ptrRefreshing ? "0 0 18px rgba(0,200,83,0.55)" : "none",
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            style={{
+              transform: ptrRefreshing ? undefined : `rotate(${Math.min(1, ptrPull / 72) * 270}deg)`,
+              animation: ptrRefreshing ? "zx-spin 0.9s linear infinite" : undefined,
+            }}
+          >
+            <path d="M21 12a9 9 0 1 1-3.2-6.9M21 4v5h-5"
+              stroke="var(--color-neon, #00c853)" strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+        <style>{`@keyframes zx-spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+
       {/* Snap scroller */}
       <div
         ref={scrollerRef}
@@ -167,6 +258,7 @@ function ReelsPage() {
           <ReelSlide key={`${r.id}-${i}`} reel={r} idx={i} active={activeIdx === i} />
         ))}
       </div>
+
     </div>
   );
 }
