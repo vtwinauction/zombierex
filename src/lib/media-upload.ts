@@ -157,7 +157,7 @@ export async function uploadBlob(blob: Blob, opts: UploadOptions): Promise<Uploa
   });
 
   const read = await createSignedReadUrl({
-    data: { bucket, path: signed.path, expires_in: LONG_TTL },
+    data: { bucket, path: signed.path, expires_in: READ_TTL },
   });
 
   return { path: signed.path, url: read.signed_url, contentType };
