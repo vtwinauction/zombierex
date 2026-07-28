@@ -46,6 +46,7 @@ function DragHub() {
           </div>
           <Link
             to="/drag/run"
+            search={{ step: undefined }}
             className="tap mono-caps text-[10px] font-black"
             style={{ padding: "10px 14px", background: "var(--color-neon)", color: "var(--color-obsidian)" }}
           >

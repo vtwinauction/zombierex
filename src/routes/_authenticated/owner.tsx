@@ -503,7 +503,7 @@ function ContentTab() {
                 {p.is_hidden && <span className="ml-2" style={{ color: "#dc2626" }}>HIDDEN</span>}
               </p>
               <div className="mt-1 flex gap-1">
-                <Link to={`/post/${p.id}`} className="btn-ghost text-[11px]">Open</Link>
+                <Link to="/post/$id" params={{ id: String(p.id) }} className="btn-ghost text-[11px]">Open</Link>
                 <button onClick={async () => {
                   if (!p.is_hidden) {
                     const ok = await confirmDialog({ title: "Hide post?", description: "The post will be removed from feeds and profile immediately.", confirmLabel: "Hide", destructive: true });
