@@ -23,7 +23,9 @@ export type UploadResult = {
 
 const MAX_IMAGE_DIM = 1920;
 const IMAGE_QUALITY = 0.86;
-const LONG_TTL = 60 * 60 * 24 * 365; // 1 year
+// Server caps signed-read TTL at 900s (H-01). Store `bucket:path` in DB and
+// re-mint at render time via resolveMediaUrl() for anything that outlives this.
+const READ_TTL = 900;
 
 /**
  * Hard upload limits enforced client-side before compression / upload.
