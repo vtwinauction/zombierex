@@ -55,6 +55,23 @@ function PlanPage() {
   function undo() { setPath((prev) => prev.slice(0, -1)); }
   function clear() { setPath([]); setPois([]); }
 
+  async function importGpx(file: File) {
+    setErr(null);
+    try {
+      const text = await file.text();
+      const parsed = parseGpx(text);
+      if (!parsed.path.length) throw new Error("No track points found");
+      setPath(parsed.path.map((p) => ({ lat: p.lat, lng: p.lng })));
+      setPois(parsed.waypoints.map((w) => ({ name: w.name || "Waypoint", kind: "custom", lat: w.lat, lng: w.lng })));
+      if (parsed.name && !title) setTitle(parsed.name.slice(0, 140));
+    } catch (e: any) { setErr(e.message); }
+  }
+  function exportDraftGpx() {
+    if (path.length < 2) { setErr("Add at least 2 waypoints"); return; }
+    const gpx = buildGpx(title || "Draft Route", path, pois);
+    downloadGpx(`${(title || "route").replace(/\s+/g, "_")}.gpx`, gpx);
+  }
+
   async function findPlaces() {
     if (path.length === 0) { setErr("Add at least one waypoint first"); return; }
     setErr(null); setSearching(true);
