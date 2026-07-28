@@ -257,10 +257,14 @@ function RootComponent() {
           <Outlet />
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
-        <PushNotificationBridge />
-        <PushPrimer />
-        <AppLockGate />
-        <FirstRunTour />
+        {shellReady && (
+          <Suspense fallback={null}>
+            <PushNotificationBridge />
+            <PushPrimer />
+            <AppLockGate />
+            <FirstRunTour />
+          </Suspense>
+        )}
         <Toaster position="top-center" richColors closeButton />
         <ConfirmHost />
       </div>
