@@ -141,6 +141,7 @@ import { Route as ApiPublicHooksPublishScheduledRouteImport } from './routes/api
 import { Route as ApiPublicHooksFanoutPushRouteImport } from './routes/api/public/hooks/fanout-push'
 import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
+import { Route as AuthenticatedOwnerFinanceCommissionsRouteImport } from './routes/_authenticated/owner.finance.commissions'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
 import { Route as AuthenticatedDragMatchIdRouteImport } from './routes/_authenticated/drag.match.$id'
@@ -869,6 +870,12 @@ const AuthenticatedPostIdEditRoute = AuthenticatedPostIdEditRouteImport.update({
   path: '/post/$id/edit',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOwnerFinanceCommissionsRoute =
+  AuthenticatedOwnerFinanceCommissionsRouteImport.update({
+    id: '/commissions',
+    path: '/commissions',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
 const AuthenticatedJudgeSubmitEventSlugRoute =
   AuthenticatedJudgeSubmitEventSlugRouteImport.update({
     id: '/judge/submit/$eventSlug',
@@ -1065,6 +1072,7 @@ export interface FileRoutesByFullPath {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
@@ -1205,6 +1213,7 @@ export interface FileRoutesByTo {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
@@ -1351,6 +1360,7 @@ export interface FileRoutesById {
   '/_authenticated/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/_authenticated/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
@@ -1497,6 +1507,7 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/finance/commissions'
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
@@ -1637,6 +1648,7 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/finance/commissions'
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
@@ -1782,6 +1794,7 @@ export interface FileRouteTypes {
     | '/_authenticated/drag/match/$id'
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
+    | '/_authenticated/owner/finance/commissions'
     | '/_authenticated/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
@@ -2768,6 +2781,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPostIdEditRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/owner/finance/commissions': {
+      id: '/_authenticated/owner/finance/commissions'
+      path: '/commissions'
+      fullPath: '/owner/finance/commissions'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceCommissionsRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
     '/_authenticated/judge/submit/$eventSlug': {
       id: '/_authenticated/judge/submit/$eventSlug'
       path: '/judge/submit/$eventSlug'
@@ -2897,11 +2917,14 @@ const AuthenticatedMessagesRouteWithChildren =
   )
 
 interface AuthenticatedOwnerFinanceRouteChildren {
+  AuthenticatedOwnerFinanceCommissionsRoute: typeof AuthenticatedOwnerFinanceCommissionsRoute
   AuthenticatedOwnerFinanceIndexRoute: typeof AuthenticatedOwnerFinanceIndexRoute
 }
 
 const AuthenticatedOwnerFinanceRouteChildren: AuthenticatedOwnerFinanceRouteChildren =
   {
+    AuthenticatedOwnerFinanceCommissionsRoute:
+      AuthenticatedOwnerFinanceCommissionsRoute,
     AuthenticatedOwnerFinanceIndexRoute: AuthenticatedOwnerFinanceIndexRoute,
   }
 
