@@ -123,6 +123,7 @@ function RootComponent() {
   const router = useRouter();
   const scrollDir = useScrollDirection(12);
   const [isTop, setIsTop] = useState(true);
+  const [shellReady, setShellReady] = useState(false);
   const pathname = router.state.location.pathname;
   const isImmersive = pathname.startsWith("/atlas/cockpit") || pathname.startsWith("/drag/race") || pathname === "/reels" || pathname.startsWith("/reels/");
 
@@ -131,6 +132,18 @@ function RootComponent() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    // Defer non-critical shell add-ons until the browser is idle, keeping
+    // their chunks out of the first-paint critical path.
+    const w = window as unknown as { requestIdleCallback?: (cb: () => void) => number };
+    if (typeof w.requestIdleCallback === "function") {
+      w.requestIdleCallback(() => setShellReady(true));
+      return;
+    }
+    const t = window.setTimeout(() => setShellReady(true), 400);
+    return () => window.clearTimeout(t);
   }, []);
 
   useEffect(() => {
