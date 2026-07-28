@@ -135,7 +135,7 @@ export function InteractionBar({
                   onPointerUp: cancelLongPress,
                   onPointerLeave: cancelLongPress,
                   onPointerCancel: cancelLongPress,
-                  onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+                  onContextMenu: (e: { preventDefault: () => void }) => e.preventDefault(),
                 }
               : {};
 
@@ -221,6 +221,14 @@ export function InteractionBar({
             </button>
           )}
         </div>
+      )}
+
+      {isPost && (
+        <SaveToCollectionSheet
+          postId={id}
+          open={collectionOpen}
+          onClose={() => setCollectionOpen(false)}
+        />
       )}
     </div>
   );
