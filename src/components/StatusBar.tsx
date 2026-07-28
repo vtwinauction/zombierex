@@ -1,11 +1,13 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { Bell, Search, Menu, Bluetooth, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { CartIconLink } from "@/components/CartIconLink";
 import { getInboxCounts } from "@/lib/inbox.functions";
 import { supabase } from "@/integrations/supabase/client";
+
 
 
 
@@ -16,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export function StatusBar({ index, section }: { index: string; section: string }) {
   const qc = useQueryClient();
+  const router = useRouter();
   const [uid, setUid] = useState<string | null>(null);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUid(data.user?.id ?? null));
@@ -39,11 +42,23 @@ export function StatusBar({ index, section }: { index: string; section: string }
     const ch = supabase.channel(`statusbar-inbox-${uid}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
-        bump,
+        (payload: any) => {
+          bump();
+          const path = router.state.location.pathname;
+          if (path.startsWith("/notifications")) return;
+          const row = payload?.new ?? {};
+          const p = (row.payload ?? {}) as Record<string, unknown>;
+          const actor = (p.actor_handle as string) || (p.actor_name as string) || "Someone";
+          const verb = (p.text as string) || labelForKind(row.kind);
+          toast(`@${actor} ${verb}`, {
+            action: { label: "View", onClick: () => router.navigate({ to: "/notifications" }) },
+          });
+        },
       )
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [uid, qc]);
+  }, [uid, qc, router]);
+
 
   const notif = counts.data?.notifications ?? 0;
 
@@ -210,6 +225,22 @@ function BluetoothCell() {
     </button>
   );
 }
+
+function labelForKind(kind?: string): string {
+  switch (kind) {
+    case "like": return "liked your post";
+    case "comment": return "commented on your post";
+    case "follow": return "started following you";
+    case "mention": return "mentioned you";
+    case "message": return "sent you a message";
+    case "marketplace": return "activity on your listing";
+    case "booking": return "booking update";
+    case "order": return "order update";
+    case "event": return "event update";
+    default: return "sent you a signal";
+  }
+}
+
 
 function friendlyLabel(section: string) {
   const map: Record<string, string> = {
