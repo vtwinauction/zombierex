@@ -109,6 +109,7 @@ import { Route as AuthenticatedCreatorPayoutsRouteImport } from './routes/_authe
 import { Route as AuthenticatedCreatorDashboardRouteImport } from './routes/_authenticated/creator.dashboard'
 import { Route as AuthenticatedCreatorCollabsRouteImport } from './routes/_authenticated/creator.collabs'
 import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authenticated/creator.apply'
+import { Route as AuthenticatedCreatorAnalyticsRouteImport } from './routes/_authenticated/creator.analytics'
 import { Route as AuthenticatedCommunitiesCreateRouteImport } from './routes/_authenticated/communities.create'
 import { Route as AuthenticatedBusinessShowcaseRouteImport } from './routes/_authenticated/business.showcase'
 import { Route as AuthenticatedAtlasVoiceRouteImport } from './routes/_authenticated/atlas.voice'
@@ -686,6 +687,12 @@ const AuthenticatedCreatorApplyRoute =
     path: '/creator/apply',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCreatorAnalyticsRoute =
+  AuthenticatedCreatorAnalyticsRouteImport.update({
+    id: '/creator/analytics',
+    path: '/creator/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCommunitiesCreateRoute =
   AuthenticatedCommunitiesCreateRouteImport.update({
     id: '/communities/create',
@@ -964,6 +971,7 @@ export interface FileRoutesByFullPath {
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
+  '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
@@ -1100,6 +1108,7 @@ export interface FileRoutesByTo {
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
+  '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
@@ -1241,6 +1250,7 @@ export interface FileRoutesById {
   '/_authenticated/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
   '/_authenticated/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/_authenticated/communities/create': typeof AuthenticatedCommunitiesCreateRoute
+  '/_authenticated/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
   '/_authenticated/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/_authenticated/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/_authenticated/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
@@ -1382,6 +1392,7 @@ export interface FileRouteTypes {
     | '/atlas/voice'
     | '/business/showcase'
     | '/communities/create'
+    | '/creator/analytics'
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
@@ -1518,6 +1529,7 @@ export interface FileRouteTypes {
     | '/atlas/voice'
     | '/business/showcase'
     | '/communities/create'
+    | '/creator/analytics'
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
@@ -1658,6 +1670,7 @@ export interface FileRouteTypes {
     | '/_authenticated/atlas/voice'
     | '/_authenticated/business/showcase'
     | '/_authenticated/communities/create'
+    | '/_authenticated/creator/analytics'
     | '/_authenticated/creator/apply'
     | '/_authenticated/creator/collabs'
     | '/_authenticated/creator/dashboard'
@@ -2482,6 +2495,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreatorApplyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/creator/analytics': {
+      id: '/_authenticated/creator/analytics'
+      path: '/creator/analytics'
+      fullPath: '/creator/analytics'
+      preLoaderRoute: typeof AuthenticatedCreatorAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/communities/create': {
       id: '/_authenticated/communities/create'
       path: '/communities/create'
@@ -2910,6 +2930,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtlasVoiceRoute: typeof AuthenticatedAtlasVoiceRoute
   AuthenticatedBusinessShowcaseRoute: typeof AuthenticatedBusinessShowcaseRoute
   AuthenticatedCommunitiesCreateRoute: typeof AuthenticatedCommunitiesCreateRoute
+  AuthenticatedCreatorAnalyticsRoute: typeof AuthenticatedCreatorAnalyticsRoute
   AuthenticatedCreatorApplyRoute: typeof AuthenticatedCreatorApplyRoute
   AuthenticatedCreatorCollabsRoute: typeof AuthenticatedCreatorCollabsRoute
   AuthenticatedCreatorDashboardRoute: typeof AuthenticatedCreatorDashboardRoute
@@ -2974,6 +2995,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtlasVoiceRoute: AuthenticatedAtlasVoiceRoute,
   AuthenticatedBusinessShowcaseRoute: AuthenticatedBusinessShowcaseRoute,
   AuthenticatedCommunitiesCreateRoute: AuthenticatedCommunitiesCreateRoute,
+  AuthenticatedCreatorAnalyticsRoute: AuthenticatedCreatorAnalyticsRoute,
   AuthenticatedCreatorApplyRoute: AuthenticatedCreatorApplyRoute,
   AuthenticatedCreatorCollabsRoute: AuthenticatedCreatorCollabsRoute,
   AuthenticatedCreatorDashboardRoute: AuthenticatedCreatorDashboardRoute,

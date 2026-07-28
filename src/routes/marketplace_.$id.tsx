@@ -8,6 +8,7 @@ import { startDirectMessage } from "@/lib/messages.functions";
 import { addToCart } from "@/lib/cart.functions";
 import { confirmDialog } from "@/lib/confirm";
 import { toast } from "sonner";
+import { ShareSheet } from "@/components/ShareSheet";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -128,13 +129,11 @@ function ListingDetail() {
               {l.year && ` // ${l.year}`}
               {l.brand && ` // ${String(l.brand).toUpperCase()}`}
             </span>
-            <button onClick={async () => {
-              const url = window.location.href;
-              if ((navigator as any).share) (navigator as any).share({ title: l.title, url }).catch(() => {});
-              else navigator.clipboard.writeText(url);
-            }} className="shrink-0 -mt-1 -mr-1 p-1" aria-label="Share" style={{ color: "var(--color-ink)" }}>
+          <ShareSheet type="listing" id={id} title={l.title} subtitle={l.city ? `${l.city}, ${l.country || ""}` : undefined}>
+            <button className="shrink-0 -mt-1 -mr-1 p-1" aria-label="Share" style={{ color: "var(--color-ink)" }}>
               <Share2 className="h-[18px] w-[18px]" strokeWidth={1.5} />
             </button>
+          </ShareSheet>
           </div>
           <h1 className="serif italic leading-[1.05] text-[38px]" style={{ color: "var(--color-ink)" }}>{l.title}</h1>
           {l.model && (
@@ -188,11 +187,9 @@ function ListingDetail() {
         {/* Action row */}
         <div className="grid grid-cols-4 py-2 border-y" style={{ borderColor: "var(--color-hair)" }}>
           <IconAction icon={<Heart className="h-[18px] w-[18px]" strokeWidth={1.5} fill={l.saved_by_me ? "currentColor" : "none"} />} label={l.saved_by_me ? "SAVED" : "SAVE"} active={l.saved_by_me} onClick={() => saveMut.mutate()} />
-          <IconAction icon={<Share2 className="h-[18px] w-[18px]" strokeWidth={1.5} />} label="SHARE" onClick={async () => {
-            const url = window.location.href;
-            if ((navigator as any).share) (navigator as any).share({ title: l.title, url }).catch(() => {});
-            else navigator.clipboard.writeText(url);
-          }} />
+          <ShareSheet type="listing" id={id} title={l.title} subtitle={l.city ? `${l.city}, ${l.country || ""}` : undefined}>
+            <IconAction icon={<Share2 className="h-[18px] w-[18px]" strokeWidth={1.5} />} label="SHARE" />
+          </ShareSheet>
           <IconAction icon={<MessageCircle className="h-[18px] w-[18px]" strokeWidth={1.5} />} label={dmPending ? "…" : "MESSAGE"} onClick={async () => {
             const { data: sess } = await supabase.auth.getSession();
             if (!sess.session) { navigate({ to: "/auth" }); return; }
@@ -297,9 +294,9 @@ function ListingDetail() {
   );
 }
 
-function IconAction({ icon, label, onClick, active, muted }: { icon: React.ReactNode; label: string; onClick: () => void; active?: boolean; muted?: boolean }) {
+function IconAction({ icon, label, onClick, active, muted }: { icon: React.ReactNode; label: string; onClick?: () => void; active?: boolean; muted?: boolean }) {
   return (
-    <button onClick={onClick} className="tap flex flex-col items-center gap-1.5 py-2"
+    <button type="button" onClick={onClick} className="tap flex flex-col items-center gap-1.5 py-2"
       style={{ color: active ? "var(--color-neon)" : muted ? "color-mix(in oklab, var(--color-ink) 45%, transparent)" : "var(--color-ink)" }}>
       {icon}
       <span className="mono-tag font-bold" style={{ fontSize: 9, letterSpacing: "0.18em", color: "var(--color-titanium)" }}>{label}</span>

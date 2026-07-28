@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { confirmDialog } from "@/lib/confirm";
+import { ShareSheet } from "@/components/ShareSheet";
 import {
   getEvent,
   rsvpEvent,
@@ -135,21 +136,9 @@ function EventDetail() {
     );
   }
 
-  async function doShare() {
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    try {
-      const { share: nativeShare } = await import("@/lib/native");
-      const res = await nativeShare({ title: e.title, url, dialogTitle: "Share event" });
-      if (res.ok) return;
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        toast.success("Link copied to clipboard");
-      }
-    } catch (err: any) {
-      if (err?.name === "AbortError") return;
-      toast.error("Could not share");
-    }
-  }
+  const eventShare = (
+    <ActionTile onClick={() => {}} icon={<Share2 size={18} />} label="SHARE" />
+  );
 
   async function doNavigate() {
     if (!navHref) {
@@ -307,7 +296,9 @@ function EventDetail() {
         <div className={`grid gap-2 ${isHost ? "grid-cols-4" : "grid-cols-3"}`}>
           <ActionTile onClick={doCheckIn} icon={<QrCode size={18} />} label="CHECK IN" variant="primary" busy={checkingIn} checked={e.checked_in} />
           <ActionTile onClick={doNavigate} icon={<Navigation size={18} />} label="NAVIGATE" disabled={!navHref} />
-          <ActionTile onClick={doShare} icon={<Share2 size={18} />} label="SHARE" />
+          <ShareSheet type="event" id={id} title={e.title} subtitle={e.city ? `${e.city}, ${e.country || ""}` : undefined}>
+            {eventShare}
+          </ShareSheet>
           {isHost && (
             <ActionTile onClick={() => navigate({ to: "/events/$id/edit", params: { id } })} icon={<Pencil size={18} />} label="EDIT" />
           )}

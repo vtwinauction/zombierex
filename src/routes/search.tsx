@@ -24,6 +24,10 @@ export const Route = createFileRoute("/search")({
 
 const CHIPS = ["ALL", "RIDERS", "POSTS", "CREWS", "PARTS", "EVENTS", "TAGS"] as const;
 type Chip = (typeof CHIPS)[number];
+const CHIP_TO_KIND: Record<Chip, string> = {
+  ALL: "all", RIDERS: "riders", POSTS: "posts", CREWS: "crews",
+  PARTS: "parts", EVENTS: "events", TAGS: "tags",
+};
 
 function useDebounced<T>(value: T, ms = 250) {
   const [v, setV] = useState(value);
@@ -42,9 +46,10 @@ function ExplorePage() {
   const history = useSearchHistory();
 
   const active = dq.length >= 2;
+  const kind = CHIP_TO_KIND[chip];
   const { data, isFetching } = useQuery({
-    queryKey: ["search", dq],
-    queryFn: () => run({ data: { q: dq, limit: 12 } }),
+    queryKey: ["search", dq, kind],
+    queryFn: () => run({ data: { q: dq, limit: 12, kind: kind as any } }),
     enabled: active,
     staleTime: 30_000,
   });
@@ -55,7 +60,7 @@ function ExplorePage() {
 
   const trending = useQuery({
     queryKey: ["search", "trending"],
-    queryFn: () => run({ data: { q: "a", limit: 12 } }),
+    queryFn: () => run({ data: { q: "a", limit: 12, kind: "all" } }),
     staleTime: 60_000,
   });
 
