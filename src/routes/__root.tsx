@@ -17,6 +17,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { PullToRefresh } from "@/components/PullToRefresh";
 import { installAnalytics, track } from "@/lib/analytics";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/lib/confirm";
