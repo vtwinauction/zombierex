@@ -46,11 +46,14 @@ const KIND_META: Record<string, { tag: string; tone: string; verb: string }> = {
 
 function NotificationsPage() {
   const qc = useQueryClient();
+  const router = useRouter();
   const fetchList = useServerFn(listMyNotifications);
   const markOne = useServerFn(markNotificationRead);
   const markAll = useServerFn(markAllRead);
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
@@ -63,6 +66,32 @@ function NotificationsPage() {
     enabled: !!signedIn,
     staleTime: 30_000,
   });
+
+  // Realtime: refresh on any new notification for this user
+  useEffect(() => {
+    if (!signedIn) return;
+    let userId: string | null = null;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    supabase.auth.getUser().then(({ data }) => {
+      userId = data.user?.id ?? null;
+      if (!userId) return;
+      channel = supabase
+        .channel(`notif-page-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          () => {
+            qc.invalidateQueries({ queryKey: ["notifications"] });
+            qc.invalidateQueries({ queryKey: ["inbox-counts"] });
+          },
+        )
+        .subscribe();
+    });
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [signedIn, qc]);
+
 
   const markOneMut = useMutation({
     mutationFn: (id: string) => markOne({ data: { id } }),
