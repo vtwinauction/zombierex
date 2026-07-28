@@ -1,7 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, Search, Menu, Bluetooth, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { CartIconLink } from "@/components/CartIconLink";
+import { getInboxCounts } from "@/lib/inbox.functions";
+import { supabase } from "@/integrations/supabase/client";
+
 
 
 /**
