@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { SettingsScreen, Card } from "@/components/SettingsScreen";
+import { setLocale, type Locale } from "@/lib/i18n";
+
 
 type AppearancePrefs = {
   theme: "dark" | "light" | "system";
@@ -25,6 +27,13 @@ function savePrefs(next: AppearancePrefs) {
   } catch {}
 }
 
+function applyPrefs(p: AppearancePrefs) {
+  if (typeof document === "undefined") return;
+  setLocale(p.language as Locale);
+  document.documentElement.classList.toggle("text-large", !!p.largeText);
+  document.documentElement.dataset.theme = p.theme;
+}
+
 export const Route = createFileRoute("/_authenticated/settings/appearance")({
   head: () => ({ meta: [
     { title: "Appearance · Settings · ZOMBIEREX" },
@@ -39,8 +48,13 @@ export const Route = createFileRoute("/_authenticated/settings/appearance")({
 
 function AppearancePage() {
   const [prefs, setPrefs] = useState<AppearancePrefs>(DEFAULTS);
-  useEffect(() => setPrefs(loadPrefs()), []);
-  const update = (next: AppearancePrefs) => { setPrefs(next); savePrefs(next); };
+  useEffect(() => {
+    const loaded = loadPrefs();
+    setPrefs(loaded);
+    applyPrefs(loaded);
+  }, []);
+  const update = (next: AppearancePrefs) => { setPrefs(next); savePrefs(next); applyPrefs(next); };
+
 
   return (
     <SettingsScreen index="06.10" section="DISPLAY" title="Appearance & language" subtitle="Tune the interface for your device and reading preference.">

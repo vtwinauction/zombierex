@@ -157,7 +157,21 @@ function RootComponent() {
   useEffect(() => {
     installCrashReporter();
     installAnalytics();
+    // Apply saved appearance prefs (language/dir, large text)
+    try {
+      const raw = localStorage.getItem("zombierex.prefs.v1");
+      if (raw) {
+        const p = JSON.parse(raw) as { language?: string; largeText?: boolean; theme?: string };
+        if (p.language) {
+          document.documentElement.lang = p.language;
+          document.documentElement.dir = p.language === "ar" ? "rtl" : "ltr";
+        }
+        if (p.largeText) document.documentElement.classList.add("text-large");
+        if (p.theme) document.documentElement.dataset.theme = p.theme;
+      }
+    } catch { /* ignore */ }
   }, []);
+
 
   // Fire screen_view on every pathname change.
   useEffect(() => {

@@ -534,3 +534,13 @@
 }
 .event-fade { animation: eventFadeIn 260ms ease-out both; }
 .event-section { animation: eventFadeIn 320ms ease-out both; opacity: 0; }
+
+/* Accessibility — larger UI text scale */
+html.text-large { font-size: 17.5px; }
+html.text-large body { font-size: 17.5px; }
+
+/* RTL adjustments: mirror horizontal-only transforms and directional icons */
+html[dir="rtl"] .rtl-mirror { transform: scaleX(-1); }
+html[dir="rtl"] .rtl-flip svg { transform: scaleX(-1); }
+html[dir="rtl"] .no-rtl-mirror { transform: none !important; }
+
