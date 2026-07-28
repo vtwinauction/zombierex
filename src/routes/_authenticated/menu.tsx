@@ -115,7 +115,7 @@ function MenuHub() {
             <div className="space-y-1.5">
               {s.items.map((it) => (
                 <Link
-                  key={it.to}
+                  key={`${it.to}-${it.label}`}
                   to={it.to as any}
                   className="tap flex items-center justify-between px-4 py-3"
                   style={{
