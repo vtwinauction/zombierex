@@ -14,12 +14,14 @@ export function PullToRefresh({
   threshold = 72,
   maxPull = 120,
   disabled = false,
+  scrollTargetRef,
   children,
 }: {
   onRefresh: () => Promise<unknown> | unknown;
   threshold?: number;
   maxPull?: number;
   disabled?: boolean;
+  scrollTargetRef?: React.RefObject<HTMLElement | null>;
   children: ReactNode;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -34,7 +36,11 @@ export function PullToRefresh({
     const el = containerRef.current;
     if (!el) return;
 
-    const atTop = () => (document.scrollingElement?.scrollTop ?? window.scrollY) <= 0;
+    const atTop = () => {
+      const t = scrollTargetRef?.current;
+      if (t) return t.scrollTop <= 0;
+      return (document.scrollingElement?.scrollTop ?? window.scrollY) <= 0;
+    };
 
     const onStart = (e: TouchEvent) => {
       if (refreshing || !atTop()) return;
