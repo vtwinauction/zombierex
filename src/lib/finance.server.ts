@@ -187,15 +187,13 @@ async function notifyParties(sb: Admin, txn: any) {
     rows.push({
       user_id: txn.buyer_id,
       kind: "order",
-      title: "Payment confirmed",
-      body: `Your payment of ${txn.currency} ${amount} was successful.`,
+      payload: { title: "Payment confirmed", body: `Your payment of ${txn.currency} ${amount} was successful.` },
     });
   if (txn.seller_id)
     rows.push({
       user_id: txn.seller_id,
       kind: "order",
-      title: "You made a sale",
-      body: `${txn.currency} ${(txn.net_cents / 100).toFixed(2)} added to your balance (after ${(txn.platform_fee_cents / 100).toFixed(2)} platform fee).`,
+      payload: { title: "You made a sale", body: `${txn.currency} ${(txn.net_cents / 100).toFixed(2)} added to your balance (after ${(txn.platform_fee_cents / 100).toFixed(2)} platform fee).` },
     });
   if (!rows.length) return;
   const { error } = await sb.from("notifications").insert(rows);
@@ -269,9 +267,9 @@ export async function refundTransaction(input: RefundInput) {
 
   const notes: any[] = [];
   if (t.buyer_id)
-    notes.push({ user_id: t.buyer_id, kind: "order", title: "Refund issued", body: `${t.currency} ${(amount / 100).toFixed(2)} has been refunded.` });
+    notes.push({ user_id: t.buyer_id, kind: "order", payload: { title: "Refund issued", body: `${t.currency} ${(amount / 100).toFixed(2)} has been refunded.` } });
   if (t.seller_id)
-    notes.push({ user_id: t.seller_id, kind: "order", title: "Refund processed", body: `A refund of ${t.currency} ${(amount / 100).toFixed(2)} was issued on one of your sales.` });
+    notes.push({ user_id: t.seller_id, kind: "order", payload: { title: "Refund processed", body: `A refund of ${t.currency} ${(amount / 100).toFixed(2)} was issued on one of your sales.` } });
   if (notes.length) await sb.from("notifications").insert(notes);
 
   return { refunded_cents: amount, commission_returned_cents: commissionBack };
