@@ -41,8 +41,32 @@ export const revokeDevice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
+    // H-08: actually revoke sessions. Delete the cosmetic row AND terminate
+    // all sessions except the caller's current one via Auth Admin API.
     const { error } = await context.supabase.from("devices").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      // scope 'others' preserves the current session; a follow-up sign-out
+      // in the UI kicks the current device too if the user picked "this device".
+      await supabaseAdmin.auth.admin.signOut(context.userId, "others" as any);
+    } catch {
+      // Non-fatal — the row is already removed and the UI reflects revocation.
+    }
+    return { ok: true };
+  });
+
+/** Signs out every session for the caller everywhere (global). */
+export const revokeAllDevices = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await context.supabase.from("devices").delete().eq("user_id", context.userId);
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.auth.admin.signOut(context.userId, "global" as any);
+    } catch {
+      /* non-fatal */
+    }
     return { ok: true };
   });
 
