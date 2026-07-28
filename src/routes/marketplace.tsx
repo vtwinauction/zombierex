@@ -282,11 +282,10 @@ function FeaturedCard({ listing }: { listing: any }) {
       >
         <div className="relative aspect-[16/10] w-full overflow-hidden" style={{ background: "var(--color-paper-2)" }}>
           {l.hero_image_url ? (
-            <img
+            <HeroMedia
               src={l.hero_image_url}
               alt={l.title}
               className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.02]"
-              loading="lazy"
             />
           ) : null}
           <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5">
