@@ -79,3 +79,33 @@ export function downloadGpx(filename: string, gpx: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export function ridePathToGpx(title: string, path: { lat: number; lng: number; ele?: number; recorded_at?: string }[], startedAt?: string): string {
+  const now = new Date().toISOString();
+  const escape = (s?: string) =>
+    s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+
+  const trkpt = path.map((p) => {
+    const eleAttr = typeof p.ele === "number" && !isNaN(p.ele) ? `
+    <ele>${p.ele.toFixed(2)}</ele>` : "";
+    const timeTag = p.recorded_at ? `
+    <time>${new Date(p.recorded_at).toISOString()}</time>` : "";
+    return `    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lng.toFixed(7)}">${eleAttr}${timeTag}
+    </trkpt>`;
+  }).join("
+");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="ZOMBIEREX Atlas" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>${escape(title)}</name>
+    <time>${startedAt ? new Date(startedAt).toISOString() : now}</time>
+  </metadata>
+  <trk>
+    <name>${escape(title)}</name>
+    <trkseg>
+${trkpt}
+    </trkseg>
+  </trk>
+</gpx>`;
+}
