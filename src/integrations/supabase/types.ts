@@ -5618,42 +5618,42 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
-          cover_url: string | null
           created_at: string | null
           display_name: string | null
           followers_count: number | null
+          following_count: number | null
           handle: string | null
           id: string | null
-          is_business: boolean | null
           is_verified: boolean | null
+          level: number | null
           posts_count: number | null
           tier: Database["public"]["Enums"]["rider_tier"] | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
-          cover_url?: string | null
           created_at?: string | null
           display_name?: string | null
           followers_count?: number | null
+          following_count?: number | null
           handle?: string | null
           id?: string | null
-          is_business?: boolean | null
           is_verified?: boolean | null
+          level?: number | null
           posts_count?: number | null
           tier?: Database["public"]["Enums"]["rider_tier"] | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
-          cover_url?: string | null
           created_at?: string | null
           display_name?: string | null
           followers_count?: number | null
+          following_count?: number | null
           handle?: string | null
           id?: string | null
-          is_business?: boolean | null
           is_verified?: boolean | null
+          level?: number | null
           posts_count?: number | null
           tier?: Database["public"]["Enums"]["rider_tier"] | null
         }
