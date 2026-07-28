@@ -147,6 +147,7 @@ import { Route as AuthenticatedOwnerFinancePayoutsRouteImport } from './routes/_
 import { Route as AuthenticatedOwnerFinancePaymentsRouteImport } from './routes/_authenticated/owner.finance.payments'
 import { Route as AuthenticatedOwnerFinanceCommissionsRouteImport } from './routes/_authenticated/owner.finance.commissions'
 import { Route as AuthenticatedOwnerFinanceBuyersRouteImport } from './routes/_authenticated/owner.finance.buyers'
+import { Route as AuthenticatedOwnerFinanceAuditRouteImport } from './routes/_authenticated/owner.finance.audit'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
 import { Route as AuthenticatedDragMatchIdRouteImport } from './routes/_authenticated/drag.match.$id'
@@ -911,6 +912,12 @@ const AuthenticatedOwnerFinanceBuyersRoute =
     path: '/buyers',
     getParentRoute: () => AuthenticatedOwnerFinanceRoute,
   } as any)
+const AuthenticatedOwnerFinanceAuditRoute =
+  AuthenticatedOwnerFinanceAuditRouteImport.update({
+    id: '/audit',
+    path: '/audit',
+    getParentRoute: () => AuthenticatedOwnerFinanceRoute,
+  } as any)
 const AuthenticatedJudgeSubmitEventSlugRoute =
   AuthenticatedJudgeSubmitEventSlugRouteImport.update({
     id: '/judge/submit/$eventSlug',
@@ -1107,6 +1114,7 @@ export interface FileRoutesByFullPath {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
   '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
@@ -1253,6 +1261,7 @@ export interface FileRoutesByTo {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
   '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
@@ -1405,6 +1414,7 @@ export interface FileRoutesById {
   '/_authenticated/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/_authenticated/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
   '/_authenticated/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/_authenticated/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
   '/_authenticated/owner/finance/payments': typeof AuthenticatedOwnerFinancePaymentsRoute
@@ -1557,6 +1567,7 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/finance/audit'
     | '/owner/finance/buyers'
     | '/owner/finance/commissions'
     | '/owner/finance/payments'
@@ -1703,6 +1714,7 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/finance/audit'
     | '/owner/finance/buyers'
     | '/owner/finance/commissions'
     | '/owner/finance/payments'
@@ -1854,6 +1866,7 @@ export interface FileRouteTypes {
     | '/_authenticated/drag/match/$id'
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
+    | '/_authenticated/owner/finance/audit'
     | '/_authenticated/owner/finance/buyers'
     | '/_authenticated/owner/finance/commissions'
     | '/_authenticated/owner/finance/payments'
@@ -2888,6 +2901,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerFinanceBuyersRouteImport
       parentRoute: typeof AuthenticatedOwnerFinanceRoute
     }
+    '/_authenticated/owner/finance/audit': {
+      id: '/_authenticated/owner/finance/audit'
+      path: '/audit'
+      fullPath: '/owner/finance/audit'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceAuditRouteImport
+      parentRoute: typeof AuthenticatedOwnerFinanceRoute
+    }
     '/_authenticated/judge/submit/$eventSlug': {
       id: '/_authenticated/judge/submit/$eventSlug'
       path: '/judge/submit/$eventSlug'
@@ -3017,6 +3037,7 @@ const AuthenticatedMessagesRouteWithChildren =
   )
 
 interface AuthenticatedOwnerFinanceRouteChildren {
+  AuthenticatedOwnerFinanceAuditRoute: typeof AuthenticatedOwnerFinanceAuditRoute
   AuthenticatedOwnerFinanceBuyersRoute: typeof AuthenticatedOwnerFinanceBuyersRoute
   AuthenticatedOwnerFinanceCommissionsRoute: typeof AuthenticatedOwnerFinanceCommissionsRoute
   AuthenticatedOwnerFinancePaymentsRoute: typeof AuthenticatedOwnerFinancePaymentsRoute
@@ -3028,6 +3049,7 @@ interface AuthenticatedOwnerFinanceRouteChildren {
 
 const AuthenticatedOwnerFinanceRouteChildren: AuthenticatedOwnerFinanceRouteChildren =
   {
+    AuthenticatedOwnerFinanceAuditRoute: AuthenticatedOwnerFinanceAuditRoute,
     AuthenticatedOwnerFinanceBuyersRoute: AuthenticatedOwnerFinanceBuyersRoute,
     AuthenticatedOwnerFinanceCommissionsRoute:
       AuthenticatedOwnerFinanceCommissionsRoute,

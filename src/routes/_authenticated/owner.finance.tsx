@@ -24,6 +24,7 @@ const TABS = [
   { to: "/owner/finance/sellers", label: "SELLERS" },
   { to: "/owner/finance/buyers", label: "BUYERS" },
   { to: "/owner/finance/payouts", label: "PAYOUTS" },
+  { to: "/owner/finance/audit", label: "AUDIT" },
 ] as const;
 
 function FinanceShell() {
