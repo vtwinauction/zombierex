@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SettingsScreen, Card } from "@/components/SettingsScreen";
 import { getMyPreferences, updateMyPreferences } from "@/lib/notifications.functions";
+import { listMyDevices, revokeMyDevice, sendTestPush } from "@/lib/devices.functions";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/_authenticated/settings/notifications")({
   head: () => ({
