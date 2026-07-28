@@ -605,6 +605,18 @@ function HomePage() {
           )}
           </div>
         ))}
+        {/* Infinite-scroll sentinel */}
+        <div ref={loadMoreRef} className="h-8" aria-hidden />
+        {liveFeed.isFetchingNextPage && (
+          <p className="mono-tag pt-2 text-center" style={{ color: "var(--color-ink-3)" }}>
+            Loading more…
+          </p>
+        )}
+        {!liveFeed.hasNextPage && feedPosts.length > 0 && (
+          <p className="mono-tag pt-2 text-center" style={{ color: "var(--color-ink-3)" }}>
+            ● End of feed
+          </p>
+        )}
       </section>
 
 
