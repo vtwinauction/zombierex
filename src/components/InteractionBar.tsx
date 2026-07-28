@@ -108,6 +108,10 @@ export function InteractionBar({
             (key === "like" && liked) || (key === "save" && saved);
 
           const onClick = () => {
+            if (key === "save" && longPressedRef.current) {
+              longPressedRef.current = false;
+              return;
+            }
             // Native haptic feedback — no-op on web (or navigator.vibrate fallback).
             if (key === "like")        void haptic(liked ? "light" : "medium");
             else if (key === "save")   void haptic("light");
@@ -124,6 +128,16 @@ export function InteractionBar({
           };
 
           const iconColor = "var(--color-neon)";
+          const longPressProps =
+            key === "save" && isPost
+              ? {
+                  onPointerDown: startLongPress,
+                  onPointerUp: cancelLongPress,
+                  onPointerLeave: cancelLongPress,
+                  onPointerCancel: cancelLongPress,
+                  onContextMenu: (e: React.MouseEvent) => e.preventDefault(),
+                }
+              : {};
 
           return (
             <button
@@ -131,12 +145,13 @@ export function InteractionBar({
               key={key}
               type="button"
               onClick={onClick}
-              
-              aria-label={label}
+              {...longPressProps}
+              aria-label={key === "save" && isPost ? `${label} (hold to file in a collection)` : label}
               aria-pressed={active}
               className="tap group relative flex h-12 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl"
               style={{ background: "transparent" }}
             >
+
               <span
                 key={active ? "on" : "off"}
                 className={`transition-transform duration-200 ease-out group-active:scale-90 ${active ? "ibar-pop" : ""}`}
