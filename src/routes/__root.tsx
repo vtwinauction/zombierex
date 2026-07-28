@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, lazy, Suspense, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 import appCss from "../styles.css?url";
@@ -17,13 +17,23 @@ import { BottomNav } from "@/components/BottomNav";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
-import { PushNotificationBridge } from "@/components/PushNotificationBridge";
-import { AppLockGate } from "@/components/AppLockGate";
-import { FirstRunTour } from "@/components/FirstRunTour";
-import { PushPrimer } from "@/components/PushPrimer";
 import { installAnalytics, track } from "@/lib/analytics";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/lib/confirm";
+
+// Lazy-loaded non-critical shell add-ons — not needed for first paint.
+const PushNotificationBridge = lazy(() =>
+  import("@/components/PushNotificationBridge").then((m) => ({ default: m.PushNotificationBridge })),
+);
+const PushPrimer = lazy(() =>
+  import("@/components/PushPrimer").then((m) => ({ default: m.PushPrimer })),
+);
+const AppLockGate = lazy(() =>
+  import("@/components/AppLockGate").then((m) => ({ default: m.AppLockGate })),
+);
+const FirstRunTour = lazy(() =>
+  import("@/components/FirstRunTour").then((m) => ({ default: m.FirstRunTour })),
+);
 
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 
