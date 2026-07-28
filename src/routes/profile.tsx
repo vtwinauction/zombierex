@@ -138,20 +138,29 @@ function ProfilePage() {
           }}
         >
           {/* Blurred backdrop so any image aspect fits the banner cleanly */}
-          <img
-            src={heroImage}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ filter: "blur(28px) saturate(1.1)", transform: "scale(1.15)" }}
-          />
-          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
-          <img
-            src={heroImage}
-            alt={bike.name}
-            className="relative h-full w-full object-cover"
-            onError={() => setCoverBroken(true)}
-          />
+          {heroImage ? (
+            <>
+              <img
+                src={heroImage}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full object-cover"
+                style={{ filter: "blur(28px) saturate(1.1)", transform: "scale(1.15)" }}
+              />
+              <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.35)" }} />
+              <img
+                src={heroImage}
+                alt={bike.name}
+                className="relative h-full w-full object-cover"
+                onError={() => setCoverBroken(true)}
+              />
+            </>
+          ) : (
+            <div
+              className="absolute inset-0"
+              style={{ background: "linear-gradient(160deg, var(--color-paper-2), var(--color-graphite))" }}
+            />
+          )}
 
           {/* subtle bottom gradient — image stays the focal point */}
           <div
