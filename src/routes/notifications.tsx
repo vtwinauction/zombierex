@@ -237,9 +237,15 @@ function NotificationsPage() {
           </div>
         )}
 
-        {rows.length > 0 && (
+        {visible.length === 0 && signedIn && !q.isLoading && rows.length > 0 && (
+          <div className="px-4 py-10 text-center">
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>ALL CAUGHT UP</p>
+          </div>
+        )}
+
+        {visible.length > 0 && (
           <ul className="divide-y divide-hair hairline-b">
-            {rows.map((n) => {
+            {visible.map((n) => {
               const meta = KIND_META[n.kind] ?? KIND_META.system;
               const pay = (n.payload ?? {}) as Record<string, unknown>;
               const actor = (pay.actor_handle as string) || (pay.actor_name as string) || "someone";
@@ -248,10 +254,11 @@ function NotificationsPage() {
               return (
                 <li
                   key={n.id}
-                  className="grid grid-cols-[52px_60px_1fr_auto] items-center gap-3 px-4 py-4 cursor-pointer"
+                  className="grid grid-cols-[52px_60px_1fr_auto] items-center gap-3 px-4 py-4 cursor-pointer hover:bg-[var(--color-mist)]"
                   style={{ background: unreadRow ? "rgba(0,200,83,0.05)" : "transparent" }}
-                  onClick={() => unreadRow && markOneMut.mutate(n.id)}
+                  onClick={() => handleOpen(n)}
                 >
+
                   <span className="mono-num text-xs" style={{ color: "var(--color-ash)" }}>
                     {timeAgo(n.created_at)}
                   </span>
