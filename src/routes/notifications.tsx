@@ -9,12 +9,15 @@ import {
 } from "@/lib/notifications.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useState } from "react";
+import { confirmDialog } from "@/lib/confirm";
 
 export const Route = createFileRoute("/notifications")({
   head: () => ({
     meta: [
-      { title: "Log · ZOMBIEREX" },
-      { name: "description", content: "System log of activity across your ZOMBIEREX network." },
+      { title: "Inbox · ZOMBIEREX" },
+      { name: "description", content: "Your ZOMBIEREX notification inbox — likes, follows, messages, events and more." },
+      { property: "og:title", content: "Inbox · ZOMBIEREX" },
+      { property: "og:description", content: "Your ZOMBIEREX notification inbox." },
     ],
   }),
   component: NotificationsPage,
@@ -29,20 +32,31 @@ type NotifRow = {
   created_at: string;
 };
 
-const KIND_META: Record<string, { tag: string; tone: string; verb: string }> = {
-  like:          { tag: "LIKE", tone: "var(--color-heat, #ff5a3c)",   verb: "liked your post" },
-  comment:       { tag: "CMT",  tone: "var(--color-ink, #111)",       verb: "commented on your post" },
-  follow:        { tag: "FLW",  tone: "var(--color-cool, #3860ff)",   verb: "started following you" },
-  mention:       { tag: "MNTN", tone: "var(--color-plum, #7a3fbf)",   verb: "mentioned you" },
-  message:       { tag: "DM",   tone: "var(--color-ink, #111)",       verb: "sent you a message" },
-  marketplace:   { tag: "MKT",  tone: "var(--color-signal, #d1a44b)", verb: "activity on your listing" },
-  booking:       { tag: "BKG",  tone: "var(--color-signal, #d1a44b)", verb: "booking update" },
-  order:         { tag: "ORD",  tone: "var(--color-signal, #d1a44b)", verb: "order update" },
-  vendor_update: { tag: "VNDR", tone: "var(--color-plum, #7a3fbf)",   verb: "vendor update" },
-  subscription:  { tag: "SUB",  tone: "var(--color-plum, #7a3fbf)",   verb: "subscription update" },
-  event:         { tag: "EVT",  tone: "var(--color-neon, #00c853)",   verb: "event update" },
-  system:        { tag: "SYS",  tone: "var(--color-ash, #6b6b6b)",    verb: "system notice" },
+const KIND_META: Record<string, { tag: string; tone: string; verb: string; group: Filter }> = {
+  like:          { tag: "LIKE", tone: "var(--color-heat, #ff5a3c)",   verb: "liked your post", group: "social" },
+  comment:       { tag: "CMT",  tone: "var(--color-ink, #111)",       verb: "commented on your post", group: "social" },
+  follow:        { tag: "FLW",  tone: "var(--color-cool, #3860ff)",   verb: "started following you", group: "social" },
+  mention:       { tag: "MNTN", tone: "var(--color-plum, #7a3fbf)",   verb: "mentioned you", group: "social" },
+  message:       { tag: "DM",   tone: "var(--color-ink, #111)",       verb: "sent you a message", group: "social" },
+  marketplace:   { tag: "MKT",  tone: "var(--color-signal, #d1a44b)", verb: "activity on your listing", group: "market" },
+  booking:       { tag: "BKG",  tone: "var(--color-signal, #d1a44b)", verb: "booking update", group: "events" },
+  order:         { tag: "ORD",  tone: "var(--color-signal, #d1a44b)", verb: "order update", group: "market" },
+  vendor_update: { tag: "VNDR", tone: "var(--color-plum, #7a3fbf)",   verb: "vendor update", group: "market" },
+  subscription:  { tag: "SUB",  tone: "var(--color-plum, #7a3fbf)",   verb: "subscription update", group: "market" },
+  event:         { tag: "EVT",  tone: "var(--color-neon, #00c853)",   verb: "event update", group: "events" },
+  system:        { tag: "SYS",  tone: "var(--color-ash, #6b6b6b)",    verb: "system notice", group: "system" },
 };
+
+type Filter = "all" | "unread" | "social" | "market" | "events" | "system";
+
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: "all", label: "ALL" },
+  { key: "unread", label: "UNREAD" },
+  { key: "social", label: "SOCIAL" },
+  { key: "market", label: "MARKET" },
+  { key: "events", label: "EVENTS" },
+  { key: "system", label: "SYSTEM" },
+];
 
 function NotificationsPage() {
   const qc = useQueryClient();
@@ -52,7 +66,9 @@ function NotificationsPage() {
   const markAll = useServerFn(markAllRead);
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
-  const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [filter, setFilter] = useState<Filter>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selectMode, setSelectMode] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
@@ -62,12 +78,11 @@ function NotificationsPage() {
 
   const q = useQuery({
     queryKey: ["notifications"],
-    queryFn: () => fetchList({ data: { limit: 30 } }) as Promise<NotifRow[]>,
+    queryFn: () => fetchList({ data: { limit: 50 } }) as Promise<NotifRow[]>,
     enabled: !!signedIn,
     staleTime: 30_000,
   });
 
-  // Realtime: refresh on any new notification for this user
   useEffect(() => {
     if (!signedIn) return;
     let userId: string | null = null;
@@ -91,7 +106,6 @@ function NotificationsPage() {
       if (channel) supabase.removeChannel(channel);
     };
   }, [signedIn, qc]);
-
 
   const markOneMut = useMutation({
     mutationFn: (id: string) => markOne({ data: { id } }),
@@ -120,12 +134,36 @@ function NotificationsPage() {
     onError: (_e, _v, ctx) => ctx?.prev && qc.setQueryData(["notifications"], ctx.prev),
   });
 
+  const deleteSelectedMut = useMutation({
+    mutationFn: async (ids: string[]) => {
+      const { error } = await supabase.from("notifications").delete().in("id", ids);
+      if (error) throw new Error(error.message);
+    },
+    onMutate: async (ids) => {
+      await qc.cancelQueries({ queryKey: ["notifications"] });
+      const prev = qc.getQueryData<NotifRow[]>(["notifications"]);
+      qc.setQueryData<NotifRow[]>(["notifications"], (rows) =>
+        rows?.filter((r) => !ids.includes(r.id)) ?? [],
+      );
+      return { prev };
+    },
+    onError: (_e, _v, ctx) => ctx?.prev && qc.setQueryData(["notifications"], ctx.prev),
+    onSettled: () => {
+      setSelected(new Set());
+      setSelectMode(false);
+      qc.invalidateQueries({ queryKey: ["notifications"] });
+      qc.invalidateQueries({ queryKey: ["inbox-counts"] });
+    },
+  });
+
   const rows = q.data ?? [];
   const unread = rows.filter((r) => !r.read_at).length;
-  const visible = useMemo(
-    () => (filter === "unread" ? rows.filter((r) => !r.read_at) : rows),
-    [rows, filter],
-  );
+
+  const visible = useMemo(() => {
+    if (filter === "unread") return rows.filter((r) => !r.read_at);
+    if (filter === "all") return rows;
+    return rows.filter((r) => (KIND_META[r.kind]?.group ?? "system") === filter);
+  }, [rows, filter]);
 
   function hrefFor(n: NotifRow): string | null {
     const pay = (n.payload ?? {}) as Record<string, unknown>;
@@ -156,22 +194,44 @@ function NotificationsPage() {
     }
   }
 
-
   function handleOpen(n: NotifRow) {
+    if (selectMode) {
+      toggleSelect(n.id);
+      return;
+    }
     if (!n.read_at) markOneMut.mutate(n.id);
     const href = hrefFor(n);
     if (href) router.navigate({ to: href });
   }
 
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function handleDeleteSelected() {
+    if (selected.size === 0) return;
+    const ok = await confirmDialog({
+      title: "DELETE SELECTED",
+      description: `Remove ${selected.size} notification${selected.size === 1 ? "" : "s"}? This cannot be undone.`,
+      destructive: true,
+      confirmLabel: "DELETE",
+    });
+    if (ok) deleteSelectedMut.mutate(Array.from(selected));
+  }
 
   return (
     <PullToRefresh onRefresh={async () => { await qc.invalidateQueries({ queryKey: ["notifications"] }); }}>
       <div>
         <div className="flex items-end justify-between px-4 pt-6">
           <div>
-            <p className="mono-tag">SIGNALS · LAST 24H</p>
+            <p className="mono-tag">INBOX · LAST 50</p>
             <h1 className="mt-2 display-xl text-5xl uppercase">
-              Log{" "}
+              Signals{" "}
               {unread > 0 && (
                 <span
                   className="mono-num align-middle px-2 py-1 text-xs"
@@ -182,28 +242,59 @@ function NotificationsPage() {
               )}
             </h1>
           </div>
-          <button
-            className="mono-tag disabled:opacity-40"
-            style={{ color: "var(--color-ash)" }}
-            onClick={() => markAllMut.mutate()}
-            disabled={unread === 0 || markAllMut.isPending}
-          >
-            MARK ALL READ
-          </button>
+          <div className="flex items-center gap-2">
+            {selectMode ? (
+              <>
+                <button
+                  className="mono-tag disabled:opacity-40"
+                  style={{ color: "#ff6b6b" }}
+                  onClick={handleDeleteSelected}
+                  disabled={selected.size === 0 || deleteSelectedMut.isPending}
+                >
+                  DELETE{selected.size > 0 ? ` · ${selected.size}` : ""}
+                </button>
+                <button
+                  className="mono-tag"
+                  style={{ color: "var(--color-ash)" }}
+                  onClick={() => { setSelectMode(false); setSelected(new Set()); }}
+                >
+                  CANCEL
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="mono-tag disabled:opacity-40"
+                  style={{ color: "var(--color-ash)" }}
+                  onClick={() => markAllMut.mutate()}
+                  disabled={unread === 0 || markAllMut.isPending}
+                >
+                  MARK ALL READ
+                </button>
+                <button
+                  className="mono-tag"
+                  style={{ color: "var(--color-ash)" }}
+                  onClick={() => setSelectMode(true)}
+                >
+                  SELECT
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="flex gap-1 px-4 pt-4">
-          {(["all", "unread"] as const).map((f) => (
+        <div className="flex gap-1 px-4 pt-4 overflow-x-auto scrollbar-hide">
+          {FILTERS.map((f) => (
             <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className="mono-tag px-3 py-1.5 hairline"
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className="tap mono-tag shrink-0 px-3 py-1.5 hairline"
               style={{
-                background: filter === f ? "var(--color-ink)" : "transparent",
-                color: filter === f ? "var(--color-bone, #fff)" : "var(--color-ash)",
+                background: filter === f.key ? "var(--color-ink)" : "transparent",
+                color: filter === f.key ? "var(--color-bone, #fff)" : "var(--color-ash)",
               }}
             >
-              {f === "all" ? "ALL" : `UNREAD${unread ? ` · ${unread}` : ""}`}
+              {f.key === "unread" && unread > 0 ? `${f.label} · ${unread}` : f.label}
             </button>
           ))}
         </div>
@@ -217,7 +308,6 @@ function NotificationsPage() {
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>EVENT</span>
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>ACT</span>
         </div>
-
 
         {signedIn === false && (
           <div className="px-4 py-10 text-center">
@@ -254,14 +344,20 @@ function NotificationsPage() {
               const actor = (pay.actor_handle as string) || (pay.actor_name as string) || "someone";
               const text = (pay.text as string) || meta.verb;
               const unreadRow = !n.read_at;
+              const isSelected = selected.has(n.id);
               return (
                 <li
                   key={n.id}
                   className="grid grid-cols-[52px_60px_1fr_auto] items-center gap-3 px-4 py-4 cursor-pointer hover:bg-[var(--color-mist)]"
-                  style={{ background: unreadRow ? "rgba(0,200,83,0.05)" : "transparent" }}
+                  style={{
+                    background: isSelected
+                      ? "rgba(0,200,83,0.12)"
+                      : unreadRow
+                        ? "rgba(0,200,83,0.05)"
+                        : "transparent",
+                  }}
                   onClick={() => handleOpen(n)}
                 >
-
                   <span className="mono-num text-xs" style={{ color: "var(--color-ash)" }}>
                     {timeAgo(n.created_at)}
                   </span>
@@ -277,7 +373,17 @@ function NotificationsPage() {
                       <span style={{ color: "var(--color-ash)" }}>{text}</span>
                     </p>
                   </div>
-                  {unreadRow ? (
+                  {selectMode ? (
+                    <span
+                      className="ml-2 inline-flex h-4 w-4 items-center justify-center rounded-sm"
+                      style={{
+                        border: `1px solid ${isSelected ? "var(--color-neon)" : "var(--color-ash)"}`,
+                        background: isSelected ? "var(--color-neon)" : "transparent",
+                      }}
+                    >
+                      {isSelected && <span style={{ color: "var(--color-ink)", fontSize: 10 }}>✓</span>}
+                    </span>
+                  ) : unreadRow ? (
                     <span
                       aria-label="Unread"
                       className="ml-2 inline-block h-2 w-2 rounded-full"
