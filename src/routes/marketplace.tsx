@@ -370,11 +370,10 @@ function ListingCard({ listing }: { listing: any }) {
     >
       <div className="relative aspect-square w-full overflow-hidden" style={{ background: "var(--color-paper-2)" }}>
         {l.hero_image_url ? (
-          <img
+          <HeroMedia
             src={l.hero_image_url}
             alt={l.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            loading="lazy"
           />
         ) : null}
         <div className="pointer-events-none absolute left-2 top-2 flex flex-wrap gap-1">
