@@ -345,9 +345,12 @@ export async function runPayoutBatch() {
     await sb.from("notifications").insert({
       user_id: sellerId,
       kind: "system",
-      title: "Payout scheduled",
-      body: `A payout of $${(balance / 100).toFixed(2)} has been scheduled.`,
+      payload: {
+        title: "Payout scheduled",
+        body: `A payout of $${(balance / 100).toFixed(2)} has been scheduled.`,
+      },
     });
+
     total += balance;
     count += 1;
   }
