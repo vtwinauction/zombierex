@@ -328,8 +328,23 @@ function UsersTab() {
               )}
             </div>
             <div className="mt-2 flex flex-wrap gap-1">
-              <button onClick={() => {
-                const reason = u.is_suspended ? undefined : (prompt("Suspension reason?") ?? undefined);
+              <button onClick={async () => {
+                let reason: string | undefined;
+                if (!u.is_suspended) {
+                  const r = await promptDialog({
+                    title: "Suspend user",
+                    description: `Provide a reason for suspending @${u.username ?? u.id.slice(0, 8)}. This is recorded in the audit log.`,
+                    placeholder: "Reason (e.g. repeated harassment)",
+                    confirmLabel: "Suspend",
+                    destructive: true,
+                    required: true,
+                    multiline: true,
+                  });
+                  if (r === null) return;
+                  reason = r;
+                } else {
+                  if (!(await confirmDialog({ title: "Reinstate user?", description: "They will regain access immediately.", confirmLabel: "Reinstate" }))) return;
+                }
                 suspMut.mutate({ userId: u.id, suspend: !u.is_suspended, reason });
               }} className="btn-ghost text-[11px]">
                 {u.is_suspended ? "Unsuspend" : "Suspend"}
@@ -338,13 +353,20 @@ function UsersTab() {
                 className="btn-ghost text-[11px]">
                 {u.is_verified ? "Unverify" : "Verify"}
               </button>
-              <button onClick={() => {
-                const input = prompt("Roles (comma-separated: owner,admin,moderator,standard)", "standard");
+              <button onClick={async () => {
+                const input = await promptDialog({
+                  title: "Set roles",
+                  description: "Comma-separated: owner, admin, moderator, standard.",
+                  defaultValue: "standard",
+                  placeholder: "standard, moderator",
+                  required: true,
+                });
                 if (!input) return;
                 const list = input.split(",").map(s => s.trim()).filter(Boolean);
                 roleMut.mutate({ userId: u.id, roles: list });
               }} className="btn-ghost text-[11px]">Set roles</button>
             </div>
+
           </div>
         ))}
         {q.isLoading && <p className="text-sm opacity-60">Loading…</p>}
