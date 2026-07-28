@@ -97,6 +97,7 @@ import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authe
 import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace_.dashboard'
 import { Route as AuthenticatedJudgeMineRouteImport } from './routes/_authenticated/judge.mine'
 import { Route as AuthenticatedEventsNewRouteImport } from './routes/_authenticated/events.new'
+import { Route as AuthenticatedEventsMeRouteImport } from './routes/_authenticated/events.me'
 import { Route as AuthenticatedEventsIdRouteImport } from './routes/_authenticated/events.$id'
 import { Route as AuthenticatedDragRunRouteImport } from './routes/_authenticated/drag.run'
 import { Route as AuthenticatedDragRaceRouteImport } from './routes/_authenticated/drag.race'
@@ -619,6 +620,11 @@ const AuthenticatedEventsNewRoute = AuthenticatedEventsNewRouteImport.update({
   path: '/events/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEventsMeRoute = AuthenticatedEventsMeRouteImport.update({
+  id: '/events/me',
+  path: '/events/me',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEventsIdRoute = AuthenticatedEventsIdRouteImport.update({
   id: '/events/$id',
   path: '/events/$id',
@@ -984,6 +990,7 @@ export interface FileRoutesByFullPath {
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
   '/events/$id': typeof AuthenticatedEventsIdRoute
+  '/events/me': typeof AuthenticatedEventsMeRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1121,6 +1128,7 @@ export interface FileRoutesByTo {
   '/drag/race': typeof AuthenticatedDragRaceRoute
   '/drag/run': typeof AuthenticatedDragRunRoute
   '/events/$id': typeof AuthenticatedEventsIdRoute
+  '/events/me': typeof AuthenticatedEventsMeRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1263,6 +1271,7 @@ export interface FileRoutesById {
   '/_authenticated/drag/race': typeof AuthenticatedDragRaceRoute
   '/_authenticated/drag/run': typeof AuthenticatedDragRunRoute
   '/_authenticated/events/$id': typeof AuthenticatedEventsIdRoute
+  '/_authenticated/events/me': typeof AuthenticatedEventsMeRoute
   '/_authenticated/events/new': typeof AuthenticatedEventsNewRoute
   '/_authenticated/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/_authenticated/marketplace_/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
@@ -1405,6 +1414,7 @@ export interface FileRouteTypes {
     | '/drag/race'
     | '/drag/run'
     | '/events/$id'
+    | '/events/me'
     | '/events/new'
     | '/judge/mine'
     | '/marketplace/dashboard'
@@ -1542,6 +1552,7 @@ export interface FileRouteTypes {
     | '/drag/race'
     | '/drag/run'
     | '/events/$id'
+    | '/events/me'
     | '/events/new'
     | '/judge/mine'
     | '/marketplace/dashboard'
@@ -1683,6 +1694,7 @@ export interface FileRouteTypes {
     | '/_authenticated/drag/race'
     | '/_authenticated/drag/run'
     | '/_authenticated/events/$id'
+    | '/_authenticated/events/me'
     | '/_authenticated/events/new'
     | '/_authenticated/judge/mine'
     | '/_authenticated/marketplace_/dashboard'
@@ -2411,6 +2423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEventsNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/events/me': {
+      id: '/_authenticated/events/me'
+      path: '/events/me'
+      fullPath: '/events/me'
+      preLoaderRoute: typeof AuthenticatedEventsMeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/events/$id': {
       id: '/_authenticated/events/$id'
       path: '/events/$id'
@@ -2943,6 +2962,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDragRaceRoute: typeof AuthenticatedDragRaceRoute
   AuthenticatedDragRunRoute: typeof AuthenticatedDragRunRoute
   AuthenticatedEventsIdRoute: typeof AuthenticatedEventsIdRoute
+  AuthenticatedEventsMeRoute: typeof AuthenticatedEventsMeRoute
   AuthenticatedEventsNewRoute: typeof AuthenticatedEventsNewRoute
   AuthenticatedJudgeMineRoute: typeof AuthenticatedJudgeMineRoute
   AuthenticatedMarketplaceDashboardRoute: typeof AuthenticatedMarketplaceDashboardRoute
@@ -3008,6 +3028,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDragRaceRoute: AuthenticatedDragRaceRoute,
   AuthenticatedDragRunRoute: AuthenticatedDragRunRoute,
   AuthenticatedEventsIdRoute: AuthenticatedEventsIdRoute,
+  AuthenticatedEventsMeRoute: AuthenticatedEventsMeRoute,
   AuthenticatedEventsNewRoute: AuthenticatedEventsNewRoute,
   AuthenticatedJudgeMineRoute: AuthenticatedJudgeMineRoute,
   AuthenticatedMarketplaceDashboardRoute:
