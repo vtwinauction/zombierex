@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -8,7 +8,7 @@ import {
   markNotificationRead,
 } from "@/lib/notifications.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const Route = createFileRoute("/notifications")({
   head: () => ({
@@ -46,11 +46,14 @@ const KIND_META: Record<string, { tag: string; tone: string; verb: string }> = {
 
 function NotificationsPage() {
   const qc = useQueryClient();
+  const router = useRouter();
   const fetchList = useServerFn(listMyNotifications);
   const markOne = useServerFn(markNotificationRead);
   const markAll = useServerFn(markAllRead);
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
@@ -63,6 +66,32 @@ function NotificationsPage() {
     enabled: !!signedIn,
     staleTime: 30_000,
   });
+
+  // Realtime: refresh on any new notification for this user
+  useEffect(() => {
+    if (!signedIn) return;
+    let userId: string | null = null;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    supabase.auth.getUser().then(({ data }) => {
+      userId = data.user?.id ?? null;
+      if (!userId) return;
+      channel = supabase
+        .channel(`notif-page-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          () => {
+            qc.invalidateQueries({ queryKey: ["notifications"] });
+            qc.invalidateQueries({ queryKey: ["inbox-counts"] });
+          },
+        )
+        .subscribe();
+    });
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [signedIn, qc]);
+
 
   const markOneMut = useMutation({
     mutationFn: (id: string) => markOne({ data: { id } }),
@@ -93,6 +122,44 @@ function NotificationsPage() {
 
   const rows = q.data ?? [];
   const unread = rows.filter((r) => !r.read_at).length;
+  const visible = useMemo(
+    () => (filter === "unread" ? rows.filter((r) => !r.read_at) : rows),
+    [rows, filter],
+  );
+
+  function hrefFor(n: NotifRow): string | null {
+    const pay = (n.payload ?? {}) as Record<string, unknown>;
+    const postId = (pay.post_id as string) || (pay.postId as string);
+    const actorHandle = (pay.actor_handle as string) || (pay.actor_username as string);
+    const threadId = (pay.thread_id as string) || (pay.threadId as string);
+    const listingId = (pay.listing_id as string) || (pay.listingId as string);
+    const eventId = (pay.event_id as string) || (pay.eventId as string);
+    switch (n.kind) {
+      case "like":
+      case "comment":
+      case "mention":
+        return postId ? `/post/${postId}` : null;
+      case "follow":
+        return actorHandle ? `/u/${actorHandle}` : null;
+      case "message":
+        return threadId ? `/messages/${threadId}` : "/messages";
+      case "marketplace":
+      case "order":
+        return listingId ? `/marketplace/${listingId}` : "/marketplace";
+      case "event":
+      case "booking":
+        return eventId ? `/events/${eventId}` : "/events";
+      default:
+        return null;
+    }
+  }
+
+  function handleOpen(n: NotifRow) {
+    if (!n.read_at) markOneMut.mutate(n.id);
+    const href = hrefFor(n);
+    if (href) router.navigate({ to: href });
+  }
+
 
   return (
     <PullToRefresh onRefresh={async () => { await qc.invalidateQueries({ queryKey: ["notifications"] }); }}>
@@ -122,8 +189,24 @@ function NotificationsPage() {
           </button>
         </div>
 
+        <div className="flex gap-1 px-4 pt-4">
+          {(["all", "unread"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className="mono-tag px-3 py-1.5 hairline"
+              style={{
+                background: filter === f ? "var(--color-ink)" : "transparent",
+                color: filter === f ? "var(--color-bone, #fff)" : "var(--color-ash)",
+              }}
+            >
+              {f === "all" ? "ALL" : `UNREAD${unread ? ` · ${unread}` : ""}`}
+            </button>
+          ))}
+        </div>
+
         <div
-          className="mt-6 grid grid-cols-[52px_60px_1fr_auto] gap-3 px-4 py-2 hairline-t hairline-b"
+          className="mt-4 grid grid-cols-[52px_60px_1fr_auto] gap-3 px-4 py-2 hairline-t hairline-b"
           style={{ background: "var(--color-mist)" }}
         >
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>T-MINUS</span>
@@ -131,6 +214,7 @@ function NotificationsPage() {
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>EVENT</span>
           <span className="mono-tag" style={{ color: "var(--color-ash)" }}>ACT</span>
         </div>
+
 
         {signedIn === false && (
           <div className="px-4 py-10 text-center">
@@ -153,9 +237,15 @@ function NotificationsPage() {
           </div>
         )}
 
-        {rows.length > 0 && (
+        {visible.length === 0 && signedIn && !q.isLoading && rows.length > 0 && (
+          <div className="px-4 py-10 text-center">
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>ALL CAUGHT UP</p>
+          </div>
+        )}
+
+        {visible.length > 0 && (
           <ul className="divide-y divide-hair hairline-b">
-            {rows.map((n) => {
+            {visible.map((n) => {
               const meta = KIND_META[n.kind] ?? KIND_META.system;
               const pay = (n.payload ?? {}) as Record<string, unknown>;
               const actor = (pay.actor_handle as string) || (pay.actor_name as string) || "someone";
@@ -164,10 +254,11 @@ function NotificationsPage() {
               return (
                 <li
                   key={n.id}
-                  className="grid grid-cols-[52px_60px_1fr_auto] items-center gap-3 px-4 py-4 cursor-pointer"
+                  className="grid grid-cols-[52px_60px_1fr_auto] items-center gap-3 px-4 py-4 cursor-pointer hover:bg-[var(--color-mist)]"
                   style={{ background: unreadRow ? "rgba(0,200,83,0.05)" : "transparent" }}
-                  onClick={() => unreadRow && markOneMut.mutate(n.id)}
+                  onClick={() => handleOpen(n)}
                 >
+
                   <span className="mono-num text-xs" style={{ color: "var(--color-ash)" }}>
                     {timeAgo(n.created_at)}
                   </span>
