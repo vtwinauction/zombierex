@@ -172,7 +172,7 @@ function ScheduledPage() {
                     const ok = await confirmDialog({
                       title: "Cancel scheduled post?",
                       description: "This won't publish and can't be undone from here.",
-                      confirmText: "Cancel post", destructive: true,
+                      confirmLabel: "Cancel post", destructive: true,
                     });
                     if (ok) cancelMut.mutate(r.id);
                   }}
