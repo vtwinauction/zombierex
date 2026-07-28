@@ -103,6 +103,7 @@ import { Route as AuthenticatedDragLeaderboardsRouteImport } from './routes/_aut
 import { Route as AuthenticatedDragChallengeRouteImport } from './routes/_authenticated/drag.challenge'
 import { Route as AuthenticatedDragIdRouteImport } from './routes/_authenticated/drag.$id'
 import { Route as AuthenticatedCreatorTiersRouteImport } from './routes/_authenticated/creator.tiers'
+import { Route as AuthenticatedCreatorScheduledRouteImport } from './routes/_authenticated/creator.scheduled'
 import { Route as AuthenticatedCreatorDashboardRouteImport } from './routes/_authenticated/creator.dashboard'
 import { Route as AuthenticatedCreatorCollabsRouteImport } from './routes/_authenticated/creator.collabs'
 import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authenticated/creator.apply'
@@ -648,6 +649,12 @@ const AuthenticatedCreatorTiersRoute =
     path: '/creator/tiers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCreatorScheduledRoute =
+  AuthenticatedCreatorScheduledRouteImport.update({
+    id: '/creator/scheduled',
+    path: '/creator/scheduled',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCreatorDashboardRoute =
   AuthenticatedCreatorDashboardRouteImport.update({
     id: '/creator/dashboard',
@@ -946,6 +953,7 @@ export interface FileRoutesByFullPath {
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
+  '/creator/scheduled': typeof AuthenticatedCreatorScheduledRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
   '/drag/challenge': typeof AuthenticatedDragChallengeRoute
@@ -1079,6 +1087,7 @@ export interface FileRoutesByTo {
   '/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
+  '/creator/scheduled': typeof AuthenticatedCreatorScheduledRoute
   '/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/drag/$id': typeof AuthenticatedDragIdRoute
   '/drag/challenge': typeof AuthenticatedDragChallengeRoute
@@ -1217,6 +1226,7 @@ export interface FileRoutesById {
   '/_authenticated/creator/apply': typeof AuthenticatedCreatorApplyRoute
   '/_authenticated/creator/collabs': typeof AuthenticatedCreatorCollabsRoute
   '/_authenticated/creator/dashboard': typeof AuthenticatedCreatorDashboardRoute
+  '/_authenticated/creator/scheduled': typeof AuthenticatedCreatorScheduledRoute
   '/_authenticated/creator/tiers': typeof AuthenticatedCreatorTiersRoute
   '/_authenticated/drag/$id': typeof AuthenticatedDragIdRoute
   '/_authenticated/drag/challenge': typeof AuthenticatedDragChallengeRoute
@@ -1355,6 +1365,7 @@ export interface FileRouteTypes {
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
+    | '/creator/scheduled'
     | '/creator/tiers'
     | '/drag/$id'
     | '/drag/challenge'
@@ -1488,6 +1499,7 @@ export interface FileRouteTypes {
     | '/creator/apply'
     | '/creator/collabs'
     | '/creator/dashboard'
+    | '/creator/scheduled'
     | '/creator/tiers'
     | '/drag/$id'
     | '/drag/challenge'
@@ -1625,6 +1637,7 @@ export interface FileRouteTypes {
     | '/_authenticated/creator/apply'
     | '/_authenticated/creator/collabs'
     | '/_authenticated/creator/dashboard'
+    | '/_authenticated/creator/scheduled'
     | '/_authenticated/creator/tiers'
     | '/_authenticated/drag/$id'
     | '/_authenticated/drag/challenge'
@@ -2402,6 +2415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreatorTiersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/creator/scheduled': {
+      id: '/_authenticated/creator/scheduled'
+      path: '/creator/scheduled'
+      fullPath: '/creator/scheduled'
+      preLoaderRoute: typeof AuthenticatedCreatorScheduledRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/creator/dashboard': {
       id: '/_authenticated/creator/dashboard'
       path: '/creator/dashboard'
@@ -2853,6 +2873,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCreatorApplyRoute: typeof AuthenticatedCreatorApplyRoute
   AuthenticatedCreatorCollabsRoute: typeof AuthenticatedCreatorCollabsRoute
   AuthenticatedCreatorDashboardRoute: typeof AuthenticatedCreatorDashboardRoute
+  AuthenticatedCreatorScheduledRoute: typeof AuthenticatedCreatorScheduledRoute
   AuthenticatedCreatorTiersRoute: typeof AuthenticatedCreatorTiersRoute
   AuthenticatedDragIdRoute: typeof AuthenticatedDragIdRoute
   AuthenticatedDragChallengeRoute: typeof AuthenticatedDragChallengeRoute
@@ -2914,6 +2935,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreatorApplyRoute: AuthenticatedCreatorApplyRoute,
   AuthenticatedCreatorCollabsRoute: AuthenticatedCreatorCollabsRoute,
   AuthenticatedCreatorDashboardRoute: AuthenticatedCreatorDashboardRoute,
+  AuthenticatedCreatorScheduledRoute: AuthenticatedCreatorScheduledRoute,
   AuthenticatedCreatorTiersRoute: AuthenticatedCreatorTiersRoute,
   AuthenticatedDragIdRoute: AuthenticatedDragIdRoute,
   AuthenticatedDragChallengeRoute: AuthenticatedDragChallengeRoute,
