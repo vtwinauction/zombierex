@@ -1,7 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Bell, Search, Menu, Bluetooth, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { CartIconLink } from "@/components/CartIconLink";
+import { getInboxCounts } from "@/lib/inbox.functions";
+import { supabase } from "@/integrations/supabase/client";
+
 
 
 /**
@@ -10,6 +15,38 @@ import { CartIconLink } from "@/components/CartIconLink";
  * Camera/Plus moved to the bottom-nav Create button.
  */
 export function StatusBar({ index, section }: { index: string; section: string }) {
+  const qc = useQueryClient();
+  const [uid, setUid] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUid(data.user?.id ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setUid(s?.user?.id ?? null));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const fetchCounts = useServerFn(getInboxCounts);
+  const counts = useQuery({
+    queryKey: ["inbox-counts"],
+    queryFn: () => fetchCounts({}) as Promise<{ notifications: number; messages: number }>,
+    enabled: !!uid,
+    staleTime: 20_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+  });
+
+  useEffect(() => {
+    if (!uid) return;
+    const bump = () => qc.invalidateQueries({ queryKey: ["inbox-counts"] });
+    const ch = supabase.channel(`statusbar-inbox-${uid}`)
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
+        bump,
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [uid, qc]);
+
+  const notif = counts.data?.notifications ?? 0;
+
   return (
     <header
       className="sticky top-0 z-40"
@@ -49,8 +86,11 @@ export function StatusBar({ index, section }: { index: string; section: string }
             <Search size={17} strokeWidth={1.8} />
           </ActionCell>
           <CartIconLink />
-          <ActionCell to="/notifications" label="Notifications" pulse>
-
+          <ActionCell
+            to="/notifications"
+            label={`Notifications${notif ? `, ${notif} unread` : ""}`}
+            badge={notif}
+          >
             <Bell size={17} strokeWidth={1.8} />
           </ActionCell>
           <ActionCell to="/menu" label="Menu">
@@ -63,8 +103,8 @@ export function StatusBar({ index, section }: { index: string; section: string }
 }
 
 function ActionCell({
-  to, label, children, pulse,
-}: { to: string; label: string; children: React.ReactNode; pulse?: boolean }) {
+  to, label, children, badge,
+}: { to: string; label: string; children: React.ReactNode; badge?: number }) {
   return (
     <Link
       to={to}
@@ -73,18 +113,28 @@ function ActionCell({
       style={{ color: "var(--color-ink-0)", borderRadius: 10 }}
     >
       {children}
-      {pulse && (
+      {badge && badge > 0 ? (
         <span
-          className="absolute right-2 top-2 h-[7px] w-[7px] rounded-full"
+          className="mono-num absolute -right-0.5 -top-0.5 grid min-w-[16px] place-items-center rounded-full px-1"
           style={{
-            background: "var(--color-neon)",
+            height: 16,
+            fontSize: 9,
+            fontWeight: 800,
+            background: "var(--color-neon, #00c853)",
+            color: "#0a0f08",
             boxShadow: "0 0 0 2px #fff",
+            lineHeight: 1,
           }}
-        />
-      )}
+        >
+          {badge > 99 ? "99+" : badge}
+        </span>
+      ) : null}
     </Link>
   );
 }
+
+
+
 
 /**
  * Bluetooth pairing button — connects to action cameras / helmet cams via
