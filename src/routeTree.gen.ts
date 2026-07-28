@@ -92,6 +92,7 @@ import { Route as AuthenticatedRidesIdRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedProfileEditRouteImport } from './routes/_authenticated/profile.edit'
 import { Route as AuthenticatedPostsMineRouteImport } from './routes/_authenticated/posts.mine'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
+import { Route as AuthenticatedOwnerFinanceRouteImport } from './routes/_authenticated/owner.finance'
 import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace_.new'
@@ -593,6 +594,12 @@ const AuthenticatedPostNewRoute = AuthenticatedPostNewRouteImport.update({
   path: '/post/new',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedOwnerFinanceRoute =
+  AuthenticatedOwnerFinanceRouteImport.update({
+    id: '/finance',
+    path: '/finance',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerAnalyticsRoute =
   AuthenticatedOwnerAnalyticsRouteImport.update({
     id: '/analytics',
@@ -1004,6 +1011,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/owner/finance': typeof AuthenticatedOwnerFinanceRoute
   '/post/new': typeof AuthenticatedPostNewRoute
   '/posts/mine': typeof AuthenticatedPostsMineRoute
   '/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -1143,6 +1151,7 @@ export interface FileRoutesByTo {
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/owner/finance': typeof AuthenticatedOwnerFinanceRoute
   '/post/new': typeof AuthenticatedPostNewRoute
   '/posts/mine': typeof AuthenticatedPostsMineRoute
   '/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -1287,6 +1296,7 @@ export interface FileRoutesById {
   '/_authenticated/marketplace_/new': typeof AuthenticatedMarketplaceNewRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/_authenticated/owner/finance': typeof AuthenticatedOwnerFinanceRoute
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
   '/_authenticated/posts/mine': typeof AuthenticatedPostsMineRoute
   '/_authenticated/profile/edit': typeof AuthenticatedProfileEditRoute
@@ -1431,6 +1441,7 @@ export interface FileRouteTypes {
     | '/marketplace/new'
     | '/messages/$id'
     | '/owner/analytics'
+    | '/owner/finance'
     | '/post/new'
     | '/posts/mine'
     | '/profile/edit'
@@ -1570,6 +1581,7 @@ export interface FileRouteTypes {
     | '/marketplace/new'
     | '/messages/$id'
     | '/owner/analytics'
+    | '/owner/finance'
     | '/post/new'
     | '/posts/mine'
     | '/profile/edit'
@@ -1713,6 +1725,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marketplace_/new'
     | '/_authenticated/messages/$id'
     | '/_authenticated/owner/analytics'
+    | '/_authenticated/owner/finance'
     | '/_authenticated/post/new'
     | '/_authenticated/posts/mine'
     | '/_authenticated/profile/edit'
@@ -2401,6 +2414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPostNewRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/owner/finance': {
+      id: '/_authenticated/owner/finance'
+      path: '/finance'
+      fullPath: '/owner/finance'
+      preLoaderRoute: typeof AuthenticatedOwnerFinanceRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/analytics': {
       id: '/_authenticated/owner/analytics'
       path: '/analytics'
@@ -2860,10 +2880,12 @@ const AuthenticatedMessagesRouteWithChildren =
 
 interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
+  AuthenticatedOwnerFinanceRoute: typeof AuthenticatedOwnerFinanceRoute
 }
 
 const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
+  AuthenticatedOwnerFinanceRoute: AuthenticatedOwnerFinanceRoute,
 }
 
 const AuthenticatedOwnerRouteWithChildren =
