@@ -53,7 +53,7 @@ export function useFollow(id: string, label?: string) {
         toast.error(err instanceof Error ? err.message : "Follow failed");
       }
     },
-    [following, id, label],
+    [following, id, label, isUuid],
   );
 
   return { following, toggle, ready };
