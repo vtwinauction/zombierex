@@ -2262,6 +2262,135 @@ export type Database = {
         }
         Relationships: []
       }
+      fee_rules: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          ends_at: string | null
+          fixed_cents: number
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["txn_kind"]
+          label: string
+          max_fee_cents: number | null
+          min_fee_cents: number
+          notes: string | null
+          percent_bps: number
+          priority: number
+          scope: Database["public"]["Enums"]["fee_scope"]
+          scope_value: string | null
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          ends_at?: string | null
+          fixed_cents?: number
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["txn_kind"]
+          label: string
+          max_fee_cents?: number | null
+          min_fee_cents?: number
+          notes?: string | null
+          percent_bps?: number
+          priority?: number
+          scope?: Database["public"]["Enums"]["fee_scope"]
+          scope_value?: string | null
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          ends_at?: string | null
+          fixed_cents?: number
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["txn_kind"]
+          label?: string
+          max_fee_cents?: number | null
+          min_fee_cents?: number
+          notes?: string | null
+          percent_bps?: number
+          priority?: number
+          scope?: Database["public"]["Enums"]["fee_scope"]
+          scope_value?: string | null
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fee_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fee_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          after_state: Json | null
+          before_state: Json | null
+          created_at: string
+          id: string
+          ip: string | null
+          target_id: string | null
+          target_kind: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          target_id?: string | null
+          target_kind?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          after_state?: Json | null
+          before_state?: Json | null
+          created_at?: string
+          id?: string
+          ip?: string | null
+          target_id?: string | null
+          target_kind?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follows: {
         Row: {
           created_at: string
@@ -2831,6 +2960,64 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      ledger_entries: {
+        Row: {
+          account: Database["public"]["Enums"]["ledger_account"]
+          amount_cents: number
+          created_at: string
+          currency: string
+          direction: string
+          id: string
+          memo: string | null
+          party_id: string | null
+          transaction_id: string
+        }
+        Insert: {
+          account: Database["public"]["Enums"]["ledger_account"]
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          direction: string
+          id?: string
+          memo?: string | null
+          party_id?: string | null
+          transaction_id: string
+        }
+        Update: {
+          account?: Database["public"]["Enums"]["ledger_account"]
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          direction?: string
+          id?: string
+          memo?: string | null
+          party_id?: string | null
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       listing_photos: {
         Row: {
@@ -3420,8 +3607,11 @@ export type Database = {
           created_at: string
           currency: string
           id: string
+          net_cents: number
+          platform_fee_cents: number
           status: Database["public"]["Enums"]["order_status"]
           total_cents: number
+          transaction_id: string | null
           updated_at: string
           vendor_id: string | null
         }
@@ -3430,8 +3620,11 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          net_cents?: number
+          platform_fee_cents?: number
           status?: Database["public"]["Enums"]["order_status"]
           total_cents: number
+          transaction_id?: string | null
           updated_at?: string
           vendor_id?: string | null
         }
@@ -3440,8 +3633,11 @@ export type Database = {
           created_at?: string
           currency?: string
           id?: string
+          net_cents?: number
+          platform_fee_cents?: number
           status?: Database["public"]["Enums"]["order_status"]
           total_cents?: number
+          transaction_id?: string | null
           updated_at?: string
           vendor_id?: string | null
         }
@@ -3458,6 +3654,13 @@ export type Database = {
             columns: ["buyer_id"]
             isOneToOne: false
             referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
             referencedColumns: ["id"]
           },
           {
@@ -3548,41 +3751,92 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_config: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_config_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_config_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount_cents: number
           created_at: string
           currency: string
+          fee_bps: number
           id: string
+          net_cents: number
           order_id: string | null
+          platform_fee_cents: number
           provider: string
           provider_ref: string | null
           status: string
           subscription_id: string | null
+          transaction_id: string | null
           user_id: string
         }
         Insert: {
           amount_cents: number
           created_at?: string
           currency?: string
+          fee_bps?: number
           id?: string
+          net_cents?: number
           order_id?: string | null
+          platform_fee_cents?: number
           provider?: string
           provider_ref?: string | null
           status?: string
           subscription_id?: string | null
+          transaction_id?: string | null
           user_id: string
         }
         Update: {
           amount_cents?: number
           created_at?: string
           currency?: string
+          fee_bps?: number
           id?: string
+          net_cents?: number
           order_id?: string | null
+          platform_fee_cents?: number
           provider?: string
           provider_ref?: string | null
           status?: string
           subscription_id?: string | null
+          transaction_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -3601,6 +3855,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payments_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -3610,6 +3871,112 @@ export type Database = {
           {
             foreignKeyName: "payments_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payout_batches: {
+        Row: {
+          created_at: string
+          currency: string
+          id: string
+          payouts_count: number
+          period_end: string
+          period_start: string
+          status: Database["public"]["Enums"]["payout_status"]
+          total_cents: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          id?: string
+          payouts_count?: number
+          period_end: string
+          period_start: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          total_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          id?: string
+          payouts_count?: number
+          period_end?: string
+          period_start?: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          total_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payouts: {
+        Row: {
+          amount_cents: number
+          batch_id: string | null
+          created_at: string
+          currency: string
+          failure_reason: string | null
+          id: string
+          method: string | null
+          paid_at: string | null
+          provider_ref: string | null
+          scheduled_for: string | null
+          seller_id: string
+          status: Database["public"]["Enums"]["payout_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          batch_id?: string | null
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          provider_ref?: string | null
+          scheduled_for?: string | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          batch_id?: string | null
+          created_at?: string
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          method?: string | null
+          paid_at?: string | null
+          provider_ref?: string | null
+          scheduled_for?: string | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["payout_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "payout_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_seller_id_fkey"
+            columns: ["seller_id"]
             isOneToOne: false
             referencedRelation: "profiles_public"
             referencedColumns: ["id"]
@@ -4148,6 +4515,70 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      refunds: {
+        Row: {
+          actor_id: string | null
+          amount_cents: number
+          commission_returned_cents: number
+          created_at: string
+          currency: string
+          id: string
+          provider_ref: string | null
+          reason: string | null
+          reclaim_commission: boolean
+          status: string
+          transaction_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          amount_cents: number
+          commission_returned_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          provider_ref?: string | null
+          reason?: string | null
+          reclaim_commission?: boolean
+          status?: string
+          transaction_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          amount_cents?: number
+          commission_returned_cents?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          provider_ref?: string | null
+          reason?: string | null
+          reclaim_commission?: boolean
+          status?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reports: {
         Row: {
@@ -4719,6 +5150,66 @@ export type Database = {
           },
         ]
       }
+      seller_finance_settings: {
+        Row: {
+          approved: boolean
+          created_at: string
+          max_withdrawal_cents: number | null
+          min_withdrawal_cents: number
+          notes: string | null
+          payout_details: Json
+          payout_method: string | null
+          payout_schedule: string
+          seller_id: string
+          seller_type: string
+          suspended: boolean
+          updated_at: string
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          max_withdrawal_cents?: number | null
+          min_withdrawal_cents?: number
+          notes?: string | null
+          payout_details?: Json
+          payout_method?: string | null
+          payout_schedule?: string
+          seller_id: string
+          seller_type?: string
+          suspended?: boolean
+          updated_at?: string
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          max_withdrawal_cents?: number | null
+          min_withdrawal_cents?: number
+          notes?: string | null
+          payout_details?: Json
+          payout_method?: string | null
+          payout_schedule?: string
+          seller_id?: string
+          seller_type?: string
+          suspended?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_finance_settings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_finance_settings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seller_reviews: {
         Row: {
           body: string | null
@@ -5060,6 +5551,150 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          buyer_id: string | null
+          category: string | null
+          country: string | null
+          created_at: string
+          currency: string
+          fee_bps: number
+          fee_rule_id: string | null
+          gross_cents: number
+          id: string
+          kind: Database["public"]["Enums"]["txn_kind"]
+          metadata: Json
+          net_cents: number
+          order_id: string | null
+          payment_id: string | null
+          payment_method: string | null
+          platform_fee_cents: number
+          processor_fee_cents: number
+          provider: string
+          provider_ref: string | null
+          refunded_cents: number
+          seller_id: string | null
+          settled_at: string | null
+          status: Database["public"]["Enums"]["txn_status"]
+          subscription_id: string | null
+          tax_cents: number
+          updated_at: string
+        }
+        Insert: {
+          buyer_id?: string | null
+          category?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          fee_bps?: number
+          fee_rule_id?: string | null
+          gross_cents: number
+          id?: string
+          kind: Database["public"]["Enums"]["txn_kind"]
+          metadata?: Json
+          net_cents?: number
+          order_id?: string | null
+          payment_id?: string | null
+          payment_method?: string | null
+          platform_fee_cents?: number
+          processor_fee_cents?: number
+          provider?: string
+          provider_ref?: string | null
+          refunded_cents?: number
+          seller_id?: string | null
+          settled_at?: string | null
+          status?: Database["public"]["Enums"]["txn_status"]
+          subscription_id?: string | null
+          tax_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string | null
+          category?: string | null
+          country?: string | null
+          created_at?: string
+          currency?: string
+          fee_bps?: number
+          fee_rule_id?: string | null
+          gross_cents?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["txn_kind"]
+          metadata?: Json
+          net_cents?: number
+          order_id?: string | null
+          payment_id?: string | null
+          payment_method?: string | null
+          platform_fee_cents?: number
+          processor_fee_cents?: number
+          provider?: string
+          provider_ref?: string | null
+          refunded_cents?: number
+          seller_id?: string | null
+          settled_at?: string | null
+          status?: Database["public"]["Enums"]["txn_status"]
+          subscription_id?: string | null
+          tax_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_fee_rule_id_fkey"
+            columns: ["fee_rule_id"]
+            isOneToOne: false
+            referencedRelation: "fee_rules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
             referencedColumns: ["id"]
           },
         ]
@@ -6014,6 +6649,19 @@ export type Database = {
         | "owner"
       booking_status: "requested" | "confirmed" | "completed" | "cancelled"
       conversation_kind: "dm" | "club" | "group"
+      fee_scope:
+        | "default"
+        | "category"
+        | "seller"
+        | "seller_type"
+        | "country"
+        | "promo"
+      ledger_account:
+        | "platform_revenue"
+        | "seller_payable"
+        | "processor_fees"
+        | "refunds"
+        | "tax_payable"
       listing_category:
         | "motorcycle"
         | "car"
@@ -6073,6 +6721,12 @@ export type Database = {
         | "delivered"
         | "cancelled"
         | "refunded"
+      payout_status:
+        | "scheduled"
+        | "processing"
+        | "paid"
+        | "failed"
+        | "cancelled"
       post_kind: "video" | "photo" | "telemetry" | "event"
       reaction_kind: "like" | "save" | "share"
       report_status: "open" | "reviewing" | "resolved" | "dismissed"
@@ -6088,6 +6742,20 @@ export type Database = {
         | "custom"
       route_surface: "paved" | "mixed" | "offroad"
       route_visibility: "public" | "private"
+      txn_kind:
+        | "order"
+        | "tip"
+        | "creator_subscription"
+        | "plan"
+        | "ad"
+        | "other"
+      txn_status:
+        | "pending"
+        | "succeeded"
+        | "failed"
+        | "refunded"
+        | "partially_refunded"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -6265,6 +6933,21 @@ export const Constants = {
       ],
       booking_status: ["requested", "confirmed", "completed", "cancelled"],
       conversation_kind: ["dm", "club", "group"],
+      fee_scope: [
+        "default",
+        "category",
+        "seller",
+        "seller_type",
+        "country",
+        "promo",
+      ],
+      ledger_account: [
+        "platform_revenue",
+        "seller_payable",
+        "processor_fees",
+        "refunds",
+        "tax_payable",
+      ],
       listing_category: [
         "motorcycle",
         "car",
@@ -6323,6 +7006,7 @@ export const Constants = {
         "cancelled",
         "refunded",
       ],
+      payout_status: ["scheduled", "processing", "paid", "failed", "cancelled"],
       post_kind: ["video", "photo", "telemetry", "event"],
       reaction_kind: ["like", "save", "share"],
       report_status: ["open", "reviewing", "resolved", "dismissed"],
@@ -6339,6 +7023,15 @@ export const Constants = {
       ],
       route_surface: ["paved", "mixed", "offroad"],
       route_visibility: ["public", "private"],
+      txn_kind: ["order", "tip", "creator_subscription", "plan", "ad", "other"],
+      txn_status: [
+        "pending",
+        "succeeded",
+        "failed",
+        "refunded",
+        "partially_refunded",
+        "cancelled",
+      ],
     },
   },
 } as const
