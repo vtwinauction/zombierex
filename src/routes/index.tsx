@@ -638,7 +638,11 @@ function HomePage() {
         <div className="grid grid-cols-3 gap-1">
           {gridReels.map((r) => (
             <Link key={r.id} to="/" className="tap relative block overflow-hidden" style={{ aspectRatio: "9/16", borderRadius: 8 }}>
-              <img src={r.poster} alt="" className="h-full w-full object-cover" />
+              {r.poster ? (
+                <img src={r.poster} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
+              )}
               <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, transparent 55%, rgba(0,0,0,0.85))" }} />
               <div className="absolute inset-x-1.5 bottom-1.5 text-white">
                 <div className="flex items-center gap-1">
