@@ -137,10 +137,10 @@ function HomePage() {
       tags: [] as string[],
     };
   }).filter((p: any) => p.image || p.caption);
-  // Only fall back to sample content when the live feed has no real posts yet.
-  const hasRealPosts = realPosts.length > 0;
-  const baseFeed = tab === "following" ? posts.filter((_, i) => i % 2 === 0) : posts;
-  const feedPosts = hasRealPosts ? realPosts : baseFeed;
+  // C-10: no mock fallback. Empty feed shows real emptiness, not sample data.
+  const feedPosts = realPosts;
+  const feedIsEmpty = !liveFeed.isLoading && realPosts.length === 0;
+
 
 
 

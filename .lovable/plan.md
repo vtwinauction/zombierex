@@ -1,106 +1,73 @@
-# Super Administrator (Owner) Control Center
+# ZOMBIEREX Audit Remediation Plan
 
-A dedicated, MFA-protected command surface at `/owner` reserved for the single platform owner. Sits above the existing `/admin` (staff moderation) with its own role, its own gate, and its own audit trail.
+## Summary of findings
 
-## Role model
+The auditor rates the project **58/100 overall, 22/100 production-ready**. Backend hygiene is genuinely strong (RLS on 109/109 tables, 100% Zod coverage on 281 server fns, hardened webhook, correct role architecture). Three layers failed:
 
-Extend `app_role` with `owner` (highest). Layering:
+1. **Native shell is broken** — 12 Capacitor plugins referenced, 0 installed; `loadPlugin` uses `@vite-ignore` with variable specifiers (architecturally cannot resolve at runtime); splash never dismisses. App likely hangs on splash on device.
+2. **Security holes at the column/anon boundary** — `GRANT SELECT profiles TO anon` + broad `profiles_public_read` exposes phone/email/address of every user. `GRANT UPDATE` with no column list lets any user self-set `is_verified`, `is_suspended`, `is_premium`, `tier`, seller rating, XP. Vendors can self-verify. Ex-premium users can reactivate premium.
+3. **"Last mile" placebo features** — 4 settings screens write values nobody reads; push tokens collected but no sender; "sign out this device" only deletes a cosmetic row; Following tab filters mock data by array parity; home screen has fabricated Recent chats/suggested creators/trending counts (App Review rejection risk).
 
-- `owner` — full control, only role that sees `/owner`
-- `admin` — existing staff console (`/admin`)
-- `moderator` — content moderation queues
-- `standard` — users
+Docs (`production-readiness-report.md`) contradict reality on payments, mobile, push, feed, i18n, and Vite version.
 
-Only one active owner is expected. A DB check trigger blocks demoting the last owner. Assignment is done via SQL by whoever seeds the project — never through the app UI.
+## What I will apply now (safe, high-leverage, no device required)
 
-## Phased delivery
+### Phase A — SQL security & performance (pure migrations, zero build risk)
 
-### Phase 1 — Foundation (this turn)
+- **C-04 · Close anonymous PII read.** Revoke `SELECT ON profiles FROM anon`, drop `profiles_public_read`, add authenticated-only policy that honours `is_private` + followers, create `profiles_public` PII-free view granted to `anon`. Repoint public fns (`getProfileByHandlePublic`, `searchAll`, public feed reads) at the view.
+- **C-05/C-06/C-07 · Column-level grants + guard trigger.** Replace blanket `GRANT UPDATE` on `profiles`/`vendors` with column-scoped grants; drop `pm_own_update` + revoke UPDATE on `premium_memberships`; drop dead `subs_owner_update`; add `tg_guard_profile_privileged` BEFORE UPDATE trigger as defence-in-depth.
+- **H-01 · Signed URLs.** Cap `expires_in` at 900s in `createSignedReadUrl`, verify row visibility per bucket (not just `documents`).
+- **H-04 · Foreign-key indexes.** Ship the 19 hot-path `CREATE INDEX CONCURRENTLY` from §4.4 plus a generator-produced batch for the rest.
+- **H-03 · `(select auth.uid())` rewrite.** Mechanical migration converting all `auth.uid()` references in policy `USING`/`WITH CHECK` to the initplan-cached form.
+- **H-08 · Real device revoke.** `revokeDevice` fetches session_id from the row and calls `supabase.auth.admin.signOut(userId, { scope: 'others' })` via admin client; dedupe `registerDevice`.
+- **H-02 partial · Bucket definitions in a migration** with size + MIME limits so fresh envs have buckets.
+- **M-07 · Rate-limit / restrict anonymous inserts** on `analytics_events` and `crash_reports`.
 
-**Database** (single migration)
-- `app_role` gains `'owner'` value
-- `feature_flags_v2(key, label, category, enabled, description, updated_by, updated_at)` — one row per toggleable module (marketplace, messaging, groups, events, notifications, ai, live, garage, search, registration, uploads, posting)
-- `maintenance_state(id=1 singleton, global_enabled, message, scheduled_until, updated_by, updated_at)` and `module_maintenance(module_key, enabled, message)`
-- `owner_audit_log(id, actor_id, action, target_type, target_id, before_value jsonb, after_value jsonb, ip, user_agent, created_at)` — searchable, exportable
-- `owner_broadcasts(id, title, body, severity, active, expires_at, created_by, created_at)` — emergency banners
-- `owner_mfa(user_id PK, totp_secret_enc, enabled, verified_at)` — TOTP secret encrypted with `OWNER_MFA_KEY` (auto-generated secret)
-- `owner_sessions(id, user_id, mfa_passed_at, ip, user_agent, expires_at)` — 30-min re-auth window
-- `is_owner(uuid)` SECURITY DEFINER helper, plus `require_owner()` for policies
-- Owner-only RLS on all above; owner GRANT on every existing sensitive table for admin reads
-- Trigger: prevent deleting/demoting the last remaining owner
-- Trigger: any INSERT/UPDATE/DELETE by an owner on the owner-scoped tables auto-writes to `owner_audit_log`
+### Phase B — Frontend safety & polish (no native required)
 
-**Server functions** (`src/lib/owner.functions.ts`, all `.middleware([requireSupabaseAuth])` + inline `is_owner` check + owner-session freshness check)
-- `listUsers`, `searchUsers`, `getUserDetail`, `updateUserProfile`, `setUserRoles`, `setUserSuspension`, `setUserVerified`, `forceSignOut`, `sendPasswordReset`
-- `listFlags`, `setFlag`, `setMaintenance`, `setModuleMaintenance`
-- `listContent(type, filter)`, `removeContent`, `restoreContent`, `listReports`, `resolveReport`
-- `getMetrics` (active users 5m/24h, signups today, posts today, messages today, listing activity, storage bytes, error count)
-- `listAuditLog(filter)`, `exportAuditLogCsv`
-- `broadcast(title, body, severity, expiresAt)`, `dismissBroadcast`
-- `getAiUsage`, `setAiEnabled`, `getAiLogsTail`
-- `enrollOwnerMfa`, `verifyOwnerMfa`, `refreshOwnerSession`
+- **C-10 · Strip fabricated content** from `routes/index.tsx`: remove `chats`/suggested creators/suggested clubs mocks, hardcoded trending counts, feed mock fallback, Following-tab parity filter. Replace with real empty states + real Following query (`author_id IN (following)`).
+- **H-05 · QueryClient defaults**: `staleTime: 60s`, `refetchOnWindowFocus: false`, scope invalidations by key domain, drop blanket `invalidateQueries()` in `__root.tsx` and on `TOKEN_REFRESHED`/`INITIAL_SESSION`.
+- **H-06 · Error surfaces.** Add `isError` fallbacks to the highest-traffic query call sites (feed, reels, marketplace, profile, communities, search).
+- **H-12 · Router defaults.** `defaultPendingMs: 200`, `defaultPreloadStaleTime: 30s`; `DefaultError` renders a generic message, hides `error.message` behind DEV.
+- **H-13 · Service worker.** Bump cache to build-hash name, add LRU cap, drop `/` navigation precache, skip SW registration inside Capacitor WebView.
+- **H-10 · Feed pagination.** Composite `(created_at, id)` keyset cursor; only null `nextCursor` when the underlying page (not the filtered result) is short; move block-list filter server-side via helper function.
+- **M-11 · Identity cleanup.** SITE_NAME → "ZOMBIEREX", robots sitemap URL, `your-site.com` placeholder.
+- **M-13 · `node:crypto`** imports in `webhooks.payments.ts`.
+- **M-15 · Server-side age gate** at signup via server fn checking DOB.
+- Rewrite `docs/production-readiness-report.md` to match reality (or replace with a redirect to DEFERRED_INTEGRATIONS.md).
 
-Every handler writes to `owner_audit_log` with before/after JSON.
+### Phase C — Native shell (does require device verification you must do)
 
-**Client**
-- `src/hooks/useFeatureFlag.ts` + `<FeatureGate module="marketplace">` — reads a live `feature_flags_v2` snapshot fetched once at boot + Supabase Realtime subscription
-- `src/components/MaintenanceBanner.tsx` — root-mounted; renders global maintenance notice + active `owner_broadcasts`
-- Wire `FeatureGate` around the existing Marketplace, Messaging, Groups, Events, Live, AI, Uploads, Registration, Posting entry points (disabled → friendly "temporarily unavailable" screen)
+I will ship the code changes; **device verification is your step** (auditor is explicit: none of this is verifiable without hardware).
 
-**Owner routes** (all under `src/routes/_authenticated/owner/`)
-- `route.tsx` — owner-only `beforeLoad` (calls `is_owner` server-fn + checks TOTP session freshness; redirects non-owners to `/`; unverified owners to `/owner/mfa`)
-- `index.tsx` — command center dashboard: live metrics, health tiles (DB/AI/Storage), quick emergency toggles
-- `users.tsx` — table with search, filters, row actions (suspend/verify/reset/logout/roles)
-- `users.$id.tsx` — full user dossier + edit
-- `content.tsx` — tabs for posts / reels / comments / messages / listings / events with moderation actions
-- `reports.tsx` — user report queue
-- `features.tsx` — grid of module toggles grouped by category
-- `maintenance.tsx` — global + per-module maintenance, scheduled window, custom message
-- `broadcasts.tsx` — compose emergency announcement
-- `ai.tsx` — AI usage, kill switch, recent gateway logs
-- `security.tsx` — login history, failed logins, audit log search + CSV export
-- `settings.tsx` — branding, languages, email/push, integrations pointers
-- `analytics.tsx` — growth, engagement, revenue, marketplace, content
-- `mfa.tsx` — TOTP enrollment (QR) + verification; forced first-visit stop
+- **C-01/C-02/C-03 · Install plugins + static imports.** Add 13 packages (`@capacitor/core`, `splash-screen`, `haptics`, `share`, `browser`, `network`, `device`, `push-notifications`, `camera`, `geolocation`, `status-bar`, `app`, `keyboard`, `@aparajita/capacitor-biometric-auth`). Replace variable `import(/* @vite-ignore */ name)` with static imports guarded by `isNative()`. Set `launchAutoHide: true`.
+- **C-12 · Lockfile.** Keep bun (per `bunfig.toml`), delete `package-lock.json`, regenerate `bun.lock`.
 
-Layout is a responsive shell (rail + top bar) that collapses to a bottom tab set on mobile, dark obsidian theme distinct from `/admin`.
+## What I will not attempt in this pass (needs product/business input or is genuinely multi-week)
 
-### Phase 2 — Deep management (next turn, on approval)
-- Backup/restore hooks (manual DB snapshot request via `pg_dump`-style export endpoint, download link)
-- Push/email/payments/storage configuration screens tied to existing secrets
-- Detailed BI dashboards with charts (Recharts) — revenue, cohort retention, funnel
-- Group / club / event / marketplace deep moderation panels
-- API keys + webhooks management UI
+- **C-08/C-09 · Native OAuth + universal-link email redirect** (needs your Apple Team ID, Android signing SHA-256, and a public HTTPS domain for the association files).
+- **C-11 · Push delivery** (needs FCM sender key + APNs auth key from you).
+- **C-13 · Deep-link association files** (needs Team ID + SHA-256).
+- **C-14 · StoreKit / Stripe Connect** (business decision, blocked on Bahrain-Stripe status).
+- **H-09 · Ranked feed** (multi-week ML/eng work).
+- **H-11 · Background location + native crash detection** (needs Android foreground service + iOS Info.plist justification + App Review submission).
+- **H-07 · Making the 4 placebo settings real** (dark mode alone is a full theming pass — I will instead remove/hide the non-functional toggles to stop the false-advertising problem, and file the real work).
+- **Accessibility sweep of 135 inputs** (I will hit the top offenders: `profile.edit`, `events.new`, `events_.$id.edit`, `ads.new`, `MediaComposer`, `auth` — the rest gets a follow-up).
 
-### Phase 3 — Hardening
-- Per-action confirm modals with "type OWNER to confirm" for destructive ops
-- Rate limiting on owner endpoints
-- IP allow-list (optional)
-- Signed audit-log exports
+## Order of operations
 
-## Security guarantees
-
-- Every owner server fn: `requireSupabaseAuth` → `has_role(uid,'owner')` → fresh `owner_sessions` row (< 30 min since MFA) → action → audit write. Fail closed on any step.
-- MFA secret stored encrypted with `OWNER_MFA_KEY` (generated via `generate_secret`, never revealed).
-- `/owner/*` layout is `ssr:false` and gated by the managed `_authenticated` layout above it, so no session leaks to SSR.
-- No client-side role check drives permission — flags/maintenance are read for UX only, all enforcement runs server-side against `is_owner()`.
-- Destructive actions (ban, delete content, disable module) require explicit confirmation.
-
-## Bootstrapping the first owner
-
-After the migration, promote your account with (run via psql):
-
-```sql
-INSERT INTO public.user_roles(user_id, role) VALUES ('<your-uid>', 'owner');
-```
-
-Then sign in and visit `/owner/mfa` to enroll TOTP. All subsequent owner assignments happen through the Control Center once MFA is verified.
+1. Phase A migrations (single squashed migration file, applied via `supabase--migration`).
+2. Repoint server functions at `profiles_public` and update `revokeDevice`, `createSignedReadUrl`.
+3. Phase B frontend edits in parallel batches.
+4. Phase C native install + static imports; ask you to run `bun install`, `bun cap sync`, and test on a physical device.
+5. Rewrite `production-readiness-report.md` last so it reflects the new state.
 
 ## Technical notes
 
-- `feature_flags_v2` is realtime-subscribed on the client; `<FeatureGate>` re-renders instantly when the owner flips a toggle.
-- `owner_audit_log` uses partial indexes on `(actor_id, created_at desc)` and `(action, created_at desc)` for fast search.
-- Metrics endpoint reads from existing tables — no new counters, so it stays cheap.
-- All owner UI copy is English-only for now; i18n hooks are in place for later.
+- The `profiles_public` view is `security_invoker = off` so it runs as the view owner and the underlying table's per-row RLS is not consulted — the view's `WHERE` clause is the entire access control. I will keep it minimal-columns and grant it explicitly.
+- The `tg_guard_profile_privileged` trigger uses `has_any_role(auth.uid(), …)` which already exists as STABLE SECURITY DEFINER, so it composes cleanly with the column grants.
+- `H-03` rewrite: I will script the migration by enumerating `pg_policies` and emitting `ALTER POLICY` DDL rather than hand-editing 268 policies.
+- `createSignedReadUrl` ownership verification for `posts`/`marketplace`/`vehicles` will use `requireSupabaseAuth`'s user-scoped client (RLS), so a row the user cannot read produces no signed URL — no admin bypass.
+- SW skip on native: `if (window.Capacitor?.isNativePlatform?.()) return;` at the top of the registration path.
 
-Phase 1 alone is ~15 route files, 1 migration, 1 large server-fn module, and a handful of shared components. Shipping it in one turn.
+Approve and I'll ship Phase A + B in one pass, then hand you Phase C with the device checklist.
