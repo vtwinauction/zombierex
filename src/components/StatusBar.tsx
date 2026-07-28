@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CartIconLink } from "@/components/CartIconLink";
 import { getInboxCounts } from "@/lib/inbox.functions";
+import { getMyPreferences } from "@/lib/notifications.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 
@@ -27,6 +28,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
   }, []);
 
   const fetchCounts = useServerFn(getInboxCounts);
+  const fetchPrefs = useServerFn(getMyPreferences);
   const counts = useQuery({
     queryKey: ["inbox-counts"],
     queryFn: () => fetchCounts({}) as Promise<{ notifications: number; messages: number }>,
@@ -34,6 +36,12 @@ export function StatusBar({ index, section }: { index: string; section: string }
     staleTime: 20_000,
     refetchInterval: 60_000,
     refetchOnWindowFocus: true,
+  });
+  const prefsQ = useQuery({
+    queryKey: ["notifications", "preferences", "mine"],
+    queryFn: async () => await fetchPrefs(),
+    enabled: !!uid,
+    staleTime: 60_000,
   });
 
   useEffect(() => {
@@ -47,6 +55,8 @@ export function StatusBar({ index, section }: { index: string; section: string }
           const path = router.state.location.pathname;
           if (path.startsWith("/notifications")) return;
           const row = payload?.new ?? {};
+          const prefs = (prefsQ.data ?? {}) as Record<string, any>;
+          if (!kindAllowed(row.kind, prefs)) return;
           const p = (row.payload ?? {}) as Record<string, unknown>;
           const actor = (p.actor_handle as string) || (p.actor_name as string) || "Someone";
           const verb = (p.text as string) || labelForKind(row.kind);
@@ -57,7 +67,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
       )
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [uid, qc, router]);
+  }, [uid, qc, router, prefsQ.data]);
 
 
   const notif = counts.data?.notifications ?? 0;
@@ -239,6 +249,19 @@ function labelForKind(kind?: string): string {
     case "event": return "event update";
     default: return "sent you a signal";
   }
+}
+
+function kindAllowed(kind: string | undefined, prefs: Record<string, any>): boolean {
+  if (prefs?.push_enabled === false) return false;
+  const map: Record<string, string> = {
+    like: "likes", comment: "comments", follow: "follows", mention: "mentions",
+    message: "messages", marketplace: "marketplace", booking: "bookings",
+    order: "orders", vendor_update: "vendor_updates", subscription: "subscriptions",
+    event: "events",
+  };
+  const key = kind ? map[kind] : undefined;
+  if (!key) return true;
+  return prefs?.[key] !== false;
 }
 
 
