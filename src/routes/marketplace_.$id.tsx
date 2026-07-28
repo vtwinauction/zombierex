@@ -76,6 +76,8 @@ function ListingDetail() {
   if (!listing) return <div className="p-6">Not found.</div>;
   const l = listing as any;
   const photos: any[] = l.photos?.length ? l.photos : (l.hero_image_url ? [{ url: l.hero_image_url }] : []);
+  const cur = photos[photoIdx];
+  const curIsVideo = cur && (cur.is_video || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(cur.url ?? ""));
   const [meRes] = [null]; void meRes;
 
   const isMine = false; // simplified; owner actions gated by RLS anyway
@@ -85,10 +87,10 @@ function ListingDetail() {
 
       {/* Gallery */}
       <div className="relative aspect-[4/5] w-full overflow-hidden" style={{ background: "var(--color-slate)" }}>
-        {photos[photoIdx]?.is_video ? (
-          <video src={photos[photoIdx].url} controls className="h-full w-full object-cover" />
-        ) : photos[photoIdx]?.url ? (
-          <img src={photos[photoIdx].url} className="h-full w-full object-cover" />
+        {curIsVideo ? (
+          <video src={cur.url} controls playsInline className="h-full w-full object-cover" />
+        ) : cur?.url ? (
+          <img src={cur.url} alt={l.title} className="h-full w-full object-cover" />
         ) : null}
 
         {/* Verified tag */}
