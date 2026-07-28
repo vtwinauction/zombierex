@@ -893,14 +893,14 @@ function FeedMedia({
           muted={muted}
           className="block aspect-square w-full object-cover"
         />
-      ) : (
+      ) : image ? (
         <img
           src={image}
           alt={alt ?? ""}
           className="block aspect-square w-full object-cover"
           draggable={false}
         />
-      )}
+      ) : null}
 
       {/* heart burst on double-tap */}
       {burstAt && (
