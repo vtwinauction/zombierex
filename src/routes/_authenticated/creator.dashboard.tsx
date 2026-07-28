@@ -30,7 +30,10 @@ function DashboardPage() {
           <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>LAST 30 DAYS</p>
           <h1 className="serif mt-2 text-4xl italic" style={{ color: "var(--color-ink)" }}>Dashboard</h1>
         </div>
-        <Link to="/creator/collabs" className="btn-neon" style={{ padding: "10px 12px", fontSize: 10 }}>INBOX ▸</Link>
+        <div className="flex gap-2">
+          <Link to="/creator/scheduled" className="btn-neon" style={{ padding: "10px 12px", fontSize: 10 }}>QUEUE ▸</Link>
+          <Link to="/creator/collabs" className="btn-neon" style={{ padding: "10px 12px", fontSize: 10 }}>INBOX ▸</Link>
+        </div>
       </div>
 
       {isLoading && <p className="px-4 pt-6 mono-tag" style={{ color: "var(--color-titanium)" }}>LOADING…</p>}
