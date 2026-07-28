@@ -399,3 +399,51 @@ export const cancelPremium = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// -------- List my referrals --------
+export const listMyReferrals = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: profile } = await context.supabase
+      .from("profiles")
+      .select("referral_code")
+      .eq("id", context.userId)
+      .maybeSingle();
+
+    const { data: refs } = await context.supabase
+      .from("referrals")
+      .select("id, referred_user_id, status, created_at, rewarded_at")
+      .eq("referrer_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    const ids = (refs ?? []).map((r) => r.referred_user_id);
+    let profiles: Record<string, { display_name: string | null; avatar_url: string | null; handle: string | null }> = {};
+    if (ids.length > 0) {
+      const { data: rows } = await context.supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url, handle")
+        .in("id", ids);
+      for (const row of rows ?? []) {
+        profiles[row.id] = { display_name: row.display_name, avatar_url: row.avatar_url, handle: row.handle };
+      }
+    }
+
+    const { data: xpRows } = await context.supabase
+      .from("xp_events")
+      .select("amount")
+      .eq("user_id", context.userId)
+      .eq("ref_kind", "referral");
+    const xp_earned = (xpRows ?? []).reduce((sum, r: any) => sum + (r.amount ?? 0), 0);
+
+    return {
+      referral_code: profile?.referral_code ?? null,
+      xp_earned,
+      total: refs?.length ?? 0,
+      referrals: (refs ?? []).map((r) => ({
+        ...r,
+        profile: profiles[r.referred_user_id] ?? null,
+      })),
+    };
+  });
+
