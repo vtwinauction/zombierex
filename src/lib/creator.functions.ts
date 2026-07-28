@@ -484,7 +484,7 @@ export const schedulePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => DraftInput.extend({ id: z.string().uuid().optional(), publish_at: z.string().datetime() }).parse(raw))
   .handler(async ({ data, context }) => {
-    const row = { author_id: context.userId, status: "pending" as const, ...data };
+    const row = { author_id: context.userId, status: "scheduled" as const, ...data };
     const q = data.id
       ? context.supabase.from("scheduled_posts").update(row).eq("id", data.id).eq("author_id", context.userId).select().single()
       : context.supabase.from("scheduled_posts").insert(row).select().single();
