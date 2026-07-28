@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CartIconLink } from "@/components/CartIconLink";
 import { getInboxCounts } from "@/lib/inbox.functions";
+import { getMyPreferences } from "@/lib/notifications.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 
