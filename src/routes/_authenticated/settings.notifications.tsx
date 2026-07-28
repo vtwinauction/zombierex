@@ -166,6 +166,49 @@ function NotifPrefsPage() {
             ))}
           </div>
 
+          <p className="mono-tag mt-6 mb-2 px-1" style={{ color: "var(--color-silver)" }}>CONNECTED DEVICES</p>
+          <Card>
+            {devicesQ.isLoading ? (
+              <p className="text-[12px]" style={{ color: "var(--color-silver)" }}>Loading devices…</p>
+            ) : (devicesQ.data?.length ?? 0) === 0 ? (
+              <p className="text-[12px]" style={{ color: "var(--color-silver)" }}>
+                No devices registered. Open the ZOMBIEREX app on your phone to enable push.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {devicesQ.data!.map((d: any) => (
+                  <li key={d.id} className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[13px] uppercase tracking-wide" style={{ color: "var(--color-ink)" }}>
+                        {d.platform}
+                      </p>
+                      <p className="mono-tag text-[10px]" style={{ color: "var(--color-silver)" }}>
+                        {d.token_preview} · updated {new Date(d.updated_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onRevoke(d.id, `${d.platform} device`)}
+                      className="tap text-[11px] uppercase tracking-wide px-2 py-1 rounded border"
+                      style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}
+                    >
+                      Revoke
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--color-hair-strong)" }}>
+              <button
+                onClick={() => testM.mutate()}
+                disabled={testM.isPending}
+                className="tap text-[12px] uppercase tracking-wide px-3 py-2 rounded"
+                style={{ background: "var(--color-neon)", color: "#000", opacity: testM.isPending ? 0.6 : 1 }}
+              >
+                {testM.isPending ? "Sending…" : "Send test push"}
+              </button>
+            </div>
+          </Card>
+
           <p className="mono-tag mt-4" style={{ color: "var(--color-silver)", fontSize: 10 }}>
             {saveM.isPending ? "SAVING…" : "SYNCED TO BACKEND"}
           </p>
