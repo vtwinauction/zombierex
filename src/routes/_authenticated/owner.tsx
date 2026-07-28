@@ -1,7 +1,9 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { confirmDialog, promptDialog } from "@/lib/confirm";
 import {
   checkOwner, getOwnerMetrics,
   listOwnerFlags, setFeatureFlag,
@@ -11,6 +13,7 @@ import {
   listRecentPosts, setPostHidden, listOpenReports, resolveReport,
   listAuditLog,
 } from "@/lib/owner.functions";
+
 
 export const Route = createFileRoute("/_authenticated/owner")({
   head: () => ({ meta: [
@@ -275,16 +278,20 @@ function UsersTab() {
 
   const suspMut = useMutation({
     mutationFn: (v: { userId: string; suspend: boolean; reason?: string }) => susp({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "users"] }),
+    onSuccess: (_d, v) => { toast.success(v.suspend ? "User suspended" : "User reinstated"); qc.invalidateQueries({ queryKey: ["owner", "users"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
   const verMut = useMutation({
     mutationFn: (v: { userId: string; verified: boolean }) => verify({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "users"] }),
+    onSuccess: (_d, v) => { toast.success(v.verified ? "Verified" : "Verification removed"); qc.invalidateQueries({ queryKey: ["owner", "users"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
   const roleMut = useMutation({
     mutationFn: (v: { userId: string; roles: any[] }) => roles({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "users"] }),
+    onSuccess: () => { toast.success("Roles updated"); qc.invalidateQueries({ queryKey: ["owner", "users"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
+
 
   return (
     <div className="space-y-3">
@@ -321,8 +328,23 @@ function UsersTab() {
               )}
             </div>
             <div className="mt-2 flex flex-wrap gap-1">
-              <button onClick={() => {
-                const reason = u.is_suspended ? undefined : (prompt("Suspension reason?") ?? undefined);
+              <button onClick={async () => {
+                let reason: string | undefined;
+                if (!u.is_suspended) {
+                  const r = await promptDialog({
+                    title: "Suspend user",
+                    description: `Provide a reason for suspending @${u.username ?? u.id.slice(0, 8)}. This is recorded in the audit log.`,
+                    placeholder: "Reason (e.g. repeated harassment)",
+                    confirmLabel: "Suspend",
+                    destructive: true,
+                    required: true,
+                    multiline: true,
+                  });
+                  if (r === null) return;
+                  reason = r;
+                } else {
+                  if (!(await confirmDialog({ title: "Reinstate user?", description: "They will regain access immediately.", confirmLabel: "Reinstate" }))) return;
+                }
                 suspMut.mutate({ userId: u.id, suspend: !u.is_suspended, reason });
               }} className="btn-ghost text-[11px]">
                 {u.is_suspended ? "Unsuspend" : "Suspend"}
@@ -331,13 +353,20 @@ function UsersTab() {
                 className="btn-ghost text-[11px]">
                 {u.is_verified ? "Unverify" : "Verify"}
               </button>
-              <button onClick={() => {
-                const input = prompt("Roles (comma-separated: owner,admin,moderator,standard)", "standard");
+              <button onClick={async () => {
+                const input = await promptDialog({
+                  title: "Set roles",
+                  description: "Comma-separated: owner, admin, moderator, standard.",
+                  defaultValue: "standard",
+                  placeholder: "standard, moderator",
+                  required: true,
+                });
                 if (!input) return;
                 const list = input.split(",").map(s => s.trim()).filter(Boolean);
                 roleMut.mutate({ userId: u.id, roles: list });
               }} className="btn-ghost text-[11px]">Set roles</button>
             </div>
+
           </div>
         ))}
         {q.isLoading && <p className="text-sm opacity-60">Loading…</p>}
@@ -353,35 +382,113 @@ function ContentTab() {
   const listR = useServerFn(listOpenReports);
   const resolve = useServerFn(resolveReport);
   const qc = useQueryClient();
+  const [reasonFilter, setReasonFilter] = useState<string>("");
+  const [targetFilter, setTargetFilter] = useState<"" | "post" | "user" | "comment" | "listing" | "message">("");
 
   const posts = useQuery({ queryKey: ["owner", "posts"], queryFn: () => listP({ data: { limit: 30 } }) });
   const reports = useQuery({ queryKey: ["owner", "reports"], queryFn: () => listR({ data: undefined as any }) });
 
   const hideMut = useMutation({
     mutationFn: (v: { postId: string; hidden: boolean }) => hide({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "posts"] }),
+    onSuccess: (_d, v) => { toast.success(v.hidden ? "Post hidden" : "Post restored"); qc.invalidateQueries({ queryKey: ["owner", "posts"] }); qc.invalidateQueries({ queryKey: ["owner", "metrics"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
   const resolveMut = useMutation({
     mutationFn: (v: { id: string; action: "dismiss" | "action_taken" }) => resolve({ data: v }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["owner", "reports"] }),
+    onSuccess: (_d, v) => { toast.success(v.action === "dismiss" ? "Report dismissed" : "Action recorded"); qc.invalidateQueries({ queryKey: ["owner", "reports"] }); qc.invalidateQueries({ queryKey: ["owner", "metrics"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Failed"),
   });
+
+  // Group open reports by target so duplicates surface as a single row with a count.
+  const grouped = useMemo(() => {
+    const rows: any[] = reports.data ?? [];
+    const filtered = rows.filter((r) =>
+      (!reasonFilter || (r.reason ?? "").toLowerCase().includes(reasonFilter.toLowerCase())) &&
+      (!targetFilter || r.target_type === targetFilter),
+    );
+    const map = new Map<string, { key: string; target_type: string; target_id: string; reasons: Record<string, number>; count: number; latest: string; ids: string[] }>();
+    for (const r of filtered) {
+      const key = `${r.target_type}:${r.target_id}`;
+      const entry = map.get(key) ?? { key, target_type: r.target_type as string, target_id: r.target_id as string, reasons: {} as Record<string, number>, count: 0, latest: r.created_at as string, ids: [] as string[] };
+      entry.count += 1;
+      const rk = (r.reason ?? "other") as string;
+      entry.reasons[rk] = (entry.reasons[rk] ?? 0) + 1;
+      entry.ids.push(r.id as string);
+      if (new Date(r.created_at) > new Date(entry.latest)) entry.latest = r.created_at;
+      map.set(key, entry);
+    }
+    return Array.from(map.values()).sort((a, b) => b.count - a.count || new Date(b.latest).getTime() - new Date(a.latest).getTime());
+
+  }, [reports.data, reasonFilter, targetFilter]);
+
+  const targetLink = (type: string, id: string): string | null => {
+    if (type === "post") return `/post/${id}`;
+    if (type === "user") return `/u/${id}`;
+    return null;
+  };
+
+  const resolveGroup = async (g: { count: number; ids: string[]; target_type: string }, action: "dismiss" | "action_taken") => {
+    const ok = await confirmDialog({
+      title: action === "dismiss" ? `Dismiss ${g.count} report${g.count > 1 ? "s" : ""}?` : `Mark ${g.count} report${g.count > 1 ? "s" : ""} as actioned?`,
+      description: action === "dismiss"
+        ? "The reports will be closed with no action. Reporters won't be notified."
+        : "Confirm the offending content was removed or the account was sanctioned.",
+      confirmLabel: action === "dismiss" ? "Dismiss" : "Mark actioned",
+      destructive: action === "action_taken",
+    });
+    if (!ok) return;
+    for (const id of g.ids) resolveMut.mutate({ id, action });
+  };
 
   return (
     <div className="space-y-6">
       <section>
-        <p className="mono-tag mb-2" style={{ color: "var(--color-heat)" }}>OPEN REPORTS ({reports.data?.length ?? 0})</p>
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <p className="mono-tag" style={{ color: "var(--color-heat)" }}>OPEN REPORTS ({reports.data?.length ?? 0})</p>
+          <div className="ml-auto flex gap-2">
+            <select value={targetFilter} onChange={(e) => setTargetFilter(e.target.value as any)}
+              className="rounded-md border bg-transparent px-2 py-1 text-[11px]" style={{ borderColor: "var(--color-hair-strong)" }}>
+              <option value="">All targets</option>
+              <option value="post">Posts</option>
+              <option value="user">Users</option>
+              <option value="comment">Comments</option>
+              <option value="listing">Listings</option>
+              <option value="message">Messages</option>
+            </select>
+            <input value={reasonFilter} onChange={(e) => setReasonFilter(e.target.value)}
+              placeholder="Filter reason…"
+              className="w-32 rounded-md border bg-transparent px-2 py-1 text-[11px]" style={{ borderColor: "var(--color-hair-strong)" }} />
+          </div>
+        </div>
         <div className="space-y-1">
-          {(reports.data ?? []).map((r: any) => (
-            <div key={r.id} className="rounded-md border px-3 py-2 text-sm" style={{ borderColor: "var(--color-hair)" }}>
-              <p className="font-medium">{r.target_type} · {r.reason}</p>
-              <p className="text-[11px] opacity-60">target {r.target_id?.slice(0, 8)} · {new Date(r.created_at).toLocaleString()}</p>
-              <div className="mt-2 flex gap-1">
-                <button onClick={() => resolveMut.mutate({ id: r.id, action: "action_taken" })} className="btn-ghost text-[11px]">Action taken</button>
-                <button onClick={() => resolveMut.mutate({ id: r.id, action: "dismiss" })} className="btn-ghost text-[11px]">Dismiss</button>
+          {grouped.map((g) => {
+            const link = targetLink(g.target_type, g.target_id);
+            return (
+              <div key={g.key} className="rounded-md border px-3 py-2 text-sm" style={{ borderColor: "var(--color-hair)" }}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium">
+                      {g.target_type} · <span style={{ color: "var(--color-heat)" }}>×{g.count}</span>
+                    </p>
+                    <p className="text-[11px] opacity-70">
+                      {Object.entries(g.reasons).map(([r, n]) => `${r} (${n})`).join(" · ")}
+                    </p>
+                    <p className="text-[10px] opacity-50">
+                      target {g.target_id?.slice(0, 8)} · latest {new Date(g.latest).toLocaleString()}
+                    </p>
+                  </div>
+                  {link && (
+                    <Link to={link} className="btn-ghost shrink-0 text-[11px]">Open</Link>
+                  )}
+                </div>
+                <div className="mt-2 flex gap-1">
+                  <button onClick={() => resolveGroup(g, "action_taken")} className="btn-ghost text-[11px]">Action taken</button>
+                  <button onClick={() => resolveGroup(g, "dismiss")} className="btn-ghost text-[11px]">Dismiss</button>
+                </div>
               </div>
-            </div>
-          ))}
-          {reports.data?.length === 0 && <p className="text-sm opacity-60">No open reports.</p>}
+            );
+          })}
+          {grouped.length === 0 && <p className="text-sm opacity-60">No open reports match the current filter.</p>}
         </div>
       </section>
 
@@ -395,10 +502,19 @@ function ContentTab() {
                 {new Date(p.created_at).toLocaleString()} · ♥ {p.likes_count} · 💬 {p.comments_count}
                 {p.is_hidden && <span className="ml-2" style={{ color: "#dc2626" }}>HIDDEN</span>}
               </p>
-              <button onClick={() => hideMut.mutate({ postId: p.id, hidden: !p.is_hidden })}
-                className="btn-ghost mt-1 text-[11px]">
-                {p.is_hidden ? "Restore" : "Hide"}
-              </button>
+              <div className="mt-1 flex gap-1">
+                <Link to={`/post/${p.id}`} className="btn-ghost text-[11px]">Open</Link>
+                <button onClick={async () => {
+                  if (!p.is_hidden) {
+                    const ok = await confirmDialog({ title: "Hide post?", description: "The post will be removed from feeds and profile immediately.", confirmLabel: "Hide", destructive: true });
+                    if (!ok) return;
+                  }
+                  hideMut.mutate({ postId: p.id, hidden: !p.is_hidden });
+                }} className="btn-ghost text-[11px]">
+                  {p.is_hidden ? "Restore" : "Hide"}
+                </button>
+              </div>
+
             </div>
           ))}
         </div>
