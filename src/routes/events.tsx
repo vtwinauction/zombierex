@@ -5,14 +5,14 @@ import { useServerFn } from "@tanstack/react-start";
 import { listEvents, EVENT_CATEGORIES } from "@/lib/events.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import {
-import { useModule } from "@/hooks/usePlatform";
-import { ModuleNotice } from "@/components/MaintenanceGate";
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useModule } from "@/hooks/usePlatform";
+import { ModuleNotice } from "@/components/MaintenanceGate";
 
 export const Route = createFileRoute("/events")({
   head: () => ({
