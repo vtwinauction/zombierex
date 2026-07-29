@@ -304,6 +304,8 @@ function AuthPage() {
             <button onClick={() => setMode("signin")} className="underline underline-offset-2">Back to sign in</button>
           )}
         </div>
+        </div>
+
 
         <div className="text-center">
           <Link to="/" className="mono-tag text-xs underline underline-offset-2" style={{ color: "var(--color-ash)" }}>
