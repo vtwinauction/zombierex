@@ -148,8 +148,40 @@ export function priceTransaction(
   return computeSplit(grossCents, resolveFeeRule(rules, ctx));
 }
 
+/**
+ * Currencies whose smallest unit is not 1/100. Amounts are always stored as
+ * integer minor units, so BHD/KWD/OMR (1/1000) and JPY (1/1) must not be
+ * divided by 100 or the displayed figure is off by 10x-100x.
+ */
+const MINOR_UNITS: Record<string, number> = {
+  BHD: 1000, KWD: 1000, OMR: 1000, JOD: 1000, TND: 1000,
+  JPY: 1, KRW: 1, VND: 1, CLP: 1, ISK: 1,
+};
+
+/** Minor units per whole unit for a currency (default 100). */
+export function minorUnits(currency = "USD"): number {
+  return MINOR_UNITS[currency.toUpperCase()] ?? 100;
+}
+
+/** Convert a decimal amount typed by a user into integer minor units. */
+export function toMinorUnits(amount: number, currency = "USD"): number {
+  return Math.round(amount * minorUnits(currency));
+}
+
 export function formatMoney(cents: number, currency = "USD"): string {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency }).format(cents / 100);
+  const code = currency.toUpperCase();
+  const divisor = minorUnits(code);
+  const digits = divisor === 1000 ? 3 : divisor === 1 ? 0 : 2;
+  try {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: code,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(cents / divisor);
+  } catch {
+    return `${(cents / divisor).toFixed(digits)} ${code}`;
+  }
 }
 
 export function describeRule(rule: Pick<FeeRule, "percent_bps" | "fixed_cents" | "min_fee_cents" | "max_fee_cents">): string {
