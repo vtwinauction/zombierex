@@ -99,12 +99,16 @@ export const createSignedUploadUrl = createServerFn({ method: "POST" })
     };
   });
 
+const YEAR = 31536000;
 const ReadSchema = z.object({
   bucket: z.enum(BUCKETS),
   path: PathSchema,
-  // H-01: cap at 15 minutes. Long-lived URLs leak content past deletion/privacy changes.
-  expires_in: z.number().int().min(30).max(900).default(300),
+  // Public social media (posts/avatars/vehicles/marketplace) needs durable URLs
+  // or feeds go blank 15 minutes after upload. Sensitive `documents` stay capped
+  // at 15 minutes in the handler below.
+  expires_in: z.number().int().min(30).max(YEAR).default(YEAR),
 });
+
 
 // Verify visibility via the caller's RLS-scoped client. A row the user cannot
 // see returns nothing — so the signed URL cannot bypass RLS.
@@ -139,6 +143,8 @@ export const createSignedReadUrl = createServerFn({ method: "POST" })
   .validator((raw) => ReadSchema.parse(raw))
   .handler(async ({ data, context }) => {
     const bucket = data.bucket as Bucket;
+    // Sensitive vendor documents keep the short 15-minute cap.
+    const expiresIn = bucket === "documents" ? Math.min(data.expires_in, 900) : data.expires_in;
 
     if (bucket === "documents") {
       const m = data.path.match(/^vendor\/([0-9a-f-]{36})\//);
@@ -159,9 +165,9 @@ export const createSignedReadUrl = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error } = await supabaseAdmin.storage
       .from(bucket)
-      .createSignedUrl(data.path, data.expires_in);
+      .createSignedUrl(data.path, expiresIn);
     if (error) throw new Error(error.message);
-    return { bucket, path: data.path, signed_url: signed.signedUrl, expires_in: data.expires_in };
+    return { bucket, path: data.path, signed_url: signed.signedUrl, expires_in: expiresIn };
   });
 
 export const deleteMyObject = createServerFn({ method: "POST" })

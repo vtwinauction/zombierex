@@ -63,7 +63,12 @@ const SORTS = [
 
 function CommunitiesPage() {
   const zxModule = useModule("groups");
-  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Clubs & Groups" />;
+  if (!zxModule.loading && !zxModule.enabled)
+    return <ModuleNotice status={zxModule} label="Clubs & Groups" />;
+  return <CommunitiesPageInner />;
+}
+
+function CommunitiesPageInner() {
 
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("all");

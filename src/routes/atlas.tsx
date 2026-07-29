@@ -58,7 +58,12 @@ const CATEGORIES = [
 
 function AtlasPage() {
   const zxModule = useModule("atlas");
-  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Route Atlas" />;
+  if (!zxModule.loading && !zxModule.enabled)
+    return <ModuleNotice status={zxModule} label="Route Atlas" />;
+  return <AtlasPageInner />;
+}
+
+function AtlasPageInner() {
 
   const [difficulty, setDifficulty] = useState<string | undefined>();
   const [surface, setSurface] = useState<string | undefined>();

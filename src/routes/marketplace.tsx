@@ -57,7 +57,12 @@ function fmtPrice(cents: number, currency = "USD") {
 
 function MarketplacePage() {
   const zxModule = useModule("marketplace");
-  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Marketplace" />;
+  if (!zxModule.loading && !zxModule.enabled)
+    return <ModuleNotice status={zxModule} label="Marketplace" />;
+  return <MarketplacePageInner />;
+}
+
+function MarketplacePageInner() {
 
   const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("new");
   const [sort, setSort] = useState<(typeof SORTS)[number]["id"]>("recent");

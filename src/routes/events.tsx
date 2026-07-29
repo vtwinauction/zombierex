@@ -43,7 +43,12 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 function EventsPage() {
   const zxModule = useModule("events");
-  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Events & Rides" />;
+  if (!zxModule.loading && !zxModule.enabled)
+    return <ModuleNotice status={zxModule} label="Events & Rides" />;
+  return <EventsPageInner />;
+}
+
+function EventsPageInner() {
 
   const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("upcoming");
   const [category, setCategory] = useState<string | undefined>();

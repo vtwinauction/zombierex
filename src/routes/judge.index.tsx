@@ -30,7 +30,12 @@ export const Route = createFileRoute("/judge/")({
 
 function JudgeHub() {
   const zxModule = useModule("judge");
-  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="AI Judge" />;
+  if (!zxModule.loading && !zxModule.enabled)
+    return <ModuleNotice status={zxModule} label="AI Judge" />;
+  return <JudgeHubInner />;
+}
+
+function JudgeHubInner() {
 
   const { data: flag } = useSuspenseQuery(enabledQ);
   const { data: events } = useSuspenseQuery(eventsQ);
