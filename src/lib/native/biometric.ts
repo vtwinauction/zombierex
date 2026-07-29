@@ -5,19 +5,14 @@
  * All calls are safe to invoke on any platform — they resolve gracefully.
  */
 import { isNative } from "./index";
+import { loadPlugin } from "./plugins";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type NativeBio = any;
 
 async function loadNative(): Promise<NativeBio | null> {
-  try {
-    const name = "@aparajita/capacitor-biometric-auth";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mod: any = await import(/* @vite-ignore */ name);
-    return mod?.BiometricAuth ?? mod?.default ?? mod ?? null;
-  } catch {
-    return null;
-  }
+  const mod = await loadPlugin("@aparajita/capacitor-biometric-auth");
+  return mod?.BiometricAuth ?? mod?.default ?? mod ?? null;
 }
 
 export type BiometryKind = "faceId" | "touchId" | "fingerprint" | "iris" | "none";
