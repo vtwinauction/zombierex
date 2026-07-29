@@ -4,6 +4,8 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
+import jungleBg from "@/assets/auth-jungle-bg.jpg";
+
 
 
 export const Route = createFileRoute("/auth")({
@@ -132,18 +134,34 @@ function AuthPage() {
 
   return (
     <div className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12">
-      {/* ambient backdrop */}
+      {/* jungle × automotive photographic base */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${jungleBg})`, opacity: 0.75 }}
+      />
+      {/* darkening vignette so the card stays legible */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(60% 45% at 50% 0%, color-mix(in oklab, var(--color-neon) 16%, transparent), transparent 70%)",
+            "radial-gradient(85% 60% at 50% 45%, rgba(0,0,0,0.35), rgba(0,0,0,0.88) 100%), linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.45) 35%, rgba(0,0,0,0.92))",
         }}
       />
+      {/* toxic bloom */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(60% 45% at 50% 0%, color-mix(in oklab, var(--color-neon) 22%, transparent), transparent 70%)",
+        }}
+      />
+      {/* CNC hairline grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.28]"
         style={{
           backgroundImage:
             "linear-gradient(var(--color-hairline) 1px, transparent 1px), linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px)",
@@ -152,6 +170,7 @@ function AuthPage() {
           WebkitMaskImage: "radial-gradient(70% 60% at 50% 40%, #000, transparent 85%)",
         }}
       />
+
 
       <div className="relative w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center text-center">
