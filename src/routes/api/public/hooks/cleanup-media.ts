@@ -5,10 +5,11 @@
  *  - expired stories + their storage objects
  *  - storage objects belonging to posts soft-deleted >7 days ago (then hard-deletes the post)
  *
- * Auth: Supabase anon apikey header (routes under /api/public bypass auth at
+ * Auth: dedicated CRON_SECRET header header (routes under /api/public bypass auth at
  * the edge; we still verify the header matches the configured publishable key).
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { requireCronSecret } from "@/lib/cron-auth.server";
 import { createClient } from "@supabase/supabase-js";
 
 type BucketPath = { bucket: string; path: string };
@@ -40,11 +41,8 @@ export const Route = createFileRoute("/api/public/hooks/cleanup-media")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const apikey = request.headers.get("apikey");
-        const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-        if (!apikey || !expected || apikey !== expected) {
-          return new Response("Unauthorized", { status: 401 });
-        }
+        const denied = requireCronSecret(request);
+        if (denied) return denied;
 
         const url = process.env.SUPABASE_URL!;
         const svc = process.env.SUPABASE_SERVICE_ROLE_KEY!;

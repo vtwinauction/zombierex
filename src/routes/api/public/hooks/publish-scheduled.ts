@@ -3,9 +3,10 @@
  *
  * Picks up scheduled_posts where status='scheduled' AND publish_at <= now(),
  * inserts them into posts, and marks the row published (or errored).
- * Guarded by the Supabase anon apikey set by pg_cron.
+ * Guarded by the dedicated CRON_SECRET header set by pg_cron.
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { requireCronSecret } from "@/lib/cron-auth.server";
 
 const BATCH = 100;
 
@@ -13,9 +14,8 @@ export const Route = createFileRoute("/api/public/hooks/publish-scheduled")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const anon = process.env.SUPABASE_PUBLISHABLE_KEY;
-        const apikey = request.headers.get("apikey") ?? "";
-        if (!anon || apikey !== anon) return new Response("Unauthorized", { status: 401 });
+        const denied = requireCronSecret(request);
+        if (denied) return denied;
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

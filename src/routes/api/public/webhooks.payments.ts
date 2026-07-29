@@ -119,7 +119,18 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
                   .select("vendor_id")
                   .eq("id", (full as any).order_id)
                   .maybeSingle();
-                sellerId = (order as any)?.vendor_id ?? null;
+                // transactions.seller_id references profiles(id), while
+                // orders.vendor_id references vendors(id) — resolve the
+                // vendor's owning profile or the settlement FK will fail.
+                const vendorId = (order as any)?.vendor_id ?? null;
+                if (vendorId) {
+                  const { data: vendor } = await supabaseAdmin
+                    .from("vendors")
+                    .select("owner_id")
+                    .eq("id", vendorId)
+                    .maybeSingle();
+                  sellerId = (vendor as any)?.owner_id ?? null;
+                }
 
               }
               const { settleTransaction } = await import("@/lib/finance.server");
