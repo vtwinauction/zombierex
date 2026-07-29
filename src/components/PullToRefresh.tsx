@@ -100,15 +100,22 @@ export function PullToRefresh({
 
   const progress = Math.min(1, pull / threshold);
   const rotation = progress * 270;
+  // A CSS transform (even translateY(0)) turns this wrapper into the
+  // containing block for every descendant `position: fixed` element, which
+  // collapses full-screen layouts like Atlas and traps modals/sheets.
+  // Only apply the transform while a pull is actually in progress.
+  const active = pull > 0 || refreshing;
+
+  if (disabled) return <>{children}</>;
 
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
       <div
-        aria-hidden={!pull && !refreshing}
+        aria-hidden={!active}
         style={{
           position: "absolute", top: -56, left: 0, right: 0,
           height: 56, display: "grid", placeItems: "center",
-          transform: `translateY(${pull}px)`,
+          transform: active ? `translateY(${pull}px)` : undefined,
           transition: pulling.current ? "none" : "transform .22s ease",
           pointerEvents: "none",
           zIndex: 5,
@@ -140,14 +147,19 @@ export function PullToRefresh({
         </div>
       </div>
       <div
-        style={{
-          transform: `translateY(${pull}px)`,
-          transition: pulling.current ? "none" : "transform .22s ease",
-          willChange: "transform",
-        }}
+        style={
+          active
+            ? {
+                transform: `translateY(${pull}px)`,
+                transition: pulling.current ? "none" : "transform .22s ease",
+                willChange: "transform",
+              }
+            : undefined
+        }
       >
         {children}
       </div>
+
       <style>{`@keyframes zx-spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
