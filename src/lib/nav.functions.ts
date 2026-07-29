@@ -4,6 +4,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const NavInput = z.object({
   origin: z.object({ lat: z.number(), lng: z.number() }),
@@ -14,8 +15,15 @@ const NavInput = z.object({
 });
 
 export const planRoute = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((d) => NavInput.parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    // Maps calls are metered and billable — signed-in + rate limited only.
+    await context.supabase.rpc("check_rate_limit", {
+      _bucket: "maps_directions",
+      _max_hits: 60,
+      _window_seconds: 3600,
+    });
     const LOVABLE_KEY = process.env.LOVABLE_API_KEY;
     const GMAPS_KEY = process.env.GOOGLE_MAPS_API_KEY;
     if (!LOVABLE_KEY || !GMAPS_KEY) {
