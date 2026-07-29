@@ -261,15 +261,17 @@ export async function refundTransaction(input: RefundInput) {
     ledger.push({ transaction_id: t.id, account: "seller_payable", direction: "debit", amount_cents: sellerBack, currency: t.currency, party_id: t.seller_id, memo: "Seller refund debit" });
   await sb.from("ledger_entries").insert(ledger);
 
-  if (t.order_id) {
+  // Only flip the order once it is fully refunded — a partial refund must
+  // leave the order in its fulfilled state.
+  if (t.order_id && totalRefunded >= t.gross_cents) {
     await sb.from("orders").update({ status: "refunded" }).eq("id", t.order_id);
   }
 
   const notes: any[] = [];
   if (t.buyer_id)
-    notes.push({ user_id: t.buyer_id, kind: "order", payload: { title: "Refund issued", body: `${t.currency} ${(amount / 100).toFixed(2)} has been refunded.` } });
+    notes.push({ user_id: t.buyer_id, kind: "order", payload: { title: "Refund issued", body: `${formatMoney(amount, t.currency)} has been refunded.` } });
   if (t.seller_id)
-    notes.push({ user_id: t.seller_id, kind: "order", payload: { title: "Refund processed", body: `A refund of ${t.currency} ${(amount / 100).toFixed(2)} was issued on one of your sales.` } });
+    notes.push({ user_id: t.seller_id, kind: "order", payload: { title: "Refund processed", body: `A refund of ${formatMoney(amount, t.currency)} was issued on one of your sales.` } });
   if (notes.length) await sb.from("notifications").insert(notes);
 
   return { refunded_cents: amount, commission_returned_cents: commissionBack };
