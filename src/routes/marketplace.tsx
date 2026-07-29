@@ -6,6 +6,8 @@ import { Search, SlidersHorizontal, ArrowUpDown, Plus, MapPin, Star } from "luci
 import { listListings, LISTING_CATEGORIES, LISTING_CONDITIONS } from "@/lib/marketplace.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { AutoplayVideo, isVideoUrl } from "@/components/AutoplayVideo";
+import { useModule } from "@/hooks/usePlatform";
+import { ModuleNotice } from "@/components/MaintenanceGate";
 
 function HeroMedia({ src, alt, className }: { src: string; alt: string; className?: string }) {
   if (isVideoUrl(src)) {
@@ -54,6 +56,9 @@ function fmtPrice(cents: number, currency = "USD") {
 }
 
 function MarketplacePage() {
+  const zxModule = useModule("marketplace");
+  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Marketplace" />;
+
   const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("new");
   const [sort, setSort] = useState<(typeof SORTS)[number]["id"]>("recent");
   const [category, setCategory] = useState<string | undefined>();

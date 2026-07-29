@@ -11,6 +11,8 @@ import {
   Gauge, Users, Trash2, AlertTriangle, Mic, Activity, LayoutDashboard,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useModule } from "@/hooks/usePlatform";
+import { ModuleNotice } from "@/components/MaintenanceGate";
 
 const RouteMap = lazy(() => import("@/components/RouteMap"));
 
@@ -55,6 +57,9 @@ const CATEGORIES = [
 ] as const;
 
 function AtlasPage() {
+  const zxModule = useModule("atlas");
+  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Route Atlas" />;
+
   const [difficulty, setDifficulty] = useState<string | undefined>();
   const [surface, setSurface] = useState<string | undefined>();
   const [query, setQuery] = useState("");

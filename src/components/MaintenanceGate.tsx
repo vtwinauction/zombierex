@@ -55,3 +55,24 @@ export function ModuleGate({
     </div>
   );
 }
+
+/** Standalone notice for early-return guards inside route components. */
+export function ModuleNotice({
+  status,
+  label,
+}: {
+  status: { underMaintenance: boolean; message: string | null };
+  label: string;
+}) {
+  return (
+    <div className="px-6 py-24 text-center">
+      <p className="mono-tag text-[10px]" style={{ color: "var(--color-heat)" }}>
+        {status.underMaintenance ? "MODULE · MAINTENANCE" : "MODULE · DISABLED"}
+      </p>
+      <h2 className="display-xl mt-2 text-xl">{label}</h2>
+      <p className="mt-2 text-[13px]" style={{ color: "var(--color-silver)" }}>
+        {status.message ?? "This section is temporarily unavailable. Check back soon."}
+      </p>
+    </div>
+  );
+}

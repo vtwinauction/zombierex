@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { judgeIsEnabled, judgeListEvents } from "@/lib/judge.functions";
+import { useModule } from "@/hooks/usePlatform";
+import { ModuleNotice } from "@/components/MaintenanceGate";
 
 const enabledQ = queryOptions({ queryKey: ["judge-enabled"], queryFn: () => judgeIsEnabled() });
 const eventsQ = queryOptions({ queryKey: ["judge-events", "all"], queryFn: () => judgeListEvents({ data: { status: "all" } }) });
@@ -27,6 +29,9 @@ export const Route = createFileRoute("/judge/")({
 });
 
 function JudgeHub() {
+  const zxModule = useModule("judge");
+  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="AI Judge" />;
+
   const { data: flag } = useSuspenseQuery(enabledQ);
   const { data: events } = useSuspenseQuery(eventsQ);
 
