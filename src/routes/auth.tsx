@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import brandLogo from "@/assets/zombierex-logo.png.asset.json";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
