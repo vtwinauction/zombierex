@@ -12,19 +12,8 @@
  * prerender. They are only ever evaluated on a real device.
  */
 import { Capacitor } from "@capacitor/core";
+import { loadPlugin } from "./plugins";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function loadPlugin<T = any>(name: string): Promise<T | null> {
-  try {
-    // Variable specifier — TS won't type-resolve, Vite will still bundle
-    // when the module exists on-device. On web this simply throws and we
-    // fall back to the web branch below.
-    const mod = await import(/* @vite-ignore */ name);
-    return mod as T;
-  } catch {
-    return null;
-  }
-}
 
 export function isNative(): boolean {
   try {
