@@ -5,7 +5,7 @@
  * the unique index on transactions(provider, provider_ref) plus a status guard
  * mean a replayed webhook can never double-credit anyone.
  */
-import { computeSplit, resolveFeeRule, type FeeRule, type SplitContext, type TxnKind } from "@/lib/commission";
+import { computeSplit, formatMoney, resolveFeeRule, type FeeRule, type SplitContext, type TxnKind } from "@/lib/commission";
 
 type Admin = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
