@@ -25,7 +25,7 @@ const MAX_IMAGE_DIM = 1920;
 const IMAGE_QUALITY = 0.86;
 // Server caps signed-read TTL at 900s (H-01). Store `bucket:path` in DB and
 // re-mint at render time via resolveMediaUrl() for anything that outlives this.
-const READ_TTL = 900;
+const READ_TTL = 31536000; // 1 year: feed media must not expire
 
 /**
  * Hard upload limits enforced client-side before compression / upload.
