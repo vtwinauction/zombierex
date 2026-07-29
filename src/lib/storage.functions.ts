@@ -99,12 +99,16 @@ export const createSignedUploadUrl = createServerFn({ method: "POST" })
     };
   });
 
+const YEAR = 31536000;
 const ReadSchema = z.object({
   bucket: z.enum(BUCKETS),
   path: PathSchema,
-  // H-01: cap at 15 minutes. Long-lived URLs leak content past deletion/privacy changes.
-  expires_in: z.number().int().min(30).max(900).default(300),
+  // Public social media (posts/avatars/vehicles/marketplace) needs durable URLs
+  // or feeds go blank 15 minutes after upload. Sensitive `documents` stay capped
+  // at 15 minutes in the handler below.
+  expires_in: z.number().int().min(30).max(YEAR).default(YEAR),
 });
+
 
 // Verify visibility via the caller's RLS-scoped client. A row the user cannot
 // see returns nothing — so the signed URL cannot bypass RLS.
