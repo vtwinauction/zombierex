@@ -6,11 +6,12 @@
  * APNs-through-FCM), and marks the notification pushed. Permanently invalid
  * tokens are deleted so we don't spam retries.
  *
- * Guarded by the Supabase anon apikey (set by pg_cron). Route lives under
+ * Guarded by the dedicated CRON_SECRET header (set by pg_cron). Route lives under
  * /api/public/* which bypasses auth at the edge; the apikey check makes it
  * abuse-resistant while still callable from pg_net.
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { requireCronSecret } from "@/lib/cron-auth.server";
 import { sendPush, isPermanentPushFailure } from "@/lib/push.server";
 
 const BATCH = 200;
@@ -70,10 +71,8 @@ export const Route = createFileRoute("/api/public/hooks/fanout-push")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        // Guard: require the Supabase apikey header (set by pg_cron caller).
-        const anon = process.env.SUPABASE_PUBLISHABLE_KEY;
-        const apikey = request.headers.get("apikey") ?? "";
-        if (!anon || apikey !== anon) return new Response("Unauthorized", { status: 401 });
+        const denied = requireCronSecret(request);
+        if (denied) return denied;
 
         // Skip if FCM isn't configured — return 200 so cron doesn't alarm.
         if (!process.env.FCM_SERVICE_ACCOUNT_JSON) {
