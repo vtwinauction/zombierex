@@ -129,17 +129,56 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-[100svh] items-center justify-center px-6 py-10">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="text-center">
-          <p className="mono-tag" style={{ color: "var(--color-neon)" }}>ZOMBIEREX · ACCESS</p>
-          <h1 className="mt-2 display-xl text-3xl">
-            {mode === "signin" ? "Enter the paddock" : mode === "signup" ? "Claim your handle" : "Reset access"}
+    <div className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12">
+      {/* ambient backdrop */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(60% 45% at 50% 0%, color-mix(in oklab, var(--color-neon) 16%, transparent), transparent 70%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "linear-gradient(var(--color-hairline) 1px, transparent 1px), linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(70% 60% at 50% 40%, #000, transparent 85%)",
+          WebkitMaskImage: "radial-gradient(70% 60% at 50% 40%, #000, transparent 85%)",
+        }}
+      />
+
+      <div className="relative w-full max-w-sm space-y-6">
+        <div className="flex flex-col items-center text-center">
+          <img
+            src={brandLogo.url}
+            alt="ZOMBIEREX"
+            className="h-20 w-20 rounded-2xl object-contain"
+            style={{ filter: "drop-shadow(0 0 22px color-mix(in oklab, var(--color-neon) 45%, transparent))" }}
+          />
+          <p className="mono-tag mt-4 text-xs tracking-[0.4em]" style={{ color: "var(--color-neon)" }}>
+            ZOMBIEREX
+          </p>
+          <h1 className="mt-2 display-xl text-2xl">
+            {mode === "signin" ? "Sign in" : mode === "signup" ? "Create your account" : "Reset access"}
           </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--color-ash)" }}>
-            {mode === "signin" ? "Sign in to continue." : mode === "signup" ? "Free. Takes 20 seconds." : "We'll email you a reset link."}
+            {mode === "signin" ? "Welcome back to the garage." : mode === "signup" ? "Free. Takes 20 seconds." : "We'll email you a reset link."}
           </p>
         </div>
+
+        <div
+          className="space-y-5 rounded-2xl border p-5 backdrop-blur-xl"
+          style={{
+            borderColor: "var(--color-hairline)",
+            background: "color-mix(in oklab, var(--color-graphite, #111) 55%, transparent)",
+            boxShadow: "0 24px 60px -30px rgba(0,0,0,0.9)",
+          }}
+        >
+
 
         {mode !== "forgot" && (
           <div className="space-y-2">
