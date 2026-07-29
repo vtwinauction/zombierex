@@ -4,11 +4,8 @@
  * hidden <input type="file" capture>).
  */
 import { isNative } from "./index";
+import { loadPlugin } from "./plugins";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function loadPlugin<T = any>(name: string): Promise<T | null> {
-  try { return (await import(/* @vite-ignore */ name)) as T; } catch { return null; }
-}
 
 type CamMod = {
   Camera: {

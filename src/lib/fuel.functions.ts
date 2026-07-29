@@ -4,6 +4,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Input = z.object({
   lat: z.number().min(-90).max(90),
@@ -37,8 +38,15 @@ function haversine(a: { lat: number; lng: number }, b: { lat: number; lng: numbe
 }
 
 export const findFuelNearby = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((d) => Input.parse(d))
-  .handler(async ({ data }): Promise<{ stations: FuelStation[]; error: string | null }> => {
+  .handler(async ({ data, context }): Promise<{ stations: FuelStation[]; error: string | null }> => {
+    // Maps calls are metered and billable — signed-in + rate limited only.
+    await context.supabase.rpc("check_rate_limit", {
+      _bucket: "maps_places",
+      _max_hits: 90,
+      _window_seconds: 3600,
+    });
     const LOVABLE = process.env.LOVABLE_API_KEY;
     const GKEY = process.env.GOOGLE_MAPS_API_KEY;
     if (!LOVABLE || !GKEY) return { stations: [], error: "Maps not configured" };

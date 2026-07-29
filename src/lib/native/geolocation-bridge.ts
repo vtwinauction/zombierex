@@ -11,18 +11,10 @@
  * No-op on web. Safe to call multiple times.
  */
 import { isNative } from "./index";
+import { loadPlugin } from "./plugins";
 
 let installed = false;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function loadPlugin<T = any>(name: string): Promise<T | null> {
-  try {
-    const mod = await import(/* @vite-ignore */ name);
-    return mod as T;
-  } catch {
-    return null;
-  }
-}
 
 type CapPosition = {
   coords: {

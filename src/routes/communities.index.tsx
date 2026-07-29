@@ -5,6 +5,8 @@ import { useState } from "react";
 import { discoverCommunities, CATEGORIES } from "@/lib/communities.functions";
 
 import { PullToRefresh } from "@/components/PullToRefresh";
+import { useModule } from "@/hooks/usePlatform";
+import { ModuleNotice } from "@/components/MaintenanceGate";
 
 export const Route = createFileRoute("/communities/")({
   head: () => ({
@@ -60,6 +62,9 @@ const SORTS = [
 ];
 
 function CommunitiesPage() {
+  const zxModule = useModule("groups");
+  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Clubs & Groups" />;
+
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [sort, setSort] = useState<(typeof SORTS)[number]["id"]>("trending");

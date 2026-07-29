@@ -11,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useModule } from "@/hooks/usePlatform";
+import { ModuleNotice } from "@/components/MaintenanceGate";
 
 export const Route = createFileRoute("/events")({
   head: () => ({
@@ -40,6 +42,9 @@ const CATEGORY_LABEL: Record<string, string> = {
 };
 
 function EventsPage() {
+  const zxModule = useModule("events");
+  if (!zxModule.loading && !zxModule.enabled) return <ModuleNotice status={zxModule} label="Events & Rides" />;
+
   const [scope, setScope] = useState<(typeof SCOPES)[number]["id"]>("upcoming");
   const [category, setCategory] = useState<string | undefined>();
   const [search, setSearch] = useState("");

@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { installCrashReporter, reportCrash } from "../lib/crash-reporter";
 import { BottomNav } from "@/components/BottomNav";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { PullToRefresh } from "@/components/PullToRefresh";
@@ -262,7 +263,9 @@ function RootComponent() {
           {!isImmersive && <OwnerBroadcastBanner />}
           {!isImmersive && <GlobalStatusBar />}
           <PullToRefresh onRefresh={globalRefresh} disabled={isImmersive}>
-            <Outlet />
+            <MaintenanceGate>
+              <Outlet />
+            </MaintenanceGate>
           </PullToRefresh>
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}

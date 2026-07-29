@@ -8,18 +8,10 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { isNative, platform } from "./index";
+import { loadPlugin } from "./plugins";
 
 let registered = false;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function loadPlugin<T = any>(name: string): Promise<T | null> {
-  try {
-    const mod = await import(/* @vite-ignore */ name);
-    return mod as T;
-  } catch {
-    return null;
-  }
-}
 
 type PushMod = {
   PushNotifications: {
