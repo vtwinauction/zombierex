@@ -143,6 +143,8 @@ export const createSignedReadUrl = createServerFn({ method: "POST" })
   .validator((raw) => ReadSchema.parse(raw))
   .handler(async ({ data, context }) => {
     const bucket = data.bucket as Bucket;
+    // Sensitive vendor documents keep the short 15-minute cap.
+    const expiresIn = bucket === "documents" ? Math.min(data.expires_in, 900) : data.expires_in;
 
     if (bucket === "documents") {
       const m = data.path.match(/^vendor\/([0-9a-f-]{36})\//);
@@ -163,9 +165,9 @@ export const createSignedReadUrl = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed, error } = await supabaseAdmin.storage
       .from(bucket)
-      .createSignedUrl(data.path, data.expires_in);
+      .createSignedUrl(data.path, expiresIn);
     if (error) throw new Error(error.message);
-    return { bucket, path: data.path, signed_url: signed.signedUrl, expires_in: data.expires_in };
+    return { bucket, path: data.path, signed_url: signed.signedUrl, expires_in: expiresIn };
   });
 
 export const deleteMyObject = createServerFn({ method: "POST" })
