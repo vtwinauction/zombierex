@@ -117,7 +117,7 @@ function ReelsPage() {
     );
     items.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [feed.length]);
 
   // Prefetch next 2 posters for instant snap
   useEffect(() => {
