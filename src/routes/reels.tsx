@@ -377,13 +377,14 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
       style={{ scrollSnapAlign: "start", scrollSnapStop: "always" }}
       onClick={onTap}
     >
-      {hasVideo ? (
+      {hasVideo && near ? (
         <AutoplayVideo
           ref={videoRef}
           src={reel.video!}
           poster={reel.poster}
           forcePlay={active && !paused}
           muted={muted}
+          preload={active ? "auto" : "metadata"}
           onTime={(t, d) => { setProgress(d ? t / d : 0); if (d && d !== duration) setDuration(d); }}
           className="absolute inset-0 h-full w-full object-cover"
         />
@@ -391,8 +392,10 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
         <img
           src={reel.poster}
           alt=""
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ animation: active ? "ken-burns 18s ease-in-out infinite alternate" : "none" }}
+          style={{ animation: active && !hasVideo ? "ken-burns 18s ease-in-out infinite alternate" : "none" }}
         />
       )}
       <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.9) 100%)" }} />
