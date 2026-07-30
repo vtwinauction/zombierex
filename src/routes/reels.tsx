@@ -273,7 +273,13 @@ function ReelsPage() {
           </div>
         )}
         {feed.map((r, i) => (
-          <ReelSlide key={`${r.id}-${i}`} reel={r} idx={i} active={activeIdx === i} />
+          <ReelSlide
+            key={`${r.id}-${i}`}
+            reel={r}
+            idx={i}
+            active={activeIdx === i}
+            near={Math.abs(i - activeIdx) <= 1}
+          />
         ))}
 
       </div>
@@ -282,7 +288,7 @@ function ReelsPage() {
   );
 }
 
-function ReelSlide({ reel, idx, active }: { reel: Reel; idx: number; active: boolean }) {
+function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number; active: boolean; near?: boolean }) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [followed, setFollowed] = useState(reel.followed);
