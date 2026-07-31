@@ -108,7 +108,8 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
   );
 });
 
-/** True if a URL looks like a video file we can render inline. */
+/** True if a URL looks like a video (file or HLS stream) we can render inline. */
 export function isVideoUrl(u?: string | null): boolean {
-  return !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
+  return !!u && /\.(mp4|webm|mov|m4v|m3u8)(\?|#|$)/i.test(u);
 }
+

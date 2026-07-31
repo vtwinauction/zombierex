@@ -61,16 +61,15 @@ function ReelSolo() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden" style={{ background: "#000" }}>
       {src ? (
-        <video
+        <AutoplayVideo
           src={src}
           poster={p.thumbnail_url ?? undefined}
-          playsInline
-          autoPlay
-          loop
+          forcePlay
           controls
           className="absolute inset-0 h-full w-full object-contain"
         />
       ) : (
+
         <div className="grid h-screen w-full place-items-center text-white/60 mono-tag">NO MEDIA</div>
       )}
       <div
