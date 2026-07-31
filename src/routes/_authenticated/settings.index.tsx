@@ -196,6 +196,7 @@ function SettingRow({ it, prefs, update }: {
     "select-autoplay": "/settings/data",
     "clear-cache": "/settings/data",
     "download-data": "/settings/export",
+    guide: "/settings/guide",
     help: "/settings/help",
     report: "/settings/report",
     about: "/settings/about",
