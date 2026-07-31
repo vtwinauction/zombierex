@@ -271,7 +271,7 @@ function RootComponent() {
           </PullToRefresh>
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
-        {shellReady && (
+        {shellReady && !marketing && (
           <Suspense fallback={null}>
             <PushNotificationBridge />
             <PushPrimer />
@@ -279,6 +279,7 @@ function RootComponent() {
             <FirstRunTour />
           </Suspense>
         )}
+
         <Toaster position="top-center" richColors closeButton />
         <ConfirmHost />
       </div>
