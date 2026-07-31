@@ -73,7 +73,9 @@ export function MarketingShell({ children }: { children: ReactNode }) {
             {NAV.map((n) => (
               <a key={n.href} href={n.href} onClick={() => setOpen(false)}>{n.label}</a>
             ))}
+            <Link to="/guide" onClick={() => setOpen(false)}>Guide</Link>
             <Link to="/download" onClick={() => setOpen(false)}>Download</Link>
+
             <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
             <Link to="/legal" onClick={() => setOpen(false)}>Legal Center</Link>
             <Link to="/auth" onClick={() => setOpen(false)} className="mkt-btn mkt-btn-neon">Sign in</Link>
