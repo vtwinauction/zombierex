@@ -87,13 +87,17 @@ export function Landing() {
       <LandingStyles />
       <Hero />
       <About />
+      <BoneRule />
       <Features />
       <WhyChoose />
+      <TreadStrip />
       <Screens />
       <TrailerBlock />
+      <BoneRule />
       <Stats />
       <Testimonials />
       <DownloadCta />
+      <TreadStrip />
       <Faq />
       <ContactBlock />
     </MarketingShell>
