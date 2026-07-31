@@ -442,14 +442,13 @@ function LandingStyles() {
 .mkt-hero-inner { position: relative; padding: 132px 22px 104px; }
 .mkt-hero-title {
   font-size: clamp(42px, 8.6vw, 84px); line-height: 0.96; margin: 18px 0 22px;
-  font-weight: 600; letter-spacing: -0.045em; color: var(--txt);
-  background: linear-gradient(180deg, #ffffff 0%, #c9cfd4 100%);
-  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  font-weight: 600; letter-spacing: -0.045em; color: #f2f4f5;
 }
 .mkt-neon {
-  color: var(--neon); -webkit-text-fill-color: var(--neon);
+  color: var(--neon);
   text-shadow: 0 0 52px rgba(34,224,106,0.35);
 }
+
 .mkt-hero-sub { font-size: clamp(15px, 2vw, 18px); line-height: 1.65; color: var(--txt-2); max-width: 540px; }
 .mkt-hero-cta { margin-top: 32px; }
 .mkt-hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; font-size: 12px; color: var(--txt-2); }
