@@ -18,7 +18,9 @@ let mapsAuthFailed = false;
 const authFailListeners = new Set<() => void>();
 export function onMapsAuthFailure(fn: () => void) {
   authFailListeners.add(fn);
-  return () => authFailListeners.delete(fn);
+  return () => {
+    authFailListeners.delete(fn);
+  };
 }
 export function mapsAuthHasFailed() {
   return mapsAuthFailed;
