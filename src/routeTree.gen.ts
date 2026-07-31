@@ -53,6 +53,7 @@ import { Route as LegalAdvertisingRouteImport } from './routes/legal/advertising
 import { Route as LegalAccessibilityRouteImport } from './routes/legal/accessibility'
 import { Route as LegalAcceptableUseRouteImport } from './routes/legal/acceptable-use'
 import { Route as JudgeLeaderboardsRouteImport } from './routes/judge.leaderboards'
+import { Route as FeaturesSlugRouteImport } from './routes/features.$slug'
 import { Route as CreatorIdRouteImport } from './routes/creator.$id'
 import { Route as CommunitiesSlugRouteImport } from './routes/communities.$slug'
 import { Route as AtlasIdRouteImport } from './routes/atlas.$id'
@@ -396,6 +397,11 @@ const LegalAcceptableUseRoute = LegalAcceptableUseRouteImport.update({
 const JudgeLeaderboardsRoute = JudgeLeaderboardsRouteImport.update({
   id: '/judge/leaderboards',
   path: '/judge/leaderboards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesSlugRoute = FeaturesSlugRouteImport.update({
+  id: '/features/$slug',
+  path: '/features/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreatorIdRoute = CreatorIdRouteImport.update({
@@ -1127,6 +1133,7 @@ export interface FileRoutesByFullPath {
   '/atlas/$id': typeof AtlasIdRoute
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
+  '/features/$slug': typeof FeaturesSlugRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
   '/legal/acceptable-use': typeof LegalAcceptableUseRoute
   '/legal/accessibility': typeof LegalAccessibilityRoute
@@ -1293,6 +1300,7 @@ export interface FileRoutesByTo {
   '/atlas/$id': typeof AtlasIdRoute
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
+  '/features/$slug': typeof FeaturesSlugRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
   '/legal/acceptable-use': typeof LegalAcceptableUseRoute
   '/legal/accessibility': typeof LegalAccessibilityRoute
@@ -1463,6 +1471,7 @@ export interface FileRoutesById {
   '/atlas/$id': typeof AtlasIdRoute
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
+  '/features/$slug': typeof FeaturesSlugRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
   '/legal/acceptable-use': typeof LegalAcceptableUseRoute
   '/legal/accessibility': typeof LegalAccessibilityRoute
@@ -1634,6 +1643,7 @@ export interface FileRouteTypes {
     | '/atlas/$id'
     | '/communities/$slug'
     | '/creator/$id'
+    | '/features/$slug'
     | '/judge/leaderboards'
     | '/legal/acceptable-use'
     | '/legal/accessibility'
@@ -1800,6 +1810,7 @@ export interface FileRouteTypes {
     | '/atlas/$id'
     | '/communities/$slug'
     | '/creator/$id'
+    | '/features/$slug'
     | '/judge/leaderboards'
     | '/legal/acceptable-use'
     | '/legal/accessibility'
@@ -1969,6 +1980,7 @@ export interface FileRouteTypes {
     | '/atlas/$id'
     | '/communities/$slug'
     | '/creator/$id'
+    | '/features/$slug'
     | '/judge/leaderboards'
     | '/legal/acceptable-use'
     | '/legal/accessibility'
@@ -2126,6 +2138,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   CommunitiesSlugRoute: typeof CommunitiesSlugRouteWithChildren
   CreatorIdRoute: typeof CreatorIdRoute
+  FeaturesSlugRoute: typeof FeaturesSlugRoute
   JudgeLeaderboardsRoute: typeof JudgeLeaderboardsRoute
   LegalAcceptableUseRoute: typeof LegalAcceptableUseRoute
   LegalAccessibilityRoute: typeof LegalAccessibilityRoute
@@ -2476,6 +2489,13 @@ declare module '@tanstack/react-router' {
       path: '/judge/leaderboards'
       fullPath: '/judge/leaderboards'
       preLoaderRoute: typeof JudgeLeaderboardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/$slug': {
+      id: '/features/$slug'
+      path: '/features/$slug'
+      fullPath: '/features/$slug'
+      preLoaderRoute: typeof FeaturesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/creator/$id': {
@@ -3713,6 +3733,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   CommunitiesSlugRoute: CommunitiesSlugRouteWithChildren,
   CreatorIdRoute: CreatorIdRoute,
+  FeaturesSlugRoute: FeaturesSlugRoute,
   JudgeLeaderboardsRoute: JudgeLeaderboardsRoute,
   LegalAcceptableUseRoute: LegalAcceptableUseRoute,
   LegalAccessibilityRoute: LegalAccessibilityRoute,
@@ -3757,3 +3778,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
