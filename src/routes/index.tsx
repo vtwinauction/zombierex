@@ -45,14 +45,31 @@ export const Route = createFileRoute("/")({
  * Instagram/TikTok pattern: signed-out visitors get the public marketing
  * site at "/", signed-in members land straight in their feed.
  */
+function hasCachedSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && k.startsWith("sb-") && k.endsWith("-auth-token")) {
+        const v = window.localStorage.getItem(k);
+        if (v && v.length > 20) return true;
+      }
+    }
+  } catch { /* storage blocked — treat as signed out */ }
+  return false;
+}
+
 function RootEntry() {
+  // Optimistic first paint: never leave the page blank while the auth
+  // session resolves — that made "/" look frozen on slow networks.
   const [authed, setAuthed] = useState<boolean | null>(null);
 
   useEffect(() => {
     let alive = true;
+    setAuthed(hasCachedSession());
     supabase.auth.getSession().then(({ data }) => {
       if (alive) setAuthed(!!data.session);
-    });
+    }).catch(() => { if (alive) setAuthed(false); });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthed(!!session);
     });
@@ -60,10 +77,12 @@ function RootEntry() {
   }, []);
 
   if (authed === null) {
-    return <div className="min-h-[100svh] bg-background" aria-busy="true" />;
+    // Server render / first paint: show the public site (also best for SEO).
+    return <Landing />;
   }
   return authed ? <HomePage /> : <Landing />;
 }
+
 
 const TRENDING_TAGS = [
   { tag: "#nightride", posts: "48.2K" },
