@@ -109,9 +109,11 @@ function Hero() {
     <section className="mkt-hero">
       <img src={heroBg} alt="" className="mkt-hero-bg" aria-hidden="true" />
       <div className="mkt-hero-veil" aria-hidden="true" />
+      <FossilRibs className="mkt-hero-ribs" />
+      <div className="mkt-hero-grid" aria-hidden="true" />
       <div className="mkt-wrap mkt-hero-inner">
         <Reveal>
-          <p className="mkt-eyebrow">{siteConfig.tagline}</p>
+          <p className="mkt-eyebrow mkt-eyebrow-stamp"><ClawPiston size={15} />{siteConfig.tagline}</p>
           <h1 className="mkt-hero-title">
             The world's<br />automotive<br /><span className="mkt-neon">social network.</span>
           </h1>
