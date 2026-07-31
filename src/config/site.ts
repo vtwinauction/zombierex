@@ -130,12 +130,7 @@ export const siteConfig = {
     location: "Manama, Kingdom of Bahrain",
   },
 
-  social: [
-    { label: "Instagram", href: "https://instagram.com/zombierex" },
-    { label: "TikTok", href: "https://tiktok.com/@zombierex" },
-    { label: "YouTube", href: "https://youtube.com/@zombierex" },
-    { label: "X", href: "https://x.com/zombierex" },
-  ],
+  social: [],
 } as const;
 
 export type SiteConfig = typeof siteConfig;

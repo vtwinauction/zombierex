@@ -12,7 +12,7 @@ export const Route = createFileRoute("/download")({
       { property: "og:title", content: "Download ZOMBIEREX — iOS & Android App" },
       { property: "og:description", content: "Get ZOMBIEREX free on iOS and Android. Scan the QR code and start your engine." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      
     ],
   }),
   component: DownloadPage,
