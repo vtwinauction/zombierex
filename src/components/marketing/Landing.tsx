@@ -458,6 +458,38 @@ function LandingStyles() {
 .mkt-feature p { font-size: 13px; line-height: 1.55; }
 .mkt-feature-icon { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; background: rgba(0,224,94,0.1); border: 1px solid rgba(0,224,94,0.28); color: var(--neon); }
 
+/* --- Fossil + machined-hardware theme layer --- */
+.mkt-feature { position: relative; overflow: hidden; }
+.mkt-feature::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 7px);
+  opacity: .5; mask-image: linear-gradient(200deg, #000, transparent 62%);
+}
+.mkt-feature-bolt { position: absolute; top: 10px; right: 10px; color: rgba(203,213,214,0.4); line-height: 0; }
+.mkt-feature:hover .mkt-feature-bolt { color: var(--neon); }
+
+.mkt-decor { position: absolute; pointer-events: none; color: rgba(203,213,214,0.5); }
+.mkt-hero-ribs { top: -6%; right: -14%; width: min(60vw, 520px); height: 118%; opacity: .1; mix-blend-mode: screen; }
+@media (min-width: 900px) { .mkt-hero-ribs { right: -2%; opacity: .13; } }
+.mkt-hero-grid {
+  position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: radial-gradient(85% 70% at 30% 40%, #000 0%, transparent 78%);
+}
+.mkt-eyebrow-stamp { display: inline-flex; align-items: center; gap: 8px; }
+.mkt-eyebrow-stamp svg { color: var(--neon); }
+
+.mkt-bone-rule { display: flex; align-items: center; gap: 14px; max-width: 1180px; margin: 0 auto; padding: 0 20px; color: rgba(203,213,214,0.45); }
+.mkt-bone-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
+.mkt-bone-svg { width: 116px; height: 26px; flex: 0 0 auto; filter: drop-shadow(0 0 10px rgba(0,224,94,0.18)); }
+
+.mkt-tread { display: flex; gap: 6px; justify-content: center; align-items: center; max-width: 1180px; margin: 4px auto; padding: 10px 20px; opacity: .35; }
+.mkt-tread span { width: 14px; height: 8px; border-radius: 2px; background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.05)); transform: skewX(-22deg); }
+.mkt-tread span:nth-child(4n) { background: linear-gradient(180deg, rgba(0,224,94,0.5), rgba(0,224,94,0.08)); }
+
 .mkt-why { display: grid; gap: 18px; grid-template-columns: 1fr; }
 @media (min-width: 720px) { .mkt-why { grid-template-columns: 1fr 1fr; } }
 @media (min-width: 1050px) { .mkt-why { grid-template-columns: repeat(3, 1fr); } }
