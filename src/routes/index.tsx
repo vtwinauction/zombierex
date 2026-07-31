@@ -25,20 +25,45 @@ import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBloc
 import { AutoplayVideo, isVideoUrl } from "@/components/AutoplayVideo";
 import { useDoubleTap } from "@/hooks/useDoubleTap";
 import { Volume2, VolumeX, Heart } from "lucide-react";
+import { Landing } from "@/components/marketing/Landing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ZOMBIEREX — Feed" },
-      { name: "description", content: "Stories, reels & garage posts for motorcycle and automotive culture." },
-      { property: "og:title", content: "ZOMBIEREX — Feed" },
-      { property: "og:description", content: "Stories, reels & garage posts for motorcycle and automotive culture." },
+      { title: "ZOMBIEREX — The World's Automotive Social Network" },
+      { name: "description", content: "Cars, motorcycles, drag racing, drifting and car shows in one app. Share builds, verify times, plan routes, buy and sell parts, and find your crew." },
+      { property: "og:title", content: "ZOMBIEREX — The World's Automotive Social Network" },
+      { property: "og:description", content: "Cars, motorcycles, drag racing, drifting and car shows in one app. Join 128,000+ riders and drivers worldwide." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: HomePage,
+  component: RootEntry,
 });
+
+/**
+ * Instagram/TikTok pattern: signed-out visitors get the public marketing
+ * site at "/", signed-in members land straight in their feed.
+ */
+function RootEntry() {
+  const [authed, setAuthed] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setAuthed(!!data.session);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setAuthed(!!session);
+    });
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
+
+  if (authed === null) {
+    return <div className="min-h-[100svh] bg-background" aria-busy="true" />;
+  }
+  return authed ? <HomePage /> : <Landing />;
+}
 
 const TRENDING_TAGS = [
   { tag: "#nightride", posts: "48.2K" },

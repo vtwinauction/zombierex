@@ -17,11 +17,14 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as DownloadRouteImport } from './routes/download'
 import { Route as CreatorsRouteImport } from './routes/creators'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LegalIndexRouteImport } from './routes/legal/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
@@ -32,11 +35,22 @@ import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as PIdRouteImport } from './routes/p.$id'
 import { Route as MarketplaceIdRouteImport } from './routes/marketplace_.$id'
 import { Route as LegalTermsRouteImport } from './routes/legal/terms'
+import { Route as LegalSafetyDisclaimerRouteImport } from './routes/legal/safety-disclaimer'
 import { Route as LegalPrivacyRouteImport } from './routes/legal/privacy'
+import { Route as LegalPaymentsRefundsRouteImport } from './routes/legal/payments-refunds'
+import { Route as LegalMarketplaceTermsRouteImport } from './routes/legal/marketplace-terms'
 import { Route as LegalEulaRouteImport } from './routes/legal/eula'
 import { Route as LegalDmcaRouteImport } from './routes/legal/dmca'
+import { Route as LegalDataRetentionRouteImport } from './routes/legal/data-retention'
+import { Route as LegalCreatorTermsRouteImport } from './routes/legal/creator-terms'
+import { Route as LegalCookiesRouteImport } from './routes/legal/cookies'
 import { Route as LegalComplianceRouteImport } from './routes/legal.compliance'
 import { Route as LegalCommunityGuidelinesRouteImport } from './routes/legal/community-guidelines'
+import { Route as LegalChildrenSafetyRouteImport } from './routes/legal/children-safety'
+import { Route as LegalAiDisclaimerRouteImport } from './routes/legal/ai-disclaimer'
+import { Route as LegalAdvertisingRouteImport } from './routes/legal/advertising'
+import { Route as LegalAccessibilityRouteImport } from './routes/legal/accessibility'
+import { Route as LegalAcceptableUseRouteImport } from './routes/legal/acceptable-use'
 import { Route as JudgeLeaderboardsRouteImport } from './routes/judge.leaderboards'
 import { Route as CreatorIdRouteImport } from './routes/creator.$id'
 import { Route as CommunitiesSlugRouteImport } from './routes/communities.$slug'
@@ -202,9 +216,19 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DownloadRoute = DownloadRouteImport.update({
+  id: '/download',
+  path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreatorsRoute = CreatorsRouteImport.update({
   id: '/creators',
   path: '/creators',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -224,6 +248,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalIndexRoute = LegalIndexRouteImport.update({
+  id: '/legal/',
+  path: '/legal/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JudgeIndexRoute = JudgeIndexRouteImport.update({
@@ -276,9 +305,24 @@ const LegalTermsRoute = LegalTermsRouteImport.update({
   path: '/legal/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LegalSafetyDisclaimerRoute = LegalSafetyDisclaimerRouteImport.update({
+  id: '/legal/safety-disclaimer',
+  path: '/legal/safety-disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
   id: '/legal/privacy',
   path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPaymentsRefundsRoute = LegalPaymentsRefundsRouteImport.update({
+  id: '/legal/payments-refunds',
+  path: '/legal/payments-refunds',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalMarketplaceTermsRoute = LegalMarketplaceTermsRouteImport.update({
+  id: '/legal/marketplace-terms',
+  path: '/legal/marketplace-terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalEulaRoute = LegalEulaRouteImport.update({
@@ -289,6 +333,21 @@ const LegalEulaRoute = LegalEulaRouteImport.update({
 const LegalDmcaRoute = LegalDmcaRouteImport.update({
   id: '/legal/dmca',
   path: '/legal/dmca',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalDataRetentionRoute = LegalDataRetentionRouteImport.update({
+  id: '/legal/data-retention',
+  path: '/legal/data-retention',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalCreatorTermsRoute = LegalCreatorTermsRouteImport.update({
+  id: '/legal/creator-terms',
+  path: '/legal/creator-terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalCookiesRoute = LegalCookiesRouteImport.update({
+  id: '/legal/cookies',
+  path: '/legal/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LegalComplianceRoute = LegalComplianceRouteImport.update({
@@ -302,6 +361,31 @@ const LegalCommunityGuidelinesRoute =
     path: '/legal/community-guidelines',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LegalChildrenSafetyRoute = LegalChildrenSafetyRouteImport.update({
+  id: '/legal/children-safety',
+  path: '/legal/children-safety',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalAiDisclaimerRoute = LegalAiDisclaimerRouteImport.update({
+  id: '/legal/ai-disclaimer',
+  path: '/legal/ai-disclaimer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalAdvertisingRoute = LegalAdvertisingRouteImport.update({
+  id: '/legal/advertising',
+  path: '/legal/advertising',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalAccessibilityRoute = LegalAccessibilityRouteImport.update({
+  id: '/legal/accessibility',
+  path: '/legal/accessibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalAcceptableUseRoute = LegalAcceptableUseRouteImport.update({
+  id: '/legal/acceptable-use',
+  path: '/legal/acceptable-use',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JudgeLeaderboardsRoute = JudgeLeaderboardsRouteImport.update({
   id: '/judge/leaderboards',
   path: '/judge/leaderboards',
@@ -1002,7 +1086,9 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
+  '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
@@ -1028,11 +1114,22 @@ export interface FileRoutesByFullPath {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/acceptable-use': typeof LegalAcceptableUseRoute
+  '/legal/accessibility': typeof LegalAccessibilityRoute
+  '/legal/advertising': typeof LegalAdvertisingRoute
+  '/legal/ai-disclaimer': typeof LegalAiDisclaimerRoute
+  '/legal/children-safety': typeof LegalChildrenSafetyRoute
   '/legal/community-guidelines': typeof LegalCommunityGuidelinesRoute
   '/legal/compliance': typeof LegalComplianceRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/creator-terms': typeof LegalCreatorTermsRoute
+  '/legal/data-retention': typeof LegalDataRetentionRoute
   '/legal/dmca': typeof LegalDmcaRoute
   '/legal/eula': typeof LegalEulaRoute
+  '/legal/marketplace-terms': typeof LegalMarketplaceTermsRoute
+  '/legal/payments-refunds': typeof LegalPaymentsRefundsRoute
   '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/safety-disclaimer': typeof LegalSafetyDisclaimerRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
@@ -1043,6 +1140,7 @@ export interface FileRoutesByFullPath {
   '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
+  '/legal/': typeof LegalIndexRoute
   '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/judge': typeof AuthenticatedAdminJudgeRoute
@@ -1155,7 +1253,9 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
+  '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
@@ -1178,11 +1278,22 @@ export interface FileRoutesByTo {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/acceptable-use': typeof LegalAcceptableUseRoute
+  '/legal/accessibility': typeof LegalAccessibilityRoute
+  '/legal/advertising': typeof LegalAdvertisingRoute
+  '/legal/ai-disclaimer': typeof LegalAiDisclaimerRoute
+  '/legal/children-safety': typeof LegalChildrenSafetyRoute
   '/legal/community-guidelines': typeof LegalCommunityGuidelinesRoute
   '/legal/compliance': typeof LegalComplianceRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/creator-terms': typeof LegalCreatorTermsRoute
+  '/legal/data-retention': typeof LegalDataRetentionRoute
   '/legal/dmca': typeof LegalDmcaRoute
   '/legal/eula': typeof LegalEulaRoute
+  '/legal/marketplace-terms': typeof LegalMarketplaceTermsRoute
+  '/legal/payments-refunds': typeof LegalPaymentsRefundsRoute
   '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/safety-disclaimer': typeof LegalSafetyDisclaimerRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
@@ -1193,6 +1304,7 @@ export interface FileRoutesByTo {
   '/u/$handle': typeof UHandleRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
+  '/legal': typeof LegalIndexRoute
   '/admin/crashes': typeof AuthenticatedAdminCrashesRoute
   '/admin/health': typeof AuthenticatedAdminHealthRoute
   '/admin/judge': typeof AuthenticatedAdminJudgeRoute
@@ -1306,7 +1418,9 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
+  '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
@@ -1332,11 +1446,22 @@ export interface FileRoutesById {
   '/communities/$slug': typeof CommunitiesSlugRouteWithChildren
   '/creator/$id': typeof CreatorIdRoute
   '/judge/leaderboards': typeof JudgeLeaderboardsRoute
+  '/legal/acceptable-use': typeof LegalAcceptableUseRoute
+  '/legal/accessibility': typeof LegalAccessibilityRoute
+  '/legal/advertising': typeof LegalAdvertisingRoute
+  '/legal/ai-disclaimer': typeof LegalAiDisclaimerRoute
+  '/legal/children-safety': typeof LegalChildrenSafetyRoute
   '/legal/community-guidelines': typeof LegalCommunityGuidelinesRoute
   '/legal/compliance': typeof LegalComplianceRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/creator-terms': typeof LegalCreatorTermsRoute
+  '/legal/data-retention': typeof LegalDataRetentionRoute
   '/legal/dmca': typeof LegalDmcaRoute
   '/legal/eula': typeof LegalEulaRoute
+  '/legal/marketplace-terms': typeof LegalMarketplaceTermsRoute
+  '/legal/payments-refunds': typeof LegalPaymentsRefundsRoute
   '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/safety-disclaimer': typeof LegalSafetyDisclaimerRoute
   '/legal/terms': typeof LegalTermsRoute
   '/marketplace_/$id': typeof MarketplaceIdRoute
   '/p/$id': typeof PIdRoute
@@ -1347,6 +1472,7 @@ export interface FileRoutesById {
   '/u/$handle': typeof UHandleRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
+  '/legal/': typeof LegalIndexRoute
   '/_authenticated/admin/crashes': typeof AuthenticatedAdminCrashesRoute
   '/_authenticated/admin/health': typeof AuthenticatedAdminHealthRoute
   '/_authenticated/admin/judge': typeof AuthenticatedAdminJudgeRoute
@@ -1461,7 +1587,9 @@ export interface FileRouteTypes {
     | '/'
     | '/atlas'
     | '/auth'
+    | '/contact'
     | '/creators'
+    | '/download'
     | '/events'
     | '/marketplace'
     | '/notifications'
@@ -1487,11 +1615,22 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/acceptable-use'
+    | '/legal/accessibility'
+    | '/legal/advertising'
+    | '/legal/ai-disclaimer'
+    | '/legal/children-safety'
     | '/legal/community-guidelines'
     | '/legal/compliance'
+    | '/legal/cookies'
+    | '/legal/creator-terms'
+    | '/legal/data-retention'
     | '/legal/dmca'
     | '/legal/eula'
+    | '/legal/marketplace-terms'
+    | '/legal/payments-refunds'
     | '/legal/privacy'
+    | '/legal/safety-disclaimer'
     | '/legal/terms'
     | '/marketplace/$id'
     | '/p/$id'
@@ -1502,6 +1641,7 @@ export interface FileRouteTypes {
     | '/u/$handle'
     | '/communities/'
     | '/judge/'
+    | '/legal/'
     | '/admin/crashes'
     | '/admin/health'
     | '/admin/judge'
@@ -1614,7 +1754,9 @@ export interface FileRouteTypes {
     | '/'
     | '/atlas'
     | '/auth'
+    | '/contact'
     | '/creators'
+    | '/download'
     | '/events'
     | '/marketplace'
     | '/notifications'
@@ -1637,11 +1779,22 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/acceptable-use'
+    | '/legal/accessibility'
+    | '/legal/advertising'
+    | '/legal/ai-disclaimer'
+    | '/legal/children-safety'
     | '/legal/community-guidelines'
     | '/legal/compliance'
+    | '/legal/cookies'
+    | '/legal/creator-terms'
+    | '/legal/data-retention'
     | '/legal/dmca'
     | '/legal/eula'
+    | '/legal/marketplace-terms'
+    | '/legal/payments-refunds'
     | '/legal/privacy'
+    | '/legal/safety-disclaimer'
     | '/legal/terms'
     | '/marketplace/$id'
     | '/p/$id'
@@ -1652,6 +1805,7 @@ export interface FileRouteTypes {
     | '/u/$handle'
     | '/communities'
     | '/judge'
+    | '/legal'
     | '/admin/crashes'
     | '/admin/health'
     | '/admin/judge'
@@ -1764,7 +1918,9 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/atlas'
     | '/auth'
+    | '/contact'
     | '/creators'
+    | '/download'
     | '/events'
     | '/marketplace'
     | '/notifications'
@@ -1790,11 +1946,22 @@ export interface FileRouteTypes {
     | '/communities/$slug'
     | '/creator/$id'
     | '/judge/leaderboards'
+    | '/legal/acceptable-use'
+    | '/legal/accessibility'
+    | '/legal/advertising'
+    | '/legal/ai-disclaimer'
+    | '/legal/children-safety'
     | '/legal/community-guidelines'
     | '/legal/compliance'
+    | '/legal/cookies'
+    | '/legal/creator-terms'
+    | '/legal/data-retention'
     | '/legal/dmca'
     | '/legal/eula'
+    | '/legal/marketplace-terms'
+    | '/legal/payments-refunds'
     | '/legal/privacy'
+    | '/legal/safety-disclaimer'
     | '/legal/terms'
     | '/marketplace_/$id'
     | '/p/$id'
@@ -1805,6 +1972,7 @@ export interface FileRouteTypes {
     | '/u/$handle'
     | '/communities/'
     | '/judge/'
+    | '/legal/'
     | '/_authenticated/admin/crashes'
     | '/_authenticated/admin/health'
     | '/_authenticated/admin/judge'
@@ -1919,7 +2087,9 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AtlasRoute: typeof AtlasRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
   CreatorsRoute: typeof CreatorsRoute
+  DownloadRoute: typeof DownloadRoute
   EventsRoute: typeof EventsRoute
   MarketplaceRoute: typeof MarketplaceRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -1931,11 +2101,22 @@ export interface RootRouteChildren {
   CommunitiesSlugRoute: typeof CommunitiesSlugRouteWithChildren
   CreatorIdRoute: typeof CreatorIdRoute
   JudgeLeaderboardsRoute: typeof JudgeLeaderboardsRoute
+  LegalAcceptableUseRoute: typeof LegalAcceptableUseRoute
+  LegalAccessibilityRoute: typeof LegalAccessibilityRoute
+  LegalAdvertisingRoute: typeof LegalAdvertisingRoute
+  LegalAiDisclaimerRoute: typeof LegalAiDisclaimerRoute
+  LegalChildrenSafetyRoute: typeof LegalChildrenSafetyRoute
   LegalCommunityGuidelinesRoute: typeof LegalCommunityGuidelinesRoute
   LegalComplianceRoute: typeof LegalComplianceRoute
+  LegalCookiesRoute: typeof LegalCookiesRoute
+  LegalCreatorTermsRoute: typeof LegalCreatorTermsRoute
+  LegalDataRetentionRoute: typeof LegalDataRetentionRoute
   LegalDmcaRoute: typeof LegalDmcaRoute
   LegalEulaRoute: typeof LegalEulaRoute
+  LegalMarketplaceTermsRoute: typeof LegalMarketplaceTermsRoute
+  LegalPaymentsRefundsRoute: typeof LegalPaymentsRefundsRoute
   LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalSafetyDisclaimerRoute: typeof LegalSafetyDisclaimerRoute
   LegalTermsRoute: typeof LegalTermsRoute
   MarketplaceIdRoute: typeof MarketplaceIdRoute
   PIdRoute: typeof PIdRoute
@@ -1945,6 +2126,7 @@ export interface RootRouteChildren {
   UHandleRoute: typeof UHandleRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
+  LegalIndexRoute: typeof LegalIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   JudgeEntriesIdRoute: typeof JudgeEntriesIdRoute
   JudgeEventsSlugRoute: typeof JudgeEventsSlugRoute
@@ -2018,11 +2200,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/download': {
+      id: '/download'
+      path: '/download'
+      fullPath: '/download'
+      preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/creators': {
       id: '/creators'
       path: '/creators'
       fullPath: '/creators'
       preLoaderRoute: typeof CreatorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -2051,6 +2247,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/': {
+      id: '/legal/'
+      path: '/legal'
+      fullPath: '/legal/'
+      preLoaderRoute: typeof LegalIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/judge/': {
@@ -2123,11 +2326,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/safety-disclaimer': {
+      id: '/legal/safety-disclaimer'
+      path: '/legal/safety-disclaimer'
+      fullPath: '/legal/safety-disclaimer'
+      preLoaderRoute: typeof LegalSafetyDisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/privacy': {
       id: '/legal/privacy'
       path: '/legal/privacy'
       fullPath: '/legal/privacy'
       preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/payments-refunds': {
+      id: '/legal/payments-refunds'
+      path: '/legal/payments-refunds'
+      fullPath: '/legal/payments-refunds'
+      preLoaderRoute: typeof LegalPaymentsRefundsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/marketplace-terms': {
+      id: '/legal/marketplace-terms'
+      path: '/legal/marketplace-terms'
+      fullPath: '/legal/marketplace-terms'
+      preLoaderRoute: typeof LegalMarketplaceTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/legal/eula': {
@@ -2144,6 +2368,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LegalDmcaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/legal/data-retention': {
+      id: '/legal/data-retention'
+      path: '/legal/data-retention'
+      fullPath: '/legal/data-retention'
+      preLoaderRoute: typeof LegalDataRetentionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/creator-terms': {
+      id: '/legal/creator-terms'
+      path: '/legal/creator-terms'
+      fullPath: '/legal/creator-terms'
+      preLoaderRoute: typeof LegalCreatorTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/cookies': {
+      id: '/legal/cookies'
+      path: '/legal/cookies'
+      fullPath: '/legal/cookies'
+      preLoaderRoute: typeof LegalCookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/legal/compliance': {
       id: '/legal/compliance'
       path: '/legal/compliance'
@@ -2156,6 +2401,41 @@ declare module '@tanstack/react-router' {
       path: '/legal/community-guidelines'
       fullPath: '/legal/community-guidelines'
       preLoaderRoute: typeof LegalCommunityGuidelinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/children-safety': {
+      id: '/legal/children-safety'
+      path: '/legal/children-safety'
+      fullPath: '/legal/children-safety'
+      preLoaderRoute: typeof LegalChildrenSafetyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/ai-disclaimer': {
+      id: '/legal/ai-disclaimer'
+      path: '/legal/ai-disclaimer'
+      fullPath: '/legal/ai-disclaimer'
+      preLoaderRoute: typeof LegalAiDisclaimerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/advertising': {
+      id: '/legal/advertising'
+      path: '/legal/advertising'
+      fullPath: '/legal/advertising'
+      preLoaderRoute: typeof LegalAdvertisingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/accessibility': {
+      id: '/legal/accessibility'
+      path: '/legal/accessibility'
+      fullPath: '/legal/accessibility'
+      preLoaderRoute: typeof LegalAccessibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/acceptable-use': {
+      id: '/legal/acceptable-use'
+      path: '/legal/acceptable-use'
+      fullPath: '/legal/acceptable-use'
+      preLoaderRoute: typeof LegalAcceptableUseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/judge/leaderboards': {
@@ -3377,7 +3657,9 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AtlasRoute: AtlasRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
   CreatorsRoute: CreatorsRoute,
+  DownloadRoute: DownloadRoute,
   EventsRoute: EventsRoute,
   MarketplaceRoute: MarketplaceRoute,
   NotificationsRoute: NotificationsRoute,
@@ -3389,11 +3671,22 @@ const rootRouteChildren: RootRouteChildren = {
   CommunitiesSlugRoute: CommunitiesSlugRouteWithChildren,
   CreatorIdRoute: CreatorIdRoute,
   JudgeLeaderboardsRoute: JudgeLeaderboardsRoute,
+  LegalAcceptableUseRoute: LegalAcceptableUseRoute,
+  LegalAccessibilityRoute: LegalAccessibilityRoute,
+  LegalAdvertisingRoute: LegalAdvertisingRoute,
+  LegalAiDisclaimerRoute: LegalAiDisclaimerRoute,
+  LegalChildrenSafetyRoute: LegalChildrenSafetyRoute,
   LegalCommunityGuidelinesRoute: LegalCommunityGuidelinesRoute,
   LegalComplianceRoute: LegalComplianceRoute,
+  LegalCookiesRoute: LegalCookiesRoute,
+  LegalCreatorTermsRoute: LegalCreatorTermsRoute,
+  LegalDataRetentionRoute: LegalDataRetentionRoute,
   LegalDmcaRoute: LegalDmcaRoute,
   LegalEulaRoute: LegalEulaRoute,
+  LegalMarketplaceTermsRoute: LegalMarketplaceTermsRoute,
+  LegalPaymentsRefundsRoute: LegalPaymentsRefundsRoute,
   LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalSafetyDisclaimerRoute: LegalSafetyDisclaimerRoute,
   LegalTermsRoute: LegalTermsRoute,
   MarketplaceIdRoute: MarketplaceIdRoute,
   PIdRoute: PIdRoute,
@@ -3403,6 +3696,7 @@ const rootRouteChildren: RootRouteChildren = {
   UHandleRoute: UHandleRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
+  LegalIndexRoute: LegalIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   JudgeEntriesIdRoute: JudgeEntriesIdRoute,
   JudgeEventsSlugRoute: JudgeEventsSlugRoute,
@@ -3420,13 +3714,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
