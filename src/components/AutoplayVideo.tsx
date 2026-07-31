@@ -37,6 +37,22 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
   useImperativeHandle(forwardedRef, () => ref.current as HTMLVideoElement, []);
   const [inView, setInView] = useState(false);
 
+  // Adaptive streaming: HLS sources are attached via hls.js (or natively on Safari).
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !isHlsUrl(src)) return;
+    let handle: { destroy: () => void } | null = null;
+    let cancelled = false;
+    attachHls(el, src).then((h) => {
+      if (cancelled) h.destroy();
+      else handle = h;
+    });
+    return () => {
+      cancelled = true;
+      handle?.destroy();
+    };
+  }, [src]);
+
   // Visibility
   useEffect(() => {
     const el = ref.current;
@@ -48,6 +64,8 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
     io.observe(el);
     return () => io.disconnect();
   }, [forcePlay, threshold]);
+
+
 
   // Play/pause
   useEffect(() => {
