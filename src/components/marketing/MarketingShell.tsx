@@ -206,19 +206,25 @@ function MarketingStyles() {
   return (
     <style>{`
 .mkt {
-  --bg: #07080a;
-  --bg-2: #0c0e11;
-  --line: rgba(255,255,255,0.09);
-  --txt: #f4f5f6;
-  --txt-2: #a4a9ae;
-  --neon: #00e05e;
-  --neon-2: #00a844;
+  --bg: #08090b;
+  --bg-2: #0b0d10;
+  --surface: rgba(255,255,255,0.035);
+  --surface-2: rgba(255,255,255,0.06);
+  --line: rgba(255,255,255,0.08);
+  --line-2: rgba(255,255,255,0.14);
+  --txt: #f7f8f8;
+  --txt-2: #9ba1a8;
+  --txt-3: #6d747c;
+  --neon: #22e06a;
+  --neon-2: #10b95a;
+  --neon-soft: rgba(34,224,106,0.12);
   background: var(--bg);
   color: var(--txt);
   min-height: 100svh;
   font-family: var(--font-sans, "DM Sans", system-ui, sans-serif);
   scroll-behavior: smooth;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 /* Hide the in-app chrome whenever a public marketing page is mounted.
    Only explicitly tagged app chrome is hidden — never a wrapper that
@@ -228,13 +234,23 @@ body:has(.mkt) header[data-app-chrome] { display: none !important; }
 body:has(.mkt) > div > main { padding-bottom: 0 !important; }
 
 .mkt ::selection { background: var(--neon); color: #06070a; }
-.mkt-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.mkt-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 22px; }
 .mkt-muted { color: var(--txt-2); }
-.mkt h1, .mkt h2, .mkt h3 { font-family: var(--font-display, "Space Grotesk", system-ui, sans-serif); letter-spacing: -0.03em; }
-.mkt-eyebrow {
-  font-family: var(--font-mono, "JetBrains Mono", monospace);
-  font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--neon);
+/* The app shell is light-themed; force marketing typography back to the dark palette. */
+.mkt h1, .mkt h2, .mkt h3, .mkt h4, .mkt strong, .mkt blockquote {
+  font-family: var(--font-display, "Space Grotesk", system-ui, sans-serif);
+  letter-spacing: -0.028em;
+  color: var(--txt);
+  font-weight: 600;
 }
+.mkt p, .mkt li, .mkt span, .mkt figcaption, .mkt label { color: inherit; }
+.mkt svg { color: inherit; }
+.mkt-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--neon);
+}
+
 
 /* NAV */
 .mkt-nav { position: sticky; top: 0; z-index: 50; transition: background 240ms ease, border-color 240ms ease; border-bottom: 1px solid transparent; }
