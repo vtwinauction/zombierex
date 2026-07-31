@@ -243,7 +243,6 @@ body:has(.mkt) > div > main { padding-bottom: 0 !important; }
   color: var(--txt);
   font-weight: 600;
 }
-.mkt p, .mkt li, .mkt span, .mkt figcaption, .mkt label { color: inherit; }
 .mkt svg { color: inherit; }
 .mkt-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
