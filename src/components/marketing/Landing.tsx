@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 import { MarketingShell } from "./MarketingShell";
 import { StoreButtons } from "./StoreButtons";
 import heroBg from "@/assets/auth-jungle-bg.jpg";
+import { FossilRibs, BoneRule, HexBolt, TreadStrip, ClawPiston } from "./ThemeDecor";
 
 const ICONS: Record<string, typeof Sparkles> = {
   sparkles: Sparkles, video: Video, gauge: Gauge, trophy: Trophy, calendar: Calendar,
