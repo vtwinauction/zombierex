@@ -48,17 +48,26 @@ function FeatureGuidePage() {
             <p>{guide.tagline}</p>
           </div>
 
-          <img
-            src={guide.image}
-            alt={guide.imageAlt}
-            loading="lazy"
-            width={992}
-            height={672}
+          <div
             style={{
-              width: "100%", maxHeight: 460, objectFit: "cover", borderRadius: 16, marginTop: 26,
+              marginTop: 26, borderRadius: 20, padding: 16,
               border: "1px solid var(--line, rgba(255,255,255,0.09))",
+              background: "rgba(255,255,255,0.03)",
+              display: "flex", justifyContent: "center",
             }}
-          />
+          >
+            <img
+              src={guide.image}
+              alt={guide.imageAlt}
+              loading="lazy"
+              style={{
+                width: "100%", maxWidth: 300, height: "auto", maxHeight: 620,
+                objectFit: "contain", borderRadius: 14,
+                border: "1px solid var(--line, rgba(255,255,255,0.09))",
+              }}
+            />
+          </div>
+
 
           <p className="mkt-muted" style={{ marginTop: 22, fontSize: 15, lineHeight: 1.7, maxWidth: 720 }}>
             {guide.intro}
