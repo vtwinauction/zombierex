@@ -47,8 +47,10 @@ export function MarketingShell({ children }: { children: ReactNode }) {
             {NAV.map((n) => (
               <a key={n.href} href={n.href}>{n.label}</a>
             ))}
+            <Link to="/guide">Guide</Link>
             <Link to="/download">Download</Link>
             <Link to="/legal">Legal</Link>
+
           </nav>
 
           <div className="mkt-nav-cta">

@@ -16,6 +16,7 @@ import { Route as ReelsRouteImport } from './routes/reels'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as CreatorsRouteImport } from './routes/creators'
@@ -210,6 +211,11 @@ const NotificationsRoute = NotificationsRouteImport.update({
 const MarketplaceRoute = MarketplaceRouteImport.update({
   id: '/marketplace',
   path: '/marketplace',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
@@ -1097,6 +1103,7 @@ export interface FileRoutesByFullPath {
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
+  '/guide': typeof GuideRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
@@ -1265,6 +1272,7 @@ export interface FileRoutesByTo {
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
+  '/guide': typeof GuideRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
@@ -1431,6 +1439,7 @@ export interface FileRoutesById {
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
+  '/guide': typeof GuideRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
@@ -1601,6 +1610,7 @@ export interface FileRouteTypes {
     | '/creators'
     | '/download'
     | '/events'
+    | '/guide'
     | '/marketplace'
     | '/notifications'
     | '/profile'
@@ -1769,6 +1779,7 @@ export interface FileRouteTypes {
     | '/creators'
     | '/download'
     | '/events'
+    | '/guide'
     | '/marketplace'
     | '/notifications'
     | '/profile'
@@ -1934,6 +1945,7 @@ export interface FileRouteTypes {
     | '/creators'
     | '/download'
     | '/events'
+    | '/guide'
     | '/marketplace'
     | '/notifications'
     | '/profile'
@@ -2104,6 +2116,7 @@ export interface RootRouteChildren {
   CreatorsRoute: typeof CreatorsRoute
   DownloadRoute: typeof DownloadRoute
   EventsRoute: typeof EventsRoute
+  GuideRoute: typeof GuideRoute
   MarketplaceRoute: typeof MarketplaceRoute
   NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
@@ -2204,6 +2217,13 @@ declare module '@tanstack/react-router' {
       path: '/marketplace'
       fullPath: '/marketplace'
       preLoaderRoute: typeof MarketplaceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -3683,6 +3703,7 @@ const rootRouteChildren: RootRouteChildren = {
   CreatorsRoute: CreatorsRoute,
   DownloadRoute: DownloadRoute,
   EventsRoute: EventsRoute,
+  GuideRoute: GuideRoute,
   MarketplaceRoute: MarketplaceRoute,
   NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
