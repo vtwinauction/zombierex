@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { MarketingShell } from "./MarketingShell";
+import { slugify } from "@/config/feature-guides";
 import { StoreButtons } from "./StoreButtons";
 import heroBg from "@/assets/auth-jungle-bg.jpg";
 import { FossilRibs, BoneRule, HexBolt, TreadStrip, ClawPiston } from "./ThemeDecor";
