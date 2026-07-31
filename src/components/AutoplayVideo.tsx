@@ -1,4 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type VideoHTMLAttributes } from "react";
+import { attachHls, isHlsUrl } from "@/lib/hls-attach";
+
 
 /**
  * Video that autoplays muted when visible and pauses off-screen —

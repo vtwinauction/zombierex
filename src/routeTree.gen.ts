@@ -136,6 +136,7 @@ import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/l
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as CommunitiesSlugChallengesChallengeIdRouteImport } from './routes/communities.$slug.challenges.$challengeId'
+import { Route as ApiPublicWebhooksStreamRouteImport } from './routes/api/public/webhooks.stream'
 import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/public/webhooks.payments'
 import { Route as ApiPublicHooksRunPayoutsRouteImport } from './routes/api/public/hooks/run-payouts'
 import { Route as ApiPublicHooksPublishScheduledRouteImport } from './routes/api/public/hooks/publish-scheduled'
@@ -848,6 +849,11 @@ const CommunitiesSlugChallengesChallengeIdRoute =
     path: '/challenges/$challengeId',
     getParentRoute: () => CommunitiesSlugRoute,
   } as any)
+const ApiPublicWebhooksStreamRoute = ApiPublicWebhooksStreamRouteImport.update({
+  id: '/api/public/webhooks/stream',
+  path: '/api/public/webhooks/stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhooksPaymentsRoute =
   ApiPublicWebhooksPaymentsRouteImport.update({
     id: '/api/public/webhooks/payments',
@@ -1134,6 +1140,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
+  '/api/public/webhooks/stream': typeof ApiPublicWebhooksStreamRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1282,6 +1289,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
+  '/api/public/webhooks/stream': typeof ApiPublicWebhooksStreamRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1436,6 +1444,7 @@ export interface FileRoutesById {
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
+  '/api/public/webhooks/stream': typeof ApiPublicWebhooksStreamRoute
   '/communities/$slug/challenges/$challengeId': typeof CommunitiesSlugChallengesChallengeIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1590,6 +1599,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled'
     | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
+    | '/api/public/webhooks/stream'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1738,6 +1748,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled'
     | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
+    | '/api/public/webhooks/stream'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1891,6 +1902,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/publish-scheduled'
     | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
+    | '/api/public/webhooks/stream'
     | '/communities/$slug/challenges/$challengeId'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1942,6 +1954,7 @@ export interface RootRouteChildren {
   ApiPublicHooksPublishScheduledRoute: typeof ApiPublicHooksPublishScheduledRoute
   ApiPublicHooksRunPayoutsRoute: typeof ApiPublicHooksRunPayoutsRoute
   ApiPublicWebhooksPaymentsRoute: typeof ApiPublicWebhooksPaymentsRoute
+  ApiPublicWebhooksStreamRoute: typeof ApiPublicWebhooksStreamRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
@@ -2838,6 +2851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunitiesSlugChallengesChallengeIdRouteImport
       parentRoute: typeof CommunitiesSlugRoute
     }
+    '/api/public/webhooks/stream': {
+      id: '/api/public/webhooks/stream'
+      path: '/api/public/webhooks/stream'
+      fullPath: '/api/public/webhooks/stream'
+      preLoaderRoute: typeof ApiPublicWebhooksStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhooks/payments': {
       id: '/api/public/webhooks/payments'
       path: '/api/public/webhooks/payments'
@@ -3392,6 +3412,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksPublishScheduledRoute: ApiPublicHooksPublishScheduledRoute,
   ApiPublicHooksRunPayoutsRoute: ApiPublicHooksRunPayoutsRoute,
   ApiPublicWebhooksPaymentsRoute: ApiPublicWebhooksPaymentsRoute,
+  ApiPublicWebhooksStreamRoute: ApiPublicWebhooksStreamRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
@@ -3399,13 +3420,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
