@@ -179,14 +179,24 @@ function Features() {
         <div className="mkt-grid">
           {siteConfig.features.map((f, i) => {
             const Icon = ICONS[f.icon] ?? Sparkles;
+            const slug = slugify(f.title);
             return (
               <Reveal key={f.title} delay={(i % 4) * 60}>
-                <article className="mkt-card mkt-feature">
+                <Link
+                  to="/features/$slug"
+                  params={{ slug }}
+                  className="mkt-card mkt-feature"
+                  style={{ display: "block", color: "inherit", textDecoration: "none" }}
+                  aria-label={`How to use ${f.title}`}
+                >
                   <span className="mkt-feature-bolt"><HexBolt size={11} /></span>
                   <span className="mkt-feature-icon"><Icon size={18} strokeWidth={1.75} /></span>
                   <h3>{f.title}</h3>
                   <p className="mkt-muted">{f.body}</p>
-                </article>
+                  <span className="mkt-textlink" style={{ marginTop: 12, fontSize: 12.5 }}>
+                    How to use <ArrowRight size={13} />
+                  </span>
+                </Link>
               </Reveal>
             );
           })}
