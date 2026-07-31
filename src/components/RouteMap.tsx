@@ -12,6 +12,20 @@ type CommunityPoi = { id?: string; lat: number; lng: number; name?: string; kind
 let loaderPromise: Promise<any> | null = null;
 const GOOGLE_MAPS_BROWSER_KEY_FALLBACK = "AIzaSyBmvJph4LmrbtW7skeczzpBIyb9WWzFKo4";
 
+/** Google renders its own grey "Oops!" overlay when the key is rejected.
+ *  We intercept gm_authFailure so the branded canvas fallback shows instead. */
+let mapsAuthFailed = false;
+const authFailListeners = new Set<() => void>();
+export function onMapsAuthFailure(fn: () => void) {
+  authFailListeners.add(fn);
+  return () => {
+    authFailListeners.delete(fn);
+  };
+}
+export function mapsAuthHasFailed() {
+  return mapsAuthFailed;
+}
+
 function loadGoogleMaps(): Promise<any> {
   if (typeof window === "undefined") return Promise.reject(new Error("SSR"));
   if ((window as any).google?.maps) return Promise.resolve((window as any).google);
@@ -19,6 +33,10 @@ function loadGoogleMaps(): Promise<any> {
   const key = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string) || GOOGLE_MAPS_BROWSER_KEY_FALLBACK;
   const channel = (import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID as string) || "";
   if (!key) return Promise.reject(new Error("Missing maps key"));
+  (window as any).gm_authFailure = () => {
+    mapsAuthFailed = true;
+    authFailListeners.forEach((fn) => fn());
+  };
   loaderPromise = new Promise((resolve, reject) => {
     (window as any).__rexInitMap = () => resolve((window as any).google);
     const s = document.createElement("script");
@@ -32,6 +50,7 @@ function loadGoogleMaps(): Promise<any> {
   });
   return loaderPromise;
 }
+
 
 export function RouteMap({
   path = [],
@@ -70,6 +89,14 @@ export function RouteMap({
   const [err, setErr] = useState<string | null>(null);
   const userMarkerRef = useRef<any>(null);
   const communityMarkersRef = useRef<any[]>([]);
+
+  // Key rejected (referrer/billing) → swap to the offline canvas map.
+  useEffect(() => {
+    if (mapsAuthHasFailed()) setErr("Map key rejected for this domain");
+    return onMapsAuthFailure(() => setErr("Map key rejected for this domain"));
+  }, []);
+
+
 
   // init
   useEffect(() => {
