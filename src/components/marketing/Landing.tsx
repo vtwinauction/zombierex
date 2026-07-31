@@ -20,7 +20,8 @@ const ICONS: Record<string, typeof Sparkles> = {
 /** Reveals children once they scroll into view. */
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [seen, setSeen] = useState(false);
+  // Visible by default so content never depends on observer timing.
+  const [seen, setSeen] = useState(true);
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof IntersectionObserver === "undefined") { setSeen(true); return; }

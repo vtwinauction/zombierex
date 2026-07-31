@@ -220,6 +220,11 @@ function MarketingStyles() {
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
+/* Hide the in-app chrome whenever a public marketing page is mounted. */
+body:has(.mkt) > div > main > div:first-child:not(:has(.mkt)),
+body:has(.mkt) nav[data-bottom-nav],
+body:has(.mkt) header[data-app-chrome] { display: none !important; }
+body:has(.mkt) > div > main { padding-bottom: 0 !important; }
 .mkt ::selection { background: var(--neon); color: #06070a; }
 .mkt-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 20px; }
 .mkt-muted { color: var(--txt-2); }
