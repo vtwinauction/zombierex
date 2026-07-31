@@ -100,11 +100,6 @@ export function MarketingFooter() {
             <p className="mkt-muted mkt-footer-blurb">
               {siteConfig.subheadline}
             </p>
-            <div className="mkt-social">
-              {siteConfig.social.map((s) => (
-                <a key={s.label} href={s.href} target="_blank" rel="noreferrer noopener">{s.label}</a>
-              ))}
-            </div>
           </div>
 
           <div>
@@ -323,8 +318,6 @@ body:has(.mkt) > div > main { padding-bottom: 0 !important; }
 .mkt-footer a { display: block; font-size: 13px; color: var(--txt-2); padding: 5px 0; }
 .mkt-footer a:hover { color: var(--neon); }
 .mkt-footer-blurb { font-size: 13px; line-height: 1.6; margin: 14px 0; max-width: 380px; }
-.mkt-social { display: flex; flex-wrap: wrap; gap: 14px; }
-.mkt-social a { font-size: 12px; }
 .mkt-footer-base { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--txt-2); }
 
 /* COOKIE */

@@ -13,7 +13,7 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: "Contact ZOMBIEREX" },
       { property: "og:description", content: "Support, partnerships, advertising, press and legal contacts for ZOMBIEREX." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      
     ],
   }),
   component: ContactPage,

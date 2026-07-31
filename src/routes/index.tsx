@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "ZOMBIEREX — The World's Automotive Social Network" },
       { property: "og:description", content: "Cars, motorcycles, drag racing, drifting and car shows in one app. Join 128,000+ riders and drivers worldwide." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      
     ],
   }),
   component: RootEntry,
