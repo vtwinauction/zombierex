@@ -182,6 +182,7 @@ function Features() {
             return (
               <Reveal key={f.title} delay={(i % 4) * 60}>
                 <article className="mkt-card mkt-feature">
+                  <span className="mkt-feature-bolt"><HexBolt size={11} /></span>
                   <span className="mkt-feature-icon"><Icon size={18} strokeWidth={1.75} /></span>
                   <h3>{f.title}</h3>
                   <p className="mkt-muted">{f.body}</p>
