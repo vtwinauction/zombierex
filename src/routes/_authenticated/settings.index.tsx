@@ -85,6 +85,7 @@ const SECTIONS: Array<{ id: string; title: string; hint: string; items: Array<{ 
     { label: "Download your data", hint: "Get a copy of your ZOMBIEREX information", kind: "download-data" },
   ]},
   { id: "support", title: "Help & about", hint: "Support, legal and app info", items: [
+    { label: "How to use ZOMBIEREX", hint: "A tour of every page, setting and option", kind: "guide" },
     { label: "Help centre", hint: "Guides and answers to common questions", kind: "help" },
     { label: "Report a problem", hint: "Let us know if something isn't working", kind: "report" },
     { label: "About ZOMBIEREX", hint: "App version and credits", kind: "about" },

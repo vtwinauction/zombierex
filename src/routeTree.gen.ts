@@ -89,6 +89,7 @@ import { Route as AuthenticatedSettingsPrivacyRouteImport } from './routes/_auth
 import { Route as AuthenticatedSettingsPasswordRouteImport } from './routes/_authenticated/settings.password'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings.notifications'
 import { Route as AuthenticatedSettingsHelpRouteImport } from './routes/_authenticated/settings.help'
+import { Route as AuthenticatedSettingsGuideRouteImport } from './routes/_authenticated/settings.guide'
 import { Route as AuthenticatedSettingsExportRouteImport } from './routes/_authenticated/settings.export'
 import { Route as AuthenticatedSettingsEmailRouteImport } from './routes/_authenticated/settings.email'
 import { Route as AuthenticatedSettingsDeleteAccountRouteImport } from './routes/_authenticated/settings.delete-account'
@@ -587,6 +588,12 @@ const AuthenticatedSettingsHelpRoute =
   AuthenticatedSettingsHelpRouteImport.update({
     id: '/help',
     path: '/help',
+    getParentRoute: () => AuthenticatedSettingsRoute,
+  } as any)
+const AuthenticatedSettingsGuideRoute =
+  AuthenticatedSettingsGuideRouteImport.update({
+    id: '/guide',
+    path: '/guide',
     getParentRoute: () => AuthenticatedSettingsRoute,
   } as any)
 const AuthenticatedSettingsExportRoute =
@@ -1196,6 +1203,7 @@ export interface FileRoutesByFullPath {
   '/settings/delete-account': typeof AuthenticatedSettingsDeleteAccountRoute
   '/settings/email': typeof AuthenticatedSettingsEmailRoute
   '/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/settings/guide': typeof AuthenticatedSettingsGuideRoute
   '/settings/help': typeof AuthenticatedSettingsHelpRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings/password': typeof AuthenticatedSettingsPasswordRoute
@@ -1359,6 +1367,7 @@ export interface FileRoutesByTo {
   '/settings/delete-account': typeof AuthenticatedSettingsDeleteAccountRoute
   '/settings/email': typeof AuthenticatedSettingsEmailRoute
   '/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/settings/guide': typeof AuthenticatedSettingsGuideRoute
   '/settings/help': typeof AuthenticatedSettingsHelpRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings/password': typeof AuthenticatedSettingsPasswordRoute
@@ -1528,6 +1537,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/delete-account': typeof AuthenticatedSettingsDeleteAccountRoute
   '/_authenticated/settings/email': typeof AuthenticatedSettingsEmailRoute
   '/_authenticated/settings/export': typeof AuthenticatedSettingsExportRoute
+  '/_authenticated/settings/guide': typeof AuthenticatedSettingsGuideRoute
   '/_authenticated/settings/help': typeof AuthenticatedSettingsHelpRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/settings/password': typeof AuthenticatedSettingsPasswordRoute
@@ -1697,6 +1707,7 @@ export interface FileRouteTypes {
     | '/settings/delete-account'
     | '/settings/email'
     | '/settings/export'
+    | '/settings/guide'
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/password'
@@ -1860,6 +1871,7 @@ export interface FileRouteTypes {
     | '/settings/delete-account'
     | '/settings/email'
     | '/settings/export'
+    | '/settings/guide'
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/password'
@@ -2028,6 +2040,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/delete-account'
     | '/_authenticated/settings/email'
     | '/_authenticated/settings/export'
+    | '/_authenticated/settings/guide'
     | '/_authenticated/settings/help'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/settings/password'
@@ -2702,6 +2715,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/settings/help'
       preLoaderRoute: typeof AuthenticatedSettingsHelpRouteImport
+      parentRoute: typeof AuthenticatedSettingsRoute
+    }
+    '/_authenticated/settings/guide': {
+      id: '/_authenticated/settings/guide'
+      path: '/guide'
+      fullPath: '/settings/guide'
+      preLoaderRoute: typeof AuthenticatedSettingsGuideRouteImport
       parentRoute: typeof AuthenticatedSettingsRoute
     }
     '/_authenticated/settings/export': {
@@ -3417,6 +3437,7 @@ interface AuthenticatedSettingsRouteChildren {
   AuthenticatedSettingsDeleteAccountRoute: typeof AuthenticatedSettingsDeleteAccountRoute
   AuthenticatedSettingsEmailRoute: typeof AuthenticatedSettingsEmailRoute
   AuthenticatedSettingsExportRoute: typeof AuthenticatedSettingsExportRoute
+  AuthenticatedSettingsGuideRoute: typeof AuthenticatedSettingsGuideRoute
   AuthenticatedSettingsHelpRoute: typeof AuthenticatedSettingsHelpRoute
   AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
   AuthenticatedSettingsPasswordRoute: typeof AuthenticatedSettingsPasswordRoute
@@ -3445,6 +3466,7 @@ const AuthenticatedSettingsRouteChildren: AuthenticatedSettingsRouteChildren = {
     AuthenticatedSettingsDeleteAccountRoute,
   AuthenticatedSettingsEmailRoute: AuthenticatedSettingsEmailRoute,
   AuthenticatedSettingsExportRoute: AuthenticatedSettingsExportRoute,
+  AuthenticatedSettingsGuideRoute: AuthenticatedSettingsGuideRoute,
   AuthenticatedSettingsHelpRoute: AuthenticatedSettingsHelpRoute,
   AuthenticatedSettingsNotificationsRoute:
     AuthenticatedSettingsNotificationsRoute,
