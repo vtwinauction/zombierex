@@ -3,14 +3,16 @@
  * Keyed by slug — the slug is derived from the feature title in site.ts.
  */
 
-import guideDrag from "@/assets/guide-drag.jpg";
-import guideAtlas from "@/assets/guide-atlas.jpg";
-import guideMarket from "@/assets/guide-market.jpg";
-import guideProfile from "@/assets/guide-profile.jpg";
-import postBike from "@/assets/post-bike-1.jpg";
-import postCar from "@/assets/post-car-1.jpg";
-import eventRide from "@/assets/event-ride.jpg";
-import partCarb from "@/assets/part-carb.jpg";
+import appReels from "@/assets/app-reels.jpg";
+import appAtlas from "@/assets/app-atlas.jpg";
+import appMarketplace from "@/assets/app-marketplace.jpg";
+import appProfile from "@/assets/app-profile.jpg";
+import appEvents from "@/assets/app-events.jpg";
+import appSearch from "@/assets/app-search.jpg";
+import appJudge from "@/assets/app-judge.jpg";
+import appCommunities from "@/assets/app-communities.jpg";
+import appLeaderboards from "@/assets/app-leaderboards.jpg";
+import appNotifications from "@/assets/app-notifications.jpg";
 
 export type FeatureGuide = {
   slug: string;
@@ -36,7 +38,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "ai-powered-feed",
     title: "AI-Powered Feed",
     tagline: "A feed that learns what you build, ride and chase.",
-    image: postBike,
+    image: appSearch,
     imageAlt: "ZOMBIEREX home feed showing a motorcycle build post",
     intro:
       "Your home tab mixes posts from riders you follow with builds the app thinks you'll care about. The more you like, save and linger, the sharper it gets.",
@@ -52,7 +54,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "reels-and-stories",
     title: "Reels & Stories",
     tagline: "Vertical short-form video built for engine noise.",
-    image: postCar,
+    image: appReels,
     imageAlt: "ZOMBIEREX reels screen with a full-screen vertical clip",
     intro:
       "Reels is full-screen vertical video. Stories sit at the top of the feed and disappear after 24 hours.",
@@ -68,7 +70,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "live-gps-drag-racing",
     title: "Live GPS Drag Racing",
     tagline: "Verified 0–60, 60ft and quarter-mile timing.",
-    image: guideDrag,
+    image: appLeaderboards,
     imageAlt: "ZOMBIEREX drag racing timing screen with christmas tree lights",
     intro:
       "The drag module records high-frequency GPS while you launch, then validates the run and posts a verified time card.",
@@ -84,7 +86,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "leaderboards",
     title: "Leaderboards",
     tagline: "Global and local performance records.",
-    image: guideDrag,
+    image: appLeaderboards,
     imageAlt: "ZOMBIEREX leaderboard of verified drag times",
     intro: "Every verified run feeds ranked boards you can filter down to your city, your class or your exact model.",
     steps: [
@@ -99,7 +101,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "events-calendar",
     title: "Events Calendar",
     tagline: "Meets, rallies, track days and car shows.",
-    image: eventRide,
+    image: appEvents,
     imageAlt: "ZOMBIEREX events screen showing a group ride",
     intro: "Find what's happening near you, RSVP or buy a ticket, and see who else is going before you commit.",
     steps: [
@@ -114,8 +116,8 @@ export const featureGuides: FeatureGuide[] = [
     slug: "ai-judging",
     title: "AI Judging",
     tagline: "Vision-based scoring for show and build competitions.",
-    image: postCar,
-    imageAlt: "ZOMBIEREX AI judge report card for a build",
+    image: appJudge,
+    imageAlt: "ZOMBIEREX AI judge screen",
     intro: "Submit photos and video of a build and the judge scores paint, fitment, welds, detail and presentation, then returns a report card.",
     steps: [
       { title: "Open Judge → Enter", body: "Pick an open competition or run a private practice score." },
@@ -129,7 +131,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "trophy-tracking",
     title: "Trophy Tracking",
     tagline: "Every podium, permanently on your profile.",
-    image: guideProfile,
+    image: appProfile,
     imageAlt: "ZOMBIEREX profile showing trophies and achievements",
     intro: "Wins from judged events, drag boards and community challenges are pinned to your profile as a permanent record.",
     steps: [
@@ -144,7 +146,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "vehicle-profiles",
     title: "Vehicle Profiles",
     tagline: "Full build sheets, mods and service history.",
-    image: guideProfile,
+    image: appProfile,
     imageAlt: "ZOMBIEREX digital garage with multiple vehicles",
     intro: "Your garage holds every bike and car you own, each with its own gallery, spec sheet, mod list and service log.",
     steps: [
@@ -159,7 +161,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "clubs-and-communities",
     title: "Clubs & Communities",
     tagline: "Crews, chapters and local scenes.",
-    image: eventRide,
+    image: appEvents,
     imageAlt: "ZOMBIEREX community page with members and posts",
     intro: "Communities are topic or region based groups with their own feed, challenges, events and rules.",
     steps: [
@@ -174,7 +176,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "route-planning",
     title: "Route Planning",
     tagline: "Save roads, hotels, fuel stops and viewpoints.",
-    image: guideAtlas,
+    image: appAtlas,
     imageAlt: "ZOMBIEREX route atlas map with hotel, fuel and food pins",
     intro: "Atlas is the route hub: record a ride, drop points of interest along it, then share it so others can run the same trip.",
     steps: [
@@ -189,7 +191,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "live-maps",
     title: "Live Maps",
     tagline: "Real-time group ride tracking and SOS.",
-    image: guideAtlas,
+    image: appAtlas,
     imageAlt: "ZOMBIEREX live group ride map with rider positions",
     intro: "Start a group ride and everyone appears live on one map — plus an SOS button that sends your location to trusted contacts.",
     steps: [
@@ -204,7 +206,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "marketplace",
     title: "Marketplace",
     tagline: "Buy and sell vehicles, parts and gear.",
-    image: guideMarket,
+    image: appMarketplace,
     imageAlt: "ZOMBIEREX marketplace listings for bikes and parts",
     intro: "A dedicated marketplace for bikes, cars, parts and gear — with filters that actually understand vehicles.",
     steps: [
@@ -219,8 +221,8 @@ export const featureGuides: FeatureGuide[] = [
     slug: "workshops-and-dealers",
     title: "Workshops & Dealers",
     tagline: "Find trusted shops, tuners and dealers.",
-    image: partCarb,
-    imageAlt: "ZOMBIEREX workshop page with parts and services",
+    image: appCommunities,
+    imageAlt: "ZOMBIEREX communities and business discovery screen",
     intro: "Verified shops, tuners and dealers have their own pages with services, inventory, contact details and reviews.",
     steps: [
       { title: "Search by service", body: "Dyno tuning, paint, welding, tyres, ECU work — filter by what you actually need." },
@@ -234,8 +236,8 @@ export const featureGuides: FeatureGuide[] = [
     slug: "business-pages",
     title: "Business Pages",
     tagline: "Sponsors, performance shops and brands.",
-    image: partCarb,
-    imageAlt: "ZOMBIEREX business page with contact details and inventory",
+    image: appCommunities,
+    imageAlt: "ZOMBIEREX business and community screen",
     intro: "Businesses get a page built for selling: inventory, contact channels, events and promoted placement.",
     steps: [
       { title: "Apply", body: "Menu → Vendor → Apply. Submit your business details for verification." },
@@ -249,8 +251,8 @@ export const featureGuides: FeatureGuide[] = [
     slug: "messaging",
     title: "Messaging",
     tagline: "DMs, group chats and ride coordination.",
-    image: postBike,
-    imageAlt: "ZOMBIEREX direct messages screen",
+    image: appSearch,
+    imageAlt: "ZOMBIEREX messaging and discovery screen",
     intro: "Direct messages with riders, sellers and shops — plus group chats for planning rides.",
     steps: [
       { title: "Open Messages", body: "The inbox splits into people you follow and requests from everyone else." },
@@ -264,8 +266,8 @@ export const featureGuides: FeatureGuide[] = [
     slug: "notifications",
     title: "Notifications",
     tagline: "Never miss a challenge, drop or meet.",
-    image: guideProfile,
-    imageAlt: "ZOMBIEREX notification settings screen",
+    image: appNotifications,
+    imageAlt: "ZOMBIEREX notifications screen",
     intro: "Fine-grained control over what pings you — likes, comments, follows, orders, challenges and ride alerts.",
     steps: [
       { title: "Open Settings → Notifications", body: "Push and email are separate switches." },
@@ -279,7 +281,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "challenge-a-racer",
     title: "Challenge a Racer",
     tagline: "Head-to-head, verified, anywhere.",
-    image: guideDrag,
+    image: appLeaderboards,
     imageAlt: "ZOMBIEREX head-to-head challenge screen",
     intro: "Send a head-to-head challenge to any rider. Both runs are GPS-verified, wherever each of you is.",
     steps: [
@@ -294,7 +296,7 @@ export const featureGuides: FeatureGuide[] = [
     slug: "verified-racers",
     title: "Verified Racers",
     tagline: "Metallic tiers earned on the strip.",
-    image: guideProfile,
+    image: appProfile,
     imageAlt: "ZOMBIEREX profile with a metallic verified rider badge",
     intro: "Rider badges are earned, not bought. Tiers rise with verified runs, wins and clean community standing.",
     steps: [
