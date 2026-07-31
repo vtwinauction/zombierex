@@ -88,6 +88,14 @@ export function RouteMap({
   const userMarkerRef = useRef<any>(null);
   const communityMarkersRef = useRef<any[]>([]);
 
+  // Key rejected (referrer/billing) → swap to the offline canvas map.
+  useEffect(() => {
+    if (mapsAuthHasFailed()) setErr("Map key rejected for this domain");
+    return onMapsAuthFailure(() => setErr("Map key rejected for this domain"));
+  }, []);
+
+
+
   // init
   useEffect(() => {
     let cancelled = false;
