@@ -67,7 +67,7 @@ export function FirstRunTour() {
     setI(i + 1);
   }
 
-  if (!open) return null;
+  if (!open || marketing) return null;
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
 
