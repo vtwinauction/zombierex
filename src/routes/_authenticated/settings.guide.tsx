@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { SettingsScreen, Card } from "@/components/SettingsScreen";
+import shotStart from "@/assets/post-bike-1.jpg";
+import shotPages from "@/assets/event-ride.jpg";
+import shotSettings from "@/assets/post-car-1.jpg";
+import shotOptions from "@/assets/part-carb.jpg";
 
 export const Route = createFileRoute("/_authenticated/settings/guide")({
   head: () => ({
@@ -17,11 +21,12 @@ export const Route = createFileRoute("/_authenticated/settings/guide")({
 });
 
 type Row = { label: string; body: string; to?: string };
-type Group = { id: string; title: string; hint: string; rows: Row[] };
+type Group = { id: string; title: string; hint: string; image: string; rows: Row[] };
 
 const GROUPS: Group[] = [
   {
     id: "start",
+    image: shotStart,
     title: "Getting started",
     hint: "The first five minutes",
     rows: [
@@ -33,6 +38,7 @@ const GROUPS: Group[] = [
   },
   {
     id: "pages",
+    image: shotPages,
     title: "The main pages",
     hint: "What each tab does",
     rows: [
@@ -51,6 +57,7 @@ const GROUPS: Group[] = [
   },
   {
     id: "settings",
+    image: shotSettings,
     title: "Settings explained",
     hint: "Every switch, in plain language",
     rows: [
@@ -66,6 +73,7 @@ const GROUPS: Group[] = [
   },
   {
     id: "options",
+    image: shotOptions,
     title: "Options & power features",
     hint: "Things people miss",
     rows: [
@@ -108,6 +116,18 @@ function GuidePage() {
                 </span>
                 <span className="mono-tag shrink-0" style={{ color: "var(--color-silver)" }}>{isOpen ? "−" : "+"}</span>
               </button>
+
+              {isOpen && (
+                <div className="px-4 pb-3">
+                  <img
+                    src={g.image}
+                    alt={`${g.title} screen in the ZOMBIEREX app`}
+                    loading="lazy"
+                    className="h-40 w-full rounded-lg object-cover"
+                    style={{ border: "1px solid var(--color-hair-strong)" }}
+                  />
+                </div>
+              )}
 
               {isOpen && (
                 <div className="divide-y" style={{ borderTop: "1px solid var(--color-hair)", borderColor: "var(--color-hair)" }}>
