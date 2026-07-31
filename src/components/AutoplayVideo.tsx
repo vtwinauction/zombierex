@@ -95,7 +95,7 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
   return (
     <video
       ref={ref}
-      src={src}
+      src={isHlsUrl(src) ? undefined : src}
       poster={poster}
       muted={muted}
       playsInline
