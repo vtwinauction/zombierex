@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { SettingsScreen, Card } from "@/components/SettingsScreen";
-import shotStart from "@/assets/post-bike-1.jpg";
-import shotPages from "@/assets/event-ride.jpg";
-import shotSettings from "@/assets/post-car-1.jpg";
-import shotOptions from "@/assets/part-carb.jpg";
+import shotStart from "@/assets/app-profile.jpg";
+import shotPages from "@/assets/app-atlas.jpg";
+import shotSettings from "@/assets/app-search.jpg";
+import shotOptions from "@/assets/app-marketplace.jpg";
 
 export const Route = createFileRoute("/_authenticated/settings/guide")({
   head: () => ({
