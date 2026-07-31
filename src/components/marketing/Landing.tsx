@@ -512,11 +512,11 @@ function LandingStyles() {
 
 .mkt-bone-rule { display: flex; align-items: center; gap: 14px; max-width: 1180px; margin: 0 auto; padding: 0 20px; color: rgba(203,213,214,0.45); }
 .mkt-bone-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
-.mkt-bone-svg { width: 116px; height: 26px; flex: 0 0 auto; filter: drop-shadow(0 0 10px rgba(0,224,94,0.18)); }
+.mkt-bone-svg { width: 116px; height: 26px; flex: 0 0 auto; filter: drop-shadow(0 0 10px rgba(34,224,106,0.18)); }
 
 .mkt-tread { display: flex; gap: 6px; justify-content: center; align-items: center; max-width: 1180px; margin: 4px auto; padding: 10px 20px; opacity: .35; }
 .mkt-tread span { width: 14px; height: 8px; border-radius: 2px; background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.05)); transform: skewX(-22deg); }
-.mkt-tread span:nth-child(4n) { background: linear-gradient(180deg, rgba(0,224,94,0.5), rgba(0,224,94,0.08)); }
+.mkt-tread span:nth-child(4n) { background: linear-gradient(180deg, rgba(34,224,106,0.5), rgba(34,224,106,0.08)); }
 
 .mkt-why { display: grid; gap: 18px; grid-template-columns: 1fr; }
 @media (min-width: 720px) { .mkt-why { grid-template-columns: 1fr 1fr; } }
@@ -553,7 +553,7 @@ function LandingStyles() {
 .mkt-quote figcaption strong { display: block; font-size: 13px; }
 .mkt-quote figcaption span span { font-size: 11.5px; }
 
-.mkt-cta-panel { display: grid; gap: 32px; padding: 34px; border-radius: 22px; border: 1px solid rgba(0,224,94,0.24); background: radial-gradient(120% 140% at 0% 0%, rgba(0,224,94,0.12), rgba(255,255,255,0.02) 55%); }
+.mkt-cta-panel { display: grid; gap: 32px; padding: 34px; border-radius: 22px; border: 1px solid rgba(34,224,106,0.24); background: radial-gradient(120% 140% at 0% 0%, rgba(34,224,106,0.12), rgba(255,255,255,0.02) 55%); }
 @media (min-width: 900px) { .mkt-cta-panel { grid-template-columns: 1.3fr 1fr; align-items: center; padding: 48px; } }
 .mkt-release { display: grid; gap: 12px; }
 .mkt-release li { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--txt-2); }
