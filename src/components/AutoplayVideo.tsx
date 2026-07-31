@@ -1,4 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type VideoHTMLAttributes } from "react";
+import { attachHls, isHlsUrl } from "@/lib/hls-attach";
+
 
 /**
  * Video that autoplays muted when visible and pauses off-screen —
@@ -35,6 +37,22 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
   useImperativeHandle(forwardedRef, () => ref.current as HTMLVideoElement, []);
   const [inView, setInView] = useState(false);
 
+  // Adaptive streaming: HLS sources are attached via hls.js (or natively on Safari).
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !isHlsUrl(src)) return;
+    let handle: { destroy: () => void } | null = null;
+    let cancelled = false;
+    attachHls(el, src).then((h) => {
+      if (cancelled) h.destroy();
+      else handle = h;
+    });
+    return () => {
+      cancelled = true;
+      handle?.destroy();
+    };
+  }, [src]);
+
   // Visibility
   useEffect(() => {
     const el = ref.current;
@@ -46,6 +64,8 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
     io.observe(el);
     return () => io.disconnect();
   }, [forcePlay, threshold]);
+
+
 
   // Play/pause
   useEffect(() => {
@@ -75,7 +95,7 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
   return (
     <video
       ref={ref}
-      src={src}
+      src={isHlsUrl(src) ? undefined : src}
       poster={poster}
       muted={muted}
       playsInline
@@ -88,7 +108,8 @@ export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(fu
   );
 });
 
-/** True if a URL looks like a video file we can render inline. */
+/** True if a URL looks like a video (file or HLS stream) we can render inline. */
 export function isVideoUrl(u?: string | null): boolean {
-  return !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
+  return !!u && /\.(mp4|webm|mov|m4v|m3u8)(\?|#|$)/i.test(u);
 }
+

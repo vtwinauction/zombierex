@@ -22,6 +22,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress, UPLOAD_LIMITS, checkUploadSize, probeVideoDuration, type UploadKind } from "@/lib/media-upload";
+import { uploadVideoToStream } from "@/lib/video-upload";
+
 import { toast } from "sonner";
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
@@ -398,6 +400,32 @@ export function MediaComposer({ onDone }: Props) {
 
       for (const m of items) {
         try {
+          if (m.kind === "video") {
+            // Adaptive-bitrate pipeline first; falls back to raw storage upload
+            // when streaming isn't configured.
+            const streamed = await uploadVideoToStream(m.file, {
+              maxDurationSeconds: postType === "story" ? 15 : postType === "reel" ? 90 : 600,
+              onProgress: (p) => setProgress((prev) => ({ ...prev, [m.id]: p })),
+            }).catch(() => null);
+            if (streamed) {
+              let coverUrl = streamed.thumbnailUrl;
+              if (!coverUrl) {
+                try {
+                  const frame = await extractVideoFrame(m.file, m.coverAt ?? 0);
+                  coverUrl = (await uploadWithRetry(frame, { userId, bucket: "posts" })).url;
+                } catch { /* fall back to media URL as thumb */ }
+              }
+              uploaded.push({
+                url: streamed.url,
+                contentType: "application/vnd.apple.mpegurl",
+                path: `stream/${streamed.uid}`,
+                kind: m.kind,
+                coverUrl,
+              });
+              continue;
+            }
+          }
+
           const blob = m.kind === "image" ? await exportImage(m) : m.file;
           const res = await uploadWithRetry(blob, {
             userId,
@@ -418,6 +446,7 @@ export function MediaComposer({ onDone }: Props) {
           throw e;
         }
       }
+
 
       const first = uploaded[0];
       // Route on the user's chosen post type, not the media inspection.

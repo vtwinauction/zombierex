@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getPostPublic } from "@/lib/feed.functions";
 import { RichCaption } from "@/components/RichCaption";
+import { AutoplayVideo } from "@/components/AutoplayVideo";
+
 
 const reelQO = (id: string) =>
   queryOptions({
@@ -61,16 +63,15 @@ function ReelSolo() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden" style={{ background: "#000" }}>
       {src ? (
-        <video
+        <AutoplayVideo
           src={src}
           poster={p.thumbnail_url ?? undefined}
-          playsInline
-          autoPlay
-          loop
+          forcePlay
           controls
           className="absolute inset-0 h-full w-full object-contain"
         />
       ) : (
+
         <div className="grid h-screen w-full place-items-center text-white/60 mono-tag">NO MEDIA</div>
       )}
       <div

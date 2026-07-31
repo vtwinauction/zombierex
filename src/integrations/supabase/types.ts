@@ -6121,6 +6121,68 @@ export type Database = {
           },
         ]
       }
+      video_assets: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          error_message: string | null
+          height: number | null
+          id: string
+          owner_id: string
+          playback_dash: string | null
+          playback_hls: string | null
+          post_id: string | null
+          provider: string
+          provider_uid: string
+          status: string
+          thumbnail_url: string | null
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          height?: number | null
+          id?: string
+          owner_id: string
+          playback_dash?: string | null
+          playback_hls?: string | null
+          post_id?: string | null
+          provider?: string
+          provider_uid: string
+          status?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          error_message?: string | null
+          height?: number | null
+          id?: string
+          owner_id?: string
+          playback_dash?: string | null
+          playback_hls?: string | null
+          post_id?: string | null
+          provider?: string
+          provider_uid?: string
+          status?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_assets_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhooks: {
         Row: {
           active: boolean
