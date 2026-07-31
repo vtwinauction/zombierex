@@ -22,6 +22,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress, UPLOAD_LIMITS, checkUploadSize, probeVideoDuration, type UploadKind } from "@/lib/media-upload";
+import { uploadVideoToStream } from "@/lib/video-upload";
+
 import { toast } from "sonner";
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
