@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getPostPublic } from "@/lib/feed.functions";
 import { RichCaption } from "@/components/RichCaption";
+import { AutoplayVideo } from "@/components/AutoplayVideo";
+
 
 const reelQO = (id: string) =>
   queryOptions({
