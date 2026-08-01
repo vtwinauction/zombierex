@@ -19,11 +19,12 @@ export function DragTree({ state, compact = false }: { state: TreeState; compact
     <div
       className="relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl p-4"
       style={{
-        background: "linear-gradient(90deg,#111 0 10%,#2a2a2a 10% 14%,#070707 14% 86%,#2a2a2a 86% 90%,#111 90% 100%)",
-        boxShadow: "0 24px 70px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 18px 24px rgba(255,255,255,0.04)",
+        background: "linear-gradient(90deg,#4c4c55 0 10%,#5e5e69 10% 14%,#3a3a42 14% 86%,#5e5e69 86% 90%,#4c4c55 90% 100%)",
+        boxShadow: "0 18px 44px rgba(20,20,25,0.28), inset 0 0 0 1px rgba(255,255,255,0.14), inset 0 18px 24px rgba(255,255,255,0.06)",
       }}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-10" style={{ background: "linear-gradient(180deg,rgba(255,255,255,0.10),transparent)" }} />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-10" style={{ background: "linear-gradient(180deg,rgba(255,255,255,0.16),transparent)" }} />
+
       <TreeLabel text="PRE STAGE" />
       <Row>
         <Bulb size={size * 0.52} on={preStage} color="var(--color-paper-0)" />

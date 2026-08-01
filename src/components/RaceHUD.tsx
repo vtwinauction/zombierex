@@ -58,7 +58,7 @@ export function RaceHUD({
         className="rounded-2xl border p-3"
         style={{
           borderColor: "var(--color-hair-strong)",
-          background: "linear-gradient(180deg,#0a0a0a,#141414)",
+          background: "hsl(var(--card))",
         }}
       >
         <div className="flex items-center justify-between text-xs">
@@ -72,7 +72,7 @@ export function RaceHUD({
           <Metric label="Δ SPEED" value={`${speedDelta >= 0 ? "+" : ""}${speedDelta.toFixed(0)} km/h`} accent={speedDelta >= 0 ? player.color : ghost.color} />
           <Metric label="AI WIN P%" value={`${playerProb}%`} accent="#00c853" />
         </div>
-        <div className="mt-2 h-1.5 w-full overflow-hidden rounded" style={{ background: "rgba(255,255,255,0.08)" }}>
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded" style={{ background: "hsl(var(--muted))" }}>
           <div style={{ width: `${playerProb}%`, height: "100%", background: player.color, transition: "width 200ms ease-out" }} />
         </div>
       </div>
@@ -90,7 +90,7 @@ function Lane({ t, elapsedMs }: { t: LaneTelemetry; elapsedMs: number }) {
       className="rounded-2xl border p-3"
       style={{
         borderColor: "var(--color-hair-strong)",
-        background: "linear-gradient(180deg,#080808,#151515)",
+        background: "hsl(var(--card))",
         boxShadow: `0 0 24px ${t.color}22`,
       }}
     >
@@ -106,7 +106,7 @@ function Lane({ t, elapsedMs }: { t: LaneTelemetry; elapsedMs: number }) {
       <AnalogGauge kmh={t.kmh} color={speedColor} />
 
       <div className="mt-1 flex items-end justify-center gap-1">
-        <span className="mono-num tabular-nums font-black" style={{ fontSize: 44, lineHeight: 1, color: "#fff", textShadow: `0 0 18px ${speedColor}80` }}>
+        <span className="mono-num tabular-nums font-black" style={{ fontSize: 44, lineHeight: 1, color: "hsl(var(--foreground))", textShadow: `0 0 18px ${speedColor}80` }}>
           {t.kmh.toFixed(0)}
         </span>
         <span className="mono-caps pb-1" style={{ color: "var(--color-silver)", fontSize: 9, letterSpacing: "0.24em" }}>km/h</span>
@@ -128,7 +128,7 @@ function Lane({ t, elapsedMs }: { t: LaneTelemetry; elapsedMs: number }) {
               key={i}
               style={{
                 flex: 1, height: 6, borderRadius: 1,
-                background: on ? c : "rgba(255,255,255,0.06)",
+                background: on ? c : "hsl(var(--muted))",
                 boxShadow: on ? `0 0 6px ${c}` : "none",
                 transition: "background 80ms linear",
               }}
@@ -142,7 +142,7 @@ function Lane({ t, elapsedMs }: { t: LaneTelemetry; elapsedMs: number }) {
         <div className="mono-tag flex justify-between" style={{ color: "var(--color-silver)", fontSize: 8 }}>
           <span>LAUNCH</span><span>1/8</span><span>1/4</span>
         </div>
-        <div className="mt-1 h-1 w-full overflow-hidden rounded" style={{ background: "rgba(255,255,255,0.06)" }}>
+        <div className="mt-1 h-1 w-full overflow-hidden rounded" style={{ background: "hsl(var(--muted))" }}>
           <div style={{ width: `${finishPct * 100}%`, height: "100%", background: t.color, transition: "width 200ms ease-out" }} />
         </div>
       </div>
@@ -174,18 +174,18 @@ function AnalogGauge({ kmh, color }: { kmh: number; color: string }) {
   return (
     <div style={{ position: "relative", width: size, height: size * 0.75, margin: "0 auto" }}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(135deg)", position: "absolute", top: -size * 0.12, left: 0 }}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} strokeDasharray={`${arc} ${c}`} strokeLinecap="round" />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="color-mix(in oklab, currentColor 12%, transparent)" strokeWidth={stroke} strokeDasharray={`${arc} ${c}`} strokeLinecap="round" />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeDasharray={`${dash} ${c}`} strokeLinecap="round" style={{ transition: "stroke-dasharray 220ms ease-out, stroke 220ms linear", filter: `drop-shadow(0 0 6px ${color}aa)` }} />
       </svg>
       <div style={{
         position: "absolute", left: "50%", bottom: "8%", width: 2, height: size * 0.42,
-        background: `linear-gradient(180deg, ${color}, #fff)`,
+        background: `linear-gradient(180deg, ${color}, hsl(var(--foreground)))`,
         transformOrigin: "50% 100%",
         transform: `translateX(-50%) rotate(${angleDeg}deg)`,
         transition: "transform 220ms cubic-bezier(.2,.9,.2,1)",
         boxShadow: `0 0 6px ${color}`,
       }} />
-      <div style={{ position: "absolute", left: "50%", bottom: "6%", width: 10, height: 10, borderRadius: 5, transform: "translateX(-50%)", background: "#111", boxShadow: `0 0 0 2px ${color}` }} />
+      <div style={{ position: "absolute", left: "50%", bottom: "6%", width: 10, height: 10, borderRadius: 5, transform: "translateX(-50%)", background: "var(--color-obsidian)", boxShadow: `0 0 0 2px ${color}` }} />
     </div>
   );
 }
@@ -201,9 +201,9 @@ function Metric({ label, value, accent }: { label: string; value: string; accent
 
 function Split({ label, v }: { label: string; v: string }) {
   return (
-    <div className="rounded" style={{ padding: "4px 2px", background: "rgba(255,255,255,0.03)" }}>
+    <div className="rounded" style={{ padding: "4px 2px", background: "hsl(var(--muted))" }}>
       <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 7 }}>{label}</p>
-      <p className="mono-num tabular-nums font-bold" style={{ color: "#fff", fontSize: 11 }}>{v}</p>
+      <p className="mono-num tabular-nums font-bold" style={{ color: "hsl(var(--foreground))", fontSize: 11 }}>{v}</p>
     </div>
   );
 }
