@@ -640,14 +640,14 @@ function TimeSlip({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelemet
     ["Top speed", `${player.peakKmh.toFixed(0)} km/h`, `${ghost.peakKmh.toFixed(0)} km/h`],
   ];
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border" style={{ borderColor: "rgba(255,255,255,0.12)", background: "linear-gradient(180deg,#0a0a0a,#141414)" }}>
-      <div className="grid grid-cols-3 text-[10px] mono-caps px-3 py-2" style={{ background: "rgba(255,255,255,0.04)", color: "var(--color-silver)", letterSpacing: "0.2em" }}>
+    <div className="mt-4 overflow-hidden rounded-2xl border" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
+      <div className="grid grid-cols-3 text-[10px] mono-caps px-3 py-2" style={{ background: "hsl(var(--muted))", color: "var(--color-silver)", letterSpacing: "0.2em" }}>
         <span>METRIC</span>
-        <span style={{ color: "#00c853" }}>{player.name.toUpperCase()}</span>
-        <span style={{ color: "#f6d84f" }}>{ghost.name.toUpperCase()}</span>
+        <span style={{ color: "var(--color-neon-deep)" }}>{player.name.toUpperCase()}</span>
+        <span style={{ color: "#c79a10" }}>{ghost.name.toUpperCase()}</span>
       </div>
       {rows.map(([k, a, b]) => (
-        <div key={k} className="grid grid-cols-3 items-center border-t px-3 py-2 text-xs" style={{ borderColor: "rgba(255,255,255,0.06)", color: "#eaeaea" }}>
+        <div key={k} className="grid grid-cols-3 items-center border-t px-3 py-2 text-xs" style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }}>
           <span style={{ color: "var(--color-silver)" }}>{k}</span>
           <span className="mono-num tabular-nums font-bold">{a}</span>
           <span className="mono-num tabular-nums font-bold">{b}</span>
@@ -656,6 +656,17 @@ function TimeSlip({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelemet
     </div>
   );
 }
+
+/** Small labelled read-out used inside the live race console. */
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border px-2 py-1.5" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}>
+      <p className="mono-caps text-[8px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.2em" }}>{label}</p>
+      <p className="mono-num text-sm font-black tabular-nums" style={{ color: "hsl(var(--foreground))" }}>{value}</p>
+    </div>
+  );
+}
+
 
 function StripTrack({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelemetry }) {
   const playerPct = Math.min(100, (player.distanceM / 402.336) * 100);
