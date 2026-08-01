@@ -388,7 +388,7 @@ function RacePage() {
 
   // --- Render ----------------------------------------------------------------
   return (
-    <div className="min-h-svh pb-24" style={{ background: "linear-gradient(180deg,#050505,#0a0a0a 60%,#080808)" }}>
+    <div className="min-h-svh pb-24" style={{ background: "linear-gradient(180deg, hsl(var(--background)), color-mix(in oklab, var(--color-neon) 5%, hsl(var(--muted))))" }}>
 
       {phase === "setup" && (
         <div className="px-4 pt-4">
