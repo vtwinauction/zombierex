@@ -392,7 +392,7 @@ function RacePage() {
 
       {phase === "setup" && (
         <div className="px-4 pt-4">
-          <h1 className="serif text-3xl" style={{ color: "#f5f5f5" }}>Race Mode</h1>
+          <h1 className="serif text-3xl" style={{ color: "hsl(var(--foreground))" }}>Race Mode</h1>
           <p className="mt-1 text-sm" style={{ color: "var(--color-ink-3)" }}>
             Christmas Tree start · live dual HUD · AI ghost opponent · GPS-verified time slip.
           </p>
@@ -404,9 +404,9 @@ function RacePage() {
                 <button key={k} onClick={() => setVehicleKind(k)}
                   className="tap rounded-lg border p-3 text-sm font-bold"
                   style={{
-                    borderColor: vehicleKind === k ? "#00c853" : "rgba(255,255,255,0.08)",
-                    background: vehicleKind === k ? "rgba(0,200,83,0.10)" : "rgba(255,255,255,0.02)",
-                    color: "#f0f0f0",
+                    borderColor: vehicleKind === k ? "var(--color-neon)" : "hsl(var(--border))",
+                    background: vehicleKind === k ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))" : "hsl(var(--card))",
+                    color: "hsl(var(--foreground))",
                   }}>
                   {k === "motorcycle" ? "Motorcycle" : "Car"}
                 </button>
@@ -414,7 +414,7 @@ function RacePage() {
             </div>
             <input value={vehicleName} onChange={(e) => setVehicleName(e.target.value)} placeholder="Yamaha R1 2024"
               className="mt-2 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-              style={{ borderColor: "rgba(255,255,255,0.12)", color: "#f0f0f0" }} />
+              style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }} />
           </div>
 
           <div className="mt-4">
@@ -424,9 +424,9 @@ function RacePage() {
                 <button key={m} onClick={() => setMode(m)}
                   className="tap rounded-lg border p-3 text-sm font-bold"
                   style={{
-                    borderColor: mode === m ? "#00c853" : "rgba(255,255,255,0.08)",
-                    background: mode === m ? "rgba(0,200,83,0.10)" : "rgba(255,255,255,0.02)",
-                    color: "#f0f0f0",
+                    borderColor: mode === m ? "var(--color-neon)" : "hsl(var(--border))",
+                    background: mode === m ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))" : "hsl(var(--card))",
+                    color: "hsl(var(--foreground))",
                   }}>
                   {m === "pro" ? "Pro Tree" : "Sportsman"}
                 </button>
@@ -441,9 +441,9 @@ function RacePage() {
                 <button key={m} onClick={() => setStripMode(m)}
                   className="tap rounded-lg border p-3 text-sm font-bold"
                   style={{
-                    borderColor: stripMode === m ? "var(--color-neon)" : "rgba(255,255,255,0.08)",
-                    background: stripMode === m ? "rgba(0,200,83,0.10)" : "rgba(255,255,255,0.02)",
-                    color: "#f0f0f0",
+                    borderColor: stripMode === m ? "var(--color-neon)" : "hsl(var(--border))",
+                    background: stripMode === m ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))" : "hsl(var(--card))",
+                    color: "hsl(var(--foreground))",
                   }}>
                   {m === "gps" ? "Live GPS" : "Strip Demo"}
                 </button>
@@ -458,16 +458,16 @@ function RacePage() {
                 <button key={g.id} onClick={() => setPreset(g)}
                   className="tap flex items-center justify-between rounded-lg border p-3 text-left"
                   style={{
-                    borderColor: preset.id === g.id ? "#f6d84f" : "rgba(255,255,255,0.08)",
-                    background: preset.id === g.id ? "rgba(246,216,79,0.10)" : "rgba(255,255,255,0.02)",
+                    borderColor: preset.id === g.id ? "#c79a10" : "hsl(var(--border))",
+                    background: preset.id === g.id ? "rgba(246,216,79,0.16)" : "hsl(var(--card))",
                   }}>
                   <div>
-                    <p className="text-sm font-bold" style={{ color: "#f5f5f5" }}>{g.label}</p>
+                    <p className="text-sm font-bold" style={{ color: "hsl(var(--foreground))" }}>{g.label}</p>
                     <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>
                       TRAP ~{g.trapKmh} km/h · RT {(g.reactionMs / 1000).toFixed(2)}s
                     </p>
                   </div>
-                  {preset.id === g.id && <span className="mono-caps text-[10px] font-black" style={{ color: "#f6d84f" }}>SELECTED</span>}
+                  {preset.id === g.id && <span className="mono-caps text-[10px] font-black" style={{ color: "#c79a10" }}>SELECTED</span>}
                 </button>
               ))}
             </div>
@@ -475,7 +475,7 @@ function RacePage() {
 
           <button onClick={beginStage}
             className="tap mt-6 w-full rounded-lg py-4 mono-caps text-sm font-black"
-            style={{ background: "#00c853", color: "#050505", letterSpacing: "0.24em", boxShadow: "0 12px 32px rgba(0,200,83,0.35)" }}>
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.24em", boxShadow: "0 12px 32px rgba(0,200,83,0.28)" }}>
             ▶ STAGE UP
           </button>
 
@@ -488,17 +488,29 @@ function RacePage() {
       {(phase === "stage" || phase === "racing") && (
         <div className="px-3 pt-3">
           <div className="flex items-center justify-between">
-            <span className="mono-caps text-[10px] font-black" style={{ color: gpsOk ? "#00c853" : "#ff8c1a", letterSpacing: "0.24em" }}>
+            <span className="mono-caps text-[10px] font-black" style={{ color: gpsOk ? "var(--color-neon-deep)" : "#c26a00", letterSpacing: "0.24em" }}>
               ● {stripMode === "sim" ? "STRIP DEMO" : gpsOk ? "GPS LOCK" : "GPS WEAK"} {gpsAcc != null && `· ±${gpsAcc.toFixed(0)}m`}
             </span>
-            <span className="mono-num tabular-nums" style={{ color: "#fff", fontSize: 12 }}>
+            <span className="mono-num tabular-nums" style={{ color: "hsl(var(--foreground))", fontSize: 12 }}>
               {(elapsedMs / 1000).toFixed(2)}s
             </span>
-            <button onClick={cancel} className="mono-caps text-[10px] font-black" style={{ color: "#ff8c1a" }}>ABORT</button>
+            <button onClick={cancel} className="mono-caps text-[10px] font-black" style={{ color: "#c26a00" }}>ABORT</button>
           </div>
 
-          <div className="mt-3 flex items-start justify-center gap-3">
-            <DragTree state={tree.state} />
+          {/* Tree on the left, live read-out on the right — strip console layout */}
+          <div className="mt-3 grid gap-3" style={{ gridTemplateColumns: "auto minmax(0,1fr)" }}>
+            <DragTree state={tree.state} compact />
+            <div className="rounded-2xl border p-3" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
+              <p className="mono-caps text-center text-[9px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}>LIVE SPEED</p>
+              <p className="mono-num mt-1 text-center text-[56px] font-black leading-none tabular-nums" style={{ color: "var(--color-neon-deep)" }}>
+                {playerTel.kmh.toFixed(0)}
+              </p>
+              <p className="mono-caps mt-1 text-center text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.3em" }}>KM / H</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+                <MiniStat label="DISTANCE" value={`${playerTel.distanceM.toFixed(0)} m`} />
+                <MiniStat label="REACTION" value={fmtRT(playerTel.reactionMs)} />
+              </div>
+            </div>
           </div>
 
           <StripTrack player={playerTel} ghost={ghostTel} />
@@ -508,10 +520,10 @@ function RacePage() {
           </div>
 
           {tree.state.phase === "foul" && (
-            <div className="mt-3 rounded-lg border p-3 text-center" style={{ borderColor: "#ff2b2b", background: "rgba(255,43,43,0.08)" }}>
-              <p className="mono-caps text-sm font-black" style={{ color: "#ff2b2b" }}>◆ RED LIGHT · FOUL START</p>
-              <p className="mt-1 text-xs" style={{ color: "#ffaaaa" }}>Auto disqualification. Reset the strip and try again.</p>
-              <button onClick={cancel} className="tap mt-2 rounded px-4 py-2 mono-caps text-[10px] font-black" style={{ background: "#fff", color: "#050505" }}>RESET STRIP</button>
+            <div className="mt-3 rounded-lg border p-3 text-center" style={{ borderColor: "#dc2626", background: "rgba(220,38,38,0.08)" }}>
+              <p className="mono-caps text-sm font-black" style={{ color: "#dc2626" }}>◆ RED LIGHT · FOUL START</p>
+              <p className="mt-1 text-xs" style={{ color: "#a11" }}>Auto disqualification. Reset the strip and try again.</p>
+              <button onClick={cancel} className="tap mt-2 rounded px-4 py-2 mono-caps text-[10px] font-black" style={{ background: "var(--color-obsidian)", color: "hsl(var(--card))" }}>RESET STRIP</button>
             </div>
           )}
         </div>
@@ -519,36 +531,53 @@ function RacePage() {
 
       {phase === "finish" && finish && (
         <div className="px-4 pt-4">
-          <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}>OFFICIAL TIME SLIP</p>
-          <h1 className="serif mt-1 text-4xl" style={{ color: finish.winner === "foul" ? "#ff2b2b" : finish.winner === "player" ? "#00c853" : "#f6d84f" }}>
-            {finish.winner === "foul" ? "DQ · Red Light" : finish.winner === "player" ? "WIN" : "LOSS"}
-          </h1>
-          {finish.winner !== "foul" && (
-            <p className="mt-1 text-sm" style={{ color: "var(--color-ink-3)" }}>
-              Margin {finish.margin.toFixed(3)}s vs {preset.label}
-            </p>
-          )}
+          {/* HERO READ-OUT — 0-60 headline, strip console styling */}
+          <div className="overflow-hidden rounded-2xl border" style={{ borderColor: "hsl(var(--border))", background: "linear-gradient(180deg, hsl(var(--card)), color-mix(in oklab, var(--color-neon) 7%, hsl(var(--muted))))" }}>
+            <div className="grid gap-3 p-3" style={{ gridTemplateColumns: "auto minmax(0,1fr)" }}>
+              <DragTree state={tree.state} compact />
+              <div className="flex flex-col justify-center text-center">
+                <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.28em" }}>0 – 100 KM/H</p>
+                <p className="mono-num text-[64px] font-black leading-[0.92] tabular-nums" style={{ color: "var(--color-neon-deep)" }}>
+                  {(() => { const s = interpTimeAtSpeed(rawRef.current, 100); return s != null ? s.toFixed(2) : "—"; })()}
+                </p>
+                <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.34em" }}>SECONDS</p>
+                <p className="mono-caps mt-2 inline-block self-center rounded-md border px-3 py-1 text-[9px] font-black"
+                  style={{
+                    letterSpacing: "0.24em",
+                    borderColor: finish.winner === "foul" ? "#dc2626" : "var(--color-neon)",
+                    color: finish.winner === "foul" ? "#dc2626" : "var(--color-neon-deep)",
+                  }}>
+                  {finish.winner === "foul" ? "DQ · RED LIGHT" : finish.winner === "player" ? "RUN COMPLETE · WIN" : "RUN COMPLETE · LOSS"}
+                </p>
+              </div>
+            </div>
+            {finish.winner !== "foul" && (
+              <p className="border-t px-3 py-2 text-center text-[11px]" style={{ borderColor: "hsl(var(--border))", color: "var(--color-ink-3)" }}>
+                Margin {finish.margin.toFixed(3)}s vs {preset.label} · Top {playerTel.peakKmh.toFixed(0)} km/h
+              </p>
+            )}
+          </div>
 
           <TimeSlip player={playerTel} ghost={ghostTel} />
 
           <ReplayPanel points={rawRef.current} ghost={ghost} />
 
-          <div className="mt-4 rounded-lg border p-4" style={{ borderColor: "rgba(0,200,83,0.4)", background: "rgba(0,200,83,0.05)" }}>
+          <div className="mt-4 rounded-lg border p-4" style={{ borderColor: "color-mix(in oklab, var(--color-neon) 45%, hsl(var(--border)))", background: "color-mix(in oklab, var(--color-neon) 7%, hsl(var(--card)))" }}>
             <div className="flex items-center justify-between">
-              <p className="mono-caps text-[10px] font-black" style={{ color: "#00c853" }}>◆ AI RACE ANALYSIS · REX</p>
-              {analysis?.grade && (<span className="mono-num text-2xl font-black" style={{ color: "#00c853" }}>{analysis.grade}</span>)}
+              <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-neon-deep)" }}>◆ AI RACE ANALYSIS · REX</p>
+              {analysis?.grade && (<span className="mono-num text-2xl font-black" style={{ color: "var(--color-neon-deep)" }}>{analysis.grade}</span>)}
             </div>
             {analysisLoading && <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>Analyzing telemetry…</p>}
             {!analysisLoading && !analysis && <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>AI analysis unavailable.</p>}
             {analysis && (
-              <div className="mt-2 space-y-2 text-[13px]" style={{ color: "#e8e8e8" }}>
+              <div className="mt-2 space-y-2 text-[13px]" style={{ color: "hsl(var(--foreground))" }}>
                 <p className="serif text-base italic">{analysis.headline}</p>
                 <Row label="Launch" v={analysis.launch} />
                 <Row label="Shift" v={analysis.shift} />
                 <Row label="Weakness" v={analysis.weakness} />
                 <Row label="Next target" v={analysis.next_target} />
                 {Array.isArray(analysis.tips) && (
-                  <ul className="mt-2 list-disc pl-5" style={{ color: "#c0c0c0" }}>
+                  <ul className="mt-2 list-disc pl-5" style={{ color: "var(--color-ink-3)" }}>
                     {analysis.tips.map((t: string, i: number) => <li key={i}>{t}</li>)}
                   </ul>
                 )}
@@ -556,23 +585,36 @@ function RacePage() {
             )}
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <button onClick={beginStage} className="tap rounded-lg py-3 mono-caps text-[10px] font-black" style={{ background: "#00c853", color: "#050505", letterSpacing: "0.24em" }}>
-              REMATCH
-            </button>
+          {/* NEW RUN band */}
+          <button onClick={beginStage}
+            className="tap mt-4 w-full rounded-2xl border py-5 text-center"
+            style={{
+              borderColor: "var(--color-neon)",
+              background: "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))",
+              boxShadow: "0 14px 40px rgba(0,200,83,0.20)",
+            }}>
+            <span className="serif block text-3xl italic" style={{ color: "var(--color-neon-deep)" }}>NEW RUN</span>
+            <span className="mono-caps mt-1 block text-[9px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.34em" }}>TAP TO RESET THE STRIP</span>
+          </button>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
             {submitInfo?.id ? (
               <button onClick={() => { const id = submitInfo.id; if (!id) return; nav({ to: "/drag/$id", params: { id } }); }}
-                className="tap rounded-lg py-3 mono-caps text-[10px] font-black" style={{ background: "#fff", color: "#050505", letterSpacing: "0.24em" }}>
+                className="tap rounded-lg py-3 mono-caps text-[10px] font-black" style={{ background: "var(--color-obsidian)", color: "hsl(var(--card))", letterSpacing: "0.24em" }}>
                 VIEW RECORD
               </button>
             ) : (
-              <button onClick={() => nav({ to: "/drag" })} className="tap rounded-lg py-3 mono-caps text-[10px] font-black" style={{ background: "rgba(255,255,255,0.08)", color: "#f0f0f0", letterSpacing: "0.24em" }}>
+              <button onClick={() => nav({ to: "/drag" })} className="tap rounded-lg border py-3 mono-caps text-[10px] font-black" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--foreground))", letterSpacing: "0.24em" }}>
                 DRAG HUB
               </button>
             )}
+            <button onClick={() => nav({ to: "/drag/leaderboards" })} className="tap rounded-lg border py-3 mono-caps text-[10px] font-black" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--foreground))", letterSpacing: "0.24em" }}>
+              LEADERBOARDS
+            </button>
           </div>
         </div>
       )}
+
     </div>
   );
 }
