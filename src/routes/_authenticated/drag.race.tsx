@@ -673,21 +673,22 @@ function StripTrack({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelem
   const ghostPct = Math.min(100, (ghost.distanceM / 402.336) * 100);
 
   return (
-    <div className="mt-3 overflow-hidden rounded-2xl border" style={{ borderColor: "rgba(255,255,255,0.10)", background: "linear-gradient(180deg,#050505,#111)" }}>
+    <div className="mt-3 overflow-hidden rounded-2xl border" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
       <div className="relative h-24"
         style={{
           background:
-            "linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 11.1%, rgba(255,255,255,0.06) 11.1% calc(11.1% + 1px), transparent calc(11.1% + 1px) 22.2%), linear-gradient(180deg,#171717 0%,#0b0b0b 48%,#171717 52%,#090909 100%)",
+            "linear-gradient(90deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 11.1%, rgba(255,255,255,0.10) 11.1% calc(11.1% + 1px), transparent calc(11.1% + 1px) 22.2%), linear-gradient(180deg,#4a4a52 0%,#3a3a41 48%,#4a4a52 52%,#33333a 100%)",
           backgroundSize: "36px 100%, 100% 100%",
         }}>
-        <div className="absolute left-0 right-0 top-1/2 h-px bg-white/20" />
-        <div className="absolute bottom-0 top-0 w-3" style={{ right: 0, background: "repeating-linear-gradient(0deg,#fff 0 5px,#050505 5px 10px)" }} />
+        <div className="absolute left-0 right-0 top-1/2 h-px bg-white/35" />
+        <div className="absolute bottom-0 top-0 w-3" style={{ right: 0, background: "repeating-linear-gradient(0deg,#fff 0 5px,#33333a 5px 10px)" }} />
         <LaneMarker pct={playerPct} top="22%" color="var(--color-neon)" label="YOU" />
         <LaneMarker pct={ghostPct} top="68%" color="#f6d84f" label="AI" />
       </div>
     </div>
   );
 }
+
 
 function LaneMarker({ pct, top, color, label }: { pct: number; top: string; color: string; label: string }) {
   return (
