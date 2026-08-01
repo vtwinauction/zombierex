@@ -430,6 +430,10 @@ function AtlasPageInner() {
           </button>
         </div>
 
+        {/* TELEMETRY STRIP — distance / ride time / stops, cockpit read-out */}
+        <AtlasStatsStrip route={activeRoute} count={filtered.length} pois={community.length} />
+
+
         {sheet === "peek" ? (
           <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x snap-mandatory scrollbar-none">
             {filtered.length === 0 && <EmptyState />}
