@@ -510,7 +510,54 @@ function MapRouteCard({ route, active, onSelect, onOpen }: { route: any; active:
   );
 }
 
+/**
+ * Cockpit-style telemetry strip under the sheet handle: big neon read-outs for
+ * the selected route plus a POI legend, matching the Atlas hero styling.
+ */
+function AtlasStatsStrip({ route, count, pois }: { route: any | null; count: number; pois: number }) {
+  const km = route ? (route.distance_m / 1000).toFixed(1) : String(count);
+  const hrs = route ? Math.floor(route.duration_s / 3600) : 0;
+  const mins = route ? Math.round((route.duration_s % 3600) / 60) : 0;
+  return (
+    <div className="mx-4 mb-3 overflow-hidden rounded-2xl border border-border"
+      style={{ background: "linear-gradient(180deg, hsl(var(--card)), color-mix(in oklab, var(--color-neon) 6%, hsl(var(--muted))))" }}>
+      <div className="grid grid-cols-2 divide-x divide-border">
+        <div className="px-4 py-3">
+          <p className="mono-caps text-[8px] tracking-[0.2em] text-muted-foreground">{route ? "DISTANCE" : "ROUTES"}</p>
+          <p className="mono-num text-3xl font-black leading-none tabular-nums" style={{ color: "var(--color-neon-deep)" }}>
+            {km}
+            <span className="mono-caps ml-1 text-[10px] font-bold text-muted-foreground">{route ? "KM" : "LIVE"}</span>
+          </p>
+        </div>
+        <div className="px-4 py-3">
+          <p className="mono-caps text-[8px] tracking-[0.2em] text-muted-foreground">{route ? "RIDE TIME" : "COMMUNITY STOPS"}</p>
+          <p className="mono-num text-3xl font-black leading-none tabular-nums" style={{ color: "var(--color-neon-deep)" }}>
+            {route ? `${hrs > 0 ? `${hrs}:` : ""}${String(mins).padStart(2, "0")}` : pois}
+            <span className="mono-caps ml-1 text-[10px] font-bold text-muted-foreground">{route ? (hrs > 0 ? "HRS" : "MIN") : "PINS"}</span>
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center justify-between border-t border-border px-4 py-2">
+        <Legend Icon={Hotel} label="HOTELS" color="#7c3aed" />
+        <Legend Icon={Fuel} label="FUEL" color="#2563eb" />
+        <Legend Icon={UtensilsCrossed} label="FOOD" color="#ea8a1f" />
+        <Legend Icon={Mountain} label="SCENIC" color="var(--color-neon-deep)" />
+      </div>
+    </div>
+  );
+}
+
+function Legend({ Icon, label, color }: { Icon: typeof Hotel; label: string; color: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <Icon size={13} strokeWidth={2.4} style={{ color }} />
+      <span className="mono-caps text-[8px] font-bold tracking-[0.16em] text-muted-foreground">{label}</span>
+    </span>
+  );
+}
+
 function EmptyState() {
+
   return (
     <div className="rounded-2xl border border-dashed border-border p-8 text-center bg-muted/30">
       <MapPin className="mx-auto text-muted-foreground" size={22} />
