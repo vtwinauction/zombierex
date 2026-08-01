@@ -748,7 +748,7 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
   const gd = ghost.distanceM(t);
 
   return (
-    <div className="mt-4 rounded-2xl border p-3" style={{ borderColor: "rgba(255,255,255,0.12)", background: "linear-gradient(180deg,#0a0a0a,#141414)" }}>
+    <div className="mt-4 rounded-2xl border p-3" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
       <div className="flex items-center justify-between">
         <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}>REPLAY</p>
         <div className="flex items-center gap-1">
@@ -757,30 +757,30 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
               className="tap rounded px-2 py-1 mono-tag"
               style={{
                 fontSize: 9,
-                background: rate === r ? "#00c853" : "rgba(255,255,255,0.06)",
-                color: rate === r ? "#050505" : "#c0c0c0",
+                background: rate === r ? "var(--color-neon)" : "hsl(var(--muted))",
+                color: rate === r ? "var(--color-obsidian)" : "var(--color-ink-3)",
               }}>{r}×</button>
           ))}
         </div>
       </div>
 
       <div className="mt-2 grid grid-cols-2 gap-3">
-        <ReplayLane color="#00c853" name="YOU" kmh={pState.kmh} dist={pState.dist} />
-        <ReplayLane color="#f6d84f" name="GHOST" kmh={gk} dist={gd} />
+        <ReplayLane color="var(--color-neon-deep)" name="YOU" kmh={pState.kmh} dist={pState.dist} />
+        <ReplayLane color="#c79a10" name="GHOST" kmh={gk} dist={gd} />
       </div>
 
       {/* Track visualization */}
       <div className="mt-3">
-        <div className="relative h-6 rounded-lg" style={{ background: "linear-gradient(90deg,#1a1a1a,#0f0f0f)", border: "1px solid rgba(255,255,255,0.08)" }}>
-          <div style={{ position: "absolute", left: `${Math.min(100, (pState.dist / 402.336) * 100)}%`, top: 2, transform: "translateX(-50%)", width: 4, height: 20, background: "#00c853", borderRadius: 2, boxShadow: "0 0 8px #00c853" }} />
+        <div className="relative h-6 rounded-lg" style={{ background: "linear-gradient(90deg,#4a4a52,#3a3a41)", border: "1px solid hsl(var(--border))" }}>
+          <div style={{ position: "absolute", left: `${Math.min(100, (pState.dist / 402.336) * 100)}%`, top: 2, transform: "translateX(-50%)", width: 4, height: 20, background: "var(--color-neon)", borderRadius: 2, boxShadow: "0 0 8px var(--color-neon)" }} />
           <div style={{ position: "absolute", left: `${Math.min(100, (gd / 402.336) * 100)}%`, top: 2, transform: "translateX(-50%)", width: 4, height: 20, background: "#f6d84f", borderRadius: 2, boxShadow: "0 0 8px #f6d84f" }} />
-          <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 4, background: "repeating-linear-gradient(0deg,#fff 0 3px,#000 3px 6px)" }} />
+          <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 4, background: "repeating-linear-gradient(0deg,#fff 0 3px,#33333a 3px 6px)" }} />
         </div>
         <input type="range" min={0} max={Math.max(1, maxMs)} value={t} onChange={(e) => setT(Number(e.target.value))}
           className="mt-2 w-full accent-[#00c853]" />
         <div className="mt-1 flex items-center justify-between text-[10px] mono-tag" style={{ color: "var(--color-silver)" }}>
           <span>{(t / 1000).toFixed(2)}s</span>
-          <button onClick={() => setPlaying((p) => !p)} className="tap rounded px-3 py-1 mono-caps font-black" style={{ fontSize: 10, background: "#fff", color: "#050505" }}>
+          <button onClick={() => setPlaying((p) => !p)} className="tap rounded px-3 py-1 mono-caps font-black" style={{ fontSize: 10, background: "var(--color-obsidian)", color: "hsl(var(--card))" }}>
             {playing ? "❚❚ PAUSE" : "▶ PLAY"}
           </button>
           <span>{(maxMs / 1000).toFixed(2)}s</span>
@@ -792,13 +792,14 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
 
 function ReplayLane({ color, name, kmh, dist }: { color: string; name: string; kmh: number; dist: number }) {
   return (
-    <div className="rounded-lg border p-2" style={{ borderColor: "rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+    <div className="rounded-lg border p-2" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}>
       <p className="mono-caps text-[9px] font-black" style={{ color, letterSpacing: "0.24em" }}>{name}</p>
-      <p className="mono-num mt-1 text-2xl font-black tabular-nums" style={{ color: "#fff" }}>{kmh.toFixed(0)}<span className="mono-caps ml-1" style={{ fontSize: 9, color: "var(--color-silver)" }}>km/h</span></p>
+      <p className="mono-num mt-1 text-2xl font-black tabular-nums" style={{ color: "hsl(var(--foreground))" }}>{kmh.toFixed(0)}<span className="mono-caps ml-1" style={{ fontSize: 9, color: "var(--color-silver)" }}>km/h</span></p>
       <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", fontSize: 9 }}>{dist.toFixed(1)} m</p>
     </div>
   );
 }
+
 
 function Row({ label, v }: { label: string; v?: string }) {
   if (!v) return null;
