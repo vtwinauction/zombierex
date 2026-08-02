@@ -110,10 +110,10 @@ function ContactPage() {
 .mkt-field > span { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--txt-2); }
 .mkt-field input, .mkt-field textarea, .mkt-field select {
   width: 100%; padding: 12px 13px; border-radius: 11px;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+  background: #ffffff; border: 1px solid var(--line);
   color: var(--txt); font-size: 14px; outline: none;
 }
-.mkt-field select option { background: #0c0e11; color: #f4f5f6; }
+.mkt-field select option { background: #ffffff; color: #0a0a0a; }
 .mkt-field input:focus, .mkt-field textarea:focus, .mkt-field select:focus { border-color: var(--neon); box-shadow: 0 0 0 3px rgba(0,224,94,0.14); }
 .mkt-field textarea { resize: vertical; }
       `}</style>

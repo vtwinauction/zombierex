@@ -14,7 +14,7 @@ export function LegalShell({ title, updated, children }: {
   title: string; updated: string; children: ReactNode;
 }) {
   return (
-    <div className="min-h-[100svh] pb-24" style={{ background: "var(--color-obsidian, #0a0a0b)" }}>
+    <div className="min-h-[100svh] pb-24" style={{ background: "var(--color-paper-1, #fafafa)" }}>
       <header className="mx-auto max-w-2xl px-5 pt-8">
         <Link to="/" className="mono-tag" style={{ color: "var(--color-neon, #00c853)" }}>← ZOMBIEREX</Link>
         <h1 className="serif mt-3 text-4xl leading-tight" style={{ color: "var(--color-ink, #f5f5f5)" }}>
