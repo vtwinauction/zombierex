@@ -78,11 +78,11 @@ function StoreStyles() {
   position: relative; display: inline-flex; align-items: center; gap: 12px;
   padding: 11px 20px 11px 16px; border-radius: 14px;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02)) padding-box,
-    linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.06)) border-box;
+    linear-gradient(180deg, #1a1a1a, #0a0a0a) padding-box,
+    linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.05)) border-box;
   border: 1px solid transparent;
-  color: #f4f5f6; overflow: hidden; isolation: isolate;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 14px 34px -20px rgba(0,0,0,0.9);
+  color: #fafafa; overflow: hidden; isolation: isolate;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 14px 34px -22px rgba(0,0,0,0.55);
   transition: transform 160ms cubic-bezier(.2,.7,.2,1), box-shadow 240ms ease, border-color 240ms ease;
 }
 .zx-store::after {
@@ -93,10 +93,11 @@ function StoreStyles() {
 .zx-store:hover::after { transform: translateX(120%); }
 .zx-store:hover {
   transform: translateY(-2px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 20px 46px -22px rgba(34,224,106,0.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 20px 46px -24px rgba(0,200,83,0.55);
 }
 .zx-store[aria-disabled="true"] { opacity: .62; }
-.zx-store-icon { display: grid; place-items: center; color: #f4f5f6; filter: drop-shadow(0 0 10px rgba(34,224,106,0.35)); }
+.zx-store-icon { display: grid; place-items: center; color: #fafafa; filter: drop-shadow(0 0 10px rgba(0,200,83,0.35)); }
+
 .zx-store-text { display: grid; text-align: left; line-height: 1.15; }
 .zx-store-top {
   font-family: var(--font-mono, "JetBrains Mono", monospace);
