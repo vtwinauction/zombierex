@@ -51,8 +51,8 @@ function FeatureGuidePage() {
           <div
             style={{
               marginTop: 26, borderRadius: 20, padding: 16,
-              border: "1px solid var(--line, rgba(255,255,255,0.09))",
-              background: "rgba(255,255,255,0.03)",
+              border: "1px solid var(--line, #e6e6e6)",
+              background: "#ffffff",
               display: "flex", justifyContent: "center",
             }}
           >
@@ -63,7 +63,7 @@ function FeatureGuidePage() {
               style={{
                 width: "100%", maxWidth: 300, height: "auto", maxHeight: 620,
                 objectFit: "contain", borderRadius: 14,
-                border: "1px solid var(--line, rgba(255,255,255,0.09))",
+                border: "1px solid var(--line, #e6e6e6)",
               }}
             />
           </div>
@@ -80,8 +80,8 @@ function FeatureGuidePage() {
                 style={{
                   display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: 14,
                   padding: "16px 18px", borderRadius: 14,
-                  background: "var(--surface, rgba(255,255,255,0.03))",
-                  border: "1px solid var(--line, rgba(255,255,255,0.09))",
+                  background: "var(--surface, #ffffff)",
+                  border: "1px solid var(--line, #e6e6e6)",
                 }}
               >
                 <span style={{ color: "var(--neon)", fontVariantNumeric: "tabular-nums", fontWeight: 700, fontSize: 13 }}>

@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { installCrashReporter, reportCrash } from "../lib/crash-reporter";
 import { BottomNav } from "@/components/BottomNav";
-import { useMarketingMode } from "@/lib/marketing-mode";
+import { useMarketingMode, isMarketingPath } from "@/lib/marketing-mode";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
@@ -80,7 +80,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { name: "theme-color", content: "#08090b" },
+      { name: "theme-color", content: "#fafafa" },
       { title: "ZOMBIEREX — Precision social for riders & drivers" },
       { name: "description", content: "The premium social platform engineered for motorcycle and automotive culture. Short-form video, garage, marketplace, events." },
       { name: "author", content: "ZOMBIEREX" },
@@ -128,7 +128,7 @@ function RootComponent() {
   const [isTop, setIsTop] = useState(true);
   const [shellReady, setShellReady] = useState(false);
   const pathname = router.state.location.pathname;
-  const marketing = useMarketingMode();
+  const marketing = useMarketingMode() || isMarketingPath(pathname);
   const isImmersive = marketing || pathname.startsWith("/atlas/cockpit") || pathname.startsWith("/drag/race") || pathname === "/reels" || pathname.startsWith("/reels/");
 
   useEffect(() => {

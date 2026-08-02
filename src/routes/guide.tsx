@@ -112,8 +112,8 @@ function PublicGuidePage() {
                 <section
                   key={g.id}
                   style={{
-                    background: "var(--surface, rgba(255,255,255,0.03))",
-                    border: "1px solid var(--line, rgba(255,255,255,0.09))",
+                    background: "var(--surface, #ffffff)",
+                    border: "1px solid var(--line, #e6e6e6)",
                     borderRadius: 14,
                     overflow: "hidden",
                   }}
@@ -142,7 +142,7 @@ function PublicGuidePage() {
                         loading="lazy"
                         style={{
                           width: "100%", height: 220, objectFit: "cover", borderRadius: 12,
-                          border: "1px solid var(--line, rgba(255,255,255,0.09))",
+                          border: "1px solid var(--line, #e6e6e6)",
                         }}
                       />
                       <div style={{ display: "grid", gap: 14, marginTop: 16 }}>

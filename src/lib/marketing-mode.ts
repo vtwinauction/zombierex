@@ -21,3 +21,15 @@ function subscribe(l: () => void) {
 export function useMarketingMode() {
   return useSyncExternalStore(subscribe, () => active, () => false);
 }
+
+/**
+ * Public marketing surfaces, known synchronously from the URL so the app
+ * chrome (status bar, bottom nav) never flashes over the website.
+ * "/" is excluded — signed-in members get their feed there.
+ */
+const MARKETING_PREFIXES = ["/guide", "/download", "/contact", "/legal", "/features"];
+
+export function isMarketingPath(pathname: string): boolean {
+  return MARKETING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
