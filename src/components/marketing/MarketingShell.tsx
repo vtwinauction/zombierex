@@ -205,18 +205,19 @@ function MarketingStyles() {
   return (
     <style>{`
 .mkt {
-  --bg: #08090b;
-  --bg-2: #0b0d10;
-  --surface: rgba(255,255,255,0.035);
-  --surface-2: rgba(255,255,255,0.06);
-  --line: rgba(255,255,255,0.08);
-  --line-2: rgba(255,255,255,0.14);
-  --txt: #f7f8f8;
-  --txt-2: #9ba1a8;
-  --txt-3: #6d747c;
-  --neon: #22e06a;
-  --neon-2: #10b95a;
-  --neon-soft: rgba(34,224,106,0.12);
+  /* Matches the in-app "Titanium Editorial" palette (src/styles.css) */
+  --bg: #fafafa;
+  --bg-2: #f4f4f5;
+  --surface: rgba(10,10,10,0.035);
+  --surface-2: rgba(10,10,10,0.07);
+  --line: #e6e6e6;
+  --line-2: #d4d4d4;
+  --txt: #0a0a0a;
+  --txt-2: #3a3a3a;
+  --txt-3: #6b6b6b;
+  --neon: #00c853;
+  --neon-2: #00a844;
+  --neon-soft: rgba(0,200,83,0.10);
   background: var(--bg);
   color: var(--txt);
   min-height: 100svh;
@@ -232,7 +233,8 @@ body:has(.mkt) nav[data-bottom-nav],
 body:has(.mkt) header[data-app-chrome] { display: none !important; }
 body:has(.mkt) > div > main { padding-bottom: 0 !important; }
 
-.mkt ::selection { background: var(--neon); color: #06070a; }
+.mkt ::selection { background: var(--neon); color: #06170d; }
+
 .mkt-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 22px; }
 .mkt-muted { color: var(--txt-2); }
 /* The app shell is light-themed; force marketing typography back to the dark palette. */
