@@ -18,7 +18,7 @@ function AppleMark({ size = 22 }: { size?: number }) {
 function GooglePlayMark({ size = 21 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" aria-hidden="true">
-      <path fill="#22e06a" d="M47 21.4C41.2 27.6 38 36.5 38 48v416c0 11.5 3.2 20.4 9 26.6l2.2 2.1 233-233v-5.5l-233-233L47 21.4z" />
+      <path fill="#00c853" d="M47 21.4C41.2 27.6 38 36.5 38 48v416c0 11.5 3.2 20.4 9 26.6l2.2 2.1 233-233v-5.5l-233-233L47 21.4z" />
       <path fill="#d7dbe0" d="M360 359.2l-77.8-77.9v-5.5l77.9-77.9 1.7 1L454 251c26.4 15 26.4 39.5 0 54.6l-92.2 52.4-1.8 1.2z" />
       <path fill="#9aa2ab" d="M361.8 358l-79.6-79.6L47 490.6c8.7 9.2 23.1 10.4 39.3 1.2L361.8 358z" />
       <path fill="#f2f4f6" d="M361.8 156.8L86.3 20.2C70.1 11 55.7 12.2 47 21.4l235.2 235.2 79.6-79.8z" opacity=".85" />
