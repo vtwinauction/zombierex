@@ -24,7 +24,9 @@ export function FossilRibs({ className = "" }: { className?: string }) {
       />
       {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
         const y = 60 + i * 55;
-        const len = 150 + Math.sin(i / 2) * 60;
+        // Rounded so server and client render byte-identical SVG paths.
+        const len = Math.round((150 + Math.sin(i / 2) * 60) * 100) / 100;
+
         return (
           <g key={i} opacity={0.42 - i * 0.015}>
             <path
