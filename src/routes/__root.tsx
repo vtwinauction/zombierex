@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { installCrashReporter, reportCrash } from "../lib/crash-reporter";
 import { BottomNav } from "@/components/BottomNav";
-import { useMarketingMode } from "@/lib/marketing-mode";
+import { useMarketingMode, isMarketingPath } from "@/lib/marketing-mode";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
@@ -128,7 +128,7 @@ function RootComponent() {
   const [isTop, setIsTop] = useState(true);
   const [shellReady, setShellReady] = useState(false);
   const pathname = router.state.location.pathname;
-  const marketing = useMarketingMode();
+  const marketing = useMarketingMode() || isMarketingPath(pathname);
   const isImmersive = marketing || pathname.startsWith("/atlas/cockpit") || pathname.startsWith("/drag/race") || pathname === "/reels" || pathname.startsWith("/reels/");
 
   useEffect(() => {
