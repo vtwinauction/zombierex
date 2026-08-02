@@ -101,7 +101,7 @@ function StoreStyles() {
 .zx-store-text { display: grid; text-align: left; line-height: 1.15; }
 .zx-store-top {
   font-family: var(--font-mono, "JetBrains Mono", monospace);
-  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #22e06a;
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #00e05c;
 }
 .zx-store-bottom { font-weight: 700; letter-spacing: -0.015em; }
     `}</style>
