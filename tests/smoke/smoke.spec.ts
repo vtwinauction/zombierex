@@ -10,7 +10,7 @@ const PUBLIC_ROUTES = [
   "/auth",
   "/legal/terms",
   "/legal/privacy",
-  "/legal/community",
+  "/legal/community-guidelines",
   "/reels",
   "/marketplace",
   "/atlas",
