@@ -10,7 +10,10 @@ const listeners = new Set<() => void>();
 export function setMarketingMode(next: boolean) {
   if (active === next) return;
   active = next;
-  listeners.forEach((l) => l());
+  // A marketing component can identify itself during render so the shell
+  // never flashes app chrome. Notify subscribers in the next microtask to
+  // avoid updating the root while a child render is still in progress.
+  queueMicrotask(() => listeners.forEach((l) => l()));
 }
 
 function subscribe(l: () => void) {

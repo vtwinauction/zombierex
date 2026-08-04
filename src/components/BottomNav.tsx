@@ -25,6 +25,7 @@ export function BottomNav({ hidden = false }: { hidden?: boolean }) {
 
   return (
     <nav
+      data-bottom-nav
       aria-label="Primary"
       className="fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
       style={{
