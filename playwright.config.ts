@@ -40,7 +40,9 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "off",
+    ...(chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}),
   },
+
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
   ],
