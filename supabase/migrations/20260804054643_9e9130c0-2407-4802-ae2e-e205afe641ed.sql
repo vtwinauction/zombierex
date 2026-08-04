@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.user_has_event_invite(uuid, uuid) TO anon;
