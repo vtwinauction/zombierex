@@ -608,7 +608,7 @@ function RacePage() {
                 DRAG HUB
               </button>
             )}
-            <button onClick={() => nav({ to: "/drag/leaderboards" })} className="tap rounded-lg border py-3 mono-caps text-[10px] font-black" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--foreground))", letterSpacing: "0.24em" }}>
+            <button onClick={() => nav({ to: "/drag/leaderboards", search: { kind: "motorcycle", metric: "quarter_mile_s" } })} className="tap rounded-lg border py-3 mono-caps text-[10px] font-black" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--foreground))", letterSpacing: "0.24em" }}>
               LEADERBOARDS
             </button>
           </div>
