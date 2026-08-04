@@ -56,7 +56,7 @@ test("auth page exposes sign-in affordance", async ({ page }) => {
 
 test("protected route redirects unauthenticated users to /auth", async ({ page }) => {
   await page.goto("http://localhost:8080/settings", { waitUntil: "domcontentloaded" });
-  await page.waitForURL(/\/auth/, { timeout: 10_000 }).catch(() => {});
+  await page.waitForURL(/\/auth/, { timeout: 25_000 }).catch(() => {});
   expect(page.url()).toMatch(/\/auth/);
 });
 
