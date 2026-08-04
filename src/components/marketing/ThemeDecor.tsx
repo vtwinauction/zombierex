@@ -68,9 +68,27 @@ export function BoneRule() {
 /** Machined hex bolt head — CNC hardware accent for card corners. */
 export function HexBolt({ size = 12 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="mkt-bolt">
-      <path d="M12 2 21 7v10l-9 5-9-5V7l9-5Z" stroke="currentColor" strokeWidth="1.6" fill="currentColor" fillOpacity="0.1" />
-      <path d="M9.5 9.5h5M9.5 14.5h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="mkt-bolt"
+    >
+      <path
+        d="M12 2 21 7v10l-9 5-9-5V7l9-5Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        fill="currentColor"
+        fillOpacity="0.1"
+      />
+      <path
+        d="M9.5 9.5h5M9.5 14.5h5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -90,8 +108,20 @@ export function TreadStrip() {
 export function ClawPiston({ size = 22 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 19c4.5-.6 8.4-3.2 10.8-7.4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-      <path d="M14.8 11.6 20 4l1.4 4.6-3.1 4.6-3.5-1.6Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="currentColor" fillOpacity="0.12" />
+      <path
+        d="M4 19c4.5-.6 8.4-3.2 10.8-7.4"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14.8 11.6 20 4l1.4 4.6-3.1 4.6-3.5-1.6Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        fill="currentColor"
+        fillOpacity="0.12"
+      />
       <circle cx="5" cy="19" r="2.2" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );

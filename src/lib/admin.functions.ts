@@ -40,7 +40,9 @@ export const adminListVendors = createServerFn({ method: "GET" })
   .validator((raw) =>
     z
       .object({
-        status: z.enum(["pending", "approved", "rejected", "info_requested", "all"]).default("pending"),
+        status: z
+          .enum(["pending", "approved", "rejected", "info_requested", "all"])
+          .default("pending"),
         limit: z.number().int().min(1).max(100).default(50),
       })
       .parse(raw ?? {}),
@@ -118,10 +120,16 @@ export const adminSetVendorStatus = createServerFn({ method: "POST" })
         .eq("role", "vendor");
     }
 
-    await audit(context.supabase, context.userId, `vendor.${data.status}`, {
-      table: "vendors",
-      id: row.id,
-    }, { notes: data.notes ?? null });
+    await audit(
+      context.supabase,
+      context.userId,
+      `vendor.${data.status}`,
+      {
+        table: "vendors",
+        id: row.id,
+      },
+      { notes: data.notes ?? null },
+    );
 
     return row;
   });
@@ -131,10 +139,22 @@ export const adminStats = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context.supabase, context.userId);
     const [pending, approved, rejected, subs] = await Promise.all([
-      context.supabase.from("vendors").select("id", { count: "exact", head: true }).eq("verification_status", "pending"),
-      context.supabase.from("vendors").select("id", { count: "exact", head: true }).eq("verification_status", "approved"),
-      context.supabase.from("vendors").select("id", { count: "exact", head: true }).eq("verification_status", "rejected"),
-      context.supabase.from("subscriptions").select("id", { count: "exact", head: true }).in("status", ["active", "trialing"]),
+      context.supabase
+        .from("vendors")
+        .select("id", { count: "exact", head: true })
+        .eq("verification_status", "pending"),
+      context.supabase
+        .from("vendors")
+        .select("id", { count: "exact", head: true })
+        .eq("verification_status", "approved"),
+      context.supabase
+        .from("vendors")
+        .select("id", { count: "exact", head: true })
+        .eq("verification_status", "rejected"),
+      context.supabase
+        .from("subscriptions")
+        .select("id", { count: "exact", head: true })
+        .in("status", ["active", "trialing"]),
     ]);
     return {
       pending: pending.count ?? 0,

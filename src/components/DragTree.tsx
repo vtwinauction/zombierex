@@ -6,7 +6,8 @@ import type { TreeState } from "@/lib/christmas-tree";
 
 export function DragTree({ state, compact = false }: { state: TreeState; compact?: boolean }) {
   const p = state.phase;
-  const amber1 = p === "amber1" || p === "amber2" || p === "amber3" || p === "green" || p === "done";
+  const amber1 =
+    p === "amber1" || p === "amber2" || p === "amber3" || p === "green" || p === "done";
   const amber2 = p === "amber2" || p === "amber3" || p === "green" || p === "done";
   const amber3 = p === "amber3" || p === "green" || p === "done";
   const green = p === "green" || p === "done";
@@ -19,11 +20,16 @@ export function DragTree({ state, compact = false }: { state: TreeState; compact
     <div
       className="relative flex flex-col items-center gap-2 overflow-hidden rounded-2xl p-4"
       style={{
-        background: "linear-gradient(90deg,#4c4c55 0 10%,#5e5e69 10% 14%,#3a3a42 14% 86%,#5e5e69 86% 90%,#4c4c55 90% 100%)",
-        boxShadow: "0 18px 44px rgba(20,20,25,0.28), inset 0 0 0 1px rgba(255,255,255,0.14), inset 0 18px 24px rgba(255,255,255,0.06)",
+        background:
+          "linear-gradient(90deg,#4c4c55 0 10%,#5e5e69 10% 14%,#3a3a42 14% 86%,#5e5e69 86% 90%,#4c4c55 90% 100%)",
+        boxShadow:
+          "0 18px 44px rgba(20,20,25,0.28), inset 0 0 0 1px rgba(255,255,255,0.14), inset 0 18px 24px rgba(255,255,255,0.06)",
       }}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-10" style={{ background: "linear-gradient(180deg,rgba(255,255,255,0.16),transparent)" }} />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-10"
+        style={{ background: "linear-gradient(180deg,rgba(255,255,255,0.16),transparent)" }}
+      />
 
       <TreeLabel text="PRE STAGE" />
       <Row>
@@ -49,7 +55,14 @@ function Row({ children }: { children: React.ReactNode }) {
 }
 
 function TreeLabel({ text }: { text: string }) {
-  return <div className="mono-caps text-[7px] font-black" style={{ color: "rgba(255,255,255,0.38)", letterSpacing: "0.2em" }}>{text}</div>;
+  return (
+    <div
+      className="mono-caps text-[7px] font-black"
+      style={{ color: "rgba(255,255,255,0.38)", letterSpacing: "0.2em" }}
+    >
+      {text}
+    </div>
+  );
 }
 
 function Bulb({ on, color, size = 48 }: { on: boolean; color: string; size?: number }) {

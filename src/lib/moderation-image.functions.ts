@@ -11,9 +11,7 @@ import { moderateImageUrl } from "./moderation-image.server";
 
 export const moderateImage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
-    z.object({ url: z.string().url() }).parse(raw),
-  )
+  .validator((raw) => z.object({ url: z.string().url() }).parse(raw))
   .handler(async ({ data }) => {
     return await moderateImageUrl(data.url);
   });

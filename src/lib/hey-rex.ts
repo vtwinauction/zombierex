@@ -30,22 +30,89 @@ const WAKE_WORDS = ["hey rex", "hi rex", "hey wrecks", "hey rax", "rex"];
 const WAKE_TIMEOUT_MS = 8000;
 
 export const BUILTIN_COMMANDS: RexCommand[] = [
-  { id: "home", label: "Go home", phrases: ["home", "go home", "feed"], action: (c) => c.navigate("/") },
-  { id: "atlas", label: "Open Atlas", phrases: ["atlas", "open atlas", "map", "open map"], action: (c) => c.navigate("/atlas") },
-  { id: "ride", label: "Start Ride Mode", phrases: ["start ride", "ride mode", "start riding", "let's ride"], action: (c) => c.navigate("/atlas/ride") },
-  { id: "record", label: "Record ride", phrases: ["record ride", "start recording", "record"], action: (c) => c.navigate("/atlas/record") },
-  { id: "fuel", label: "Find fuel", phrases: ["find fuel", "fuel", "gas station", "petrol", "nearest fuel"], action: (c) => c.navigate("/atlas/fuel") },
-  { id: "group", label: "Group ride", phrases: ["group ride", "open group", "my group"], action: (c) => c.navigate("/atlas/group") },
-  { id: "sos", label: "Emergency SOS", phrases: ["emergency", "sos", "help me", "call sos"], action: (c) => { c.speak("Opening emergency"); c.navigate("/atlas/sos"); } },
-  { id: "messages", label: "Messages", phrases: ["messages", "open messages", "inbox"], action: (c) => c.navigate("/messages") },
-  { id: "profile", label: "Profile", phrases: ["profile", "my profile", "my garage"], action: (c) => c.navigate("/profile") },
-  { id: "rewards", label: "Rewards", phrases: ["rewards", "xp", "achievements"], action: (c) => c.navigate("/rewards") },
-  { id: "settings", label: "Settings", phrases: ["settings", "open settings"], action: (c) => c.navigate("/settings") },
-  { id: "assistant", label: "Ask Rex AI", phrases: ["assistant", "ask rex", "open assistant"], action: (c) => c.navigate("/assistant") },
+  {
+    id: "home",
+    label: "Go home",
+    phrases: ["home", "go home", "feed"],
+    action: (c) => c.navigate("/"),
+  },
+  {
+    id: "atlas",
+    label: "Open Atlas",
+    phrases: ["atlas", "open atlas", "map", "open map"],
+    action: (c) => c.navigate("/atlas"),
+  },
+  {
+    id: "ride",
+    label: "Start Ride Mode",
+    phrases: ["start ride", "ride mode", "start riding", "let's ride"],
+    action: (c) => c.navigate("/atlas/ride"),
+  },
+  {
+    id: "record",
+    label: "Record ride",
+    phrases: ["record ride", "start recording", "record"],
+    action: (c) => c.navigate("/atlas/record"),
+  },
+  {
+    id: "fuel",
+    label: "Find fuel",
+    phrases: ["find fuel", "fuel", "gas station", "petrol", "nearest fuel"],
+    action: (c) => c.navigate("/atlas/fuel"),
+  },
+  {
+    id: "group",
+    label: "Group ride",
+    phrases: ["group ride", "open group", "my group"],
+    action: (c) => c.navigate("/atlas/group"),
+  },
+  {
+    id: "sos",
+    label: "Emergency SOS",
+    phrases: ["emergency", "sos", "help me", "call sos"],
+    action: (c) => {
+      c.speak("Opening emergency");
+      c.navigate("/atlas/sos");
+    },
+  },
+  {
+    id: "messages",
+    label: "Messages",
+    phrases: ["messages", "open messages", "inbox"],
+    action: (c) => c.navigate("/messages"),
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    phrases: ["profile", "my profile", "my garage"],
+    action: (c) => c.navigate("/profile"),
+  },
+  {
+    id: "rewards",
+    label: "Rewards",
+    phrases: ["rewards", "xp", "achievements"],
+    action: (c) => c.navigate("/rewards"),
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    phrases: ["settings", "open settings"],
+    action: (c) => c.navigate("/settings"),
+  },
+  {
+    id: "assistant",
+    label: "Ask Rex AI",
+    phrases: ["assistant", "ask rex", "open assistant"],
+    action: (c) => c.navigate("/assistant"),
+  },
 ];
 
 function normalize(t: string) {
-  return t.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+  return t
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function stripWake(t: string) {
@@ -65,7 +132,9 @@ function matchCommand(text: string, commands: RexCommand[]): RexCommand | null {
   const t = normalize(text);
   if (!t) return null;
   // exact/startsWith preferred
-  for (const c of commands) for (const p of c.phrases) if (t === p || t.startsWith(p + " ") || t.endsWith(" " + p)) return c;
+  for (const c of commands)
+    for (const p of c.phrases)
+      if (t === p || t.startsWith(p + " ") || t.endsWith(" " + p)) return c;
   for (const c of commands) for (const p of c.phrases) if (t.includes(p)) return c;
   return null;
 }
@@ -99,20 +168,40 @@ export class HeyRex {
   }
 
   private snapshot() {
-    return { status: this.status, transcript: this.transcript, lastCommand: this.lastCommand, awake: this.awake };
+    return {
+      status: this.status,
+      transcript: this.transcript,
+      lastCommand: this.lastCommand,
+      awake: this.awake,
+    };
   }
-  private emit() { for (const l of this.listeners) l(this.snapshot()); }
+  private emit() {
+    for (const l of this.listeners) l(this.snapshot());
+  }
 
-  private setStatus(s: RexStatus) { this.status = s; this.emit(); }
+  private setStatus(s: RexStatus) {
+    this.status = s;
+    this.emit();
+  }
   private setAwake(v: boolean) {
     this.awake = v;
-    if (this.wakeTimer) { clearTimeout(this.wakeTimer); this.wakeTimer = null; }
-    if (v) this.wakeTimer = setTimeout(() => { this.awake = false; this.emit(); }, WAKE_TIMEOUT_MS);
+    if (this.wakeTimer) {
+      clearTimeout(this.wakeTimer);
+      this.wakeTimer = null;
+    }
+    if (v)
+      this.wakeTimer = setTimeout(() => {
+        this.awake = false;
+        this.emit();
+      }, WAKE_TIMEOUT_MS);
     this.emit();
   }
 
   start() {
-    if (!this.isSupported()) { this.setStatus("unsupported"); return; }
+    if (!this.isSupported()) {
+      this.setStatus("unsupported");
+      return;
+    }
     if (this.rec) return;
     const Ctor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const rec = new Ctor();
@@ -122,12 +211,18 @@ export class HeyRex {
     rec.onstart = () => this.setStatus("listening");
     rec.onerror = (e: any) => {
       if (e.error === "not-allowed" || e.error === "service-not-allowed") this.setStatus("denied");
-      else if (e.error === "no-speech" || e.error === "aborted") { /* ignore */ }
-      else this.setStatus("error");
+      else if (e.error === "no-speech" || e.error === "aborted") {
+        /* ignore */
+      } else this.setStatus("error");
     };
     rec.onend = () => {
-      if (!this.manualStop) { try { rec.start(); } catch { /* ignore */ } }
-      else this.setStatus("idle");
+      if (!this.manualStop) {
+        try {
+          rec.start();
+        } catch {
+          /* ignore */
+        }
+      } else this.setStatus("idle");
     };
     rec.onresult = (evt: any) => {
       let interim = "";
@@ -148,14 +243,22 @@ export class HeyRex {
       }
 
       if (finalText) {
-        const payload = this.awake ? stripWake(finalText) : (containsWake(finalText) ? stripWake(finalText) : "");
+        const payload = this.awake
+          ? stripWake(finalText)
+          : containsWake(finalText)
+            ? stripWake(finalText)
+            : "";
         if (payload) {
           const cmd = matchCommand(payload, this.commands);
           if (cmd) {
             this.lastCommand = cmd.label;
             this.setAwake(false);
             this.setStatus("listening");
-            try { cmd.action(this.ctx); } catch { /* ignore */ }
+            try {
+              cmd.action(this.ctx);
+            } catch {
+              /* ignore */
+            }
           } else if (this.awake) {
             speak("I didn't catch that.");
           }
@@ -164,14 +267,25 @@ export class HeyRex {
     };
     this.rec = rec;
     this.manualStop = false;
-    try { rec.start(); } catch { /* ignore */ }
+    try {
+      rec.start();
+    } catch {
+      /* ignore */
+    }
   }
 
   stop() {
     this.manualStop = true;
-    if (this.wakeTimer) { clearTimeout(this.wakeTimer); this.wakeTimer = null; }
+    if (this.wakeTimer) {
+      clearTimeout(this.wakeTimer);
+      this.wakeTimer = null;
+    }
     this.awake = false;
-    try { this.rec?.stop(); } catch { /* ignore */ }
+    try {
+      this.rec?.stop();
+    } catch {
+      /* ignore */
+    }
     this.rec = null;
     this.setStatus("idle");
   }

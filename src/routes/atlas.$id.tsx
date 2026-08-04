@@ -10,10 +10,11 @@ import { toast } from "sonner";
 
 const RouteMap = lazy(() => import("@/components/RouteMap"));
 
-const routeQuery = (id: string) => queryOptions({
-  queryKey: ["atlas", "route", id],
-  queryFn: () => getRoute({ data: { id } }),
-});
+const routeQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["atlas", "route", id],
+    queryFn: () => getRoute({ data: { id } }),
+  });
 
 export const Route = createFileRoute("/atlas/$id")({
   loader: ({ context, params }) => context.queryClient.ensureQueryData(routeQuery(params.id)),
@@ -41,7 +42,15 @@ function RouteErrorPanel({ error, reset }: { error: Error; reset: () => void }) 
   return (
     <div className="p-6 text-foreground">
       <p>Failed to load route: {error.message}</p>
-      <button onClick={() => { reset(); router.invalidate(); }} className="mt-3 border border-border px-3 py-1 text-xs">Retry</button>
+      <button
+        onClick={() => {
+          reset();
+          router.invalidate();
+        }}
+        className="mt-3 border border-border px-3 py-1 text-xs"
+      >
+        Retry
+      </button>
     </div>
   );
 }
@@ -69,18 +78,25 @@ function RouteDetail() {
       setSaved(r.saved);
     } catch (e: any) {
       if (String(e.message).includes("Unauthorized")) nav({ to: "/auth" });
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   }
   async function onRide() {
     try {
       await doRide({ data: { id: route.id } });
     } catch (e: any) {
-      if (String(e.message).includes("Unauthorized")) { nav({ to: "/auth" }); return; }
+      if (String(e.message).includes("Unauthorized")) {
+        nav({ to: "/auth" });
+        return;
+      }
     }
     // open Google Maps directions to start point
     if (route.start_lat && route.start_lng) {
       const { openExternal } = await import("@/lib/native");
-      await openExternal(`https://www.google.com/maps/dir/?api=1&destination=${route.start_lat},${route.start_lng}&travelmode=driving`);
+      await openExternal(
+        `https://www.google.com/maps/dir/?api=1&destination=${route.start_lat},${route.start_lng}&travelmode=driving`,
+      );
     }
   }
   async function onShare() {
@@ -90,7 +106,11 @@ function RouteDetail() {
     if (res.ok) toast.success("Shared");
   }
   function onExportGpx() {
-    const waypoints = (route.pois ?? []).map((p: any) => ({ lat: p.lat, lng: p.lng, name: p.name }));
+    const waypoints = (route.pois ?? []).map((p: any) => ({
+      lat: p.lat,
+      lng: p.lng,
+      name: p.name,
+    }));
     const gpx = buildGpx(route.title, route.path ?? [], waypoints);
     downloadGpx(`route-${route.id.slice(0, 8)}.gpx`, gpx);
     toast.success("GPX downloaded");
@@ -99,7 +119,12 @@ function RouteDetail() {
   return (
     <div className="min-h-svh pb-32">
       <Suspense fallback={<div className="h-72 w-full bg-graphite" />}>
-        <RouteMap path={route.path ?? []} pois={route.pois ?? []} interactive className="h-72 w-full" />
+        <RouteMap
+          path={route.path ?? []}
+          pois={route.pois ?? []}
+          interactive
+          className="h-72 w-full"
+        />
       </Suspense>
       <div className="px-4 pt-4">
         <div className="flex items-start justify-between gap-3">
@@ -112,7 +137,11 @@ function RouteDetail() {
               {route.region ? `${route.region} · ` : ""}by {route.owner?.display_name || "rider"}
             </p>
           </div>
-          <button onClick={onShare} className="tap mono-caps text-[10px] font-bold text-white/80" style={{ padding: "6px 10px", border: "1px solid var(--color-hair-strong)" }}>
+          <button
+            onClick={onShare}
+            className="tap mono-caps text-[10px] font-bold text-white/80"
+            style={{ padding: "6px 10px", border: "1px solid var(--color-hair-strong)" }}
+          >
             SHARE
           </button>
         </div>
@@ -129,21 +158,38 @@ function RouteDetail() {
 
         {route.pois?.length > 0 && (
           <div className="mt-5">
-            <p className="mono-caps text-[10px]" style={{ color: "var(--color-titanium)" }}>POINTS OF INTEREST</p>
+            <p className="mono-caps text-[10px]" style={{ color: "var(--color-titanium)" }}>
+              POINTS OF INTEREST
+            </p>
             <div className="mt-2 grid gap-2">
               {route.pois.map((p: any) => (
-                <div key={p.id} className="flex items-center gap-3 border border-white/10 bg-graphite p-3">
-                  <span className="mono-caps text-[9px]" style={{ color: "var(--color-neon)" }}>{p.kind}</span>
+                <div
+                  key={p.id}
+                  className="flex items-center gap-3 border border-white/10 bg-graphite p-3"
+                >
+                  <span className="mono-caps text-[9px]" style={{ color: "var(--color-neon)" }}>
+                    {p.kind}
+                  </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-white">{p.name}</p>
-                    {p.address && <p className="mono-tag truncate" style={{ color: "var(--color-titanium)", fontSize: 9 }}>{p.address}</p>}
+                    {p.address && (
+                      <p
+                        className="mono-tag truncate"
+                        style={{ color: "var(--color-titanium)", fontSize: 9 }}
+                      >
+                        {p.address}
+                      </p>
+                    )}
                   </div>
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}${p.google_place_id ? `&query_place_id=${p.google_place_id}` : ""}`}
-                    target="_blank" rel="noreferrer"
+                    target="_blank"
+                    rel="noreferrer"
                     className="tap mono-caps text-[9px] font-bold text-white/70"
                     style={{ padding: "4px 8px", border: "1px solid var(--color-hair-strong)" }}
-                  >OPEN</a>
+                  >
+                    OPEN
+                  </a>
                 </div>
               ))}
             </div>
@@ -151,13 +197,34 @@ function RouteDetail() {
         )}
 
         <div className="mt-6 grid grid-cols-3 gap-2">
-          <button onClick={onSave} disabled={saving} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-graphite)", color: saved ? "var(--color-neon)" : "white", border: "1px solid var(--color-hair-strong)" }}>
+          <button
+            onClick={onSave}
+            disabled={saving}
+            className="tap py-3 mono-caps text-xs font-bold"
+            style={{
+              background: "var(--color-graphite)",
+              color: saved ? "var(--color-neon)" : "white",
+              border: "1px solid var(--color-hair-strong)",
+            }}
+          >
             {saved ? "★ SAVED" : "☆ SAVE"}
           </button>
-          <button onClick={onExportGpx} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-graphite)", color: "white", border: "1px solid var(--color-hair-strong)" }}>
+          <button
+            onClick={onExportGpx}
+            className="tap py-3 mono-caps text-xs font-bold"
+            style={{
+              background: "var(--color-graphite)",
+              color: "white",
+              border: "1px solid var(--color-hair-strong)",
+            }}
+          >
             ↓ GPX
           </button>
-          <button onClick={onRide} className="tap py-3 mono-caps text-xs font-bold" style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
+          <button
+            onClick={onRide}
+            className="tap py-3 mono-caps text-xs font-bold"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}
+          >
             ▶ RIDE
           </button>
         </div>
@@ -170,7 +237,9 @@ function RouteDetail() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="border border-white/10 bg-graphite p-2 text-center">
-      <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 8 }}>{label}</p>
+      <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 8 }}>
+        {label}
+      </p>
       <p className="mono-num text-sm font-bold text-white">{value}</p>
     </div>
   );

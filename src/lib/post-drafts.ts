@@ -40,7 +40,9 @@ export function getDraft(id: string): PostDraft | undefined {
   return read().find((d) => d.id === id);
 }
 
-export function saveDraft(draft: Omit<PostDraft, "id" | "createdAt" | "updatedAt"> & { id?: string }): PostDraft {
+export function saveDraft(
+  draft: Omit<PostDraft, "id" | "createdAt" | "updatedAt"> & { id?: string },
+): PostDraft {
   const now = Date.now();
   const list = read();
   const id = draft.id ?? `d_${now}_${Math.random().toString(36).slice(2, 8)}`;

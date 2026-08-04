@@ -7,7 +7,10 @@ export const Route = createFileRoute("/_authenticated/owner/analytics")({
   head: () => ({
     meta: [
       { title: "Owner Analytics · ZOMBIEREX" },
-      { name: "description", content: "30-day platform analytics — event volume, top events, and daily trend." },
+      {
+        name: "description",
+        content: "30-day platform analytics — event volume, top events, and daily trend.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Owner Analytics · ZOMBIEREX" },
       { property: "og:description", content: "Platform-wide 30-day analytics dashboard." },
@@ -37,9 +40,13 @@ function AnalyticsView() {
   if (!gate.data?.isOwner) {
     return (
       <div className="p-8 text-center">
-        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>ERR·403</p>
+        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>
+          ERR·403
+        </p>
         <h1 className="mt-2 text-2xl display-xl">OWNER CLEARANCE REQUIRED</h1>
-        <Link to="/" className="btn-ghost mt-6 inline-flex">Return home</Link>
+        <Link to="/" className="btn-ghost mt-6 inline-flex">
+          Return home
+        </Link>
       </div>
     );
   }
@@ -52,10 +59,14 @@ function AnalyticsView() {
       <div className="border-b px-5 py-4" style={{ borderColor: "var(--color-hair)" }}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="mono-tag" style={{ color: "#00c853" }}>ROOT · TELEMETRY</p>
+            <p className="mono-tag" style={{ color: "#00c853" }}>
+              ROOT · TELEMETRY
+            </p>
             <h1 className="display-xl text-xl">Platform Analytics · 30d</h1>
           </div>
-          <Link to="/owner" className="btn-ghost text-xs">← Owner</Link>
+          <Link to="/owner" className="btn-ghost text-xs">
+            ← Owner
+          </Link>
         </div>
       </div>
 

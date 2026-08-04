@@ -13,7 +13,11 @@ export const Route = createFileRoute("/_authenticated/cart")({
 });
 
 function fmtPrice(cents: number, currency = "USD") {
-  return new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 0 }).format(cents / 100);
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
 }
 
 function Cart() {
@@ -73,17 +77,32 @@ function Cart() {
   return (
     <div className="pb-32">
       <div className="px-4 pt-4">
-        <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>Your Cart</h1>
-        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>{items.length} ITEM{items.length === 1 ? "" : "S"}</p>
+        <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>
+          Your Cart
+        </h1>
+        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+          {items.length} ITEM{items.length === 1 ? "" : "S"}
+        </p>
 
         {cartQ.isLoading && (
-          <p className="mt-6 mono-tag" style={{ color: "var(--color-titanium)" }}>LOADING…</p>
+          <p className="mt-6 mono-tag" style={{ color: "var(--color-titanium)" }}>
+            LOADING…
+          </p>
         )}
 
         {!cartQ.isLoading && items.length === 0 && (
-          <div className="mt-10 py-16 text-center border" style={{ borderColor: "var(--color-hair-strong)" }}>
-            <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>CART EMPTY</p>
-            <Link to="/marketplace" className="mt-3 inline-block mono-tag font-bold" style={{ color: "var(--color-neon)" }}>
+          <div
+            className="mt-10 py-16 text-center border"
+            style={{ borderColor: "var(--color-hair-strong)" }}
+          >
+            <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+              CART EMPTY
+            </p>
+            <Link
+              to="/marketplace"
+              className="mt-3 inline-block mono-tag font-bold"
+              style={{ color: "var(--color-neon)" }}
+            >
               BROWSE MARKETPLACE ▸
             </Link>
           </div>
@@ -92,7 +111,11 @@ function Cart() {
         {items.map((x) => {
           const l = x.listing ?? {};
           return (
-            <div key={x.id} className="mt-3 flex gap-3 border p-3" style={{ borderColor: "var(--color-hair-strong)" }}>
+            <div
+              key={x.id}
+              className="mt-3 flex gap-3 border p-3"
+              style={{ borderColor: "var(--color-hair-strong)" }}
+            >
               {l.hero_image_url && (
                 <Link to="/marketplace/$id" params={{ id: x.listing_id }}>
                   <img src={l.hero_image_url} className="h-20 w-20 object-cover" alt="" />
@@ -100,9 +123,13 @@ function Cart() {
               )}
               <div className="flex-1 min-w-0">
                 <Link to="/marketplace/$id" params={{ id: x.listing_id }}>
-                  <p className="text-sm font-bold truncate" style={{ color: "var(--color-ink)" }}>{l.title ?? "Listing removed"}</p>
+                  <p className="text-sm font-bold truncate" style={{ color: "var(--color-ink)" }}>
+                    {l.title ?? "Listing removed"}
+                  </p>
                 </Link>
-                <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>{[l.brand, l.model].filter(Boolean).join(" · ")}</p>
+                <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+                  {[l.brand, l.model].filter(Boolean).join(" · ")}
+                </p>
                 <div className="flex items-center justify-between mt-2 gap-2">
                   <p className="mono-num font-bold" style={{ color: "var(--color-neon)" }}>
                     {l.price_cents != null ? fmtPrice(l.price_cents, l.currency) : "—"}
@@ -113,19 +140,30 @@ function Cart() {
                       className="tap h-7 w-7 border mono-tag font-bold"
                       style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}
                       aria-label="Decrease quantity"
-                    >−</button>
-                    <span className="mono-num text-sm w-6 text-center" style={{ color: "var(--color-ink)" }}>{x.qty}</span>
+                    >
+                      −
+                    </button>
+                    <span
+                      className="mono-num text-sm w-6 text-center"
+                      style={{ color: "var(--color-ink)" }}
+                    >
+                      {x.qty}
+                    </span>
                     <button
                       onClick={() => qtyMut.mutate({ id: x.id, qty: Math.min(999, x.qty + 1) })}
                       className="tap h-7 w-7 border mono-tag font-bold"
                       style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}
                       aria-label="Increase quantity"
-                    >+</button>
+                    >
+                      +
+                    </button>
                     <button
                       onClick={() => removeMut.mutate(x.id)}
                       className="tap ml-2 mono-tag"
                       style={{ color: "#ff3d3d" }}
-                    >REMOVE</button>
+                    >
+                      REMOVE
+                    </button>
                   </div>
                 </div>
               </div>
@@ -137,15 +175,27 @@ function Cart() {
           <>
             <div className="mt-6 border" style={{ borderColor: "var(--color-hair-strong)" }}>
               {Object.entries(subtotalByCurrency).map(([c, cents]) => (
-                <div key={c} className="flex justify-between border-b px-3 py-3 last:border-b-0" style={{ borderColor: "var(--color-hair)" }}>
-                  <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>SUBTOTAL ({c})</span>
-                  <span className="mono-num text-lg font-bold" style={{ color: "var(--color-neon)" }}>{fmtPrice(cents, c)}</span>
+                <div
+                  key={c}
+                  className="flex justify-between border-b px-3 py-3 last:border-b-0"
+                  style={{ borderColor: "var(--color-hair)" }}
+                >
+                  <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+                    SUBTOTAL ({c})
+                  </span>
+                  <span
+                    className="mono-num text-lg font-bold"
+                    style={{ color: "var(--color-neon)" }}
+                  >
+                    {fmtPrice(cents, c)}
+                  </span>
                 </div>
               ))}
             </div>
 
             <p className="mt-3 text-xs" style={{ color: "var(--color-titanium)" }}>
-              Each seller ships separately. You'll check out one item at a time so escrow, shipping, and tracking stay accurate per seller.
+              Each seller ships separately. You'll check out one item at a time so escrow, shipping,
+              and tracking stay accurate per seller.
             </p>
 
             <div className="mt-4 space-y-2">

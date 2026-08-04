@@ -1,9 +1,30 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  Sparkles, Video, Gauge, Trophy, Calendar, ScanLine, Award, Car, Users, Map,
-  Navigation, Store, Wrench, Briefcase, MessageCircle, Bell, Flag, ShieldCheck,
-  Star, ChevronDown, ArrowRight, Mail, MapPin, Check,
+  Sparkles,
+  Video,
+  Gauge,
+  Trophy,
+  Calendar,
+  ScanLine,
+  Award,
+  Car,
+  Users,
+  Map,
+  Navigation,
+  Store,
+  Wrench,
+  Briefcase,
+  MessageCircle,
+  Bell,
+  Flag,
+  ShieldCheck,
+  Star,
+  ChevronDown,
+  ArrowRight,
+  Mail,
+  MapPin,
+  Check,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { MarketingShell } from "./MarketingShell";
@@ -13,10 +34,24 @@ import heroBg from "@/assets/auth-jungle-bg.jpg";
 import { FossilRibs, BoneRule, HexBolt, TreadStrip, ClawPiston } from "./ThemeDecor";
 
 const ICONS: Record<string, typeof Sparkles> = {
-  sparkles: Sparkles, video: Video, gauge: Gauge, trophy: Trophy, calendar: Calendar,
-  scan: ScanLine, award: Award, car: Car, users: Users, map: Map, navigation: Navigation,
-  store: Store, wrench: Wrench, briefcase: Briefcase, message: MessageCircle, bell: Bell,
-  flag: Flag, shield: ShieldCheck,
+  sparkles: Sparkles,
+  video: Video,
+  gauge: Gauge,
+  trophy: Trophy,
+  calendar: Calendar,
+  scan: ScanLine,
+  award: Award,
+  car: Car,
+  users: Users,
+  map: Map,
+  navigation: Navigation,
+  store: Store,
+  wrench: Wrench,
+  briefcase: Briefcase,
+  message: MessageCircle,
+  bell: Bell,
+  flag: Flag,
+  shield: ShieldCheck,
 };
 
 /** Reveals children once they scroll into view. */
@@ -26,15 +61,26 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   const [seen, setSeen] = useState(true);
   useEffect(() => {
     const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") { setSeen(true); return; }
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setSeen(true);
+      return;
+    }
     const io = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } },
+      ([e]) => {
+        if (e.isIntersecting) {
+          setSeen(true);
+          io.disconnect();
+        }
+      },
       { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
     );
     io.observe(el);
     // Safety net: never leave content hidden if the observer misfires.
     const t = window.setTimeout(() => setSeen(true), 1200);
-    return () => { io.disconnect(); window.clearTimeout(t); };
+    return () => {
+      io.disconnect();
+      window.clearTimeout(t);
+    };
   }, []);
   return (
     <div
@@ -74,12 +120,25 @@ function StatValue({ value, suffix }: { value: number; suffix: string }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.3 });
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setOn(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
     io.observe(el);
     return () => io.disconnect();
   }, []);
   const n = useCountUp(value, on);
-  return <span ref={ref}>{n >= 1000 ? n.toLocaleString() : n}{suffix}</span>;
+  return (
+    <span ref={ref}>
+      {n >= 1000 ? n.toLocaleString() : n}
+      {suffix}
+    </span>
+  );
 }
 
 export function Landing() {
@@ -114,22 +173,37 @@ function Hero() {
       <div className="mkt-hero-grid" aria-hidden="true" />
       <div className="mkt-wrap mkt-hero-inner">
         <Reveal>
-          <p className="mkt-eyebrow mkt-eyebrow-stamp"><ClawPiston size={15} />{siteConfig.tagline}</p>
+          <p className="mkt-eyebrow mkt-eyebrow-stamp">
+            <ClawPiston size={15} />
+            {siteConfig.tagline}
+          </p>
           <h1 className="mkt-hero-title">
-            The world's<br />automotive<br /><span className="mkt-neon">social network.</span>
+            The world's
+            <br />
+            automotive
+            <br />
+            <span className="mkt-neon">social network.</span>
           </h1>
           <p className="mkt-hero-sub">{siteConfig.subheadline}</p>
           <div className="mkt-hero-cta">
             <StoreButtons />
           </div>
           <div className="mkt-hero-meta">
-            <span><Check size={13} /> Free to join</span>
-            <span><Check size={13} /> iOS &amp; Android</span>
-            <span><Check size={13} /> 90+ countries</span>
+            <span>
+              <Check size={13} /> Free to join
+            </span>
+            <span>
+              <Check size={13} /> iOS &amp; Android
+            </span>
+            <span>
+              <Check size={13} /> 90+ countries
+            </span>
           </div>
         </Reveal>
       </div>
-      <a href="#about" className="mkt-scroll-hint" aria-label="Scroll to content"><ChevronDown size={18} /></a>
+      <a href="#about" className="mkt-scroll-hint" aria-label="Scroll to content">
+        <ChevronDown size={18} />
+      </a>
     </section>
   );
 }
@@ -144,21 +218,23 @@ function About() {
               <p className="mkt-eyebrow">About</p>
               <h2>Built by enthusiasts, for enthusiasts.</h2>
               <p>
-                ZOMBIEREX exists for the people who wake up thinking about compression ratios,
-                apex speed and the smell of race fuel. It is a single home for every corner of
-                automotive culture — from garage builds and midnight runs to judged competitions
-                and international rallies.
+                ZOMBIEREX exists for the people who wake up thinking about compression ratios, apex
+                speed and the smell of race fuel. It is a single home for every corner of automotive
+                culture — from garage builds and midnight runs to judged competitions and
+                international rallies.
               </p>
               <p style={{ marginTop: 14 }}>
-                Share your build, verify your times, plan your routes, sell your parts,
-                and find your crew — anywhere in the world.
+                Share your build, verify your times, plan your routes, sell your parts, and find
+                your crew — anywhere in the world.
               </p>
             </div>
           </Reveal>
           <Reveal delay={120}>
             <div className="mkt-chips">
               {siteConfig.communities.map((c) => (
-                <span key={c} className="mkt-chip">{c}</span>
+                <span key={c} className="mkt-chip">
+                  {c}
+                </span>
               ))}
             </div>
           </Reveal>
@@ -190,8 +266,12 @@ function Features() {
                   style={{ display: "block", color: "inherit", textDecoration: "none" }}
                   aria-label={`How to use ${f.title}`}
                 >
-                  <span className="mkt-feature-bolt"><HexBolt size={11} /></span>
-                  <span className="mkt-feature-icon"><Icon size={18} strokeWidth={1.75} /></span>
+                  <span className="mkt-feature-bolt">
+                    <HexBolt size={11} />
+                  </span>
+                  <span className="mkt-feature-icon">
+                    <Icon size={18} strokeWidth={1.75} />
+                  </span>
                   <h3>{f.title}</h3>
                   <p className="mkt-muted">{f.body}</p>
                   <span className="mkt-textlink" style={{ marginTop: 12, fontSize: 12.5 }}>
@@ -307,7 +387,9 @@ function Stats() {
         <div className="mkt-stats">
           {siteConfig.stats.map((s) => (
             <div key={s.label} className="mkt-stat">
-              <div className="mkt-stat-value"><StatValue value={s.value} suffix={s.suffix} /></div>
+              <div className="mkt-stat-value">
+                <StatValue value={s.value} suffix={s.suffix} />
+              </div>
               <div className="mkt-stat-label">{s.label}</div>
             </div>
           ))}
@@ -339,7 +421,9 @@ function Testimonials() {
                   <img src={t.avatar} alt="" loading="lazy" />
                   <span>
                     <strong>{t.name}</strong>
-                    <span className="mkt-muted">{t.handle} · {t.location}</span>
+                    <span className="mkt-muted">
+                      {t.handle} · {t.location}
+                    </span>
                   </span>
                 </figcaption>
               </figure>
@@ -363,17 +447,21 @@ function DownloadCta() {
                 Start your engine.
               </h2>
               <p className="mkt-muted" style={{ maxWidth: 460, lineHeight: 1.65, fontSize: 14 }}>
-                Version {siteConfig.downloads.version} · {siteConfig.downloads.releaseDate}.
-                Free to download, free to join.
+                Version {siteConfig.downloads.version} · {siteConfig.downloads.releaseDate}. Free to
+                download, free to join.
               </p>
-              <div style={{ marginTop: 22 }}><StoreButtons /></div>
+              <div style={{ marginTop: 22 }}>
+                <StoreButtons />
+              </div>
               <Link to="/download" className="mkt-textlink">
                 All download options <ArrowRight size={14} />
               </Link>
             </div>
             <ul className="mkt-release">
               {siteConfig.downloads.releaseNotes.map((r) => (
-                <li key={r}><Check size={14} /> {r}</li>
+                <li key={r}>
+                  <Check size={14} /> {r}
+                </li>
               ))}
             </ul>
           </div>
@@ -418,20 +506,30 @@ function ContactBlock() {
         </div>
         <div className="mkt-grid">
           <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.support}`}>
-            <Mail size={16} /><h3>Support</h3><p className="mkt-muted">{siteConfig.contact.support}</p>
+            <Mail size={16} />
+            <h3>Support</h3>
+            <p className="mkt-muted">{siteConfig.contact.support}</p>
           </a>
           <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.business}`}>
-            <Briefcase size={16} /><h3>Business &amp; partnerships</h3><p className="mkt-muted">{siteConfig.contact.business}</p>
+            <Briefcase size={16} />
+            <h3>Business &amp; partnerships</h3>
+            <p className="mkt-muted">{siteConfig.contact.business}</p>
           </a>
           <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.legal}`}>
-            <ShieldCheck size={16} /><h3>Legal</h3><p className="mkt-muted">{siteConfig.contact.legal}</p>
+            <ShieldCheck size={16} />
+            <h3>Legal</h3>
+            <p className="mkt-muted">{siteConfig.contact.legal}</p>
           </a>
           <div className="mkt-card mkt-contact">
-            <MapPin size={16} /><h3>Headquarters</h3><p className="mkt-muted">{siteConfig.contact.location}</p>
+            <MapPin size={16} />
+            <h3>Headquarters</h3>
+            <p className="mkt-muted">{siteConfig.contact.location}</p>
           </div>
         </div>
         <div style={{ marginTop: 20 }}>
-          <Link to="/contact" className="mkt-btn mkt-btn-ghost">Open contact form</Link>
+          <Link to="/contact" className="mkt-btn mkt-btn-ghost">
+            Open contact form
+          </Link>
         </div>
       </div>
     </section>

@@ -19,7 +19,11 @@ function subscribe(l: () => void) {
 }
 
 export function useMarketingMode() {
-  return useSyncExternalStore(subscribe, () => active, () => false);
+  return useSyncExternalStore(
+    subscribe,
+    () => active,
+    () => false,
+  );
 }
 
 /**
@@ -32,4 +36,3 @@ const MARKETING_PREFIXES = ["/guide", "/download", "/contact", "/legal", "/featu
 export function isMarketingPath(pathname: string): boolean {
   return MARKETING_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
-

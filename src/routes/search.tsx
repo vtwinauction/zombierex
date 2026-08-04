@@ -16,7 +16,10 @@ export const Route = createFileRoute("/search")({
   head: () => ({
     meta: [
       { title: "Signal · ZOMBIEREX" },
-      { name: "description", content: "Discover riders, builds, crews and parts across the ZOMBIEREX network." },
+      {
+        name: "description",
+        content: "Discover riders, builds, crews and parts across the ZOMBIEREX network.",
+      },
     ],
   }),
   component: ExplorePage,
@@ -25,8 +28,13 @@ export const Route = createFileRoute("/search")({
 const CHIPS = ["ALL", "RIDERS", "POSTS", "CREWS", "PARTS", "EVENTS", "TAGS"] as const;
 type Chip = (typeof CHIPS)[number];
 const CHIP_TO_KIND: Record<Chip, string> = {
-  ALL: "all", RIDERS: "riders", POSTS: "posts", CREWS: "crews",
-  PARTS: "parts", EVENTS: "events", TAGS: "tags",
+  ALL: "all",
+  RIDERS: "riders",
+  POSTS: "posts",
+  CREWS: "crews",
+  PARTS: "parts",
+  EVENTS: "events",
+  TAGS: "tags",
 };
 
 function useDebounced<T>(value: T, ms = 250) {
@@ -68,13 +76,17 @@ function ExplorePage() {
 
   return (
     <div>
-
       <div className="px-4 pt-6">
         <p className="mono-tag">NETWORK · LIVE INDEX</p>
         <h1 className="mt-2 display-xl text-5xl uppercase">Signal</h1>
 
         <div className="mt-4 flex items-stretch hairline">
-          <span className="grid place-items-center px-3 mono-tag" style={{ color: "var(--color-ash)" }}>QRY</span>
+          <span
+            className="grid place-items-center px-3 mono-tag"
+            style={{ color: "var(--color-ash)" }}
+          >
+            QRY
+          </span>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -84,7 +96,11 @@ function ExplorePage() {
             autoFocus
           />
           {q && (
-            <button onClick={() => setQ("")} className="mono-tag border-l border-hair px-4" style={{ color: "var(--color-ash)" }}>
+            <button
+              onClick={() => setQ("")}
+              className="mono-tag border-l border-hair px-4"
+              style={{ color: "var(--color-ash)" }}
+            >
               CLR
             </button>
           )}
@@ -98,7 +114,9 @@ function ExplorePage() {
 
       <div className="mt-4 px-4">
         <div className="flex items-center gap-3 hairline px-3 py-2">
-          <span className="mono-tag shrink-0" style={{ color: "var(--color-ash)" }}>SCOPE</span>
+          <span className="mono-tag shrink-0" style={{ color: "var(--color-ash)" }}>
+            SCOPE
+          </span>
           <Select value={chip} onValueChange={(v) => setChip(v as Chip)}>
             <SelectTrigger
               className="h-8 flex-1 border-0 bg-transparent px-0 py-0 shadow-none ring-0 focus:ring-0 [&>span]:line-clamp-1"
@@ -134,8 +152,16 @@ function ExplorePage() {
             {history.items.length > 0 && (
               <div>
                 <div className="flex items-center justify-between">
-                  <p className="mono-tag" style={{ color: "var(--color-ash)" }}>RECENT · {history.items.length}</p>
-                  <button onClick={history.clear} className="mono-tag" style={{ color: "var(--color-ash)" }}>CLEAR ALL</button>
+                  <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+                    RECENT · {history.items.length}
+                  </p>
+                  <button
+                    onClick={history.clear}
+                    className="mono-tag"
+                    style={{ color: "var(--color-ash)" }}
+                  >
+                    CLEAR ALL
+                  </button>
                 </div>
                 <ul className="mt-3 flex flex-wrap gap-2">
                   {history.items.map((r) => (
@@ -193,8 +219,12 @@ function ResultsView({
   if (empty) {
     return (
       <div className="text-center py-16">
-        <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NO SIGNAL</p>
-        <p className="mt-2 text-sm" style={{ color: "var(--color-ash)" }}>Try a different query.</p>
+        <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+          NO SIGNAL
+        </p>
+        <p className="mt-2 text-sm" style={{ color: "var(--color-ash)" }}>
+          Try a different query.
+        </p>
       </div>
     );
   }
@@ -228,8 +258,7 @@ function TrendingView({
   setQ: (v: string) => void;
 }) {
   const tags = useMemo(
-    () =>
-      (data?.hashtags ?? []).slice(0, 12) as { id: string; tag: string; usage_count: number }[],
+    () => (data?.hashtags ?? []).slice(0, 12) as { id: string; tag: string; usage_count: number }[],
     [data],
   );
 
@@ -246,7 +275,9 @@ function TrendingView({
             <div className="mt-3 flex flex-wrap gap-2">
               {tags.map((t, i) => (
                 <button key={t.id} onClick={() => setQ(t.tag)} className="chip">
-                  <span style={{ color: "var(--color-ash)" }}>{String(i + 1).padStart(2, "0")}</span>
+                  <span style={{ color: "var(--color-ash)" }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
                   <span>#{t.tag}</span>
                   <span style={{ color: "var(--color-ash)" }}>{t.usage_count}</span>
                 </button>
@@ -259,7 +290,9 @@ function TrendingView({
       {showSection("RIDERS") && (data?.profiles?.length ?? 0) > 0 && (
         <ProfilesSection profiles={data.profiles} />
       )}
-      {showSection("CREWS") && (data?.clubs?.length ?? 0) > 0 && <ClubsSection clubs={data.clubs} />}
+      {showSection("CREWS") && (data?.clubs?.length ?? 0) > 0 && (
+        <ClubsSection clubs={data.clubs} />
+      )}
       {showSection("PARTS") && (data?.listings?.length ?? 0) > 0 && (
         <ListingsSection listings={data.listings} />
       )}
@@ -297,7 +330,9 @@ function ProfilesSection({ profiles }: { profiles: any[] }) {
                   @{u.handle} {u.tier ? `· ${u.tier}` : ""}
                 </p>
               </div>
-              <span className="mono-tag" style={{ color: "var(--color-signal)" }}>VIEW →</span>
+              <span className="mono-tag" style={{ color: "var(--color-signal)" }}>
+                VIEW →
+              </span>
             </Link>
           </li>
         ))}
@@ -312,12 +347,7 @@ function HashtagsSection({ hashtags }: { hashtags: any[] }) {
       <SectionHeader index="#" title="Tags" />
       <div className="mt-3 flex flex-wrap gap-2">
         {hashtags.map((t) => (
-          <Link
-            key={t.id}
-            to="/tag/$tag"
-            params={{ tag: t.tag }}
-            className="chip"
-          >
+          <Link key={t.id} to="/tag/$tag" params={{ tag: t.tag }} className="chip">
             <span>#{t.tag}</span>
             <span style={{ color: "var(--color-ash)" }}>{t.usage_count ?? 0}</span>
           </Link>
@@ -340,7 +370,9 @@ function ClubsSection({ clubs }: { clubs: any[] }) {
             className="tap hairline overflow-hidden"
           >
             <div className="relative h-24 bg-mist">
-              {c.banner_url && <img src={c.banner_url} alt="" className="h-full w-full object-cover" />}
+              {c.banner_url && (
+                <img src={c.banner_url} alt="" className="h-full w-full object-cover" />
+              )}
               <span
                 className="absolute left-2 top-2 mono-tag text-white"
                 style={{ background: "rgba(0,0,0,0.55)", padding: "3px 6px" }}
@@ -350,7 +382,9 @@ function ClubsSection({ clubs }: { clubs: any[] }) {
             </div>
             <div className="p-3">
               <p className="line-clamp-1 text-sm font-bold">{c.name}</p>
-              <p className="mono-tag mt-1" style={{ color: "var(--color-ash)" }}>OPEN →</p>
+              <p className="mono-tag mt-1" style={{ color: "var(--color-ash)" }}>
+                OPEN →
+              </p>
             </div>
           </Link>
         ))}
@@ -440,7 +474,9 @@ function EventsSection({ events }: { events: any[] }) {
               className="tap flex items-center gap-3 py-3"
             >
               <div className="h-12 w-12 shrink-0 bg-mist hairline overflow-hidden">
-                {e.cover_url && <img src={e.cover_url} alt="" className="h-full w-full object-cover" />}
+                {e.cover_url && (
+                  <img src={e.cover_url} alt="" className="h-full w-full object-cover" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13.5px] font-bold">{e.title}</p>
@@ -448,7 +484,9 @@ function EventsSection({ events }: { events: any[] }) {
                   {formatDate(e.starts_at)} {e.location ? `· ${e.location}` : ""}
                 </p>
               </div>
-              <span className="mono-tag" style={{ color: "var(--color-signal)" }}>OPEN →</span>
+              <span className="mono-tag" style={{ color: "var(--color-signal)" }}>
+                OPEN →
+              </span>
             </Link>
           </li>
         ))}
@@ -462,7 +500,9 @@ function SectionHeader({ title, index }: { title: string; index: string }) {
   return (
     <div className="flex items-baseline justify-between hairline-b pb-2">
       <div className="flex items-baseline gap-3">
-        <span className="mono-tag" style={{ color: "var(--color-signal)" }}>{index}</span>
+        <span className="mono-tag" style={{ color: "var(--color-signal)" }}>
+          {index}
+        </span>
         <h2 className="display-xl text-xl uppercase">{title}</h2>
       </div>
     </div>
@@ -473,7 +513,11 @@ function Skeleton() {
   return (
     <div className="space-y-2">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className="h-14 w-full animate-pulse hairline" style={{ background: "var(--color-mist)" }} />
+        <div
+          key={i}
+          className="h-14 w-full animate-pulse hairline"
+          style={{ background: "var(--color-mist)" }}
+        />
       ))}
     </div>
   );

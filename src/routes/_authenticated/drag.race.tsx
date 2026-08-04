@@ -23,9 +23,17 @@ export const Route = createFileRoute("/_authenticated/drag/race")({
   head: () => ({
     meta: [
       { title: "Race Mode · Live GPS Drag · ZOMBIEREX" },
-      { name: "description", content: "Immersive drag strip experience — Christmas Tree start, dual live HUD, AI ghost opponent and race analysis." },
+      {
+        name: "description",
+        content:
+          "Immersive drag strip experience — Christmas Tree start, dual live HUD, AI ghost opponent and race analysis.",
+      },
       { property: "og:title", content: "Race Mode · Live GPS Drag · ZOMBIEREX" },
-      { property: "og:description", content: "Christmas Tree start, dual live speedometer HUD, AI ghost opponent and race analysis." },
+      {
+        property: "og:description",
+        content:
+          "Christmas Tree start, dual live speedometer HUD, AI ghost opponent and race analysis.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -42,11 +50,19 @@ const toRad = (d: number) => (d * Math.PI) / 180;
 function haversine(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
   const dLat = toRad(b.lat - a.lat);
   const dLng = toRad(b.lng - a.lng);
-  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
-type Point = { t_ms: number; lat: number; lng: number; speed_kmh: number; accuracy_m: number | null };
+type Point = {
+  t_ms: number;
+  lat: number;
+  lng: number;
+  speed_kmh: number;
+  accuracy_m: number | null;
+};
 type StripMode = "gps" | "sim";
 
 const SIM_BASE = { lat: 25.2048, lng: 55.2708 };
@@ -92,7 +108,8 @@ function interpTimeAtDistance(points: Point[], target: number): { t: number; tra
 function interpTimeAtSpeed(points: Point[], targetKmh: number): number | null {
   for (let i = 1; i < points.length; i++) {
     if (points[i].speed_kmh >= targetKmh) {
-      const a = points[i - 1], b = points[i];
+      const a = points[i - 1],
+        b = points[i];
       if (b.speed_kmh === a.speed_kmh) return b.t_ms / 1000;
       const frac = (targetKmh - a.speed_kmh) / (b.speed_kmh - a.speed_kmh);
       return (a.t_ms + frac * (b.t_ms - a.t_ms)) / 1000;
@@ -127,7 +144,10 @@ function RacePage() {
   const [playerTel, setPlayerTel] = useState<LaneTelemetry>(emptyLane("You", "#00c853"));
   const [ghostTel, setGhostTel] = useState<LaneTelemetry>(emptyLane(preset.label, "#f6d84f", true));
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [finish, setFinish] = useState<{ winner: "player" | "ghost" | "foul"; margin: number } | null>(null);
+  const [finish, setFinish] = useState<{
+    winner: "player" | "ghost" | "foul";
+    margin: number;
+  } | null>(null);
   const [analysis, setAnalysis] = useState<any>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const [submitInfo, setSubmitInfo] = useState<{ id?: string; status?: string } | null>(null);
@@ -137,8 +157,14 @@ function RacePage() {
 
   // Refs mirroring reactive state for tight animation loop
   const treeRef = useRef(tree.state);
-  useEffect(() => { treeRef.current = tree.state; }, [tree.state]);
-  const launchStateRef = useRef<{ launchedAt: number | null; foul: boolean; greenAt: number | null }>({ launchedAt: null, foul: false, greenAt: null });
+  useEffect(() => {
+    treeRef.current = tree.state;
+  }, [tree.state]);
+  const launchStateRef = useRef<{
+    launchedAt: number | null;
+    foul: boolean;
+    greenAt: number | null;
+  }>({ launchedAt: null, foul: false, greenAt: null });
   useEffect(() => {
     launchStateRef.current = {
       launchedAt: tree.state.launchedAt,
@@ -168,7 +194,11 @@ function RacePage() {
       setGpsAcc(1);
       return;
     }
-    if (!("geolocation" in navigator)) { setStripMode("sim"); setGpsOk(false); return; }
+    if (!("geolocation" in navigator)) {
+      setStripMode("sim");
+      setGpsOk(false);
+      return;
+    }
     if (watchRef.current != null) return;
     watchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
@@ -181,10 +211,20 @@ function RacePage() {
         const now = pos.timestamp || Date.now();
         // Launch detection: cross 6 km/h once armed
         if (launchRef.current == null) {
-          if (spd > 6 && (treeRef.current.phase === "armed" || treeRef.current.phase === "amber1" || treeRef.current.phase === "amber2" || treeRef.current.phase === "amber3" || treeRef.current.phase === "green")) {
+          if (
+            spd > 6 &&
+            (treeRef.current.phase === "armed" ||
+              treeRef.current.phase === "amber1" ||
+              treeRef.current.phase === "amber2" ||
+              treeRef.current.phase === "amber3" ||
+              treeRef.current.phase === "green")
+          ) {
             launchRef.current = { t_ms: now, lat: pos.coords.latitude, lng: pos.coords.longitude };
             tree.reportLaunch();
-          } else if (spd > 6 && (treeRef.current.phase === "prestage" || treeRef.current.phase === "stage")) {
+          } else if (
+            spd > 6 &&
+            (treeRef.current.phase === "prestage" || treeRef.current.phase === "stage")
+          ) {
             // pre-green movement = foul
             launchRef.current = { t_ms: now, lat: pos.coords.latitude, lng: pos.coords.longitude };
             tree.reportLaunch();
@@ -202,7 +242,10 @@ function RacePage() {
           rawRef.current.push(p);
         }
       },
-      () => { setGpsOk(false); setStripMode("sim"); },
+      () => {
+        setGpsOk(false);
+        setStripMode("sim");
+      },
       { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 },
     );
   }, [stripMode, tree]);
@@ -214,7 +257,13 @@ function RacePage() {
     watchRef.current = null;
   }, []);
 
-  useEffect(() => () => { stopGps(); if (rafRef.current) cancelAnimationFrame(rafRef.current); }, [stopGps]);
+  useEffect(
+    () => () => {
+      stopGps();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    },
+    [stopGps],
+  );
 
   // --- Animation / race loop -------------------------------------------------
   useEffect(() => {
@@ -280,8 +329,20 @@ function RacePage() {
       // Ghost telemetry
       const gk = ghost.speedKmh(elapsed);
       const gd = ghost.distanceM(elapsed);
-      const gEighth = elapsed > ghost.timeAtDistanceMs(201.168) ? { t: ghost.timeAtDistanceMs(201.168) / 1000, trap: ghost.speedKmh(ghost.timeAtDistanceMs(201.168)) } : null;
-      const gQuarter = elapsed > ghost.timeAtDistanceMs(402.336) ? { t: ghost.timeAtDistanceMs(402.336) / 1000, trap: ghost.speedKmh(ghost.timeAtDistanceMs(402.336)) } : null;
+      const gEighth =
+        elapsed > ghost.timeAtDistanceMs(201.168)
+          ? {
+              t: ghost.timeAtDistanceMs(201.168) / 1000,
+              trap: ghost.speedKmh(ghost.timeAtDistanceMs(201.168)),
+            }
+          : null;
+      const gQuarter =
+        elapsed > ghost.timeAtDistanceMs(402.336)
+          ? {
+              t: ghost.timeAtDistanceMs(402.336) / 1000,
+              trap: ghost.speedKmh(ghost.timeAtDistanceMs(402.336)),
+            }
+          : null;
       setGhostTel({
         name: preset.label,
         color: "#f6d84f",
@@ -291,9 +352,14 @@ function RacePage() {
         distanceM: gd,
         reactionMs: preset.reactionMs,
         splits: {
-          s60ft: elapsed > ghost.timeAtDistanceMs(18.288) ? ghost.timeAtDistanceMs(18.288) / 1000 : null,
-          s330ft: elapsed > ghost.timeAtDistanceMs(100.584) ? ghost.timeAtDistanceMs(100.584) / 1000 : null,
-          s1000ft: elapsed > ghost.timeAtDistanceMs(304.8) ? ghost.timeAtDistanceMs(304.8) / 1000 : null,
+          s60ft:
+            elapsed > ghost.timeAtDistanceMs(18.288) ? ghost.timeAtDistanceMs(18.288) / 1000 : null,
+          s330ft:
+            elapsed > ghost.timeAtDistanceMs(100.584)
+              ? ghost.timeAtDistanceMs(100.584) / 1000
+              : null,
+          s1000ft:
+            elapsed > ghost.timeAtDistanceMs(304.8) ? ghost.timeAtDistanceMs(304.8) / 1000 : null,
           eighthS: gEighth?.t ?? null,
           eighthTrap: gEighth?.trap ?? null,
           quarterS: gQuarter?.t ?? null,
@@ -313,8 +379,12 @@ function RacePage() {
           return;
         }
         if (playerFinished || ghostFinished || elapsed > 45000) {
-          const pWin = playerFinished && (!ghostFinished || (quarter && quarter.t < ghost.timeAtDistanceMs(402.336) / 1000));
-          const margin = quarter ? Math.abs((quarter.t * 1000) - ghost.timeAtDistanceMs(402.336)) / 1000 : 0;
+          const pWin =
+            playerFinished &&
+            (!ghostFinished || (quarter && quarter.t < ghost.timeAtDistanceMs(402.336) / 1000));
+          const margin = quarter
+            ? Math.abs(quarter.t * 1000 - ghost.timeAtDistanceMs(402.336)) / 1000
+            : 0;
           setFinish({ winner: pWin ? "player" : "ghost", margin });
           setPhase("finish");
           stopGps();
@@ -325,7 +395,10 @@ function RacePage() {
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
-    return () => { running = false; if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      running = false;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, ghost, preset, vehicleName, gpsKmh, gpsAcc, stripMode, tree]);
 
@@ -359,17 +432,22 @@ function RacePage() {
     (async () => {
       try {
         setAnalysisLoading(true);
-        const res: any = await submit({ data: {
-          vehicle_kind: vehicleKind,
-          vehicle_name: vehicleName || null,
-          visibility: "public",
-          points: rawRef.current.map((p) => ({
-            t_ms: p.t_ms, lat: p.lat, lng: p.lng,
-            speed_kmh: p.speed_kmh, accuracy_m: p.accuracy_m,
-          })),
-          started_at: new Date(Date.now() - (rawRef.current.at(-1)?.t_ms ?? 0)).toISOString(),
-          ended_at: new Date().toISOString(),
-        } });
+        const res: any = await submit({
+          data: {
+            vehicle_kind: vehicleKind,
+            vehicle_name: vehicleName || null,
+            visibility: "public",
+            points: rawRef.current.map((p) => ({
+              t_ms: p.t_ms,
+              lat: p.lat,
+              lng: p.lng,
+              speed_kmh: p.speed_kmh,
+              accuracy_m: p.accuracy_m,
+            })),
+            started_at: new Date(Date.now() - (rawRef.current.at(-1)?.t_ms ?? 0)).toISOString(),
+            ended_at: new Date().toISOString(),
+          },
+        });
         if (cancelled) return;
         setSubmitInfo({ id: res.id, status: res.status });
         try {
@@ -382,52 +460,81 @@ function RacePage() {
         if (!cancelled) setAnalysisLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, finish]);
 
   // --- Render ----------------------------------------------------------------
   return (
-    <div className="min-h-svh pb-24" style={{ background: "linear-gradient(180deg, hsl(var(--background)), color-mix(in oklab, var(--color-neon) 5%, hsl(var(--muted))))" }}>
-
+    <div
+      className="min-h-svh pb-24"
+      style={{
+        background:
+          "linear-gradient(180deg, hsl(var(--background)), color-mix(in oklab, var(--color-neon) 5%, hsl(var(--muted))))",
+      }}
+    >
       {phase === "setup" && (
         <div className="px-4 pt-4">
-          <h1 className="serif text-3xl" style={{ color: "hsl(var(--foreground))" }}>Race Mode</h1>
+          <h1 className="serif text-3xl" style={{ color: "hsl(var(--foreground))" }}>
+            Race Mode
+          </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--color-ink-3)" }}>
             Christmas Tree start · live dual HUD · AI ghost opponent · GPS-verified time slip.
           </p>
 
           <div className="mt-4">
-            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>VEHICLE</p>
+            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+              VEHICLE
+            </p>
             <div className="mt-1 grid grid-cols-2 gap-2">
-              {(["motorcycle","car"] as const).map((k) => (
-                <button key={k} onClick={() => setVehicleKind(k)}
+              {(["motorcycle", "car"] as const).map((k) => (
+                <button
+                  key={k}
+                  onClick={() => setVehicleKind(k)}
                   className="tap rounded-lg border p-3 text-sm font-bold"
                   style={{
                     borderColor: vehicleKind === k ? "var(--color-neon)" : "hsl(var(--border))",
-                    background: vehicleKind === k ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))" : "hsl(var(--card))",
+                    background:
+                      vehicleKind === k
+                        ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))"
+                        : "hsl(var(--card))",
                     color: "hsl(var(--foreground))",
-                  }}>
+                  }}
+                >
                   {k === "motorcycle" ? "Motorcycle" : "Car"}
                 </button>
               ))}
             </div>
-            <input value={vehicleName} onChange={(e) => setVehicleName(e.target.value)} placeholder="Yamaha R1 2024"
+            <input
+              value={vehicleName}
+              onChange={(e) => setVehicleName(e.target.value)}
+              placeholder="Yamaha R1 2024"
               className="mt-2 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-              style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }} />
+              style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }}
+            />
           </div>
 
           <div className="mt-4">
-            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>TREE MODE</p>
+            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+              TREE MODE
+            </p>
             <div className="mt-1 grid grid-cols-2 gap-2">
-              {(["sportsman","pro"] as const).map((m) => (
-                <button key={m} onClick={() => setMode(m)}
+              {(["sportsman", "pro"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
                   className="tap rounded-lg border p-3 text-sm font-bold"
                   style={{
                     borderColor: mode === m ? "var(--color-neon)" : "hsl(var(--border))",
-                    background: mode === m ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))" : "hsl(var(--card))",
+                    background:
+                      mode === m
+                        ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))"
+                        : "hsl(var(--card))",
                     color: "hsl(var(--foreground))",
-                  }}>
+                  }}
+                >
                   {m === "pro" ? "Pro Tree" : "Sportsman"}
                 </button>
               ))}
@@ -435,16 +542,24 @@ function RacePage() {
           </div>
 
           <div className="mt-4">
-            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>TIMING SOURCE</p>
+            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+              TIMING SOURCE
+            </p>
             <div className="mt-1 grid grid-cols-2 gap-2">
               {(["gps", "sim"] as const).map((m) => (
-                <button key={m} onClick={() => setStripMode(m)}
+                <button
+                  key={m}
+                  onClick={() => setStripMode(m)}
                   className="tap rounded-lg border p-3 text-sm font-bold"
                   style={{
                     borderColor: stripMode === m ? "var(--color-neon)" : "hsl(var(--border))",
-                    background: stripMode === m ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))" : "hsl(var(--card))",
+                    background:
+                      stripMode === m
+                        ? "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))"
+                        : "hsl(var(--card))",
                     color: "hsl(var(--foreground))",
-                  }}>
+                  }}
+                >
                   {m === "gps" ? "Live GPS" : "Strip Demo"}
                 </button>
               ))}
@@ -452,30 +567,48 @@ function RacePage() {
           </div>
 
           <div className="mt-4">
-            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>AI GHOST OPPONENT</p>
+            <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+              AI GHOST OPPONENT
+            </p>
             <div className="mt-1 grid gap-2">
               {GHOST_PRESETS.map((g) => (
-                <button key={g.id} onClick={() => setPreset(g)}
+                <button
+                  key={g.id}
+                  onClick={() => setPreset(g)}
                   className="tap flex items-center justify-between rounded-lg border p-3 text-left"
                   style={{
                     borderColor: preset.id === g.id ? "#c79a10" : "hsl(var(--border))",
                     background: preset.id === g.id ? "rgba(246,216,79,0.16)" : "hsl(var(--card))",
-                  }}>
+                  }}
+                >
                   <div>
-                    <p className="text-sm font-bold" style={{ color: "hsl(var(--foreground))" }}>{g.label}</p>
+                    <p className="text-sm font-bold" style={{ color: "hsl(var(--foreground))" }}>
+                      {g.label}
+                    </p>
                     <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 9 }}>
                       TRAP ~{g.trapKmh} km/h · RT {(g.reactionMs / 1000).toFixed(2)}s
                     </p>
                   </div>
-                  {preset.id === g.id && <span className="mono-caps text-[10px] font-black" style={{ color: "#c79a10" }}>SELECTED</span>}
+                  {preset.id === g.id && (
+                    <span className="mono-caps text-[10px] font-black" style={{ color: "#c79a10" }}>
+                      SELECTED
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
           </div>
 
-          <button onClick={beginStage}
+          <button
+            onClick={beginStage}
             className="tap mt-6 w-full rounded-lg py-4 mono-caps text-sm font-black"
-            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.24em", boxShadow: "0 12px 32px rgba(0,200,83,0.28)" }}>
+            style={{
+              background: "var(--color-neon)",
+              color: "var(--color-obsidian)",
+              letterSpacing: "0.24em",
+              boxShadow: "0 12px 32px rgba(0,200,83,0.28)",
+            }}
+          >
             ▶ STAGE UP
           </button>
 
@@ -488,24 +621,56 @@ function RacePage() {
       {(phase === "stage" || phase === "racing") && (
         <div className="px-3 pt-3">
           <div className="flex items-center justify-between">
-            <span className="mono-caps text-[10px] font-black" style={{ color: gpsOk ? "var(--color-neon-deep)" : "#c26a00", letterSpacing: "0.24em" }}>
-              ● {stripMode === "sim" ? "STRIP DEMO" : gpsOk ? "GPS LOCK" : "GPS WEAK"} {gpsAcc != null && `· ±${gpsAcc.toFixed(0)}m`}
+            <span
+              className="mono-caps text-[10px] font-black"
+              style={{
+                color: gpsOk ? "var(--color-neon-deep)" : "#c26a00",
+                letterSpacing: "0.24em",
+              }}
+            >
+              ● {stripMode === "sim" ? "STRIP DEMO" : gpsOk ? "GPS LOCK" : "GPS WEAK"}{" "}
+              {gpsAcc != null && `· ±${gpsAcc.toFixed(0)}m`}
             </span>
-            <span className="mono-num tabular-nums" style={{ color: "hsl(var(--foreground))", fontSize: 12 }}>
+            <span
+              className="mono-num tabular-nums"
+              style={{ color: "hsl(var(--foreground))", fontSize: 12 }}
+            >
               {(elapsedMs / 1000).toFixed(2)}s
             </span>
-            <button onClick={cancel} className="mono-caps text-[10px] font-black" style={{ color: "#c26a00" }}>ABORT</button>
+            <button
+              onClick={cancel}
+              className="mono-caps text-[10px] font-black"
+              style={{ color: "#c26a00" }}
+            >
+              ABORT
+            </button>
           </div>
 
           {/* Tree on the left, live read-out on the right — strip console layout */}
           <div className="mt-3 grid gap-3" style={{ gridTemplateColumns: "auto minmax(0,1fr)" }}>
             <DragTree state={tree.state} compact />
-            <div className="rounded-2xl border p-3" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
-              <p className="mono-caps text-center text-[9px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}>LIVE SPEED</p>
-              <p className="mono-num mt-1 text-center text-[56px] font-black leading-none tabular-nums" style={{ color: "var(--color-neon-deep)" }}>
+            <div
+              className="rounded-2xl border p-3"
+              style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}
+            >
+              <p
+                className="mono-caps text-center text-[9px] font-black"
+                style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}
+              >
+                LIVE SPEED
+              </p>
+              <p
+                className="mono-num mt-1 text-center text-[56px] font-black leading-none tabular-nums"
+                style={{ color: "var(--color-neon-deep)" }}
+              >
                 {playerTel.kmh.toFixed(0)}
               </p>
-              <p className="mono-caps mt-1 text-center text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.3em" }}>KM / H</p>
+              <p
+                className="mono-caps mt-1 text-center text-[10px] font-black"
+                style={{ color: "var(--color-silver)", letterSpacing: "0.3em" }}
+              >
+                KM / H
+              </p>
               <div className="mt-3 grid grid-cols-2 gap-2 text-center">
                 <MiniStat label="DISTANCE" value={`${playerTel.distanceM.toFixed(0)} m`} />
                 <MiniStat label="REACTION" value={fmtRT(playerTel.reactionMs)} />
@@ -520,10 +685,23 @@ function RacePage() {
           </div>
 
           {tree.state.phase === "foul" && (
-            <div className="mt-3 rounded-lg border p-3 text-center" style={{ borderColor: "#dc2626", background: "rgba(220,38,38,0.08)" }}>
-              <p className="mono-caps text-sm font-black" style={{ color: "#dc2626" }}>◆ RED LIGHT · FOUL START</p>
-              <p className="mt-1 text-xs" style={{ color: "#a11" }}>Auto disqualification. Reset the strip and try again.</p>
-              <button onClick={cancel} className="tap mt-2 rounded px-4 py-2 mono-caps text-[10px] font-black" style={{ background: "var(--color-obsidian)", color: "hsl(var(--card))" }}>RESET STRIP</button>
+            <div
+              className="mt-3 rounded-lg border p-3 text-center"
+              style={{ borderColor: "#dc2626", background: "rgba(220,38,38,0.08)" }}
+            >
+              <p className="mono-caps text-sm font-black" style={{ color: "#dc2626" }}>
+                ◆ RED LIGHT · FOUL START
+              </p>
+              <p className="mt-1 text-xs" style={{ color: "#a11" }}>
+                Auto disqualification. Reset the strip and try again.
+              </p>
+              <button
+                onClick={cancel}
+                className="tap mt-2 rounded px-4 py-2 mono-caps text-[10px] font-black"
+                style={{ background: "var(--color-obsidian)", color: "hsl(var(--card))" }}
+              >
+                RESET STRIP
+              </button>
             </div>
           )}
         </div>
@@ -532,28 +710,61 @@ function RacePage() {
       {phase === "finish" && finish && (
         <div className="px-4 pt-4">
           {/* HERO READ-OUT — 0-60 headline, strip console styling */}
-          <div className="overflow-hidden rounded-2xl border" style={{ borderColor: "hsl(var(--border))", background: "linear-gradient(180deg, hsl(var(--card)), color-mix(in oklab, var(--color-neon) 7%, hsl(var(--muted))))" }}>
+          <div
+            className="overflow-hidden rounded-2xl border"
+            style={{
+              borderColor: "hsl(var(--border))",
+              background:
+                "linear-gradient(180deg, hsl(var(--card)), color-mix(in oklab, var(--color-neon) 7%, hsl(var(--muted))))",
+            }}
+          >
             <div className="grid gap-3 p-3" style={{ gridTemplateColumns: "auto minmax(0,1fr)" }}>
               <DragTree state={tree.state} compact />
               <div className="flex flex-col justify-center text-center">
-                <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.28em" }}>0 – 100 KM/H</p>
-                <p className="mono-num text-[64px] font-black leading-[0.92] tabular-nums" style={{ color: "var(--color-neon-deep)" }}>
-                  {(() => { const s = interpTimeAtSpeed(rawRef.current, 100); return s != null ? s.toFixed(2) : "—"; })()}
+                <p
+                  className="mono-caps text-[10px] font-black"
+                  style={{ color: "var(--color-silver)", letterSpacing: "0.28em" }}
+                >
+                  0 – 100 KM/H
                 </p>
-                <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.34em" }}>SECONDS</p>
-                <p className="mono-caps mt-2 inline-block self-center rounded-md border px-3 py-1 text-[9px] font-black"
+                <p
+                  className="mono-num text-[64px] font-black leading-[0.92] tabular-nums"
+                  style={{ color: "var(--color-neon-deep)" }}
+                >
+                  {(() => {
+                    const s = interpTimeAtSpeed(rawRef.current, 100);
+                    return s != null ? s.toFixed(2) : "—";
+                  })()}
+                </p>
+                <p
+                  className="mono-caps text-[10px] font-black"
+                  style={{ color: "var(--color-silver)", letterSpacing: "0.34em" }}
+                >
+                  SECONDS
+                </p>
+                <p
+                  className="mono-caps mt-2 inline-block self-center rounded-md border px-3 py-1 text-[9px] font-black"
                   style={{
                     letterSpacing: "0.24em",
                     borderColor: finish.winner === "foul" ? "#dc2626" : "var(--color-neon)",
                     color: finish.winner === "foul" ? "#dc2626" : "var(--color-neon-deep)",
-                  }}>
-                  {finish.winner === "foul" ? "DQ · RED LIGHT" : finish.winner === "player" ? "RUN COMPLETE · WIN" : "RUN COMPLETE · LOSS"}
+                  }}
+                >
+                  {finish.winner === "foul"
+                    ? "DQ · RED LIGHT"
+                    : finish.winner === "player"
+                      ? "RUN COMPLETE · WIN"
+                      : "RUN COMPLETE · LOSS"}
                 </p>
               </div>
             </div>
             {finish.winner !== "foul" && (
-              <p className="border-t px-3 py-2 text-center text-[11px]" style={{ borderColor: "hsl(var(--border))", color: "var(--color-ink-3)" }}>
-                Margin {finish.margin.toFixed(3)}s vs {preset.label} · Top {playerTel.peakKmh.toFixed(0)} km/h
+              <p
+                className="border-t px-3 py-2 text-center text-[11px]"
+                style={{ borderColor: "hsl(var(--border))", color: "var(--color-ink-3)" }}
+              >
+                Margin {finish.margin.toFixed(3)}s vs {preset.label} · Top{" "}
+                {playerTel.peakKmh.toFixed(0)} km/h
               </p>
             )}
           </div>
@@ -562,15 +773,44 @@ function RacePage() {
 
           <ReplayPanel points={rawRef.current} ghost={ghost} />
 
-          <div className="mt-4 rounded-lg border p-4" style={{ borderColor: "color-mix(in oklab, var(--color-neon) 45%, hsl(var(--border)))", background: "color-mix(in oklab, var(--color-neon) 7%, hsl(var(--card)))" }}>
+          <div
+            className="mt-4 rounded-lg border p-4"
+            style={{
+              borderColor: "color-mix(in oklab, var(--color-neon) 45%, hsl(var(--border)))",
+              background: "color-mix(in oklab, var(--color-neon) 7%, hsl(var(--card)))",
+            }}
+          >
             <div className="flex items-center justify-between">
-              <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-neon-deep)" }}>◆ AI RACE ANALYSIS · REX</p>
-              {analysis?.grade && (<span className="mono-num text-2xl font-black" style={{ color: "var(--color-neon-deep)" }}>{analysis.grade}</span>)}
+              <p
+                className="mono-caps text-[10px] font-black"
+                style={{ color: "var(--color-neon-deep)" }}
+              >
+                ◆ AI RACE ANALYSIS · REX
+              </p>
+              {analysis?.grade && (
+                <span
+                  className="mono-num text-2xl font-black"
+                  style={{ color: "var(--color-neon-deep)" }}
+                >
+                  {analysis.grade}
+                </span>
+              )}
             </div>
-            {analysisLoading && <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>Analyzing telemetry…</p>}
-            {!analysisLoading && !analysis && <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>AI analysis unavailable.</p>}
+            {analysisLoading && (
+              <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
+                Analyzing telemetry…
+              </p>
+            )}
+            {!analysisLoading && !analysis && (
+              <p className="mt-2 text-sm" style={{ color: "var(--color-ink-3)" }}>
+                AI analysis unavailable.
+              </p>
+            )}
             {analysis && (
-              <div className="mt-2 space-y-2 text-[13px]" style={{ color: "hsl(var(--foreground))" }}>
+              <div
+                className="mt-2 space-y-2 text-[13px]"
+                style={{ color: "hsl(var(--foreground))" }}
+              >
                 <p className="serif text-base italic">{analysis.headline}</p>
                 <Row label="Launch" v={analysis.launch} />
                 <Row label="Shift" v={analysis.shift} />
@@ -578,7 +818,9 @@ function RacePage() {
                 <Row label="Next target" v={analysis.next_target} />
                 {Array.isArray(analysis.tips) && (
                   <ul className="mt-2 list-disc pl-5" style={{ color: "var(--color-ink-3)" }}>
-                    {analysis.tips.map((t: string, i: number) => <li key={i}>{t}</li>)}
+                    {analysis.tips.map((t: string, i: number) => (
+                      <li key={i}>{t}</li>
+                    ))}
                   </ul>
                 )}
               </div>
@@ -586,43 +828,94 @@ function RacePage() {
           </div>
 
           {/* NEW RUN band */}
-          <button onClick={beginStage}
+          <button
+            onClick={beginStage}
             className="tap mt-4 w-full rounded-2xl border py-5 text-center"
             style={{
               borderColor: "var(--color-neon)",
               background: "color-mix(in oklab, var(--color-neon) 12%, hsl(var(--card)))",
               boxShadow: "0 14px 40px rgba(0,200,83,0.20)",
-            }}>
-            <span className="serif block text-3xl italic" style={{ color: "var(--color-neon-deep)" }}>NEW RUN</span>
-            <span className="mono-caps mt-1 block text-[9px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.34em" }}>TAP TO RESET THE STRIP</span>
+            }}
+          >
+            <span
+              className="serif block text-3xl italic"
+              style={{ color: "var(--color-neon-deep)" }}
+            >
+              NEW RUN
+            </span>
+            <span
+              className="mono-caps mt-1 block text-[9px] font-black"
+              style={{ color: "var(--color-silver)", letterSpacing: "0.34em" }}
+            >
+              TAP TO RESET THE STRIP
+            </span>
           </button>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
             {submitInfo?.id ? (
-              <button onClick={() => { const id = submitInfo.id; if (!id) return; nav({ to: "/drag/$id", params: { id } }); }}
-                className="tap rounded-lg py-3 mono-caps text-[10px] font-black" style={{ background: "var(--color-obsidian)", color: "hsl(var(--card))", letterSpacing: "0.24em" }}>
+              <button
+                onClick={() => {
+                  const id = submitInfo.id;
+                  if (!id) return;
+                  nav({ to: "/drag/$id", params: { id } });
+                }}
+                className="tap rounded-lg py-3 mono-caps text-[10px] font-black"
+                style={{
+                  background: "var(--color-obsidian)",
+                  color: "hsl(var(--card))",
+                  letterSpacing: "0.24em",
+                }}
+              >
                 VIEW RECORD
               </button>
             ) : (
-              <button onClick={() => nav({ to: "/drag" })} className="tap rounded-lg border py-3 mono-caps text-[10px] font-black" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--foreground))", letterSpacing: "0.24em" }}>
+              <button
+                onClick={() => nav({ to: "/drag" })}
+                className="tap rounded-lg border py-3 mono-caps text-[10px] font-black"
+                style={{
+                  borderColor: "hsl(var(--border))",
+                  background: "hsl(var(--card))",
+                  color: "hsl(var(--foreground))",
+                  letterSpacing: "0.24em",
+                }}
+              >
                 DRAG HUB
               </button>
             )}
-            <button onClick={() => nav({ to: "/drag/leaderboards", search: { kind: "motorcycle", metric: "quarter_mile_s" } })} className="tap rounded-lg border py-3 mono-caps text-[10px] font-black" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))", color: "hsl(var(--foreground))", letterSpacing: "0.24em" }}>
+            <button
+              onClick={() =>
+                nav({
+                  to: "/drag/leaderboards",
+                  search: { kind: "motorcycle", metric: "quarter_mile_s" },
+                })
+              }
+              className="tap rounded-lg border py-3 mono-caps text-[10px] font-black"
+              style={{
+                borderColor: "hsl(var(--border))",
+                background: "hsl(var(--card))",
+                color: "hsl(var(--foreground))",
+                letterSpacing: "0.24em",
+              }}
+            >
               LEADERBOARDS
             </button>
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
 function emptyLane(name: string, color: string, isGhost = false): LaneTelemetry {
   return {
-    name, color, isGhost,
-    kmh: 0, peakKmh: 0, distanceM: 0, reactionMs: null, gpsAccuracyM: null,
+    name,
+    color,
+    isGhost,
+    kmh: 0,
+    peakKmh: 0,
+    distanceM: 0,
+    reactionMs: null,
+    gpsAccuracyM: null,
     splits: {},
   };
 }
@@ -640,14 +933,28 @@ function TimeSlip({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelemet
     ["Top speed", `${player.peakKmh.toFixed(0)} km/h`, `${ghost.peakKmh.toFixed(0)} km/h`],
   ];
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
-      <div className="grid grid-cols-3 text-[10px] mono-caps px-3 py-2" style={{ background: "hsl(var(--muted))", color: "var(--color-silver)", letterSpacing: "0.2em" }}>
+    <div
+      className="mt-4 overflow-hidden rounded-2xl border"
+      style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}
+    >
+      <div
+        className="grid grid-cols-3 text-[10px] mono-caps px-3 py-2"
+        style={{
+          background: "hsl(var(--muted))",
+          color: "var(--color-silver)",
+          letterSpacing: "0.2em",
+        }}
+      >
         <span>METRIC</span>
         <span style={{ color: "var(--color-neon-deep)" }}>{player.name.toUpperCase()}</span>
         <span style={{ color: "#c79a10" }}>{ghost.name.toUpperCase()}</span>
       </div>
       {rows.map(([k, a, b]) => (
-        <div key={k} className="grid grid-cols-3 items-center border-t px-3 py-2 text-xs" style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }}>
+        <div
+          key={k}
+          className="grid grid-cols-3 items-center border-t px-3 py-2 text-xs"
+          style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }}
+        >
           <span style={{ color: "var(--color-silver)" }}>{k}</span>
           <span className="mono-num tabular-nums font-bold">{a}</span>
           <span className="mono-num tabular-nums font-bold">{b}</span>
@@ -660,28 +967,51 @@ function TimeSlip({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelemet
 /** Small labelled read-out used inside the live race console. */
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border px-2 py-1.5" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}>
-      <p className="mono-caps text-[8px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.2em" }}>{label}</p>
-      <p className="mono-num text-sm font-black tabular-nums" style={{ color: "hsl(var(--foreground))" }}>{value}</p>
+    <div
+      className="rounded-lg border px-2 py-1.5"
+      style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}
+    >
+      <p
+        className="mono-caps text-[8px] font-black"
+        style={{ color: "var(--color-silver)", letterSpacing: "0.2em" }}
+      >
+        {label}
+      </p>
+      <p
+        className="mono-num text-sm font-black tabular-nums"
+        style={{ color: "hsl(var(--foreground))" }}
+      >
+        {value}
+      </p>
     </div>
   );
 }
-
 
 function StripTrack({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelemetry }) {
   const playerPct = Math.min(100, (player.distanceM / 402.336) * 100);
   const ghostPct = Math.min(100, (ghost.distanceM / 402.336) * 100);
 
   return (
-    <div className="mt-3 overflow-hidden rounded-2xl border" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
-      <div className="relative h-24"
+    <div
+      className="mt-3 overflow-hidden rounded-2xl border"
+      style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}
+    >
+      <div
+        className="relative h-24"
         style={{
           background:
             "linear-gradient(90deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 11.1%, rgba(255,255,255,0.10) 11.1% calc(11.1% + 1px), transparent calc(11.1% + 1px) 22.2%), linear-gradient(180deg,#4a4a52 0%,#3a3a41 48%,#4a4a52 52%,#33333a 100%)",
           backgroundSize: "36px 100%, 100% 100%",
-        }}>
+        }}
+      >
         <div className="absolute left-0 right-0 top-1/2 h-px bg-white/35" />
-        <div className="absolute bottom-0 top-0 w-3" style={{ right: 0, background: "repeating-linear-gradient(0deg,#fff 0 5px,#33333a 5px 10px)" }} />
+        <div
+          className="absolute bottom-0 top-0 w-3"
+          style={{
+            right: 0,
+            background: "repeating-linear-gradient(0deg,#fff 0 5px,#33333a 5px 10px)",
+          }}
+        />
         <LaneMarker pct={playerPct} top="22%" color="var(--color-neon)" label="YOU" />
         <LaneMarker pct={ghostPct} top="68%" color="#f6d84f" label="AI" />
       </div>
@@ -689,12 +1019,34 @@ function StripTrack({ player, ghost }: { player: LaneTelemetry; ghost: LaneTelem
   );
 }
 
-
-function LaneMarker({ pct, top, color, label }: { pct: number; top: string; color: string; label: string }) {
+function LaneMarker({
+  pct,
+  top,
+  color,
+  label,
+}: {
+  pct: number;
+  top: string;
+  color: string;
+  label: string;
+}) {
   return (
-    <div className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-2" style={{ left: `${pct}%`, top, color }}>
-      <div style={{ width: 26, height: 12, clipPath: "polygon(18% 0, 86% 0, 100% 50%, 86% 100%, 18% 100%, 0 50%)", background: color, boxShadow: `0 0 18px ${color}` }} />
-      <span className="mono-caps text-[9px] font-black" style={{ color }}>{label}</span>
+    <div
+      className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-2"
+      style={{ left: `${pct}%`, top, color }}
+    >
+      <div
+        style={{
+          width: 26,
+          height: 12,
+          clipPath: "polygon(18% 0, 86% 0, 100% 50%, 86% 100%, 18% 100%, 0 50%)",
+          background: color,
+          boxShadow: `0 0 18px ${color}`,
+        }}
+      />
+      <span className="mono-caps text-[9px] font-black" style={{ color }}>
+        {label}
+      </span>
     </div>
   );
 }
@@ -716,13 +1068,18 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
       lastRef.current = now;
       setT((prev) => {
         const next = prev + dt;
-        if (next >= maxMs) { setPlaying(false); return maxMs; }
+        if (next >= maxMs) {
+          setPlaying(false);
+          return maxMs;
+        }
         return next;
       });
       rafRef.current = requestAnimationFrame(step);
     };
     rafRef.current = requestAnimationFrame(step);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [playing, rate, maxMs]);
 
   // Interp player state at t
@@ -732,7 +1089,8 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
     let kmh = 0;
     for (let i = 1; i < points.length; i++) {
       if (points[i].t_ms > t) {
-        const a = points[i - 1], b = points[i];
+        const a = points[i - 1],
+          b = points[i];
         const frac = (t - a.t_ms) / Math.max(1, b.t_ms - a.t_ms);
         kmh = a.speed_kmh + frac * (b.speed_kmh - a.speed_kmh);
         dist += haversine(a, b) * frac;
@@ -748,18 +1106,31 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
   const gd = ghost.distanceM(t);
 
   return (
-    <div className="mt-4 rounded-2xl border p-3" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}>
+    <div
+      className="mt-4 rounded-2xl border p-3"
+      style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--card))" }}
+    >
       <div className="flex items-center justify-between">
-        <p className="mono-caps text-[10px] font-black" style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}>REPLAY</p>
+        <p
+          className="mono-caps text-[10px] font-black"
+          style={{ color: "var(--color-silver)", letterSpacing: "0.24em" }}
+        >
+          REPLAY
+        </p>
         <div className="flex items-center gap-1">
           {[0.25, 0.5, 1, 2].map((r) => (
-            <button key={r} onClick={() => setRate(r)}
+            <button
+              key={r}
+              onClick={() => setRate(r)}
               className="tap rounded px-2 py-1 mono-tag"
               style={{
                 fontSize: 9,
                 background: rate === r ? "var(--color-neon)" : "hsl(var(--muted))",
                 color: rate === r ? "var(--color-obsidian)" : "var(--color-ink-3)",
-              }}>{r}×</button>
+              }}
+            >
+              {r}×
+            </button>
           ))}
         </div>
       </div>
@@ -771,16 +1142,68 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
 
       {/* Track visualization */}
       <div className="mt-3">
-        <div className="relative h-6 rounded-lg" style={{ background: "linear-gradient(90deg,#4a4a52,#3a3a41)", border: "1px solid hsl(var(--border))" }}>
-          <div style={{ position: "absolute", left: `${Math.min(100, (pState.dist / 402.336) * 100)}%`, top: 2, transform: "translateX(-50%)", width: 4, height: 20, background: "var(--color-neon)", borderRadius: 2, boxShadow: "0 0 8px var(--color-neon)" }} />
-          <div style={{ position: "absolute", left: `${Math.min(100, (gd / 402.336) * 100)}%`, top: 2, transform: "translateX(-50%)", width: 4, height: 20, background: "#f6d84f", borderRadius: 2, boxShadow: "0 0 8px #f6d84f" }} />
-          <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: 4, background: "repeating-linear-gradient(0deg,#fff 0 3px,#33333a 3px 6px)" }} />
+        <div
+          className="relative h-6 rounded-lg"
+          style={{
+            background: "linear-gradient(90deg,#4a4a52,#3a3a41)",
+            border: "1px solid hsl(var(--border))",
+          }}
+        >
+          <div
+            style={{
+              position: "absolute",
+              left: `${Math.min(100, (pState.dist / 402.336) * 100)}%`,
+              top: 2,
+              transform: "translateX(-50%)",
+              width: 4,
+              height: 20,
+              background: "var(--color-neon)",
+              borderRadius: 2,
+              boxShadow: "0 0 8px var(--color-neon)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              left: `${Math.min(100, (gd / 402.336) * 100)}%`,
+              top: 2,
+              transform: "translateX(-50%)",
+              width: 4,
+              height: 20,
+              background: "#f6d84f",
+              borderRadius: 2,
+              boxShadow: "0 0 8px #f6d84f",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 4,
+              background: "repeating-linear-gradient(0deg,#fff 0 3px,#33333a 3px 6px)",
+            }}
+          />
         </div>
-        <input type="range" min={0} max={Math.max(1, maxMs)} value={t} onChange={(e) => setT(Number(e.target.value))}
-          className="mt-2 w-full accent-[#00c853]" />
-        <div className="mt-1 flex items-center justify-between text-[10px] mono-tag" style={{ color: "var(--color-silver)" }}>
+        <input
+          type="range"
+          min={0}
+          max={Math.max(1, maxMs)}
+          value={t}
+          onChange={(e) => setT(Number(e.target.value))}
+          className="mt-2 w-full accent-[#00c853]"
+        />
+        <div
+          className="mt-1 flex items-center justify-between text-[10px] mono-tag"
+          style={{ color: "var(--color-silver)" }}
+        >
           <span>{(t / 1000).toFixed(2)}s</span>
-          <button onClick={() => setPlaying((p) => !p)} className="tap rounded px-3 py-1 mono-caps font-black" style={{ fontSize: 10, background: "var(--color-obsidian)", color: "hsl(var(--card))" }}>
+          <button
+            onClick={() => setPlaying((p) => !p)}
+            className="tap rounded px-3 py-1 mono-caps font-black"
+            style={{ fontSize: 10, background: "var(--color-obsidian)", color: "hsl(var(--card))" }}
+          >
             {playing ? "❚❚ PAUSE" : "▶ PLAY"}
           </button>
           <span>{(maxMs / 1000).toFixed(2)}s</span>
@@ -790,27 +1213,59 @@ function ReplayPanel({ points, ghost }: { points: Point[]; ghost: Ghost }) {
   );
 }
 
-function ReplayLane({ color, name, kmh, dist }: { color: string; name: string; kmh: number; dist: number }) {
+function ReplayLane({
+  color,
+  name,
+  kmh,
+  dist,
+}: {
+  color: string;
+  name: string;
+  kmh: number;
+  dist: number;
+}) {
   return (
-    <div className="rounded-lg border p-2" style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}>
-      <p className="mono-caps text-[9px] font-black" style={{ color, letterSpacing: "0.24em" }}>{name}</p>
-      <p className="mono-num mt-1 text-2xl font-black tabular-nums" style={{ color: "hsl(var(--foreground))" }}>{kmh.toFixed(0)}<span className="mono-caps ml-1" style={{ fontSize: 9, color: "var(--color-silver)" }}>km/h</span></p>
-      <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", fontSize: 9 }}>{dist.toFixed(1)} m</p>
+    <div
+      className="rounded-lg border p-2"
+      style={{ borderColor: "hsl(var(--border))", background: "hsl(var(--muted))" }}
+    >
+      <p className="mono-caps text-[9px] font-black" style={{ color, letterSpacing: "0.24em" }}>
+        {name}
+      </p>
+      <p
+        className="mono-num mt-1 text-2xl font-black tabular-nums"
+        style={{ color: "hsl(var(--foreground))" }}
+      >
+        {kmh.toFixed(0)}
+        <span className="mono-caps ml-1" style={{ fontSize: 9, color: "var(--color-silver)" }}>
+          km/h
+        </span>
+      </p>
+      <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+        {dist.toFixed(1)} m
+      </p>
     </div>
   );
 }
-
 
 function Row({ label, v }: { label: string; v?: string }) {
   if (!v) return null;
   return (
     <div>
-      <span className="mono-tag mr-2" style={{ color: "var(--color-silver)", fontSize: 9 }}>{label.toUpperCase()}</span>
+      <span className="mono-tag mr-2" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+        {label.toUpperCase()}
+      </span>
       <span>{v}</span>
     </div>
   );
 }
 
-function fmt(v: number | null | undefined) { return v != null ? `${v.toFixed(3)}s` : "—"; }
-function fmtSp(v: number | null | undefined) { return v != null ? `${v.toFixed(0)} km/h` : "—"; }
-function fmtRT(v: number | null | undefined) { return v != null ? `${(v / 1000).toFixed(3)}s` : "—"; }
+function fmt(v: number | null | undefined) {
+  return v != null ? `${v.toFixed(3)}s` : "—";
+}
+function fmtSp(v: number | null | undefined) {
+  return v != null ? `${v.toFixed(0)} km/h` : "—";
+}
+function fmtRT(v: number | null | undefined) {
+  return v != null ? `${(v / 1000).toFixed(3)}s` : "—";
+}

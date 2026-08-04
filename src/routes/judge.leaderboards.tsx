@@ -15,7 +15,10 @@ export const Route = createFileRoute("/judge/leaderboards")({
       { title: "Judge Leaderboards · ZOMBIEREX" },
       { name: "description", content: "Global rankings from AI-judged motorcycle & car shows." },
       { property: "og:title", content: "Judge Leaderboards · ZOMBIEREX" },
-      { property: "og:description", content: "Global rankings from AI-judged motorcycle & car shows." },
+      {
+        property: "og:description",
+        content: "Global rankings from AI-judged motorcycle & car shows.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -43,9 +46,14 @@ function Leaderboards() {
   return (
     <div className="pb-24">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ LEADERBOARDS</p>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ LEADERBOARDS
+        </p>
         <h1 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>
-          Rankings <span className="italic" style={{ color: "var(--color-neon)" }}>by scope</span>
+          Rankings{" "}
+          <span className="italic" style={{ color: "var(--color-neon)" }}>
+            by scope
+          </span>
         </h1>
       </header>
 
@@ -53,7 +61,10 @@ function Leaderboards() {
         {SCOPES.map((s) => (
           <button
             key={s.key}
-            onClick={() => { setScope(s.key); setKey(""); }}
+            onClick={() => {
+              setScope(s.key);
+              setKey("");
+            }}
             className="chip shrink-0"
             style={{
               background: scope === s.key ? "var(--color-obsidian)" : "transparent",
@@ -86,7 +97,9 @@ function Leaderboards() {
       <section className="mt-4 px-5">
         {data.length === 0 ? (
           <div className="p-6 surface-1 lift-1 text-center" style={{ borderRadius: 10 }}>
-            <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>No rankings for this filter yet.</p>
+            <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
+              No rankings for this filter yet.
+            </p>
           </div>
         ) : (
           <div className="space-y-1.5">
@@ -99,7 +112,9 @@ function Leaderboards() {
                 style={{ borderRadius: 10 }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="mono-tag" style={{ color: "var(--color-neon)", width: 28 }}>#{r.rank}</span>
+                  <span className="mono-tag" style={{ color: "var(--color-neon)", width: 28 }}>
+                    #{r.rank}
+                  </span>
                   <div>
                     <p className="text-[13px]" style={{ color: "var(--color-ink)" }}>
                       {r.entry?.display_name ?? "Entry"}
@@ -109,7 +124,9 @@ function Leaderboards() {
                     </p>
                   </div>
                 </div>
-                <span className="serif text-xl italic" style={{ color: "var(--color-ink)" }}>{r.score}</span>
+                <span className="serif text-xl italic" style={{ color: "var(--color-ink)" }}>
+                  {r.score}
+                </span>
               </Link>
             ))}
           </div>

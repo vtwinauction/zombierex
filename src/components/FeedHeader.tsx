@@ -11,8 +11,16 @@ import { supabase } from "@/integrations/supabase/client";
 export function FeedHeader({ dark = false }: { dark?: boolean }) {
   const cls = dark ? "text-white" : "";
   const iconStyle = dark
-    ? { background: "rgba(255,255,255,0.10)", color: "#fff", border: "1px solid rgba(255,255,255,0.14)" }
-    : { background: "rgba(255,255,255,0.85)", color: "var(--color-matte)", border: "1px solid var(--color-hair)" };
+    ? {
+        background: "rgba(255,255,255,0.10)",
+        color: "#fff",
+        border: "1px solid rgba(255,255,255,0.14)",
+      }
+    : {
+        background: "rgba(255,255,255,0.85)",
+        color: "var(--color-matte)",
+        border: "1px solid var(--color-hair)",
+      };
 
   const chip = "tap grid h-9 w-9 place-items-center backdrop-blur-md relative";
   const clip = {
@@ -49,17 +57,24 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
   useEffect(() => {
     if (!uid) return;
     const bump = () => qc.invalidateQueries({ queryKey: ["inbox-counts"] });
-    const ch = supabase.channel(`inbox-${uid}-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes",
+    const ch = supabase
+      .channel(`inbox-${uid}-${Math.random().toString(36).slice(2)}`)
+      .on(
+        "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
         bump,
       )
-      .on("postgres_changes",
+      .on(
+        "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },
-        (payload: any) => { if (payload?.new?.sender_id !== uid) bump(); },
+        (payload: any) => {
+          if (payload?.new?.sender_id !== uid) bump();
+        },
       )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [uid, qc]);
 
   const notif = counts.data?.notifications ?? 0;
@@ -73,7 +88,8 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
         <div
           className="grid h-8 w-8 place-items-center overflow-hidden"
           style={{
-            clipPath: "polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px)",
+            clipPath:
+              "polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px)",
             background: "#0e0f11",
             boxShadow: dark ? "0 0 0 1px rgba(255,255,255,0.15)" : "0 0 0 1px var(--color-hair)",
           }}
@@ -81,10 +97,20 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
           <img src={brandLogo.url} alt="ZOMBIEREX" className="h-full w-full object-cover" />
         </div>
         <div className="leading-tight">
-          <p className={`font-display text-[15px] font-bold tracking-tight ${dark ? "text-white" : ""}`} style={dark ? {} : { color: "var(--color-matte)" }}>
+          <p
+            className={`font-display text-[15px] font-bold tracking-tight ${dark ? "text-white" : ""}`}
+            style={dark ? {} : { color: "var(--color-matte)" }}
+          >
             ZOMBIEREX
           </p>
-          <p className="mono-tag" style={{ color: dark ? "rgba(255,255,255,0.65)" : "var(--color-titanium)", fontSize: 9, letterSpacing: "0.14em" }}>
+          <p
+            className="mono-tag"
+            style={{
+              color: dark ? "rgba(255,255,255,0.65)" : "var(--color-titanium)",
+              fontSize: 9,
+              letterSpacing: "0.14em",
+            }}
+          >
             FOR·YOU · FOLLOWING · NEARBY
           </p>
         </div>
@@ -96,11 +122,21 @@ export function FeedHeader({ dark = false }: { dark?: boolean }) {
         <Link to="/cart" className={chip} style={{ ...clip, ...iconStyle }} aria-label="Cart">
           <ShoppingCart size={16} strokeWidth={1.75} />
         </Link>
-        <Link to="/notifications" className={chip} style={{ ...clip, ...iconStyle }} aria-label={`Notifications${notif ? `, ${notif} unread` : ""}`}>
+        <Link
+          to="/notifications"
+          className={chip}
+          style={{ ...clip, ...iconStyle }}
+          aria-label={`Notifications${notif ? `, ${notif} unread` : ""}`}
+        >
           <IconEnginePulse size={16} />
           {notif > 0 && <Badge count={notif} />}
         </Link>
-        <Link to="/messages" className={chip} style={{ ...clip, ...iconStyle }} aria-label={`Messages${dm ? `, ${dm} unread` : ""}`}>
+        <Link
+          to="/messages"
+          className={chip}
+          style={{ ...clip, ...iconStyle }}
+          aria-label={`Messages${dm ? `, ${dm} unread` : ""}`}
+        >
           <IconGauge size={16} />
           {dm > 0 && <Badge count={dm} />}
         </Link>
@@ -125,4 +161,3 @@ function Badge({ count }: { count: number }) {
     </span>
   );
 }
-

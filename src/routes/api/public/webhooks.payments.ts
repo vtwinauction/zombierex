@@ -131,11 +131,14 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
                     .maybeSingle();
                   sellerId = (vendor as any)?.owner_id ?? null;
                 }
-
               }
               const { settleTransaction } = await import("@/lib/finance.server");
               await settleTransaction({
-                kind: (full as any).order_id ? "order" : (full as any).subscription_id ? "plan" : "other",
+                kind: (full as any).order_id
+                  ? "order"
+                  : (full as any).subscription_id
+                    ? "plan"
+                    : "other",
                 gross_cents: (full as any).amount_cents,
                 currency: (full as any).currency ?? "USD",
                 buyer_id: (full as any).user_id,
@@ -148,13 +151,11 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
                 provider_ref: payload.provider_ref ?? null,
               });
             }
-
           } catch (e) {
             console.error("[webhook/payments] settlement failed", e);
             return new Response("Settlement failed", { status: 500 });
           }
         }
-
 
         return Response.json({ ok: true, status: nextStatus });
       },

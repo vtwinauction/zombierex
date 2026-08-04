@@ -33,7 +33,7 @@ const READ_TTL = 31536000; // 1 year: feed media must not expire
  */
 export const UPLOAD_LIMITS = {
   image: { maxBytes: 10 * 1024 * 1024, label: "10 MB" },
-  reel:  { maxBytes: 100 * 1024 * 1024, label: "100 MB", maxSeconds: 90 },
+  reel: { maxBytes: 100 * 1024 * 1024, label: "100 MB", maxSeconds: 90 },
   video: { maxBytes: 500 * 1024 * 1024, label: "500 MB" },
   story: { maxBytes: 50 * 1024 * 1024, label: "50 MB", maxSeconds: 15 },
 } as const;
@@ -98,8 +98,14 @@ async function convertHeicToJpeg(file: File): Promise<Blob> {
   return new Blob([blob], { type: "image/jpeg" });
 }
 
-export async function blobFromCanvas(canvas: HTMLCanvasElement, type = "image/jpeg", q = IMAGE_QUALITY): Promise<Blob> {
-  return new Promise((res, rej) => canvas.toBlob((b) => (b ? res(b) : rej(new Error("canvas empty"))), type, q));
+export async function blobFromCanvas(
+  canvas: HTMLCanvasElement,
+  type = "image/jpeg",
+  q = IMAGE_QUALITY,
+): Promise<Blob> {
+  return new Promise((res, rej) =>
+    canvas.toBlob((b) => (b ? res(b) : rej(new Error("canvas empty"))), type, q),
+  );
 }
 
 function randomId(): string {
@@ -145,13 +151,18 @@ export async function uploadBlob(blob: Blob, opts: UploadOptions): Promise<Uploa
     if (opts.signal) opts.signal.addEventListener("abort", () => xhr.abort());
     xhr.upload.onprogress = (e) => {
       if (!e.lengthComputable) return;
-      opts.onProgress?.({ loaded: e.loaded, total: e.total, pct: e.total ? e.loaded / e.total : 0 });
+      opts.onProgress?.({
+        loaded: e.loaded,
+        total: e.total,
+        pct: e.total ? e.loaded / e.total : 0,
+      });
     };
     xhr.onerror = () => reject(new Error("Network error during upload"));
     xhr.onabort = () => reject(new Error("Upload cancelled"));
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) resolve();
-      else reject(new Error(`Upload failed [${xhr.status}]: ${xhr.responseText || xhr.statusText}`));
+      else
+        reject(new Error(`Upload failed [${xhr.status}]: ${xhr.responseText || xhr.statusText}`));
     };
     xhr.send(blob);
   });

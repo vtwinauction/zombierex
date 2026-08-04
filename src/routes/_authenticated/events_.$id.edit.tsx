@@ -9,9 +9,17 @@ export const Route = createFileRoute("/_authenticated/events_/$id/edit")({
   head: () => ({
     meta: [
       { title: "Edit event · ZOMBIEREX" },
-      { name: "description", content: "Update event details, schedule, contact information, and cover photography in ZOMBIEREX." },
+      {
+        name: "description",
+        content:
+          "Update event details, schedule, contact information, and cover photography in ZOMBIEREX.",
+      },
       { property: "og:title", content: "Edit event · ZOMBIEREX" },
-      { property: "og:description", content: "Update event details, schedule, contact information, and cover photography in ZOMBIEREX." },
+      {
+        property: "og:description",
+        content:
+          "Update event details, schedule, contact information, and cover photography in ZOMBIEREX.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -20,11 +28,25 @@ export const Route = createFileRoute("/_authenticated/events_/$id/edit")({
 });
 
 const CATEGORY_LABEL: Record<string, string> = {
-  ride: "Motorcycle Ride", bike_night: "Bike Night", car_meet: "Car Meet", cars_coffee: "Cars & Coffee",
-  drag: "Drag Racing", drift: "Drift Event", track_day: "Track Day", rally: "Rally", off_road: "Off-Road",
-  monster_truck: "Monster Truck Show", bike_show: "Motorcycle Show", custom_bike_show: "Custom Bike Show",
-  classic_show: "Classic Car Show", supercar_meet: "Supercar Meet", festival: "Motorsport Festival",
-  charity: "Charity Ride", launch: "Product Launch", workshop: "Workshop & Seminar", other: "Other",
+  ride: "Motorcycle Ride",
+  bike_night: "Bike Night",
+  car_meet: "Car Meet",
+  cars_coffee: "Cars & Coffee",
+  drag: "Drag Racing",
+  drift: "Drift Event",
+  track_day: "Track Day",
+  rally: "Rally",
+  off_road: "Off-Road",
+  monster_truck: "Monster Truck Show",
+  bike_show: "Motorcycle Show",
+  custom_bike_show: "Custom Bike Show",
+  classic_show: "Classic Car Show",
+  supercar_meet: "Supercar Meet",
+  festival: "Motorsport Festival",
+  charity: "Charity Ride",
+  launch: "Product Launch",
+  workshop: "Workshop & Seminar",
+  other: "Other",
 };
 
 function toLocalInput(iso?: string | null) {
@@ -41,7 +63,10 @@ function EditEventPage() {
   const get = useServerFn(getEvent);
   const update = useServerFn(updateEvent);
 
-  const { data: ev, isLoading } = useQuery({ queryKey: ["event", id], queryFn: () => get({ data: { id } }) });
+  const { data: ev, isLoading } = useQuery({
+    queryKey: ["event", id],
+    queryFn: () => get({ data: { id } }),
+  });
 
   const [form, setForm] = useState<any>(null);
   const [busy, setBusy] = useState(false);
@@ -74,22 +99,30 @@ function EditEventPage() {
     if (!f) return;
     setErr(null);
     try {
-      setUploading(true); setPct(0);
+      setUploading(true);
+      setPct(0);
       const { data: sess } = await supabase.auth.getSession();
       const uid = sess.session?.user?.id;
       if (!uid) throw new Error("Sign in required");
       const { uploadWithRetry, compressImage } = await import("@/lib/media-upload");
       const blob = await compressImage(f);
-      const res = await uploadWithRetry(blob, { userId: uid, bucket: "vehicles", onProgress: (p) => setPct(Math.round(p.pct * 100)) });
+      const res = await uploadWithRetry(blob, {
+        userId: uid,
+        bucket: "vehicles",
+        onProgress: (p) => setPct(Math.round(p.pct * 100)),
+      });
       setForm((s: any) => ({ ...s, cover_url: res.url }));
     } catch (e: any) {
       setErr(e?.message ?? "Upload failed");
-    } finally { setUploading(false); }
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true); setErr(null);
+    setBusy(true);
+    setErr(null);
     try {
       const patch: any = {
         title: form.title,
@@ -102,7 +135,10 @@ function EditEventPage() {
         location: form.location,
         address: form.address || null,
         max_attendees: form.max_attendees ? Number(form.max_attendees) : null,
-        hashtags: form.hashtags.split(/[,\s]+/).map((s: string) => s.trim().replace(/^#/, "")).filter(Boolean),
+        hashtags: form.hashtags
+          .split(/[,\s]+/)
+          .map((s: string) => s.trim().replace(/^#/, ""))
+          .filter(Boolean),
         rules: form.rules || null,
         contact_email: form.contact_email || null,
         contact_phone: form.contact_phone || null,
@@ -113,43 +149,84 @@ function EditEventPage() {
       navigate({ to: "/events/$id", params: { id } });
     } catch (e: any) {
       setErr(e?.message ?? "Failed to update event");
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
 
-  if (isLoading || !form) return <div className="p-6"><p className="mono-tag" style={{ color: "var(--color-ash)" }}>LOADING…</p></div>;
+  if (isLoading || !form)
+    return (
+      <div className="p-6">
+        <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+          LOADING…
+        </p>
+      </div>
+    );
 
   return (
     <div>
       <div className="px-4 pt-6 pb-8">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>EDIT EVENT</p>
-            <h1 className="mt-2 display-xl text-2xl uppercase leading-tight">{form.title || "Untitled"}</h1>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              EDIT EVENT
+            </p>
+            <h1 className="mt-2 display-xl text-2xl uppercase leading-tight">
+              {form.title || "Untitled"}
+            </h1>
           </div>
-          <Link to="/events/$id" params={{ id }} className="mono-tag mt-1 shrink-0" style={{ color: "var(--color-ash)" }}>← BACK</Link>
+          <Link
+            to="/events/$id"
+            params={{ id }}
+            className="mono-tag mt-1 shrink-0"
+            style={{ color: "var(--color-ash)" }}
+          >
+            ← BACK
+          </Link>
         </div>
 
         <form onSubmit={submit} className="mt-6 space-y-4">
           {/* Cover uploader */}
           <div>
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>COVER PHOTO</p>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              COVER PHOTO
+            </p>
             <div className="mt-2 hairline overflow-hidden">
               <div className="relative h-48" style={{ background: "var(--color-mist)" }}>
                 {form.cover_url ? (
                   <img src={form.cover_url} alt="" className="h-full w-full object-cover" />
                 ) : (
                   <div className="grid h-full w-full place-items-center">
-                    <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NO COVER</p>
+                    <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+                      NO COVER
+                    </p>
                   </div>
                 )}
-                <label className="tap absolute right-3 bottom-3 mono-tag cursor-pointer" style={{ background: "rgba(0,0,0,0.7)", color: "#fff", padding: "6px 10px" }}>
-                  {uploading ? `${pct}%` : (form.cover_url ? "REPLACE PHOTO" : "ADD PHOTO")}
-                  <input type="file" accept="image/*" hidden disabled={uploading}
-                    onChange={(e) => { const f = e.target.files?.[0]; e.currentTarget.value = ""; onCoverFile(f ?? null); }} />
+                <label
+                  className="tap absolute right-3 bottom-3 mono-tag cursor-pointer"
+                  style={{ background: "rgba(0,0,0,0.7)", color: "#fff", padding: "6px 10px" }}
+                >
+                  {uploading ? `${pct}%` : form.cover_url ? "REPLACE PHOTO" : "ADD PHOTO"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.currentTarget.value = "";
+                      onCoverFile(f ?? null);
+                    }}
+                  />
                 </label>
               </div>
               {form.cover_url && (
-                <button type="button" onClick={() => setForm({ ...form, cover_url: "" })} className="tap w-full py-2 mono-tag hairline-t" style={{ color: "#c33" }}>
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, cover_url: "" })}
+                  className="tap w-full py-2 mono-tag hairline-t"
+                  style={{ color: "#c33" }}
+                >
                   REMOVE COVER
                 </button>
               )}
@@ -157,17 +234,35 @@ function EditEventPage() {
           </div>
 
           <Field label="Title">
-            <input required maxLength={120} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" />
+            <input
+              required
+              maxLength={120}
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className="input"
+            />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="Category">
-              <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="input">
-                {EVENT_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>)}
+              <select
+                value={form.category}
+                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                className="input"
+              >
+                {EVENT_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {CATEGORY_LABEL[c]}
+                  </option>
+                ))}
               </select>
             </Field>
             <Field label="Visibility">
-              <select value={form.visibility} onChange={(e) => setForm({ ...form, visibility: e.target.value })} className="input">
+              <select
+                value={form.visibility}
+                onChange={(e) => setForm({ ...form, visibility: e.target.value })}
+                className="input"
+              >
                 <option value="public">Public</option>
                 <option value="unlisted">Unlisted</option>
                 <option value="private">Private</option>
@@ -176,59 +271,121 @@ function EditEventPage() {
           </div>
 
           <Field label="Description">
-            <textarea rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="input" />
+            <textarea
+              rows={4}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              className="input"
+            />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="Starts">
-              <input required type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className="input" />
+              <input
+                required
+                type="datetime-local"
+                value={form.starts_at}
+                onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+                className="input"
+              />
             </Field>
             <Field label="Ends">
-              <input type="datetime-local" value={form.ends_at} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className="input" />
+              <input
+                type="datetime-local"
+                value={form.ends_at}
+                onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
+                className="input"
+              />
             </Field>
           </div>
 
           <Field label="Location (name)">
-            <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="input" />
+            <input
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+              className="input"
+            />
           </Field>
           <Field label="Address">
-            <input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className="input" />
+            <input
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              className="input"
+            />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="Max attendees">
-              <input type="number" min={1} value={form.max_attendees} onChange={(e) => setForm({ ...form, max_attendees: e.target.value })} className="input" placeholder="Optional" />
+              <input
+                type="number"
+                min={1}
+                value={form.max_attendees}
+                onChange={(e) => setForm({ ...form, max_attendees: e.target.value })}
+                className="input"
+                placeholder="Optional"
+              />
             </Field>
             <Field label="Hashtags">
-              <input value={form.hashtags} onChange={(e) => setForm({ ...form, hashtags: e.target.value })} className="input" />
+              <input
+                value={form.hashtags}
+                onChange={(e) => setForm({ ...form, hashtags: e.target.value })}
+                className="input"
+              />
             </Field>
           </div>
 
           <Field label="Rules">
-            <textarea rows={3} value={form.rules} onChange={(e) => setForm({ ...form, rules: e.target.value })} className="input" />
+            <textarea
+              rows={3}
+              value={form.rules}
+              onChange={(e) => setForm({ ...form, rules: e.target.value })}
+              className="input"
+            />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="Contact email">
-              <input type="email" value={form.contact_email} onChange={(e) => setForm({ ...form, contact_email: e.target.value })} className="input" />
+              <input
+                type="email"
+                value={form.contact_email}
+                onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
+                className="input"
+              />
             </Field>
             <Field label="Contact phone">
-              <input value={form.contact_phone} onChange={(e) => setForm({ ...form, contact_phone: e.target.value })} className="input" />
+              <input
+                value={form.contact_phone}
+                onChange={(e) => setForm({ ...form, contact_phone: e.target.value })}
+                className="input"
+              />
             </Field>
           </div>
 
-          {err && <p className="mono-tag" style={{ color: "#c33" }}>{err}</p>}
+          {err && (
+            <p className="mono-tag" style={{ color: "#c33" }}>
+              {err}
+            </p>
+          )}
 
           {/* Inline action bar */}
           <div className="mt-8 rounded-xl border border-[var(--color-hair)] bg-[var(--color-mist)] p-4">
             <div className="flex items-center gap-3">
-              <Link to="/events/$id" params={{ id }} className="tap flex-1 rounded-lg border border-[var(--color-hair)] bg-[var(--color-bone)] py-3 text-center mono-caps transition-colors active:bg-[var(--color-hair)]">
+              <Link
+                to="/events/$id"
+                params={{ id }}
+                className="tap flex-1 rounded-lg border border-[var(--color-hair)] bg-[var(--color-bone)] py-3 text-center mono-caps transition-colors active:bg-[var(--color-hair)]"
+              >
                 CANCEL
               </Link>
-              <button type="submit" disabled={busy || uploading} className="tap flex-[2] rounded-lg py-3 text-center mono-caps font-semibold text-[var(--color-ink-dark)] transition-transform active:scale-[0.98] disabled:opacity-60" style={{
-                background: "var(--color-signal)",
-                boxShadow: "0 0 18px color-mix(in oklab, var(--color-signal) 35%, transparent)"
-              }}>
+              <button
+                type="submit"
+                disabled={busy || uploading}
+                className="tap flex-[2] rounded-lg py-3 text-center mono-caps font-semibold text-[var(--color-ink-dark)] transition-transform active:scale-[0.98] disabled:opacity-60"
+                style={{
+                  background: "var(--color-signal)",
+                  boxShadow: "0 0 18px color-mix(in oklab, var(--color-signal) 35%, transparent)",
+                }}
+              >
                 {busy ? "SAVING…" : "SAVE CHANGES ▸"}
               </button>
             </div>
@@ -247,7 +404,9 @@ function EditEventPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mono-tag" style={{ color: "var(--color-ash)" }}>{label.toUpperCase()}</span>
+      <span className="mono-tag" style={{ color: "var(--color-ash)" }}>
+        {label.toUpperCase()}
+      </span>
       <div className="mt-1.5">{children}</div>
     </label>
   );

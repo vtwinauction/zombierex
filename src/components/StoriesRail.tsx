@@ -50,7 +50,14 @@ function persistSeen(set: Set<string>) {
 // Local "me" tile the composer opens.
 const ME_TILE: Story = {
   id: "__me__",
-  user: { id: "me", handle: "@you", name: "You", avatar: "https://api.dicebear.com/7.x/shapes/svg?seed=me", verified: false, location: "" },
+  user: {
+    id: "me",
+    handle: "@you",
+    name: "You",
+    avatar: "https://api.dicebear.com/7.x/shapes/svg?seed=me",
+    verified: false,
+    location: "",
+  },
   kind: "photo",
   cover: "https://api.dicebear.com/7.x/shapes/svg?seed=me",
 };
@@ -62,9 +69,14 @@ export function StoriesRail() {
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     let alive = true;
-    supabase.auth.getUser().then(({ data }) => { if (alive) setSignedIn(!!data.user); });
+    supabase.auth.getUser().then(({ data }) => {
+      if (alive) setSignedIn(!!data.user);
+    });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
-    return () => { alive = false; sub.subscription.unsubscribe(); };
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const fetchStories = useServerFn(listActiveStories);
@@ -87,7 +99,8 @@ export function StoriesRail() {
             id: (a.id ?? r.author_id) as string,
             handle: a.handle ? `@${String(a.handle).replace(/^@/, "")}` : "@rider",
             name: a.display_name || a.handle || "Rider",
-            avatar: a.avatar_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${a.id ?? r.author_id}`,
+            avatar:
+              a.avatar_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${a.id ?? r.author_id}`,
             verified: !!a.is_verified,
             location: "",
           },
@@ -103,7 +116,6 @@ export function StoriesRail() {
       seen: i === 0 ? false : s.seen || seen.has(s.id),
     }));
   }, [live.data, seen, signedIn]);
-
 
   function openStory(i: number) {
     if (i === 0) {
@@ -128,11 +140,7 @@ export function StoriesRail() {
       <div className="no-scrollbar flex gap-3 overflow-x-auto px-4 py-3">
         {stories.map((s, i) => {
           const isMe = i === 0;
-          const ringClass = s.live
-            ? "story-ring-live"
-            : s.seen
-            ? "story-ring-seen"
-            : "story-ring";
+          const ringClass = s.live ? "story-ring-live" : s.seen ? "story-ring-seen" : "story-ring";
           return (
             <button
               key={s.id}
@@ -192,22 +200,22 @@ function StoryKindBadge({ kind }: { kind: Story["kind"] }) {
     kind === "video"
       ? "bg-ink text-bone"
       : kind === "ride"
-      ? "text-bone"
-      : kind === "event"
-      ? "text-ink"
-      : kind === "poll"
-      ? "text-ink"
-      : "text-ink";
+        ? "text-bone"
+        : kind === "event"
+          ? "text-ink"
+          : kind === "poll"
+            ? "text-ink"
+            : "text-ink";
   const styleOverride =
     kind === "ride"
       ? { background: "var(--color-cool)" }
       : kind === "event"
-      ? { background: "var(--color-signal)" }
-      : kind === "poll"
-      ? { background: "var(--color-signal)" }
-      : kind === "question"
-      ? { background: "var(--color-plum)", color: "white" }
-      : undefined;
+        ? { background: "var(--color-signal)" }
+        : kind === "poll"
+          ? { background: "var(--color-signal)" }
+          : kind === "question"
+            ? { background: "var(--color-plum)", color: "white" }
+            : undefined;
   return (
     <span
       className={`absolute -bottom-0.5 -right-0.5 grid h-5 w-5 place-items-center rounded-full border-2 border-bone ${tone}`}
@@ -347,7 +355,8 @@ function StoryViewer({
       </div>
 
       {/* media — detect video by kind OR file extension so mis-tagged uploads still play */}
-      {(current.kind === "video" || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(current.mediaUrl ?? current.cover ?? "")) ? (
+      {current.kind === "video" ||
+      /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(current.mediaUrl ?? current.cover ?? "") ? (
         <video
           key={current.id}
           src={current.mediaUrl ?? current.cover}
@@ -356,7 +365,9 @@ function StoryViewer({
           playsInline
           muted
           controls={false}
-          onLoadedMetadata={(e) => { (e.currentTarget as HTMLVideoElement).play().catch(() => {}); }}
+          onLoadedMetadata={(e) => {
+            (e.currentTarget as HTMLVideoElement).play().catch(() => {});
+          }}
           className="max-h-[100svh] w-full object-contain"
         />
       ) : (
@@ -366,33 +377,47 @@ function StoryViewer({
           alt={current.label ?? ""}
           className="max-h-[100svh] w-full object-contain"
           draggable={false}
-          onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = "0.15"; }}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).style.opacity = "0.15";
+          }}
         />
       )}
 
       {/* prev / next tap zones */}
       <button
         aria-label="Previous story"
-        onClick={(e) => { e.stopPropagation(); prev(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          prev();
+        }}
         className="absolute inset-y-0 left-0 z-20 w-1/3"
       />
       <button
         aria-label="Next story"
-        onClick={(e) => { e.stopPropagation(); next(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          next();
+        }}
         className="absolute inset-y-0 right-0 z-20 w-1/3"
       />
 
       {/* explicit arrows for desktop */}
       <button
         aria-label="Previous story"
-        onClick={(e) => { e.stopPropagation(); prev(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          prev();
+        }}
         className="tap absolute left-2 top-1/2 z-30 hidden -translate-y-1/2 rounded-full bg-white/10 p-2 text-white sm:block"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>
       <button
         aria-label="Next story"
-        onClick={(e) => { e.stopPropagation(); next(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          next();
+        }}
         className="tap absolute right-2 top-1/2 z-30 hidden -translate-y-1/2 rounded-full bg-white/10 p-2 text-white sm:block"
       >
         <ChevronRight className="h-5 w-5" />

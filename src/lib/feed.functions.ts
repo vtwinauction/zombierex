@@ -16,7 +16,8 @@ function serverPublic() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -26,17 +27,21 @@ function serverPublic() {
 
 export const listFeed = createServerFn({ method: "GET" })
   .validator((raw) =>
-    z.object({
-      limit: z.number().int().min(1).max(50).default(20),
-      cursor: z.string().datetime().optional(),
-      kind: z.enum(["photo", "video", "event", "telemetry"]).optional(),
-    }).parse(raw ?? {}),
+    z
+      .object({
+        limit: z.number().int().min(1).max(50).default(20),
+        cursor: z.string().datetime().optional(),
+        kind: z.enum(["photo", "video", "event", "telemetry"]).optional(),
+      })
+      .parse(raw ?? {}),
   )
   .handler(async ({ data }) => {
     const supabase = serverPublic();
     let q = supabase
       .from("posts")
-      .select("id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location)")
+      .select(
+        "id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location)",
+      )
       .eq("is_hidden", false)
       .order("created_at", { ascending: false })
       .limit(data.limit);
@@ -44,7 +49,10 @@ export const listFeed = createServerFn({ method: "GET" })
     if (data.cursor) q = q.lt("created_at", data.cursor);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return { items: rows ?? [], nextCursor: rows && rows.length === data.limit ? rows[rows.length - 1].created_at : null };
+    return {
+      items: rows ?? [],
+      nextCursor: rows && rows.length === data.limit ? rows[rows.length - 1].created_at : null,
+    };
   });
 
 /**
@@ -55,11 +63,13 @@ export const listFeed = createServerFn({ method: "GET" })
 export const listAuthedFeed = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      limit: z.number().int().min(1).max(50).default(20),
-      cursor: z.string().datetime().optional(),
-      kind: z.enum(["photo", "video", "event", "telemetry"]).optional(),
-    }).parse(raw ?? {}),
+    z
+      .object({
+        limit: z.number().int().min(1).max(50).default(20),
+        cursor: z.string().datetime().optional(),
+        kind: z.enum(["photo", "video", "event", "telemetry"]).optional(),
+      })
+      .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -70,13 +80,15 @@ export const listAuthedFeed = createServerFn({ method: "GET" })
       sb.from("keyword_filters").select("keyword, match_type").eq("user_id", context.userId),
     ]);
     const excluded = new Set<string>();
-    for (const r of (blocksRes.data ?? [])) if (r?.blocked_id) excluded.add(r.blocked_id);
-    for (const r of (mutesRes.data ?? [])) if (r?.muted_id) excluded.add(r.muted_id);
+    for (const r of blocksRes.data ?? []) if (r?.blocked_id) excluded.add(r.blocked_id);
+    for (const r of mutesRes.data ?? []) if (r?.muted_id) excluded.add(r.muted_id);
     const keywords: { keyword: string; match_type: string | null }[] = kwRes.data ?? [];
 
     let q = sb
       .from("posts")
-      .select("id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location)")
+      .select(
+        "id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location)",
+      )
       .eq("is_hidden", false)
       .order("created_at", { ascending: false })
       .limit(data.limit + excluded.size);
@@ -86,17 +98,22 @@ export const listAuthedFeed = createServerFn({ method: "GET" })
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filtered = (rows ?? []).filter((row: any) => {
-      const caption = String(row.caption ?? "").toLowerCase();
-      return !keywords.some((k) => {
-        const kw = k.keyword.toLowerCase();
-        return k.match_type === "exact" ? caption.split(/\W+/).includes(kw) : caption.includes(kw);
-      });
-    }).slice(0, data.limit);
+    const filtered = (rows ?? [])
+      .filter((row: any) => {
+        const caption = String(row.caption ?? "").toLowerCase();
+        return !keywords.some((k) => {
+          const kw = k.keyword.toLowerCase();
+          return k.match_type === "exact"
+            ? caption.split(/\W+/).includes(kw)
+            : caption.includes(kw);
+        });
+      })
+      .slice(0, data.limit);
     return {
       items: filtered,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      nextCursor: filtered.length === data.limit ? (filtered[filtered.length - 1] as any).created_at : null,
+      nextCursor:
+        filtered.length === data.limit ? (filtered[filtered.length - 1] as any).created_at : null,
     };
   });
 
@@ -106,7 +123,9 @@ export const getPostPublic = createServerFn({ method: "GET" })
     const supabase = serverPublic();
     const { data: row, error } = await supabase
       .from("posts")
-      .select("id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location, bio)")
+      .select(
+        "id, author_id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, shares_count, views_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url, is_verified, location, bio)",
+      )
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -120,7 +139,9 @@ export const getProfileByHandlePublic = createServerFn({ method: "GET" })
     const handle = data.handle.replace(/^@/, "");
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, is_business, is_private, allow_messages")
+      .select(
+        "id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, is_business, is_private, allow_messages",
+      )
       .eq("handle", handle)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -141,50 +162,59 @@ export const getProfileByHandlePublic = createServerFn({ method: "GET" })
     return { profile, posts: posts ?? [], restricted: false as const };
   });
 
-
-
-
 export const createPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      kind: z.enum(["video", "photo", "telemetry", "event"]).default("photo"),
-      caption: z.string().trim().max(2200).optional(),
-      media_url: z.string().url().max(2048).optional(),
-      thumbnail_url: z.string().url().max(2048).optional(),
-      vehicle_id: z.string().uuid().optional(),
-      is_reel: z.boolean().default(false),
-    }).parse(raw),
+    z
+      .object({
+        kind: z.enum(["video", "photo", "telemetry", "event"]).default("photo"),
+        caption: z.string().trim().max(2200).optional(),
+        media_url: z.string().url().max(2048).optional(),
+        thumbnail_url: z.string().url().max(2048).optional(),
+        vehicle_id: z.string().uuid().optional(),
+        is_reel: z.boolean().default(false),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
-      _bucket: "posts", _max_hits: 10, _window_seconds: 3600,
+      _bucket: "posts",
+      _max_hits: 10,
+      _window_seconds: 3600,
     });
-    if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
-      ? "You're posting too fast — take a breather and try again in a bit."
-      : rlErr.message);
+    if (rlErr)
+      throw new Error(
+        rlErr.message.includes("rate_limit_exceeded")
+          ? "You're posting too fast — take a breather and try again in a bit."
+          : rlErr.message,
+      );
     // Server-side moderation — client checks are advisory only. Fail-open on
     // gateway errors (skipped=true), fail-closed on explicit unsafe verdicts.
     if (data.caption && data.caption.trim().length >= 3) {
       const { moderateText } = await import("./moderation-text.server");
       const verdict = await moderateText(data.caption);
       if (!verdict.safe && !verdict.skipped) {
-        throw new Error(`Caption blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+        throw new Error(
+          `Caption blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`,
+        );
       }
     }
     // Only classify still images. Video frames need a dedicated pipeline; a
     // video URL sent to the image classifier confuses the model and can
     // wrongly block a legitimate upload. Prefer the thumbnail when present.
-    const imageUrl = data.kind === "photo"
-      ? data.media_url
-      : data.kind === "video"
-        ? data.thumbnail_url
-        : undefined;
+    const imageUrl =
+      data.kind === "photo"
+        ? data.media_url
+        : data.kind === "video"
+          ? data.thumbnail_url
+          : undefined;
     if (imageUrl) {
       const { moderateImageUrl } = await import("./moderation-image.server");
       const verdict = await moderateImageUrl(imageUrl);
       if (!verdict.safe && !verdict.skipped) {
-        throw new Error(`Image blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+        throw new Error(
+          `Image blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`,
+        );
       }
     }
     const { data: row, error } = await context.supabase
@@ -201,7 +231,9 @@ export const listMyPosts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("posts")
-      .select("id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, created_at")
+      .select(
+        "id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, created_at",
+      )
       .eq("author_id", context.userId)
       .order("created_at", { ascending: false })
       .limit(100);
@@ -225,13 +257,13 @@ export const listMySavedPosts = createServerFn({ method: "GET" })
     if (ids.length === 0) return [];
     const { data: posts, error: pErr } = await sb
       .from("posts")
-      .select("id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url)")
+      .select(
+        "id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url)",
+      )
       .in("id", ids);
     if (pErr) throw new Error(pErr.message);
     const order = new Map(ids.map((id, i) => [id, i]));
-    return (posts ?? []).sort(
-      (a: any, b: any) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
-    );
+    return (posts ?? []).sort((a: any, b: any) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
   });
 
 export const getMyPost = createServerFn({ method: "GET" })
@@ -251,19 +283,23 @@ export const getMyPost = createServerFn({ method: "GET" })
 export const updatePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      id: z.string().uuid(),
-      caption: z.string().trim().max(2200).optional(),
-      media_url: z.string().url().max(2048).optional().or(z.literal("")),
-      thumbnail_url: z.string().url().max(2048).optional().or(z.literal("")),
-    }).parse(raw),
+    z
+      .object({
+        id: z.string().uuid(),
+        caption: z.string().trim().max(2200).optional(),
+        media_url: z.string().url().max(2048).optional().or(z.literal("")),
+        thumbnail_url: z.string().url().max(2048).optional().or(z.literal("")),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { id, ...rest } = data;
     const payload: Record<string, string | null> = {};
     if (rest.caption !== undefined) payload.caption = rest.caption;
-    if (rest.media_url !== undefined) payload.media_url = rest.media_url === "" ? null : rest.media_url;
-    if (rest.thumbnail_url !== undefined) payload.thumbnail_url = rest.thumbnail_url === "" ? null : rest.thumbnail_url;
+    if (rest.media_url !== undefined)
+      payload.media_url = rest.media_url === "" ? null : rest.media_url;
+    if (rest.thumbnail_url !== undefined)
+      payload.thumbnail_url = rest.thumbnail_url === "" ? null : rest.thumbnail_url;
     const { data: row, error } = await context.supabase
       .from("posts")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -293,10 +329,12 @@ export const deletePost = createServerFn({ method: "POST" })
 export const react = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      post_id: z.string().uuid(),
-      kind: z.enum(["like", "save", "share"]),
-    }).parse(raw),
+    z
+      .object({
+        post_id: z.string().uuid(),
+        kind: z.enum(["like", "save", "share"]),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -309,10 +347,12 @@ export const react = createServerFn({ method: "POST" })
 export const unreact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      post_id: z.string().uuid(),
-      kind: z.enum(["like", "save", "share"]),
-    }).parse(raw),
+    z
+      .object({
+        post_id: z.string().uuid(),
+        kind: z.enum(["like", "save", "share"]),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase
@@ -331,11 +371,16 @@ export const follow = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (data.followee_id === context.userId) throw new Error("Cannot follow yourself");
     const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
-      _bucket: "follows", _max_hits: 60, _window_seconds: 3600,
+      _bucket: "follows",
+      _max_hits: 60,
+      _window_seconds: 3600,
     });
-    if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
-      ? "Slow down on the follows — try again in a bit."
-      : rlErr.message);
+    if (rlErr)
+      throw new Error(
+        rlErr.message.includes("rate_limit_exceeded")
+          ? "Slow down on the follows — try again in a bit."
+          : rlErr.message,
+      );
     const { error } = await context.supabase
       .from("follows")
       .insert({ follower_id: context.userId, followee_id: data.followee_id });

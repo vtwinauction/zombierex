@@ -16,7 +16,8 @@ function publicClient() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -45,11 +46,18 @@ export const AD_PLACEMENTS = [
 ] as const;
 
 export const AD_CREATIVE_KINDS = [
-  "post", "reel", "story", "event", "listing", "community", "business_profile", "creator_profile",
+  "post",
+  "reel",
+  "story",
+  "event",
+  "listing",
+  "community",
+  "business_profile",
+  "creator_profile",
 ] as const;
 
-const ObjectiveEnum = z.enum(AD_OBJECTIVES.map(o => o.code) as [string, ...string[]]);
-const PlacementEnum = z.enum(AD_PLACEMENTS.map(p => p.code) as [string, ...string[]]);
+const ObjectiveEnum = z.enum(AD_OBJECTIVES.map((o) => o.code) as [string, ...string[]]);
+const PlacementEnum = z.enum(AD_PLACEMENTS.map((p) => p.code) as [string, ...string[]]);
 const KindEnum = z.enum(AD_CREATIVE_KINDS as unknown as [string, ...string[]]);
 
 /* =========================== CAMPAIGN CRUD =========================== */
@@ -83,19 +91,28 @@ const CreativeInput = z.object({
 
 export const createCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
-    campaign: CampaignInput,
-    creative: CreativeInput,
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        campaign: CampaignInput,
+        creative: CreativeInput,
+      })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
-    const { data: camp, error } = await context.supabase.from("ad_campaigns").insert({
-      owner_id: context.userId,
-      ...(data.campaign as any),
-      status: "draft",
-    } as any).select().single();
+    const { data: camp, error } = await context.supabase
+      .from("ad_campaigns")
+      .insert({
+        owner_id: context.userId,
+        ...(data.campaign as any),
+        status: "draft",
+      } as any)
+      .select()
+      .single();
     if (error) throw new Error(error.message);
     const { error: cErr } = await context.supabase.from("ad_creatives").insert({
-      campaign_id: camp.id, ...(data.creative as any),
+      campaign_id: camp.id,
+      ...(data.creative as any),
     } as any);
     if (cErr) throw new Error(cErr.message);
     return camp;
@@ -105,7 +122,8 @@ export const listMyCampaigns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
-      .from("ad_campaigns").select("*")
+      .from("ad_campaigns")
+      .select("*")
       .eq("owner_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -118,9 +136,17 @@ export const getCampaign = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const [{ data: camp, error }, { data: creatives }, { data: recent }] = await Promise.all([
       context.supabase.from("ad_campaigns").select("*").eq("id", data.id).maybeSingle(),
-      context.supabase.from("ad_creatives").select("*").eq("campaign_id", data.id).order("sort_order"),
-      context.supabase.from("ad_events").select("kind, placement, created_at")
-        .eq("campaign_id", data.id).order("created_at", { ascending: false }).limit(200),
+      context.supabase
+        .from("ad_creatives")
+        .select("*")
+        .eq("campaign_id", data.id)
+        .order("sort_order"),
+      context.supabase
+        .from("ad_events")
+        .select("kind, placement, created_at")
+        .eq("campaign_id", data.id)
+        .order("created_at", { ascending: false })
+        .limit(200),
     ]);
     if (error) throw new Error(error.message);
     return { campaign: camp, creatives: creatives ?? [], recent_events: recent ?? [] };
@@ -128,14 +154,20 @@ export const getCampaign = createServerFn({ method: "GET" })
 
 export const updateCampaignStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
-    id: z.string().uuid(),
-    status: z.enum(["pending","active","paused","completed"]),
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["pending", "active", "paused", "completed"]),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("ad_campaigns")
+    const { error } = await context.supabase
+      .from("ad_campaigns")
       .update({ status: data.status })
-      .eq("id", data.id).eq("owner_id", context.userId);
+      .eq("id", data.id)
+      .eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -144,8 +176,11 @@ export const deleteCampaign = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("ad_campaigns")
-      .delete().eq("id", data.id).eq("owner_id", context.userId);
+    const { error } = await context.supabase
+      .from("ad_campaigns")
+      .delete()
+      .eq("id", data.id)
+      .eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -156,13 +191,18 @@ export const getCampaignAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
-    const { data: camp } = await context.supabase.from("ad_campaigns")
-      .select("owner_id, impressions_count, clicks_count, engagements_count, spent_cents, budget_total_cents")
-      .eq("id", data.id).maybeSingle();
+    const { data: camp } = await context.supabase
+      .from("ad_campaigns")
+      .select(
+        "owner_id, impressions_count, clicks_count, engagements_count, spent_cents, budget_total_cents",
+      )
+      .eq("id", data.id)
+      .maybeSingle();
     if (!camp || camp.owner_id !== context.userId) throw new Error("Not found");
 
     const since = new Date(Date.now() - 30 * 86400000).toISOString();
-    const { data: rows } = await context.supabase.from("ad_events")
+    const { data: rows } = await context.supabase
+      .from("ad_events")
       .select("kind, placement, created_at")
       .eq("campaign_id", data.id)
       .gte("created_at", since)
@@ -191,7 +231,8 @@ export const getCampaignAnalytics = createServerFn({ method: "GET" })
         budget_total_cents: camp.budget_total_cents,
         ctr,
       },
-      by_day: Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b))
+      by_day: Object.entries(byDay)
+        .sort(([a], [b]) => a.localeCompare(b))
         .map(([day, v]) => ({ day, ...v })),
       by_placement: Object.entries(byPlacement).map(([placement, v]) => ({ placement, ...v })),
     };
@@ -200,22 +241,30 @@ export const getCampaignAnalytics = createServerFn({ method: "GET" })
 /* =========================== PUBLIC SPONSORED SLOTS =========================== */
 
 export const listSponsoredCreatives = createServerFn({ method: "GET" })
-  .validator((raw) => z.object({
-    placement: PlacementEnum,
-    limit: z.number().int().min(1).max(10).default(3),
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        placement: PlacementEnum,
+        limit: z.number().int().min(1).max(10).default(3),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data }) => {
     const sb = publicClient();
     // Fetch active campaigns matching placement then join creatives.
-    const { data: rows, error } = await sb.from("ad_creatives")
-      .select("*, campaign:ad_campaigns!inner(id,status,placements,objective,name,owner_id,vendor_id)")
+    const { data: rows, error } = await sb
+      .from("ad_creatives")
+      .select(
+        "*, campaign:ad_campaigns!inner(id,status,placements,objective,name,owner_id,vendor_id)",
+      )
       .eq("is_active", true)
       .limit(data.limit * 3);
     if (error) return [];
-    const filtered = (rows ?? []).filter((r: any) =>
-      r.campaign?.status === "active" &&
-      Array.isArray(r.campaign?.placements) &&
-      r.campaign.placements.includes(data.placement),
+    const filtered = (rows ?? []).filter(
+      (r: any) =>
+        r.campaign?.status === "active" &&
+        Array.isArray(r.campaign?.placements) &&
+        r.campaign.placements.includes(data.placement),
     );
     // Shuffle & cap
     const shuffled = filtered.sort(() => Math.random() - 0.5).slice(0, data.limit);
@@ -226,12 +275,16 @@ export const listSponsoredCreatives = createServerFn({ method: "GET" })
 
 export const logAdEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
-    campaign_id: z.string().uuid(),
-    creative_id: z.string().uuid().optional(),
-    kind: z.enum(["impression","click","engagement","conversion"]),
-    placement: PlacementEnum.optional(),
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        campaign_id: z.string().uuid(),
+        creative_id: z.string().uuid().optional(),
+        kind: z.enum(["impression", "click", "engagement", "conversion"]),
+        placement: PlacementEnum.optional(),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.from("ad_events").insert({
       campaign_id: data.campaign_id,

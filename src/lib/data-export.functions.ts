@@ -12,7 +12,7 @@ export const exportMyData = createServerFn({ method: "POST" })
     const uid = context.userId;
     const supabase = context.supabase;
 
-    const grab = async <T,>(name: string, query: PromiseLike<{ data: T | null }>) => {
+    const grab = async <T>(name: string, query: PromiseLike<{ data: T | null }>) => {
       try {
         const { data } = await query;
         return [name, data ?? []] as const;
@@ -36,9 +36,15 @@ export const exportMyData = createServerFn({ method: "POST" })
         grab("routes", supabase.from("routes").select("*").eq("owner_id", uid)),
         grab("drag_runs", supabase.from("drag_runs").select("*").eq("user_id", uid)),
         grab("messages", supabase.from("messages").select("*").eq("sender_id", uid)),
-        grab("notification_preferences", supabase.from("notification_preferences").select("*").eq("user_id", uid)),
+        grab(
+          "notification_preferences",
+          supabase.from("notification_preferences").select("*").eq("user_id", uid),
+        ),
         grab("achievements", supabase.from("user_achievements").select("*").eq("user_id", uid)),
-        grab("emergency_contacts", supabase.from("emergency_contacts").select("*").eq("user_id", uid)),
+        grab(
+          "emergency_contacts",
+          supabase.from("emergency_contacts").select("*").eq("user_id", uid),
+        ),
       ]),
     );
 

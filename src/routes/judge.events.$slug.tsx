@@ -3,12 +3,16 @@ import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { judgeGetEvent } from "@/lib/judge.functions";
 
 const eventQ = (slug: string) =>
-  queryOptions({ queryKey: ["judge-event", slug], queryFn: () => judgeGetEvent({ data: { slug } }) });
+  queryOptions({
+    queryKey: ["judge-event", slug],
+    queryFn: () => judgeGetEvent({ data: { slug } }),
+  });
 
 export const Route = createFileRoute("/judge/events/$slug")({
   head: ({ loaderData }) => {
     const t = (loaderData as any)?.event?.title ?? "Show";
-    const d = (loaderData as any)?.event?.description ?? "AI-judged motorcycle & car show on ZOMBIEREX.";
+    const d =
+      (loaderData as any)?.event?.description ?? "AI-judged motorcycle & car show on ZOMBIEREX.";
     return {
       meta: [
         { title: `${t} · AI Show Judge` },
@@ -33,7 +37,9 @@ export const Route = createFileRoute("/judge/events/$slug")({
   },
   component: EventDetail,
   notFoundComponent: () => (
-    <div className="p-8 text-center text-[13px]" style={{ color: "var(--color-silver)" }}>Event not found.</div>
+    <div className="p-8 text-center text-[13px]" style={{ color: "var(--color-silver)" }}>
+      Event not found.
+    </div>
   ),
   errorComponent: ({ error }) => (
     <div className="p-8 text-center text-[13px]" style={{ color: "var(--color-silver)" }}>
@@ -51,14 +57,26 @@ function EventDetail() {
   return (
     <div className="pb-24">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ EVENT · {event.status.toUpperCase()}</p>
-        <h1 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>{event.title}</h1>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ EVENT · {event.status.toUpperCase()}
+        </p>
+        <h1 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>
+          {event.title}
+        </h1>
         {event.description && (
-          <p className="mt-2 text-[13px]" style={{ color: "var(--color-silver)" }}>{event.description}</p>
+          <p className="mt-2 text-[13px]" style={{ color: "var(--color-silver)" }}>
+            {event.description}
+          </p>
         )}
         <div className="mt-3 flex gap-2 flex-wrap">
           {(event.vehicle_types ?? []).map((v: string) => (
-            <span key={v} className="chip" style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}>{v}</span>
+            <span
+              key={v}
+              className="chip"
+              style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}
+            >
+              {v}
+            </span>
           ))}
         </div>
         {["open", "judging"].includes(event.status) && (
@@ -66,7 +84,11 @@ function EventDetail() {
             to="/judge/submit/$eventSlug"
             params={{ eventSlug: event.slug }}
             className="mt-4 inline-block px-4 py-2 mono-tag"
-            style={{ background: "var(--color-obsidian)", color: "var(--color-neon)", borderRadius: 8 }}
+            style={{
+              background: "var(--color-obsidian)",
+              color: "var(--color-neon)",
+              borderRadius: 8,
+            }}
           >
             ENTER YOUR BUILD →
           </Link>
@@ -94,16 +116,25 @@ function EventDetail() {
                 style={{ borderRadius: 10 }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="mono-tag" style={{ color: "var(--color-neon)", width: 24 }}>#{i + 1}</span>
+                  <span className="mono-tag" style={{ color: "var(--color-neon)", width: 24 }}>
+                    #{i + 1}
+                  </span>
                   <div>
-                    <p className="serif text-[15px]" style={{ color: "var(--color-ink)" }}>{e.display_name}</p>
+                    <p className="serif text-[15px]" style={{ color: "var(--color-ink)" }}>
+                      {e.display_name}
+                    </p>
                     <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>
                       {[e.year, e.make, e.model].filter(Boolean).join(" ")}
                       {e.city ? ` · ${e.city}` : ""}
                     </p>
                     {e.awards?.length ? (
-                      <p className="mono-tag mt-0.5" style={{ color: "var(--color-neon)", fontSize: 9 }}>
-                        {e.awards.map((a: string) => a.replace(/_/g, " ").toUpperCase()).join(" · ")}
+                      <p
+                        className="mono-tag mt-0.5"
+                        style={{ color: "var(--color-neon)", fontSize: 9 }}
+                      >
+                        {e.awards
+                          .map((a: string) => a.replace(/_/g, " ").toUpperCase())
+                          .join(" · ")}
                       </p>
                     ) : null}
                   </div>

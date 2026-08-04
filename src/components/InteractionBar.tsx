@@ -15,10 +15,10 @@ type ActionKey = "like" | "comment" | "share" | "save";
 type IconCmp = ComponentType<{ size?: number; active?: boolean; className?: string }>;
 
 const ACTIONS: { key: ActionKey; label: string; icon: IconCmp }[] = [
-  { key: "like",    label: "Like",     icon: HeartIcon },
-  { key: "comment", label: "Comment",  icon: CommentIcon },
-  { key: "share",   label: "Share",    icon: ShareIcon },
-  { key: "save",    label: "Save",     icon: BookmarkIcon },
+  { key: "like", label: "Like", icon: HeartIcon },
+  { key: "comment", label: "Comment", icon: CommentIcon },
+  { key: "share", label: "Share", icon: ShareIcon },
+  { key: "save", label: "Save", icon: BookmarkIcon },
 ];
 
 export function InteractionBar({
@@ -71,7 +71,6 @@ export function InteractionBar({
     longPressRef.current = null;
   };
 
-
   const surface: CSSProperties = {
     background: "transparent",
     border: "none",
@@ -104,8 +103,7 @@ export function InteractionBar({
     >
       <div className="grid grid-cols-4 items-center gap-1 px-1">
         {ACTIONS.map(({ key, label, icon: Icon }) => {
-          const active =
-            (key === "like" && liked) || (key === "save" && saved);
+          const active = (key === "like" && liked) || (key === "save" && saved);
 
           const onClick = () => {
             if (key === "save" && longPressedRef.current) {
@@ -113,9 +111,9 @@ export function InteractionBar({
               return;
             }
             // Native haptic feedback — no-op on web (or navigator.vibrate fallback).
-            if (key === "like")        void haptic(liked ? "light" : "medium");
-            else if (key === "save")   void haptic("light");
-            else if (key === "share")  void haptic("medium");
+            if (key === "like") void haptic(liked ? "light" : "medium");
+            else if (key === "save") void haptic("light");
+            else if (key === "share") void haptic("medium");
             else if (key === "comment") void haptic("light");
 
             if (key === "like") toggleLike();
@@ -146,12 +144,13 @@ export function InteractionBar({
               type="button"
               onClick={onClick}
               {...longPressProps}
-              aria-label={key === "save" && isPost ? `${label} (hold to file in a collection)` : label}
+              aria-label={
+                key === "save" && isPost ? `${label} (hold to file in a collection)` : label
+              }
               aria-pressed={active}
               className="tap group relative flex h-12 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl"
               style={{ background: "transparent" }}
             >
-
               <span
                 key={active ? "on" : "off"}
                 className={`transition-transform duration-200 ease-out group-active:scale-90 ${active ? "ibar-pop" : ""}`}
@@ -194,7 +193,8 @@ export function InteractionBar({
               style={{
                 background: status.dot,
                 boxShadow: status.tone === "sync" ? `0 0 6px ${status.dot}` : undefined,
-                animation: status.tone === "sync" ? "engine-pulse 1.4s ease-in-out infinite" : undefined,
+                animation:
+                  status.tone === "sync" ? "engine-pulse 1.4s ease-in-out infinite" : undefined,
               }}
             />
             <span
@@ -244,9 +244,7 @@ function getStatus({
   hasFailed: boolean;
   isSyncing: boolean;
   queuedCount: number;
-}):
-  | { tone: "off" | "sync" | "fail"; text: string; color: string; dot: string }
-  | null {
+}): { tone: "off" | "sync" | "fail"; text: string; color: string; dot: string } | null {
   if (hasFailed) {
     return {
       tone: "fail",

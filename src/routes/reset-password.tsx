@@ -34,8 +34,11 @@ function ResetPasswordPage() {
       setTimeout(() => navigate({ to: "/", replace: true }), 1200);
     } catch (e) {
       setErr(
-        e instanceof z.ZodError ? e.errors[0]?.message ?? "Invalid input"
-        : e instanceof Error ? e.message : "Failed to reset",
+        e instanceof z.ZodError
+          ? (e.errors[0]?.message ?? "Invalid input")
+          : e instanceof Error
+            ? e.message
+            : "Failed to reset",
       );
     } finally {
       setBusy(false);
@@ -46,7 +49,9 @@ function ResetPasswordPage() {
     <div className="flex min-h-[100svh] items-center justify-center px-6 py-10">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <p className="mono-tag" style={{ color: "var(--color-neon)" }}>ZOMBIEREX · RESET</p>
+          <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+            ZOMBIEREX · RESET
+          </p>
           <h1 className="mt-2 display-xl text-3xl">New credentials</h1>
           <p className="mt-1 text-sm" style={{ color: "var(--color-ash)" }}>
             Choose a strong password. Minimum 8 characters.
@@ -54,7 +59,9 @@ function ResetPasswordPage() {
         </div>
         <form onSubmit={onSubmit} className="space-y-3">
           <label className="block">
-            <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>NEW PASSWORD</span>
+            <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
+              NEW PASSWORD
+            </span>
             <input
               type="password"
               required
@@ -66,8 +73,16 @@ function ResetPasswordPage() {
               style={{ borderColor: "var(--color-hairline)" }}
             />
           </label>
-          {err && <p className="text-sm" style={{ color: "var(--color-heat)" }}>{err}</p>}
-          {ok && <p className="text-sm" style={{ color: "var(--color-neon)" }}>Updated. Redirecting…</p>}
+          {err && (
+            <p className="text-sm" style={{ color: "var(--color-heat)" }}>
+              {err}
+            </p>
+          )}
+          {ok && (
+            <p className="text-sm" style={{ color: "var(--color-neon)" }}>
+              Updated. Redirecting…
+            </p>
+          )}
           <button type="submit" disabled={busy || ok} className="btn-solid w-full justify-center">
             {busy ? "…" : "Update password"}
           </button>

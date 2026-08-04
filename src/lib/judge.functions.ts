@@ -89,7 +89,9 @@ export const judgeGetEvent = createServerFn({ method: "GET" })
     if (event.status === "published") {
       const { data: rows } = await supabaseAdmin
         .from("judge_entries")
-        .select("id, display_name, make, model, year, vehicle_type, overall_score, awards, country, city")
+        .select(
+          "id, display_name, make, model, year, vehicle_type, overall_score, awards, country, city",
+        )
         .eq("event_id", event.id)
         .in("status", ["scored", "flagged"])
         .order("overall_score", { ascending: false, nullsFirst: false })
@@ -105,7 +107,9 @@ export const judgeGetEntry = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: entry, error } = await supabaseAdmin
       .from("judge_entries")
-      .select("*, judge_events!inner(id, slug, title, status, is_public, category_weights, award_categories)")
+      .select(
+        "*, judge_events!inner(id, slug, title, status, is_public, category_weights, award_categories)",
+      )
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -113,7 +117,8 @@ export const judgeGetEntry = createServerFn({ method: "GET" })
 
     const evt = entry.judge_events as any;
     const publiclyVisible = evt.status === "published" && evt.is_public && entry.status !== "draft";
-    if (!publiclyVisible) return { entry: null, media: [] as any[], mediaUrls: {} as Record<string, string> };
+    if (!publiclyVisible)
+      return { entry: null, media: [] as any[], mediaUrls: {} as Record<string, string> };
 
     const { data: media } = await supabaseAdmin
       .from("judge_entry_media")
@@ -135,7 +140,18 @@ export const judgeGetLeaderboard = createServerFn({ method: "GET" })
   .validator((raw: unknown) =>
     z
       .object({
-        scope: z.enum(["global", "event", "country", "city", "vehicle_type", "brand", "model", "engine_size"]).default("global"),
+        scope: z
+          .enum([
+            "global",
+            "event",
+            "country",
+            "city",
+            "vehicle_type",
+            "brand",
+            "model",
+            "engine_size",
+          ])
+          .default("global"),
         scope_key: z.string().optional(),
         event_id: z.string().uuid().optional(),
         limit: z.number().int().min(1).max(200).default(50),
@@ -159,7 +175,9 @@ export const judgeGetLeaderboard = createServerFn({ method: "GET" })
     const ids = rows.map((r) => r.entry_id);
     const { data: entries } = await supabaseAdmin
       .from("judge_entries")
-      .select("id, display_name, make, model, year, vehicle_type, awards, country, city, overall_score")
+      .select(
+        "id, display_name, make, model, year, vehicle_type, awards, country, city, overall_score",
+      )
       .in("id", ids);
     const byId = new Map((entries ?? []).map((e) => [e.id, e]));
     return rows.map((r) => ({ ...r, entry: byId.get(r.entry_id) ?? null }));
@@ -172,7 +190,9 @@ export const judgeMyEntries = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("judge_entries")
-      .select("id, event_id, display_name, make, model, year, status, overall_score, awards, created_at, judge_events(slug, title, status)")
+      .select(
+        "id, event_id, display_name, make, model, year, status, overall_score, awards, created_at, judge_events(slug, title, status)",
+      )
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -203,7 +223,8 @@ export const judgeCreateEntry = createServerFn({ method: "POST" })
       .maybeSingle();
     if (e1) throw new Error(e1.message);
     if (!evt) throw new Error("Event not found");
-    if (!["open", "judging"].includes(evt.status)) throw new Error("Event is not accepting entries");
+    if (!["open", "judging"].includes(evt.status))
+      throw new Error("Event is not accepting entries");
 
     const { data: existing } = await context.supabase
       .from("judge_entries")
@@ -237,7 +258,11 @@ export const judgeCreateEntry = createServerFn({ method: "POST" })
 const SignUploadSchema = z.object({
   entry_id: z.string().uuid(),
   kind: MediaKind,
-  filename: z.string().min(1).max(120).regex(/^[A-Za-z0-9._-]+$/, "Invalid filename"),
+  filename: z
+    .string()
+    .min(1)
+    .max(120)
+    .regex(/^[A-Za-z0-9._-]+$/, "Invalid filename"),
   content_type: z.string().min(3).max(120),
 });
 
@@ -260,7 +285,12 @@ export const judgeSignEntryUpload = createServerFn({ method: "POST" })
       .from(JUDGE_BUCKET)
       .createSignedUploadUrl(path);
     if (error) throw new Error(error.message);
-    return { bucket: JUDGE_BUCKET, path: signed.path, token: signed.token, signed_url: signed.signedUrl };
+    return {
+      bucket: JUDGE_BUCKET,
+      path: signed.path,
+      token: signed.token,
+      signed_url: signed.signedUrl,
+    };
   });
 
 const AttachMediaSchema = z.object({
@@ -359,7 +389,10 @@ export const judgeRemoveMedia = createServerFn({ method: "POST" })
     if (entry.status !== "draft") throw new Error("Entry is locked");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.storage.from(JUDGE_BUCKET).remove([media.storage_path]);
-    const { error } = await context.supabase.from("judge_entry_media").delete().eq("id", data.media_id);
+    const { error } = await context.supabase
+      .from("judge_entry_media")
+      .delete()
+      .eq("id", data.media_id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -377,17 +410,23 @@ export const judgeSubmitEntry = createServerFn({ method: "POST" })
       .eq("id", data.entry_id)
       .maybeSingle();
     if (!entry || entry.user_id !== context.userId) throw new Error("Forbidden");
-    if (!["draft", "failed"].includes(entry.status)) throw new Error("Entry cannot be submitted from current status");
+    if (!["draft", "failed"].includes(entry.status))
+      throw new Error("Entry cannot be submitted from current status");
 
     const { data: media } = await context.supabase
       .from("judge_entry_media")
       .select("id, kind")
       .eq("entry_id", data.entry_id);
-    if (!media?.length || media.length < 3) throw new Error("Attach at least 3 media items before submitting");
+    if (!media?.length || media.length < 3)
+      throw new Error("Attach at least 3 media items before submitting");
 
     await context.supabase
       .from("judge_entries")
-      .update({ status: "processing", submitted_at: new Date().toISOString(), processing_error: null })
+      .update({
+        status: "processing",
+        submitted_at: new Date().toISOString(),
+        processing_error: null,
+      })
       .eq("id", data.entry_id);
 
     // Fire-and-await scoring — client shows spinner. Errors flip status to 'failed'.
@@ -410,7 +449,9 @@ async function scoreEntryInternal(entryId: string) {
 
   const { data: entry, error: e1 } = await supabaseAdmin
     .from("judge_entries")
-    .select("id, event_id, vehicle_type, make, model, year, engine_cc, judge_events!inner(category_weights)")
+    .select(
+      "id, event_id, vehicle_type, make, model, year, engine_cc, judge_events!inner(category_weights)",
+    )
     .eq("id", entryId)
     .single();
   if (e1) throw new Error(e1.message);

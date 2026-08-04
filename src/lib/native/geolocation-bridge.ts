@@ -15,7 +15,6 @@ import { loadPlugin } from "./plugins";
 
 let installed = false;
 
-
 type CapPosition = {
   coords: {
     latitude: number;
@@ -31,7 +30,10 @@ type CapPosition = {
 
 type CapGeolocation = {
   requestPermissions: () => Promise<{ location: string }>;
-  getCurrentPosition: (o?: { enableHighAccuracy?: boolean; timeout?: number }) => Promise<CapPosition>;
+  getCurrentPosition: (o?: {
+    enableHighAccuracy?: boolean;
+    timeout?: number;
+  }) => Promise<CapPosition>;
   watchPosition: (
     o: { enableHighAccuracy?: boolean; timeout?: number },
     cb: (pos: CapPosition | null, err?: { message: string }) => void,
@@ -49,10 +51,14 @@ function toGeoPosition(p: CapPosition): GeolocationPosition {
       altitudeAccuracy: p.coords.altitudeAccuracy,
       heading: p.coords.heading,
       speed: p.coords.speed,
-      toJSON() { return this; },
+      toJSON() {
+        return this;
+      },
     } as GeolocationCoordinates,
     timestamp: p.timestamp,
-    toJSON() { return this; },
+    toJSON() {
+      return this;
+    },
   } as GeolocationPosition;
 }
 
@@ -73,7 +79,11 @@ export async function installGeolocationBridge() {
   const Geo = mod.Geolocation;
 
   // Request permission up front so subsequent calls resolve without prompts.
-  try { await Geo.requestPermissions(); } catch { /* ignore, will retry per-call */ }
+  try {
+    await Geo.requestPermissions();
+  } catch {
+    /* ignore, will retry per-call */
+  }
 
   // Map numeric web watchIds -> native string ids so clearWatch(id) works.
   const watches = new Map<number, string>();
@@ -99,11 +109,16 @@ export async function installGeolocationBridge() {
           timeout: options?.timeout ?? 15000,
         },
         (pos, err) => {
-          if (err) { error?.(toGeoError(err.message)); return; }
+          if (err) {
+            error?.(toGeoError(err.message));
+            return;
+          }
           if (pos) success(toGeoPosition(pos));
         },
       )
-        .then((nativeId) => { watches.set(webId, nativeId); })
+        .then((nativeId) => {
+          watches.set(webId, nativeId);
+        })
         .catch((e: unknown) => {
           const msg = e instanceof Error ? e.message : "Location unavailable";
           error?.(toGeoError(msg));
@@ -114,12 +129,16 @@ export async function installGeolocationBridge() {
       const nativeId = watches.get(id);
       if (!nativeId) return;
       watches.delete(id);
-      Geo.clearWatch({ id: nativeId }).catch(() => { /* ignore */ });
+      Geo.clearWatch({ id: nativeId }).catch(() => {
+        /* ignore */
+      });
     },
   };
 
   try {
     Object.defineProperty(navigator, "geolocation", { value: shim, configurable: true });
     installed = true;
-  } catch { /* ignore — leave web fallback */ }
+  } catch {
+    /* ignore — leave web fallback */
+  }
 }

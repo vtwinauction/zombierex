@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 import { getRevenueOverview } from "@/lib/finance.functions";
 import { formatMoney } from "@/lib/commission";
 
@@ -19,7 +29,11 @@ function OverviewPage() {
 
   if (q.isLoading) return <p className="p-6 text-sm opacity-60">Loading revenue…</p>;
   if (q.isError)
-    return <p className="p-6 text-sm" style={{ color: "var(--color-heat)" }}>{(q.error as Error).message}</p>;
+    return (
+      <p className="p-6 text-sm" style={{ color: "var(--color-heat)" }}>
+        {(q.error as Error).message}
+      </p>
+    );
   const d = q.data!;
 
   function exportCsv() {
@@ -37,13 +51,20 @@ function OverviewPage() {
   return (
     <div className="space-y-6 p-5">
       <div className="grid grid-cols-2 gap-3">
-        <Kpi label="Commission earned (all time)" value={formatMoney(d.totals.commission_cents)} accent />
+        <Kpi
+          label="Commission earned (all time)"
+          value={formatMoney(d.totals.commission_cents)}
+          accent
+        />
         <Kpi label="Gross volume (GMV)" value={formatMoney(d.totals.gmv_cents)} />
         <Kpi label="Today's commission" value={formatMoney(d.today.commission_cents)} />
         <Kpi label="This month" value={formatMoney(d.month.commission_cents)} />
         <Kpi label="This year" value={formatMoney(d.year.commission_cents)} />
         <Kpi label="Avg per transaction" value={formatMoney(d.totals.avg_commission_cents)} />
-        <Kpi label="Effective take rate" value={`${(d.totals.effective_take_bps / 100).toFixed(2)}%`} />
+        <Kpi
+          label="Effective take rate"
+          value={`${(d.totals.effective_take_bps / 100).toFixed(2)}%`}
+        />
         <Kpi label="Payouts pending" value={formatMoney(d.totals.payouts_pending_cents)} />
       </div>
 
@@ -57,11 +78,15 @@ function OverviewPage() {
       <section className="card-surface p-4">
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="text-sm tracking-widest opacity-70">COMMISSION · 30 DAYS</h2>
-          <button onClick={exportCsv} className="btn-ghost text-[10px]">Export CSV</button>
+          <button onClick={exportCsv} className="btn-ghost text-[10px]">
+            Export CSV
+          </button>
         </div>
         <div style={{ height: 180 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={d.series.map((s) => ({ ...s, fees: s.fees / 100, gross: s.gross / 100 }))}>
+            <AreaChart
+              data={d.series.map((s) => ({ ...s, fees: s.fees / 100, gross: s.gross / 100 }))}
+            >
               <defs>
                 <linearGradient id="feeGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#00c853" stopOpacity={0.55} />
@@ -72,10 +97,23 @@ function OverviewPage() {
               <XAxis dataKey="day" hide />
               <YAxis width={38} tick={{ fontSize: 10, fill: "rgba(255,255,255,0.4)" }} />
               <Tooltip
-                contentStyle={{ background: "#0b0b0b", border: "1px solid rgba(255,255,255,0.1)", fontSize: 11 }}
-                formatter={(v: any, n: any) => [`$${Number(v).toFixed(2)}`, n === "fees" ? "Commission" : "GMV"]}
+                contentStyle={{
+                  background: "#0b0b0b",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  fontSize: 11,
+                }}
+                formatter={(v: any, n: any) => [
+                  `$${Number(v).toFixed(2)}`,
+                  n === "fees" ? "Commission" : "GMV",
+                ]}
               />
-              <Area type="monotone" dataKey="fees" stroke="#00c853" fill="url(#feeGrad)" strokeWidth={2} />
+              <Area
+                type="monotone"
+                dataKey="fees"
+                stroke="#00c853"
+                fill="url(#feeGrad)"
+                strokeWidth={2}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -93,7 +131,11 @@ function OverviewPage() {
                 <XAxis dataKey="kind" tick={{ fontSize: 9, fill: "rgba(255,255,255,0.5)" }} />
                 <YAxis width={38} tick={{ fontSize: 10, fill: "rgba(255,255,255,0.4)" }} />
                 <Tooltip
-                  contentStyle={{ background: "#0b0b0b", border: "1px solid rgba(255,255,255,0.1)", fontSize: 11 }}
+                  contentStyle={{
+                    background: "#0b0b0b",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    fontSize: 11,
+                  }}
                   formatter={(v: any) => [`$${Number(v).toFixed(2)}`, "Commission"]}
                 />
                 <Bar dataKey="fees" fill="#00c853" radius={[3, 3, 0, 0]} />
@@ -104,7 +146,8 @@ function OverviewPage() {
       </section>
 
       <p className="mono-tag text-[10px] opacity-40">
-        Updated {new Date(d.generatedAt).toLocaleTimeString()} · net to sellers {formatMoney(d.totals.net_to_sellers_cents)}
+        Updated {new Date(d.generatedAt).toLocaleTimeString()} · net to sellers{" "}
+        {formatMoney(d.totals.net_to_sellers_cents)}
       </p>
     </div>
   );
@@ -114,7 +157,10 @@ function Kpi({ label, value, accent }: { label: string; value: string; accent?: 
   return (
     <div className="card-surface p-4">
       <p className="mono-tag text-[10px] opacity-60">{label}</p>
-      <p className="display-xl mt-1 text-2xl tabular-nums" style={{ color: accent ? "#00c853" : "var(--color-ink)" }}>
+      <p
+        className="display-xl mt-1 text-2xl tabular-nums"
+        style={{ color: accent ? "#00c853" : "var(--color-ink)" }}
+      >
         {value}
       </p>
     </div>

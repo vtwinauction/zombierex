@@ -11,7 +11,9 @@ export const Route = createFileRoute("/features/$slug")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Feature not found — ZOMBIEREX" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Feature not found — ZOMBIEREX" }, { name: "robots", content: "noindex" }],
+      };
     }
     const { guide } = loaderData;
     const title = `${guide.title} — How it works | ZOMBIEREX`;
@@ -50,10 +52,13 @@ function FeatureGuidePage() {
 
           <div
             style={{
-              marginTop: 26, borderRadius: 20, padding: 16,
+              marginTop: 26,
+              borderRadius: 20,
+              padding: 16,
               border: "1px solid var(--line, #e6e6e6)",
               background: "#ffffff",
-              display: "flex", justifyContent: "center",
+              display: "flex",
+              justifyContent: "center",
             }}
           >
             <img
@@ -61,15 +66,21 @@ function FeatureGuidePage() {
               alt={guide.imageAlt}
               loading="lazy"
               style={{
-                width: "100%", maxWidth: 300, height: "auto", maxHeight: 620,
-                objectFit: "contain", borderRadius: 14,
+                width: "100%",
+                maxWidth: 300,
+                height: "auto",
+                maxHeight: 620,
+                objectFit: "contain",
+                borderRadius: 14,
                 border: "1px solid var(--line, #e6e6e6)",
               }}
             />
           </div>
 
-
-          <p className="mkt-muted" style={{ marginTop: 22, fontSize: 15, lineHeight: 1.7, maxWidth: 720 }}>
+          <p
+            className="mkt-muted"
+            style={{ marginTop: 22, fontSize: 15, lineHeight: 1.7, maxWidth: 720 }}
+          >
             {guide.intro}
           </p>
 
@@ -78,18 +89,33 @@ function FeatureGuidePage() {
               <div
                 key={s.title}
                 style={{
-                  display: "grid", gridTemplateColumns: "auto minmax(0,1fr)", gap: 14,
-                  padding: "16px 18px", borderRadius: 14,
+                  display: "grid",
+                  gridTemplateColumns: "auto minmax(0,1fr)",
+                  gap: 14,
+                  padding: "16px 18px",
+                  borderRadius: 14,
                   background: "var(--surface, #ffffff)",
                   border: "1px solid var(--line, #e6e6e6)",
                 }}
               >
-                <span style={{ color: "var(--neon)", fontVariantNumeric: "tabular-nums", fontWeight: 700, fontSize: 13 }}>
+                <span
+                  style={{
+                    color: "var(--neon)",
+                    fontVariantNumeric: "tabular-nums",
+                    fontWeight: 700,
+                    fontSize: 13,
+                  }}
+                >
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div style={{ minWidth: 0 }}>
                   <p style={{ fontSize: 14.5, fontWeight: 600 }}>{s.title}</p>
-                  <p className="mkt-muted" style={{ fontSize: 13.5, lineHeight: 1.65, marginTop: 4 }}>{s.body}</p>
+                  <p
+                    className="mkt-muted"
+                    style={{ fontSize: 13.5, lineHeight: 1.65, marginTop: 4 }}
+                  >
+                    {s.body}
+                  </p>
                 </div>
               </div>
             ))}
@@ -98,15 +124,31 @@ function FeatureGuidePage() {
           {guide.tips.length > 0 && (
             <div style={{ marginTop: 26 }}>
               <p className="mkt-eyebrow">Good to know</p>
-              <ul className="mkt-muted" style={{ marginTop: 10, paddingInlineStart: 18, display: "grid", gap: 8, fontSize: 13.5, lineHeight: 1.6 }}>
-                {guide.tips.map((t) => <li key={t}>{t}</li>)}
+              <ul
+                className="mkt-muted"
+                style={{
+                  marginTop: 10,
+                  paddingInlineStart: 18,
+                  display: "grid",
+                  gap: 8,
+                  fontSize: 13.5,
+                  lineHeight: 1.6,
+                }}
+              >
+                {guide.tips.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
               </ul>
             </div>
           )}
 
           <div style={{ marginTop: 38, display: "flex", flexWrap: "wrap", gap: 10 }}>
-            <Link to="/download" className="mkt-btn mkt-btn-neon">Get the app</Link>
-            <Link to="/guide" className="mkt-btn mkt-btn-ghost">Full app guide</Link>
+            <Link to="/download" className="mkt-btn mkt-btn-neon">
+              Get the app
+            </Link>
+            <Link to="/guide" className="mkt-btn mkt-btn-ghost">
+              Full app guide
+            </Link>
             <Link to="/features/$slug" params={{ slug: next.slug }} className="mkt-textlink">
               {next.title} <ArrowRight size={14} />
             </Link>
@@ -123,8 +165,12 @@ function FeatureNotFound() {
       <section className="mkt-section" style={{ borderTop: "none", paddingTop: 72 }}>
         <div className="mkt-wrap">
           <h1>Feature not found</h1>
-          <p className="mkt-muted" style={{ marginTop: 10 }}>That guide doesn't exist yet.</p>
-          <Link to="/guide" className="mkt-btn mkt-btn-neon" style={{ marginTop: 22 }}>Open the app guide</Link>
+          <p className="mkt-muted" style={{ marginTop: 10 }}>
+            That guide doesn't exist yet.
+          </p>
+          <Link to="/guide" className="mkt-btn mkt-btn-neon" style={{ marginTop: 22 }}>
+            Open the app guide
+          </Link>
         </div>
       </section>
     </MarketingShell>

@@ -9,10 +9,10 @@ type NavItem = {
 };
 
 const ITEMS: (NavItem | "center")[] = [
-  { to: "/",       label: "Home",    icon: Home },
-  { to: "/search", label: "Search",  icon: Search },
+  { to: "/", label: "Home", icon: Home },
+  { to: "/search", label: "Search", icon: Search },
   "center",
-  { to: "/reels",  label: "Reels",   icon: Play },
+  { to: "/reels", label: "Reels", icon: Play },
   { to: "/profile", label: "Profile", icon: User },
 ];
 
@@ -41,12 +41,8 @@ export function BottomNav({ hidden = false }: { hidden?: boolean }) {
           it === "center" ? (
             <CenterAtlas key="center" />
           ) : (
-            <NavCell
-              key={it.to}
-              item={it}
-              active={isActive(pathname, it.to)}
-            />
-          )
+            <NavCell key={it.to} item={it} active={isActive(pathname, it.to)} />
+          ),
         )}
       </div>
     </nav>
@@ -157,16 +153,29 @@ function CompassMark() {
 
       {/* cardinal letters */}
       <g fill={NEON} style={{ font: "bold 5px ui-sans-serif, system-ui" }} textAnchor="middle">
-        <text x="24" y="12.2">N</text>
-        <text x="24" y="39.6">S</text>
-        <text x="36.4" y="25.9">E</text>
-        <text x="11.6" y="25.9">W</text>
+        <text x="24" y="12.2">
+          N
+        </text>
+        <text x="24" y="39.6">
+          S
+        </text>
+        <text x="36.4" y="25.9">
+          E
+        </text>
+        <text x="11.6" y="25.9">
+          W
+        </text>
       </g>
 
       {/* needle — north bright, south dim (old-school two-tone) */}
       <g transform="rotate(-8 24 24)">
         <polygon points="24,10 21.6,24 26.4,24" fill={NEON} />
-        <polygon points="24,38 21.6,24 26.4,24" fill="rgba(0,200,83,0.28)" stroke={DIM} strokeWidth="0.4" />
+        <polygon
+          points="24,38 21.6,24 26.4,24"
+          fill="rgba(0,200,83,0.28)"
+          stroke={DIM}
+          strokeWidth="0.4"
+        />
       </g>
 
       {/* pivot cap */}

@@ -15,7 +15,8 @@ function publicClient() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -35,19 +36,30 @@ export const getBusinessBySlug = createServerFn({ method: "GET" })
   .validator((raw) => z.object({ slug: z.string().trim().min(1).max(64) }).parse(raw))
   .handler(async ({ data }) => {
     const sb = publicClient();
-    const { data: v, error } = await sb.from("vendors_public" as any)
-      .select(VENDOR_PUBLIC_COLS).eq("slug", data.slug).maybeSingle();
+    const { data: v, error } = await sb
+      .from("vendors_public" as any)
+      .select(VENDOR_PUBLIC_COLS)
+      .eq("slug", data.slug)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!v) return null;
 
     const [{ data: reviews }, { data: reviewSummary }] = await Promise.all([
-      sb.from("business_reviews").select("id, rating, body, reviewer_id, created_at")
-        .eq("vendor_id", (v as any).id).order("created_at", { ascending: false }).limit(20),
-      sb.from("business_reviews").select("rating").eq("vendor_id", (v as any).id),
+      sb
+        .from("business_reviews")
+        .select("id, rating, body, reviewer_id, created_at")
+        .eq("vendor_id", (v as any).id)
+        .order("created_at", { ascending: false })
+        .limit(20),
+      sb
+        .from("business_reviews")
+        .select("rating")
+        .eq("vendor_id", (v as any).id),
     ]);
     const ratings = (reviewSummary ?? []).map((r: any) => r.rating);
-    const avg = ratings.length ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length : 0;
-
+    const avg = ratings.length
+      ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
+      : 0;
 
     return {
       vendor: v,
@@ -61,37 +73,65 @@ export const getBusinessBySlug = createServerFn({ method: "GET" })
 export const getBusinessDashboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: vendor } = await context.supabase.from("vendors")
-      .select("*").eq("owner_id", context.userId).maybeSingle();
+    const { data: vendor } = await context.supabase
+      .from("vendors")
+      .select("*")
+      .eq("owner_id", context.userId)
+      .maybeSingle();
     if (!vendor) return { vendor: null };
 
     const since = new Date(Date.now() - 30 * 86400000).toISOString();
-    const [{ data: reviews }, { data: campaigns }, { data: events }, { data: posts }] = await Promise.all([
-      context.supabase.from("business_reviews").select("rating, created_at").eq("vendor_id", vendor.id),
-      context.supabase.from("ad_campaigns").select("id, status, impressions_count, clicks_count, engagements_count, budget_total_cents, spent_cents")
-        .eq("vendor_id", vendor.id),
-      context.supabase.from("ad_events").select("kind, placement, created_at")
-        .in("campaign_id",
-          ((await context.supabase.from("ad_campaigns").select("id").eq("vendor_id", vendor.id)).data ?? []).map((c: any) => c.id),
-        ).gte("created_at", since).limit(2000),
-      context.supabase.from("posts").select("id, likes_count, comments_count, shares_count")
-        .eq("author_id", context.userId).order("created_at", { ascending: false }).limit(50),
-    ]);
+    const [{ data: reviews }, { data: campaigns }, { data: events }, { data: posts }] =
+      await Promise.all([
+        context.supabase
+          .from("business_reviews")
+          .select("rating, created_at")
+          .eq("vendor_id", vendor.id),
+        context.supabase
+          .from("ad_campaigns")
+          .select(
+            "id, status, impressions_count, clicks_count, engagements_count, budget_total_cents, spent_cents",
+          )
+          .eq("vendor_id", vendor.id),
+        context.supabase
+          .from("ad_events")
+          .select("kind, placement, created_at")
+          .in(
+            "campaign_id",
+            (
+              (await context.supabase.from("ad_campaigns").select("id").eq("vendor_id", vendor.id))
+                .data ?? []
+            ).map((c: any) => c.id),
+          )
+          .gte("created_at", since)
+          .limit(2000),
+        context.supabase
+          .from("posts")
+          .select("id, likes_count, comments_count, shares_count")
+          .eq("author_id", context.userId)
+          .order("created_at", { ascending: false })
+          .limit(50),
+      ]);
 
     const ratings = (reviews ?? []).map((r: any) => r.rating);
-    const avgRating = ratings.length ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length : 0;
+    const avgRating = ratings.length
+      ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length
+      : 0;
 
     const engagement = (posts ?? []).reduce(
       (s, p: any) => s + (p.likes_count ?? 0) + (p.comments_count ?? 0) + (p.shares_count ?? 0),
       0,
     );
-    const ads = (campaigns ?? []).reduce((s, c: any) => ({
-      impressions: s.impressions + (c.impressions_count ?? 0),
-      clicks: s.clicks + (c.clicks_count ?? 0),
-      spent_cents: s.spent_cents + (c.spent_cents ?? 0),
-      budget_cents: s.budget_cents + (c.budget_total_cents ?? 0),
-      active: s.active + (c.status === "active" ? 1 : 0),
-    }), { impressions: 0, clicks: 0, spent_cents: 0, budget_cents: 0, active: 0 });
+    const ads = (campaigns ?? []).reduce(
+      (s, c: any) => ({
+        impressions: s.impressions + (c.impressions_count ?? 0),
+        clicks: s.clicks + (c.clicks_count ?? 0),
+        spent_cents: s.spent_cents + (c.spent_cents ?? 0),
+        budget_cents: s.budget_cents + (c.budget_total_cents ?? 0),
+        active: s.active + (c.status === "active" ? 1 : 0),
+      }),
+      { impressions: 0, clicks: 0, spent_cents: 0, budget_cents: 0, active: 0 },
+    );
 
     // Group events by day
     const byDay: Record<string, number> = {};
@@ -112,7 +152,8 @@ export const getBusinessDashboard = createServerFn({ method: "GET" })
         is_premium: vendor.is_premium,
       },
       ads,
-      recent_activity: Object.entries(byDay).sort(([a],[b]) => a.localeCompare(b))
+      recent_activity: Object.entries(byDay)
+        .sort(([a], [b]) => a.localeCompare(b))
         .map(([day, count]) => ({ day, count })),
     };
   });
@@ -128,23 +169,29 @@ const ShowcaseItem = z.object({
 
 export const updateBusinessShowcase = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
-    gallery: z.array(z.string().url()).max(30).optional(),
-    portfolio: z.array(ShowcaseItem).max(20).optional(),
-    services_showcase: z.array(ShowcaseItem).max(20).optional(),
-    products_showcase: z.array(ShowcaseItem).max(20).optional(),
-    contact_channels: z.record(z.string(), z.string().max(200)).optional(),
-    operating_hours: z.record(z.string(), z.string().max(60)).optional(),
-    website: z.string().url().max(255).optional(),
-    phone: z.string().max(40).optional(),
-    email: z.string().email().max(255).optional(),
-    description: z.string().max(2000).optional(),
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        gallery: z.array(z.string().url()).max(30).optional(),
+        portfolio: z.array(ShowcaseItem).max(20).optional(),
+        services_showcase: z.array(ShowcaseItem).max(20).optional(),
+        products_showcase: z.array(ShowcaseItem).max(20).optional(),
+        contact_channels: z.record(z.string(), z.string().max(200)).optional(),
+        operating_hours: z.record(z.string(), z.string().max(60)).optional(),
+        website: z.string().url().max(255).optional(),
+        phone: z.string().max(40).optional(),
+        email: z.string().email().max(255).optional(),
+        description: z.string().max(2000).optional(),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
     const patch: any = {};
     for (const [k, v] of Object.entries(data)) if (v !== undefined) patch[k] = v;
-    const { error } = await context.supabase.from("vendors")
-      .update(patch).eq("owner_id", context.userId);
+    const { error } = await context.supabase
+      .from("vendors")
+      .update(patch)
+      .eq("owner_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -153,16 +200,25 @@ export const updateBusinessShowcase = createServerFn({ method: "POST" })
 
 export const submitBusinessReview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
-    vendor_id: z.string().uuid(),
-    rating: z.number().int().min(1).max(5),
-    body: z.string().trim().max(1000).optional(),
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        vendor_id: z.string().uuid(),
+        rating: z.number().int().min(1).max(5),
+        body: z.string().trim().max(1000).optional(),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("business_reviews").upsert({
-      vendor_id: data.vendor_id, reviewer_id: context.userId,
-      rating: data.rating, body: data.body ?? null,
-    } as any, { onConflict: "vendor_id,reviewer_id" });
+    const { error } = await context.supabase.from("business_reviews").upsert(
+      {
+        vendor_id: data.vendor_id,
+        reviewer_id: context.userId,
+        rating: data.rating,
+        body: data.body ?? null,
+      } as any,
+      { onConflict: "vendor_id,reviewer_id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });

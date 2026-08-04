@@ -15,7 +15,10 @@ export const Route = createFileRoute("/notifications")({
   head: () => ({
     meta: [
       { title: "Inbox · ZOMBIEREX" },
-      { name: "description", content: "Your ZOMBIEREX notification inbox — likes, follows, messages, events and more." },
+      {
+        name: "description",
+        content: "Your ZOMBIEREX notification inbox — likes, follows, messages, events and more.",
+      },
       { property: "og:title", content: "Inbox · ZOMBIEREX" },
       { property: "og:description", content: "Your ZOMBIEREX notification inbox." },
     ],
@@ -33,18 +36,68 @@ type NotifRow = {
 };
 
 const KIND_META: Record<string, { tag: string; tone: string; verb: string; group: Filter }> = {
-  like:          { tag: "LIKE", tone: "var(--color-heat, #ff5a3c)",   verb: "liked your post", group: "social" },
-  comment:       { tag: "CMT",  tone: "var(--color-ink, #111)",       verb: "commented on your post", group: "social" },
-  follow:        { tag: "FLW",  tone: "var(--color-cool, #3860ff)",   verb: "started following you", group: "social" },
-  mention:       { tag: "MNTN", tone: "var(--color-plum, #7a3fbf)",   verb: "mentioned you", group: "social" },
-  message:       { tag: "DM",   tone: "var(--color-ink, #111)",       verb: "sent you a message", group: "social" },
-  marketplace:   { tag: "MKT",  tone: "var(--color-signal, #d1a44b)", verb: "activity on your listing", group: "market" },
-  booking:       { tag: "BKG",  tone: "var(--color-signal, #d1a44b)", verb: "booking update", group: "events" },
-  order:         { tag: "ORD",  tone: "var(--color-signal, #d1a44b)", verb: "order update", group: "market" },
-  vendor_update: { tag: "VNDR", tone: "var(--color-plum, #7a3fbf)",   verb: "vendor update", group: "market" },
-  subscription:  { tag: "SUB",  tone: "var(--color-plum, #7a3fbf)",   verb: "subscription update", group: "market" },
-  event:         { tag: "EVT",  tone: "var(--color-neon, #00c853)",   verb: "event update", group: "events" },
-  system:        { tag: "SYS",  tone: "var(--color-ash, #6b6b6b)",    verb: "system notice", group: "system" },
+  like: {
+    tag: "LIKE",
+    tone: "var(--color-heat, #ff5a3c)",
+    verb: "liked your post",
+    group: "social",
+  },
+  comment: {
+    tag: "CMT",
+    tone: "var(--color-ink, #111)",
+    verb: "commented on your post",
+    group: "social",
+  },
+  follow: {
+    tag: "FLW",
+    tone: "var(--color-cool, #3860ff)",
+    verb: "started following you",
+    group: "social",
+  },
+  mention: {
+    tag: "MNTN",
+    tone: "var(--color-plum, #7a3fbf)",
+    verb: "mentioned you",
+    group: "social",
+  },
+  message: {
+    tag: "DM",
+    tone: "var(--color-ink, #111)",
+    verb: "sent you a message",
+    group: "social",
+  },
+  marketplace: {
+    tag: "MKT",
+    tone: "var(--color-signal, #d1a44b)",
+    verb: "activity on your listing",
+    group: "market",
+  },
+  booking: {
+    tag: "BKG",
+    tone: "var(--color-signal, #d1a44b)",
+    verb: "booking update",
+    group: "events",
+  },
+  order: {
+    tag: "ORD",
+    tone: "var(--color-signal, #d1a44b)",
+    verb: "order update",
+    group: "market",
+  },
+  vendor_update: {
+    tag: "VNDR",
+    tone: "var(--color-plum, #7a3fbf)",
+    verb: "vendor update",
+    group: "market",
+  },
+  subscription: {
+    tag: "SUB",
+    tone: "var(--color-plum, #7a3fbf)",
+    verb: "subscription update",
+    group: "market",
+  },
+  event: { tag: "EVT", tone: "var(--color-neon, #00c853)", verb: "event update", group: "events" },
+  system: { tag: "SYS", tone: "var(--color-ash, #6b6b6b)", verb: "system notice", group: "system" },
 };
 
 type Filter = "all" | "unread" | "social" | "market" | "events" | "system";
@@ -94,7 +147,12 @@ function NotificationsPage() {
         .channel(`notif-page-${userId}`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${userId}`,
+          },
           () => {
             qc.invalidateQueries({ queryKey: ["notifications"] });
             qc.invalidateQueries({ queryKey: ["inbox-counts"] });
@@ -112,8 +170,10 @@ function NotificationsPage() {
     onMutate: async (id) => {
       await qc.cancelQueries({ queryKey: ["notifications"] });
       const prev = qc.getQueryData<NotifRow[]>(["notifications"]);
-      qc.setQueryData<NotifRow[]>(["notifications"], (rows) =>
-        rows?.map((r) => (r.id === id ? { ...r, read_at: new Date().toISOString() } : r)) ?? [],
+      qc.setQueryData<NotifRow[]>(
+        ["notifications"],
+        (rows) =>
+          rows?.map((r) => (r.id === id ? { ...r, read_at: new Date().toISOString() } : r)) ?? [],
       );
       return { prev };
     },
@@ -126,8 +186,9 @@ function NotificationsPage() {
       await qc.cancelQueries({ queryKey: ["notifications"] });
       const prev = qc.getQueryData<NotifRow[]>(["notifications"]);
       const now = new Date().toISOString();
-      qc.setQueryData<NotifRow[]>(["notifications"], (rows) =>
-        rows?.map((r) => ({ ...r, read_at: r.read_at ?? now })) ?? [],
+      qc.setQueryData<NotifRow[]>(
+        ["notifications"],
+        (rows) => rows?.map((r) => ({ ...r, read_at: r.read_at ?? now })) ?? [],
       );
       return { prev };
     },
@@ -142,8 +203,9 @@ function NotificationsPage() {
     onMutate: async (ids) => {
       await qc.cancelQueries({ queryKey: ["notifications"] });
       const prev = qc.getQueryData<NotifRow[]>(["notifications"]);
-      qc.setQueryData<NotifRow[]>(["notifications"], (rows) =>
-        rows?.filter((r) => !ids.includes(r.id)) ?? [],
+      qc.setQueryData<NotifRow[]>(
+        ["notifications"],
+        (rows) => rows?.filter((r) => !ids.includes(r.id)) ?? [],
       );
       return { prev };
     },
@@ -225,7 +287,11 @@ function NotificationsPage() {
   }
 
   return (
-    <PullToRefresh onRefresh={async () => { await qc.invalidateQueries({ queryKey: ["notifications"] }); }}>
+    <PullToRefresh
+      onRefresh={async () => {
+        await qc.invalidateQueries({ queryKey: ["notifications"] });
+      }}
+    >
       <div>
         <div className="flex items-end justify-between px-4 pt-6">
           <div>
@@ -256,7 +322,10 @@ function NotificationsPage() {
                 <button
                   className="mono-tag"
                   style={{ color: "var(--color-ash)" }}
-                  onClick={() => { setSelectMode(false); setSelected(new Set()); }}
+                  onClick={() => {
+                    setSelectMode(false);
+                    setSelected(new Set());
+                  }}
                 >
                   CANCEL
                 </button>
@@ -303,27 +372,41 @@ function NotificationsPage() {
           className="mt-4 grid grid-cols-[52px_60px_1fr_auto] gap-3 px-4 py-2 hairline-t hairline-b"
           style={{ background: "var(--color-mist)" }}
         >
-          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>T-MINUS</span>
-          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>TYPE</span>
-          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>EVENT</span>
-          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>ACT</span>
+          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>
+            T-MINUS
+          </span>
+          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>
+            TYPE
+          </span>
+          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>
+            EVENT
+          </span>
+          <span className="mono-tag" style={{ color: "var(--color-ash)" }}>
+            ACT
+          </span>
         </div>
 
         {signedIn === false && (
           <div className="px-4 py-10 text-center">
-            <p className="text-sm" style={{ color: "var(--color-ash)" }}>Sign in to view your notifications.</p>
+            <p className="text-sm" style={{ color: "var(--color-ash)" }}>
+              Sign in to view your notifications.
+            </p>
           </div>
         )}
 
         {signedIn && q.isLoading && (
           <div className="px-4 py-10 text-center">
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>LOADING…</p>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              LOADING…
+            </p>
           </div>
         )}
 
         {signedIn && !q.isLoading && rows.length === 0 && (
           <div className="px-4 py-10 text-center">
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NO SIGNALS</p>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              NO SIGNALS
+            </p>
             <p className="mt-1 text-[13px]" style={{ color: "var(--color-ash)" }}>
               Interactions with your posts, rides, and listings will appear here.
             </p>
@@ -332,7 +415,9 @@ function NotificationsPage() {
 
         {visible.length === 0 && signedIn && !q.isLoading && rows.length > 0 && (
           <div className="px-4 py-10 text-center">
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>ALL CAUGHT UP</p>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              ALL CAUGHT UP
+            </p>
           </div>
         )}
 
@@ -381,16 +466,23 @@ function NotificationsPage() {
                         background: isSelected ? "var(--color-neon)" : "transparent",
                       }}
                     >
-                      {isSelected && <span style={{ color: "var(--color-ink)", fontSize: 10 }}>✓</span>}
+                      {isSelected && (
+                        <span style={{ color: "var(--color-ink)", fontSize: 10 }}>✓</span>
+                      )}
                     </span>
                   ) : unreadRow ? (
                     <span
                       aria-label="Unread"
                       className="ml-2 inline-block h-2 w-2 rounded-full"
-                      style={{ background: "var(--color-neon, #00c853)", boxShadow: "0 0 6px rgba(0,200,83,0.6)" }}
+                      style={{
+                        background: "var(--color-neon, #00c853)",
+                        boxShadow: "0 0 6px rgba(0,200,83,0.6)",
+                      }}
                     />
                   ) : (
-                    <span className="mono-tag" style={{ color: "var(--color-ash)" }}>OPEN →</span>
+                    <span className="mono-tag" style={{ color: "var(--color-ash)" }}>
+                      OPEN →
+                    </span>
                   )}
                 </li>
               );
@@ -399,7 +491,9 @@ function NotificationsPage() {
         )}
 
         <div className="px-4 py-8 text-center">
-          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>END OF LOG</p>
+          <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+            END OF LOG
+          </p>
         </div>
       </div>
     </PullToRefresh>

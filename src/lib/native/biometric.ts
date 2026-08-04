@@ -30,11 +30,15 @@ export async function checkBiometricAvailability(): Promise<BiometryAvailability
       try {
         const res = await bio.checkBiometry();
         const t = String(res?.biometryType ?? "").toLowerCase();
-        const kind: BiometryKind =
-          t.includes("face") ? "faceId" :
-          t.includes("touch") ? "touchId" :
-          t.includes("finger") ? "fingerprint" :
-          t.includes("iris") ? "iris" : "none";
+        const kind: BiometryKind = t.includes("face")
+          ? "faceId"
+          : t.includes("touch")
+            ? "touchId"
+            : t.includes("finger")
+              ? "fingerprint"
+              : t.includes("iris")
+                ? "iris"
+                : "none";
         return { available: !!res?.isAvailable, kind, reason: res?.reason };
       } catch (e) {
         return { available: false, kind: "none", reason: (e as Error)?.message };
@@ -44,7 +48,13 @@ export async function checkBiometricAvailability(): Promise<BiometryAvailability
   }
   // Web fallback via WebAuthn platform authenticator.
   try {
-    const pac = (window as unknown as { PublicKeyCredential?: { isUserVerifyingPlatformAuthenticatorAvailable?: () => Promise<boolean> } }).PublicKeyCredential;
+    const pac = (
+      window as unknown as {
+        PublicKeyCredential?: {
+          isUserVerifyingPlatformAuthenticatorAvailable?: () => Promise<boolean>;
+        };
+      }
+    ).PublicKeyCredential;
     const ok = await pac?.isUserVerifyingPlatformAuthenticatorAvailable?.();
     return { available: !!ok, kind: ok ? "fingerprint" : "none" };
   } catch {
@@ -98,9 +108,16 @@ const DEFAULTS: AppLockPrefs = { enabled: false, graceMs: 60_000 };
 
 export function loadAppLockPrefs(): AppLockPrefs {
   if (typeof window === "undefined") return DEFAULTS;
-  try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(LOCK_KEY) || "{}") }; }
-  catch { return DEFAULTS; }
+  try {
+    return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(LOCK_KEY) || "{}") };
+  } catch {
+    return DEFAULTS;
+  }
 }
 export function saveAppLockPrefs(p: AppLockPrefs) {
-  try { localStorage.setItem(LOCK_KEY, JSON.stringify(p)); } catch { /* quota */ }
+  try {
+    localStorage.setItem(LOCK_KEY, JSON.stringify(p));
+  } catch {
+    /* quota */
+  }
 }

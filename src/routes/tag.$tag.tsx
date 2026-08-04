@@ -34,9 +34,14 @@ function HashtagPage() {
   return (
     <div className="pb-28">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ TAG STREAM</p>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ TAG STREAM
+        </p>
         <h1 className="serif mt-2 text-4xl leading-tight" style={{ color: "var(--color-ink)" }}>
-          #<span className="italic" style={{ color: "var(--color-neon)" }}>{data.tag}</span>
+          #
+          <span className="italic" style={{ color: "var(--color-neon)" }}>
+            {data.tag}
+          </span>
         </h1>
         <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>
           {data.posts.length} POSTS · {data.usage_count} USES
@@ -61,11 +66,15 @@ function HashtagPage() {
 
       {data.posts.length === 0 ? (
         <div className="mx-5 mt-8 surface-1 p-6 text-center" style={{ borderRadius: 10 }}>
-          <p className="serif text-xl italic" style={{ color: "var(--color-ink)" }}>Nothing tagged yet</p>
+          <p className="serif text-xl italic" style={{ color: "var(--color-ink)" }}>
+            Nothing tagged yet
+          </p>
           <p className="mt-1 text-sm" style={{ color: "var(--color-ink-3)" }}>
             Be the first to post with #{data.tag}.
           </p>
-          <Link to="/post/new" className="btn-solid mt-4 inline-block">Create post</Link>
+          <Link to="/post/new" className="btn-solid mt-4 inline-block">
+            Create post
+          </Link>
         </div>
       ) : (
         <div className="mt-5 grid grid-cols-3 gap-[2px] px-[2px]">
@@ -85,7 +94,10 @@ function HashtagPage() {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="grid h-full w-full place-items-center px-2 text-center text-xs" style={{ color: "var(--color-ink-3)" }}>
+                <span
+                  className="grid h-full w-full place-items-center px-2 text-center text-xs"
+                  style={{ color: "var(--color-ink-3)" }}
+                >
                   {p.caption?.slice(0, 60) ?? "—"}
                 </span>
               )}

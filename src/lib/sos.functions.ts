@@ -140,10 +140,12 @@ export const pushSOSPing = createServerFn({ method: "POST" })
 export const closeSOS = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) =>
-    z.object({
-      id: z.string().uuid(),
-      status: z.enum(["cancelled", "resolved"]),
-    }).parse(d),
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["cancelled", "resolved"]),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;

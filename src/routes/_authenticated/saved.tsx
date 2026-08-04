@@ -35,7 +35,11 @@ type Post = {
   likes_count: number;
   comments_count: number;
   created_at: string;
-  author?: { display_name?: string | null; handle?: string | null; avatar_url?: string | null } | null;
+  author?: {
+    display_name?: string | null;
+    handle?: string | null;
+    avatar_url?: string | null;
+  } | null;
 };
 
 type Collection = {
@@ -74,7 +78,8 @@ function SavedPage() {
 
   const collectionPostsQ = useQuery({
     queryKey: ["saved-posts", "collection", activeId],
-    queryFn: () => fetchCollectionPosts({ data: { collection_id: activeId as string } }) as Promise<Post[]>,
+    queryFn: () =>
+      fetchCollectionPosts({ data: { collection_id: activeId as string } }) as Promise<Post[]>,
     enabled: activeId !== "all" && typeof activeId === "string",
     staleTime: 30_000,
   });
@@ -83,7 +88,8 @@ function SavedPage() {
   const isLoading = activeId === "all" ? savedQ.isLoading : collectionPostsQ.isLoading;
 
   const createMut = useMutation({
-    mutationFn: (name: string) => createCol({ data: { name, sort_order: (collectionsQ.data?.length ?? 0) } }),
+    mutationFn: (name: string) =>
+      createCol({ data: { name, sort_order: collectionsQ.data?.length ?? 0 } }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["saved-collections"] });
       setIsAdding(false);
@@ -149,11 +155,15 @@ function SavedPage() {
   const collections = collectionsQ.data ?? [];
 
   return (
-    <PullToRefresh onRefresh={() => Promise.all([
-      qc.invalidateQueries({ queryKey: ["saved-posts"] }),
-      qc.invalidateQueries({ queryKey: ["saved-collections"] }),
-      qc.invalidateQueries({ queryKey: ["saved-posts", "collection", activeId] }),
-    ])}>
+    <PullToRefresh
+      onRefresh={() =>
+        Promise.all([
+          qc.invalidateQueries({ queryKey: ["saved-posts"] }),
+          qc.invalidateQueries({ queryKey: ["saved-collections"] }),
+          qc.invalidateQueries({ queryKey: ["saved-posts", "collection", activeId] }),
+        ])
+      }
+    >
       <div className="px-4 pt-6 pb-24">
         <p className="mono-tag">VAULT · {rows.length} ITEMS</p>
         <h1 className="mt-2 display-xl text-5xl uppercase">Saved</h1>
@@ -195,9 +205,14 @@ function SavedPage() {
 
         {/* Active collection header */}
         {activeId !== "all" && activeCollection && (
-          <div className="mt-4 flex items-center justify-between hairline-t hairline-b px-2 py-3" style={{ background: "var(--color-mist)" }}>
+          <div
+            className="mt-4 flex items-center justify-between hairline-t hairline-b px-2 py-3"
+            style={{ background: "var(--color-mist)" }}
+          >
             <div>
-              <p className="mono-tag" style={{ color: "var(--color-ash)" }}>COLLECTION</p>
+              <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+                COLLECTION
+              </p>
               <p className="text-sm font-semibold">{activeCollection.name}</p>
             </div>
             <button
@@ -232,7 +247,10 @@ function SavedPage() {
             </button>
             <button
               type="button"
-              onClick={() => { setIsAdding(false); setNewName(""); }}
+              onClick={() => {
+                setIsAdding(false);
+                setNewName("");
+              }}
               className="tap mono-tag px-3 py-2"
               style={{ color: "var(--color-ash)" }}
             >
@@ -241,18 +259,26 @@ function SavedPage() {
           </form>
         )}
 
-        {isLoading && <p className="mono-tag mt-10 text-center" style={{ color: "var(--color-ash)" }}>LOADING…</p>}
+        {isLoading && (
+          <p className="mono-tag mt-10 text-center" style={{ color: "var(--color-ash)" }}>
+            LOADING…
+          </p>
+        )}
 
         {!isLoading && rows.length === 0 && (
           <div className="mt-16 text-center">
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>NO SAVES YET</p>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              NO SAVES YET
+            </p>
             <p className="mt-2 text-[13px]" style={{ color: "var(--color-ash)" }}>
               {activeId === "all"
                 ? "Tap the bookmark on any post to stash it here."
                 : "This collection is empty. Add posts from your All Saved list."}
             </p>
             {activeId === "all" && (
-              <Link to="/" className="btn-solid mt-6 inline-block mono-tag">OPEN FEED</Link>
+              <Link to="/" className="btn-solid mt-6 inline-block mono-tag">
+                OPEN FEED
+              </Link>
             )}
           </div>
         )}
@@ -265,7 +291,10 @@ function SavedPage() {
                   <PostThumb post={p} />
                 </Link>
                 <button
-                  onClick={(e) => { e.preventDefault(); setPostMenuId(postMenuId === p.id ? null : p.id); }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPostMenuId(postMenuId === p.id ? null : p.id);
+                  }}
                   className="tap absolute right-1 top-1 h-7 w-7 rounded-full flex items-center justify-center"
                   style={{ background: "rgba(0,0,0,0.55)" }}
                   aria-label="Collection options"
@@ -279,7 +308,10 @@ function SavedPage() {
                   >
                     {activeId !== "all" && (
                       <button
-                        onClick={(e) => { e.preventDefault(); handleRemoveFromCollection(p.id); }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveFromCollection(p.id);
+                        }}
                         className="tap w-full px-3 py-2 text-left text-[12px]"
                         style={{ color: "#ff6b6b" }}
                       >
@@ -291,16 +323,22 @@ function SavedPage() {
                       .map((c) => (
                         <button
                           key={c.id}
-                          onClick={(e) => { e.preventDefault(); handleAddToCollection(p.id, c.id); }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCollection(p.id, c.id);
+                          }}
                           className="tap w-full px-3 py-2 text-left text-[12px]"
                           style={{ color: "var(--color-bone)" }}
                         >
                           Add to “{c.name}”
                         </button>
                       ))}
-                    {collections.filter((c) => c.id !== activeId).length === 0 && activeId === "all" && (
-                      <p className="px-3 py-2 text-[11px]" style={{ color: "var(--color-ash)" }}>No collections yet</p>
-                    )}
+                    {collections.filter((c) => c.id !== activeId).length === 0 &&
+                      activeId === "all" && (
+                        <p className="px-3 py-2 text-[11px]" style={{ color: "var(--color-ash)" }}>
+                          No collections yet
+                        </p>
+                      )}
                   </div>
                 )}
               </li>
@@ -316,7 +354,10 @@ function PostThumb({ post }: { post: Post }) {
   const src = post.thumbnail_url ?? post.media_url ?? "";
   if (!src) {
     return (
-      <div className="grid h-full w-full place-items-center" style={{ background: "var(--color-mist)" }}>
+      <div
+        className="grid h-full w-full place-items-center"
+        style={{ background: "var(--color-mist)" }}
+      >
         <p className="mono-tag px-2 text-center line-clamp-3" style={{ color: "var(--color-ash)" }}>
           {(post.caption ?? "POST").slice(0, 60)}
         </p>
@@ -324,7 +365,22 @@ function PostThumb({ post }: { post: Post }) {
     );
   }
   if (src.match(/\.(mp4|webm|mov)(\?|$)/i)) {
-    return <video src={src} muted playsInline preload="metadata" className="h-full w-full object-cover" />;
+    return (
+      <video
+        src={src}
+        muted
+        playsInline
+        preload="metadata"
+        className="h-full w-full object-cover"
+      />
+    );
   }
-  return <img src={src} alt={post.caption ?? "Saved post"} className="h-full w-full object-cover" loading="lazy" />;
+  return (
+    <img
+      src={src}
+      alt={post.caption ?? "Saved post"}
+      className="h-full w-full object-cover"
+      loading="lazy"
+    />
+  );
 }

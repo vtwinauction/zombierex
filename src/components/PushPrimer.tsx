@@ -52,7 +52,11 @@ export function PushPrimer() {
   };
 
   return (
-    <div className="fixed inset-0 z-[95] flex items-end justify-center bg-black/60 backdrop-blur-sm animate-in fade-in" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-[95] flex items-end justify-center bg-black/60 backdrop-blur-sm animate-in fade-in"
+      role="dialog"
+      aria-modal="true"
+    >
       <div
         className="w-full max-w-md p-6"
         style={{
@@ -63,9 +67,14 @@ export function PushPrimer() {
           paddingBottom: "calc(24px + env(safe-area-inset-bottom))",
         }}
       >
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ STAY IN THE LOOP</p>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ STAY IN THE LOOP
+        </p>
         <h2 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>
-          Get notified <span className="italic" style={{ color: "var(--color-neon)" }}>the moment it matters</span>
+          Get notified{" "}
+          <span className="italic" style={{ color: "var(--color-neon)" }}>
+            the moment it matters
+          </span>
         </h2>
         <ul className="mt-4 space-y-2 text-[13px]" style={{ color: "var(--color-silver)" }}>
           <li>• Group ride check-ins and SOS alerts</li>

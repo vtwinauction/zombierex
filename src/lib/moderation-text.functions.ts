@@ -6,10 +6,12 @@ import { moderateText } from "./moderation-text.server";
 export const checkTextSafety = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      text: z.string().min(1).max(8000),
-      surface: z.enum(["post", "comment", "dm", "bio", "listing"]).optional(),
-    }).parse(raw),
+    z
+      .object({
+        text: z.string().min(1).max(8000),
+        surface: z.enum(["post", "comment", "dm", "bio", "listing"]).optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data }) => {
     return await moderateText(data.text);

@@ -1,6 +1,12 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type VideoHTMLAttributes } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type VideoHTMLAttributes,
+} from "react";
 import { attachHls, isHlsUrl } from "@/lib/hls-attach";
-
 
 /**
  * Video that autoplays muted when visible and pauses off-screen —
@@ -22,94 +28,85 @@ export type AutoplayVideoProps = Omit<VideoHTMLAttributes<HTMLVideoElement>, "mu
   className?: string;
 };
 
-export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(function AutoplayVideo({
-  src,
-  poster,
-  forcePlay,
-  muted = true,
-  onTime,
-  threshold = 0.6,
-  className,
-  onClick,
-  ...rest
-}, forwardedRef) {
-  const ref = useRef<HTMLVideoElement>(null);
-  useImperativeHandle(forwardedRef, () => ref.current as HTMLVideoElement, []);
-  const [inView, setInView] = useState(false);
+export const AutoplayVideo = forwardRef<HTMLVideoElement, AutoplayVideoProps>(
+  function AutoplayVideo(
+    { src, poster, forcePlay, muted = true, onTime, threshold = 0.6, className, onClick, ...rest },
+    forwardedRef,
+  ) {
+    const ref = useRef<HTMLVideoElement>(null);
+    useImperativeHandle(forwardedRef, () => ref.current as HTMLVideoElement, []);
+    const [inView, setInView] = useState(false);
 
-  // Adaptive streaming: HLS sources are attached via hls.js (or natively on Safari).
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || !isHlsUrl(src)) return;
-    let handle: { destroy: () => void } | null = null;
-    let cancelled = false;
-    attachHls(el, src).then((h) => {
-      if (cancelled) h.destroy();
-      else handle = h;
-    });
-    return () => {
-      cancelled = true;
-      handle?.destroy();
-    };
-  }, [src]);
-
-  // Visibility
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || forcePlay !== undefined) return;
-    const io = new IntersectionObserver(
-      ([e]) => setInView(e.intersectionRatio >= threshold),
-      { threshold: [0, threshold, 0.95] },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [forcePlay, threshold]);
-
-
-
-  // Play/pause
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const should = forcePlay ?? inView;
-    if (should) {
-      el.play().catch(() => {
-        // If unmuted autoplay was blocked, retry muted.
-        el.muted = true;
-        el.play().catch(() => {});
+    // Adaptive streaming: HLS sources are attached via hls.js (or natively on Safari).
+    useEffect(() => {
+      const el = ref.current;
+      if (!el || !isHlsUrl(src)) return;
+      let handle: { destroy: () => void } | null = null;
+      let cancelled = false;
+      attachHls(el, src).then((h) => {
+        if (cancelled) h.destroy();
+        else handle = h;
       });
-    } else {
-      el.pause();
-    }
-  }, [inView, forcePlay]);
+      return () => {
+        cancelled = true;
+        handle?.destroy();
+      };
+    }, [src]);
 
-  // Progress
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || !onTime) return;
-    const on = () => onTime(el.currentTime, el.duration || 0);
-    el.addEventListener("timeupdate", on);
-    return () => el.removeEventListener("timeupdate", on);
-  }, [onTime]);
+    // Visibility
+    useEffect(() => {
+      const el = ref.current;
+      if (!el || forcePlay !== undefined) return;
+      const io = new IntersectionObserver(([e]) => setInView(e.intersectionRatio >= threshold), {
+        threshold: [0, threshold, 0.95],
+      });
+      io.observe(el);
+      return () => io.disconnect();
+    }, [forcePlay, threshold]);
 
-  return (
-    <video
-      ref={ref}
-      src={isHlsUrl(src) ? undefined : src}
-      poster={poster}
-      muted={muted}
-      playsInline
-      loop
-      preload="metadata"
-      onClick={onClick}
-      className={className}
-      {...rest}
-    />
-  );
-});
+    // Play/pause
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+      const should = forcePlay ?? inView;
+      if (should) {
+        el.play().catch(() => {
+          // If unmuted autoplay was blocked, retry muted.
+          el.muted = true;
+          el.play().catch(() => {});
+        });
+      } else {
+        el.pause();
+      }
+    }, [inView, forcePlay]);
+
+    // Progress
+    useEffect(() => {
+      const el = ref.current;
+      if (!el || !onTime) return;
+      const on = () => onTime(el.currentTime, el.duration || 0);
+      el.addEventListener("timeupdate", on);
+      return () => el.removeEventListener("timeupdate", on);
+    }, [onTime]);
+
+    return (
+      <video
+        ref={ref}
+        src={isHlsUrl(src) ? undefined : src}
+        poster={poster}
+        muted={muted}
+        playsInline
+        loop
+        preload="metadata"
+        onClick={onClick}
+        className={className}
+        {...rest}
+      />
+    );
+  },
+);
 
 /** True if a URL looks like a video (file or HLS stream) we can render inline. */
 export function isVideoUrl(u?: string | null): boolean {
   return !!u && /\.(mp4|webm|mov|m4v|m3u8)(\?|#|$)/i.test(u);
 }
-

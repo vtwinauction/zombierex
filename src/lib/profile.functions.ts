@@ -17,7 +17,9 @@ export const getMyProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("profiles")
-      .select("id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, contact_phone, contact_email, contact_dm_enabled, is_business, business_address, is_private, allow_messages")
+      .select(
+        "id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, contact_phone, contact_email, contact_dm_enabled, is_business, business_address, is_private, allow_messages",
+      )
       .eq("id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -32,7 +34,7 @@ export const getMyProfileMetrics = createServerFn({ method: "GET" })
       context.supabase
         .from("profiles")
         .select(
-          "id, handle, display_name, bio, website, avatar_url, cover_url, location, tier, is_verified, is_premium, followers_count, following_count, posts_count, listings_count, xp_total, level, streak_days, contact_phone, contact_email, contact_dm_enabled, is_business, business_address"
+          "id, handle, display_name, bio, website, avatar_url, cover_url, location, tier, is_verified, is_premium, followers_count, following_count, posts_count, listings_count, xp_total, level, streak_days, contact_phone, contact_email, contact_dm_enabled, is_business, business_address",
         )
         .eq("id", uid)
         .maybeSingle(),
@@ -49,9 +51,7 @@ export const getMyProfileMetrics = createServerFn({ method: "GET" })
         .from("user_achievements")
         .select("achievement_slug, progress, target, unlocked_at")
         .eq("user_id", uid),
-      context.supabase
-        .from("achievements")
-        .select("slug, title, description, tier, category"),
+      context.supabase.from("achievements").select("slug, title, description, tier, category"),
     ]);
 
     if (profileRes.error) throw new Error(profileRes.error.message);
@@ -61,7 +61,9 @@ export const getMyProfileMetrics = createServerFn({ method: "GET" })
     const userAch = uaRes.data ?? [];
     const allAch = achRes.data ?? [];
 
-    const earnedSlugs = new Set(userAch.filter((r) => r.unlocked_at).map((r) => r.achievement_slug));
+    const earnedSlugs = new Set(
+      userAch.filter((r) => r.unlocked_at).map((r) => r.achievement_slug),
+    );
 
     return {
       profile,
@@ -81,22 +83,24 @@ export const getMyProfileMetrics = createServerFn({ method: "GET" })
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      handle: HandleSchema.optional(),
-      display_name: z.string().trim().min(1).max(80).optional(),
-      bio: z.string().trim().max(500).optional(),
-      location: z.string().trim().max(120).optional(),
-      website: z.string().trim().url().max(255).optional().or(z.literal("")),
-      avatar_url: z.string().url().max(2048).optional().or(z.literal("")),
-      cover_url: z.string().url().max(2048).optional().or(z.literal("")),
-      contact_phone: z.string().trim().max(40).optional().or(z.literal("")),
-      contact_email: z.string().trim().email().max(255).optional().or(z.literal("")),
-      contact_dm_enabled: z.boolean().optional(),
-      is_business: z.boolean().optional(),
-      business_address: z.string().trim().max(240).optional().or(z.literal("")),
-      is_private: z.boolean().optional(),
-      allow_messages: z.enum(["everyone", "followers", "none"]).optional(),
-    }).parse(raw),
+    z
+      .object({
+        handle: HandleSchema.optional(),
+        display_name: z.string().trim().min(1).max(80).optional(),
+        bio: z.string().trim().max(500).optional(),
+        location: z.string().trim().max(120).optional(),
+        website: z.string().trim().url().max(255).optional().or(z.literal("")),
+        avatar_url: z.string().url().max(2048).optional().or(z.literal("")),
+        cover_url: z.string().url().max(2048).optional().or(z.literal("")),
+        contact_phone: z.string().trim().max(40).optional().or(z.literal("")),
+        contact_email: z.string().trim().email().max(255).optional().or(z.literal("")),
+        contact_dm_enabled: z.boolean().optional(),
+        is_business: z.boolean().optional(),
+        business_address: z.string().trim().max(240).optional().or(z.literal("")),
+        is_private: z.boolean().optional(),
+        allow_messages: z.enum(["everyone", "followers", "none"]).optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const payload: Record<string, unknown> = { ...data };
@@ -140,14 +144,16 @@ export const getMyRoles = createServerFn({ method: "GET" })
 export const upsertMyVehicle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      nickname: z.string().trim().min(1).max(80).optional(),
-      make: z.string().trim().min(1).max(60).optional(),
-      model: z.string().trim().min(1).max(80).optional(),
-      year: z.number().int().min(1900).max(2100).optional(),
-      kind: z.enum(["motorcycle", "car", "truck", "scooter", "atv", "other"]).optional(),
-      hero_image_url: z.string().url().max(2048).optional().or(z.literal("")),
-    }).parse(raw),
+    z
+      .object({
+        nickname: z.string().trim().min(1).max(80).optional(),
+        make: z.string().trim().min(1).max(60).optional(),
+        model: z.string().trim().min(1).max(80).optional(),
+        year: z.number().int().min(1900).max(2100).optional(),
+        kind: z.enum(["motorcycle", "car", "truck", "scooter", "atv", "other"]).optional(),
+        hero_image_url: z.string().url().max(2048).optional().or(z.literal("")),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const uid = context.userId;
@@ -187,7 +193,7 @@ export const upsertMyVehicle = createServerFn({ method: "POST" })
       owner_id: uid,
       kind: (data.kind ?? "motorcycle") as string,
       make: data.make ?? "Custom",
-      model: data.model ?? (data.nickname ?? "My Ride"),
+      model: data.model ?? data.nickname ?? "My Ride",
       year: data.year ?? null,
       nickname: data.nickname ?? null,
       hero_image_url: patch.hero_image_url ?? null,

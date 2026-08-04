@@ -18,7 +18,11 @@ function haversine(a: LatLng, b: LatLng) {
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
-export function RouteRecorder({ onFinish }: { onFinish: (data: { path: LatLng[]; distance_m: number; duration_s: number }) => void }) {
+export function RouteRecorder({
+  onFinish,
+}: {
+  onFinish: (data: { path: LatLng[]; distance_m: number; duration_s: number }) => void;
+}) {
   const [tracking, setTracking] = useState(false);
   const [paused, setPaused] = useState(false);
   const [path, setPath] = useState<LatLng[]>([]);
@@ -35,8 +39,12 @@ export function RouteRecorder({ onFinish }: { onFinish: (data: { path: LatLng[];
   }, [tracking, paused]);
 
   function begin() {
-    if (!("geolocation" in navigator)) { setErr("Geolocation not supported"); return; }
-    setTracking(true); setPaused(false);
+    if (!("geolocation" in navigator)) {
+      setErr("Geolocation not supported");
+      return;
+    }
+    setTracking(true);
+    setPaused(false);
     setStart((s) => s ?? Date.now());
     watchId.current = navigator.geolocation.watchPosition(
       (pos) => {
@@ -72,14 +80,21 @@ export function RouteRecorder({ onFinish }: { onFinish: (data: { path: LatLng[];
     });
   }
 
-  useEffect(() => () => { if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current); }, []);
+  useEffect(
+    () => () => {
+      if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+    },
+    [],
+  );
 
   const dur = start ? Math.floor((now - start) / 1000) : 0;
   const speed = dur > 0 ? (distance / dur) * 3.6 : 0;
 
   return (
     <div className="space-y-3">
-      {err && <div className="border border-red-500/40 bg-red-500/10 p-2 text-xs text-red-200">{err}</div>}
+      {err && (
+        <div className="border border-red-500/40 bg-red-500/10 p-2 text-xs text-red-200">{err}</div>
+      )}
       {tracking && (
         <div className="flex justify-center">
           <SpeedoHUD unit="kmh" />
@@ -92,22 +107,43 @@ export function RouteRecorder({ onFinish }: { onFinish: (data: { path: LatLng[];
       </div>
       <div className="flex gap-2">
         {!tracking && (
-          <button onClick={begin} className="tap flex-1 py-3 mono-caps text-sm font-bold" style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
+          <button
+            onClick={begin}
+            className="tap flex-1 py-3 mono-caps text-sm font-bold"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}
+          >
             START RIDE
           </button>
         )}
         {tracking && !paused && (
-          <button onClick={pause} className="tap flex-1 py-3 mono-caps text-sm font-bold" style={{ background: "var(--color-graphite)", color: "white", border: "1px solid var(--color-hair-strong)" }}>
+          <button
+            onClick={pause}
+            className="tap flex-1 py-3 mono-caps text-sm font-bold"
+            style={{
+              background: "var(--color-graphite)",
+              color: "white",
+              border: "1px solid var(--color-hair-strong)",
+            }}
+          >
             PAUSE
           </button>
         )}
         {tracking && paused && (
-          <button onClick={begin} className="tap flex-1 py-3 mono-caps text-sm font-bold" style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
+          <button
+            onClick={begin}
+            className="tap flex-1 py-3 mono-caps text-sm font-bold"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}
+          >
             RESUME
           </button>
         )}
         {tracking && (
-          <button onClick={stopAndSave} disabled={path.length < 2} className="tap flex-1 py-3 mono-caps text-sm font-bold disabled:opacity-40" style={{ background: "var(--color-heat)", color: "white" }}>
+          <button
+            onClick={stopAndSave}
+            disabled={path.length < 2}
+            className="tap flex-1 py-3 mono-caps text-sm font-bold disabled:opacity-40"
+            style={{ background: "var(--color-heat)", color: "white" }}
+          >
             STOP & SAVE
           </button>
         )}
@@ -122,7 +158,9 @@ export function RouteRecorder({ onFinish }: { onFinish: (data: { path: LatLng[];
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="border border-white/10 bg-graphite p-2 text-center">
-      <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 8 }}>{label}</p>
+      <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 8 }}>
+        {label}
+      </p>
       <p className="mono-num text-sm font-bold text-white">{value}</p>
     </div>
   );
@@ -132,5 +170,7 @@ function fmtDur(s: number) {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
-  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}` : `${m}:${String(sec).padStart(2, "0")}`;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
+    : `${m}:${String(sec).padStart(2, "0")}`;
 }

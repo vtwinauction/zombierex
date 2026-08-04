@@ -61,7 +61,9 @@ export const adminJudgeGetEvent = createServerFn({ method: "GET" })
 
     const { data: entries } = await context.supabase
       .from("judge_entries")
-      .select("id, display_name, make, model, year, status, overall_score, awards, fraud_score, created_at")
+      .select(
+        "id, display_name, make, model, year, status, overall_score, awards, fraud_score, created_at",
+      )
       .eq("event_id", data.id)
       .order("overall_score", { ascending: false, nullsFirst: false });
 
@@ -76,7 +78,11 @@ export const adminJudgeGetEvent = createServerFn({ method: "GET" })
 
 const EventUpsertSchema = z.object({
   id: z.string().uuid().optional(),
-  slug: z.string().min(2).max(80).regex(/^[a-z0-9-]+$/),
+  slug: z
+    .string()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/),
   title: z.string().min(2).max(120),
   description: z.string().max(4000).optional().nullable(),
   cover_url: z.string().url().optional().nullable(),
@@ -145,7 +151,9 @@ export const adminJudgeComputeAwards = createServerFn({ method: "POST" })
 
     const { data: entries } = await supabaseAdmin
       .from("judge_entries")
-      .select("id, display_name, make, model, year, vehicle_type, overall_score, category_scores, engine_score, awards")
+      .select(
+        "id, display_name, make, model, year, vehicle_type, overall_score, category_scores, engine_score, awards",
+      )
       .eq("event_id", data.event_id)
       .eq("status", "scored")
       .order("overall_score", { ascending: false });
@@ -170,7 +178,9 @@ export const adminJudgeComputeAwards = createServerFn({ method: "POST" })
 Award categories: ${JSON.stringify(cats)}
 Entries: ${JSON.stringify(summary)}`;
 
-    const res = await aiCompleteJson<{ awards: { category: string; entry_id: string; rationale: string }[] }>(
+    const res = await aiCompleteJson<{
+      awards: { category: string; entry_id: string; rationale: string }[];
+    }>(
       [
         { role: "system", content: "You judge motorcycle & car shows. Be decisive." },
         { role: "user", content: prompt },
@@ -179,7 +189,10 @@ Entries: ${JSON.stringify(summary)}`;
     );
 
     // Reset awards then apply
-    await supabaseAdmin.from("judge_entries").update({ awards: [] as string[] }).eq("event_id", data.event_id);
+    await supabaseAdmin
+      .from("judge_entries")
+      .update({ awards: [] as string[] })
+      .eq("event_id", data.event_id);
 
     const byEntry = new Map<string, { cats: string[]; notes: string[] }>();
     for (const a of res.awards ?? []) {
@@ -201,7 +214,7 @@ Entries: ${JSON.stringify(summary)}`;
     let rank = 1;
     const rows = entries
       .filter((e) => e.overall_score != null)
-      .sort((a, b) => (b.overall_score! - a.overall_score!))
+      .sort((a, b) => b.overall_score! - a.overall_score!)
       .map((e) => ({
         event_id: data.event_id,
         scope: "event" as const,
@@ -270,14 +283,32 @@ export const adminJudgeExportCsv = createServerFn({ method: "GET" })
     await assertAdmin(context.supabase, context.userId);
     const { data: rows } = await context.supabase
       .from("judge_entries")
-      .select("id, display_name, make, model, year, vehicle_type, country, city, status, overall_score, engine_score, exhaust_score, awards, fraud_score")
+      .select(
+        "id, display_name, make, model, year, vehicle_type, country, city, status, overall_score, engine_score, exhaust_score, awards, fraud_score",
+      )
       .eq("event_id", data.event_id)
       .order("overall_score", { ascending: false, nullsFirst: false });
-    const header = "id,name,make,model,year,type,country,city,status,overall,engine,exhaust,awards,fraud";
+    const header =
+      "id,name,make,model,year,type,country,city,status,overall,engine,exhaust,awards,fraud";
     const esc = (v: any) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const body = (rows ?? [])
       .map((r) =>
-        [r.id, r.display_name, r.make, r.model, r.year, r.vehicle_type, r.country, r.city, r.status, r.overall_score, r.engine_score, r.exhaust_score, (r.awards ?? []).join("|"), r.fraud_score]
+        [
+          r.id,
+          r.display_name,
+          r.make,
+          r.model,
+          r.year,
+          r.vehicle_type,
+          r.country,
+          r.city,
+          r.status,
+          r.overall_score,
+          r.engine_score,
+          r.exhaust_score,
+          (r.awards ?? []).join("|"),
+          r.fraud_score,
+        ]
           .map(esc)
           .join(","),
       )

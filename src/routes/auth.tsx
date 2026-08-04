@@ -6,8 +6,6 @@ import { lovable } from "@/integrations/lovable/index";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import jungleBg from "@/assets/auth-jungle-bg.jpg";
 
-
-
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -16,7 +14,8 @@ export const Route = createFileRoute("/auth")({
     ],
   }),
   validateSearch: (raw): { redirect?: string } => {
-    const r = typeof raw.redirect === "string" && raw.redirect.startsWith("/") ? raw.redirect : undefined;
+    const r =
+      typeof raw.redirect === "string" && raw.redirect.startsWith("/") ? raw.redirect : undefined;
     return r ? { redirect: r } : {};
   },
   component: AuthPage,
@@ -87,7 +86,11 @@ function AuthPage() {
           password: parsedPassword,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: displayName || parsedEmail.split("@")[0], dob, tos_accepted_at: new Date().toISOString() },
+            data: {
+              full_name: displayName || parsedEmail.split("@")[0],
+              dob,
+              tos_accepted_at: new Date().toISOString(),
+            },
           },
         });
         if (error) throw error;
@@ -106,9 +109,11 @@ function AuthPage() {
       }
     } catch (e) {
       const message =
-        e instanceof z.ZodError ? e.errors[0]?.message ?? "Invalid input"
-        : e instanceof Error ? e.message
-        : "Something went wrong";
+        e instanceof z.ZodError
+          ? (e.errors[0]?.message ?? "Invalid input")
+          : e instanceof Error
+            ? e.message
+            : "Something went wrong";
       setErr(message);
     } finally {
       setBusy(false);
@@ -171,23 +176,36 @@ function AuthPage() {
         }}
       />
 
-
       <div className="relative w-full max-w-sm space-y-6">
         <div className="flex flex-col items-center text-center">
           <img
             src={brandLogo.url}
             alt="ZOMBIEREX"
             className="h-20 w-20 rounded-2xl object-contain"
-            style={{ filter: "drop-shadow(0 0 22px color-mix(in oklab, var(--color-neon) 45%, transparent))" }}
+            style={{
+              filter:
+                "drop-shadow(0 0 22px color-mix(in oklab, var(--color-neon) 45%, transparent))",
+            }}
           />
-          <p className="mono-tag mt-4 text-xs tracking-[0.4em]" style={{ color: "var(--color-neon)" }}>
+          <p
+            className="mono-tag mt-4 text-xs tracking-[0.4em]"
+            style={{ color: "var(--color-neon)" }}
+          >
             ZOMBIEREX
           </p>
           <h1 className="mt-2 display-xl text-2xl">
-            {mode === "signin" ? "Sign in" : mode === "signup" ? "Create your account" : "Reset access"}
+            {mode === "signin"
+              ? "Sign in"
+              : mode === "signup"
+                ? "Create your account"
+                : "Reset access"}
           </h1>
           <p className="mt-1 text-sm" style={{ color: "var(--color-ash)" }}>
-            {mode === "signin" ? "Welcome back to the garage." : mode === "signup" ? "Free. Takes 20 seconds." : "We'll email you a reset link."}
+            {mode === "signin"
+              ? "Welcome back to the garage."
+              : mode === "signup"
+                ? "Free. Takes 20 seconds."
+                : "We'll email you a reset link."}
           </p>
         </div>
 
@@ -199,137 +217,196 @@ function AuthPage() {
             boxShadow: "0 24px 60px -30px rgba(0,0,0,0.9)",
           }}
         >
-
-
-        {mode !== "forgot" && (
-          <div className="space-y-2">
-            <button
-              onClick={() => oauth("google")}
-              disabled={busy}
-              className="btn-ghost w-full justify-center"
-              type="button"
-            >
-              Continue with Google
-            </button>
-            <button
-              onClick={() => oauth("apple")}
-              disabled={busy}
-              className="btn-ghost w-full justify-center"
-              type="button"
-            >
-              Continue with Apple
-            </button>
-            <div className="flex items-center gap-3 py-2">
-              <span className="h-px flex-1" style={{ background: "var(--color-hairline)" }} />
-              <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>OR</span>
-              <span className="h-px flex-1" style={{ background: "var(--color-hairline)" }} />
-            </div>
-          </div>
-        )}
-
-        <form onSubmit={onSubmit} className="space-y-3">
-          {mode === "signup" && (
-            <label className="block">
-              <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>DISPLAY NAME</span>
-              <input
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                maxLength={80}
-                className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-                style={{ borderColor: "var(--color-hairline)" }}
-                placeholder="Rex Rider"
-              />
-            </label>
-          )}
-          <label className="block">
-            <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>EMAIL</span>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-              style={{ borderColor: "var(--color-hairline)" }}
-              placeholder="you@ride.com"
-            />
-          </label>
           {mode !== "forgot" && (
+            <div className="space-y-2">
+              <button
+                onClick={() => oauth("google")}
+                disabled={busy}
+                className="btn-ghost w-full justify-center"
+                type="button"
+              >
+                Continue with Google
+              </button>
+              <button
+                onClick={() => oauth("apple")}
+                disabled={busy}
+                className="btn-ghost w-full justify-center"
+                type="button"
+              >
+                Continue with Apple
+              </button>
+              <div className="flex items-center gap-3 py-2">
+                <span className="h-px flex-1" style={{ background: "var(--color-hairline)" }} />
+                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
+                  OR
+                </span>
+                <span className="h-px flex-1" style={{ background: "var(--color-hairline)" }} />
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={onSubmit} className="space-y-3">
+            {mode === "signup" && (
+              <label className="block">
+                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
+                  DISPLAY NAME
+                </span>
+                <input
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  maxLength={80}
+                  className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--color-hairline)" }}
+                  placeholder="Rex Rider"
+                />
+              </label>
+            )}
             <label className="block">
-              <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>PASSWORD</span>
+              <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
+                EMAIL
+              </span>
               <input
-                type="password"
+                type="email"
                 required
-                minLength={8}
-                autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
                 style={{ borderColor: "var(--color-hairline)" }}
-                placeholder="At least 8 characters"
+                placeholder="you@ride.com"
               />
             </label>
-          )}
-
-          {mode === "signup" && (
-            <>
+            {mode !== "forgot" && (
               <label className="block">
-                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>DATE OF BIRTH</span>
+                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
+                  PASSWORD
+                </span>
                 <input
-                  type="date"
+                  type="password"
                   required
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  max={new Date().toISOString().slice(0, 10)}
+                  minLength={8}
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-                  style={{ borderColor: "var(--color-hairline)", color: "var(--color-ink)", colorScheme: "dark" }}
+                  style={{ borderColor: "var(--color-hairline)" }}
+                  placeholder="At least 8 characters"
                 />
-                <span className="mt-1 block text-[11px]" style={{ color: "var(--color-ash)" }}>
-                  You must be at least 13 to sign up.
-                </span>
               </label>
+            )}
 
-              <label className="flex items-start gap-2 pt-1 text-xs" style={{ color: "var(--color-ash)" }}>
-                <input
-                  type="checkbox"
-                  checked={agree}
-                  onChange={(e) => setAgree(e.target.checked)}
-                  className="mt-0.5"
-                />
-                <span>
-                  I agree to the{" "}
-                  <Link to="/legal/terms" className="underline" style={{ color: "var(--color-neon)" }}>Terms</Link>,{" "}
-                  <Link to="/legal/privacy" className="underline" style={{ color: "var(--color-neon)" }}>Privacy Policy</Link>, and{" "}
-                  <Link to="/legal/community-guidelines" className="underline" style={{ color: "var(--color-neon)" }}>Community Guidelines</Link>.
-                </span>
-              </label>
-            </>
-          )}
+            {mode === "signup" && (
+              <>
+                <label className="block">
+                  <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
+                    DATE OF BIRTH
+                  </span>
+                  <input
+                    type="date"
+                    required
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    max={new Date().toISOString().slice(0, 10)}
+                    className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
+                    style={{
+                      borderColor: "var(--color-hairline)",
+                      color: "var(--color-ink)",
+                      colorScheme: "dark",
+                    }}
+                  />
+                  <span className="mt-1 block text-[11px]" style={{ color: "var(--color-ash)" }}>
+                    You must be at least 13 to sign up.
+                  </span>
+                </label>
 
-          {err && <p className="text-sm" style={{ color: "var(--color-heat)" }}>{err}</p>}
-          {msg && <p className="text-sm" style={{ color: "var(--color-neon)" }}>{msg}</p>}
+                <label
+                  className="flex items-start gap-2 pt-1 text-xs"
+                  style={{ color: "var(--color-ash)" }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={agree}
+                    onChange={(e) => setAgree(e.target.checked)}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    I agree to the{" "}
+                    <Link
+                      to="/legal/terms"
+                      className="underline"
+                      style={{ color: "var(--color-neon)" }}
+                    >
+                      Terms
+                    </Link>
+                    ,{" "}
+                    <Link
+                      to="/legal/privacy"
+                      className="underline"
+                      style={{ color: "var(--color-neon)" }}
+                    >
+                      Privacy Policy
+                    </Link>
+                    , and{" "}
+                    <Link
+                      to="/legal/community-guidelines"
+                      className="underline"
+                      style={{ color: "var(--color-neon)" }}
+                    >
+                      Community Guidelines
+                    </Link>
+                    .
+                  </span>
+                </label>
+              </>
+            )}
 
-          <button type="submit" disabled={busy} className="btn-solid w-full justify-center">
-            {busy ? "…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
-          </button>
-        </form>
+            {err && (
+              <p className="text-sm" style={{ color: "var(--color-heat)" }}>
+                {err}
+              </p>
+            )}
+            {msg && (
+              <p className="text-sm" style={{ color: "var(--color-neon)" }}>
+                {msg}
+              </p>
+            )}
 
-        <div className="flex justify-between text-xs" style={{ color: "var(--color-ash)" }}>
-          {mode === "signin" ? (
-            <>
-              <button onClick={() => setMode("forgot")} className="underline underline-offset-2">Forgot?</button>
-              <button onClick={() => setMode("signup")} className="underline underline-offset-2">Create account</button>
-            </>
-          ) : (
-            <button onClick={() => setMode("signin")} className="underline underline-offset-2">Back to sign in</button>
-          )}
+            <button type="submit" disabled={busy} className="btn-solid w-full justify-center">
+              {busy
+                ? "…"
+                : mode === "signin"
+                  ? "Sign in"
+                  : mode === "signup"
+                    ? "Create account"
+                    : "Send reset link"}
+            </button>
+          </form>
+
+          <div className="flex justify-between text-xs" style={{ color: "var(--color-ash)" }}>
+            {mode === "signin" ? (
+              <>
+                <button onClick={() => setMode("forgot")} className="underline underline-offset-2">
+                  Forgot?
+                </button>
+                <button onClick={() => setMode("signup")} className="underline underline-offset-2">
+                  Create account
+                </button>
+              </>
+            ) : (
+              <button onClick={() => setMode("signin")} className="underline underline-offset-2">
+                Back to sign in
+              </button>
+            )}
+          </div>
         </div>
-        </div>
-
 
         <div className="text-center">
-          <Link to="/" className="mono-tag text-xs underline underline-offset-2" style={{ color: "var(--color-ash)" }}>
+          <Link
+            to="/"
+            className="mono-tag text-xs underline underline-offset-2"
+            style={{ color: "var(--color-ash)" }}
+          >
             ← Back to home
           </Link>
         </div>

@@ -26,10 +26,14 @@ export const Route = createFileRoute("/judge/entries/$id")({
   },
   component: EntryReport,
   notFoundComponent: () => (
-    <div className="p-8 text-center text-[13px]" style={{ color: "var(--color-silver)" }}>Entry not available.</div>
+    <div className="p-8 text-center text-[13px]" style={{ color: "var(--color-silver)" }}>
+      Entry not available.
+    </div>
   ),
   errorComponent: ({ error }) => (
-    <div className="p-8 text-center text-[13px]" style={{ color: "var(--color-silver)" }}>Failed: {String(error?.message ?? error)}</div>
+    <div className="p-8 text-center text-[13px]" style={{ color: "var(--color-silver)" }}>
+      Failed: {String(error?.message ?? error)}
+    </div>
   ),
 });
 
@@ -47,8 +51,12 @@ function EntryReport() {
   return (
     <div className="pb-24 print:pb-0">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ AI INSPECTION REPORT</p>
-        <h1 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>{e.display_name}</h1>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ AI INSPECTION REPORT
+        </p>
+        <h1 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>
+          {e.display_name}
+        </h1>
         <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", fontSize: 10 }}>
           {[e.year, e.make, e.model].filter(Boolean).join(" ")} · {e.vehicle_type?.toUpperCase()}
           {e.city ? ` · ${e.city}` : ""}
@@ -56,8 +64,13 @@ function EntryReport() {
 
         <div className="mt-4 flex items-end gap-4">
           <div>
-            <p className="mono-tag" style={{ color: "var(--color-silver)" }}>OVERALL</p>
-            <p className="serif text-6xl italic leading-none" style={{ color: "var(--color-neon)" }}>
+            <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
+              OVERALL
+            </p>
+            <p
+              className="serif text-6xl italic leading-none"
+              style={{ color: "var(--color-neon)" }}
+            >
               {e.overall_score ?? "—"}
             </p>
           </div>
@@ -70,8 +83,15 @@ function EntryReport() {
         {e.awards?.length ? (
           <div className="mt-3 flex gap-2 flex-wrap">
             {e.awards.map((a: string) => (
-              <span key={a} className="chip mono-tag"
-                style={{ background: "var(--color-obsidian)", color: "var(--color-neon)", borderColor: "var(--color-obsidian)" }}>
+              <span
+                key={a}
+                className="chip mono-tag"
+                style={{
+                  background: "var(--color-obsidian)",
+                  color: "var(--color-neon)",
+                  borderColor: "var(--color-obsidian)",
+                }}
+              >
                 🏆 {a.replace(/_/g, " ").toUpperCase()}
               </span>
             ))}
@@ -80,16 +100,28 @@ function EntryReport() {
       </header>
 
       <section className="mt-6 px-5">
-        <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>CATEGORY SCORES</p>
+        <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+          CATEGORY SCORES
+        </p>
         <div className="space-y-2">
           {Object.entries(categories).map(([k, v]) => (
             <div key={k} className="surface-1 lift-1 p-3" style={{ borderRadius: 8 }}>
               <div className="flex justify-between">
-                <span className="mono-tag" style={{ color: "var(--color-ink)" }}>{k.replace(/_/g, " ").toUpperCase()}</span>
-                <span className="mono-tag" style={{ color: "var(--color-neon)" }}>{v}</span>
+                <span className="mono-tag" style={{ color: "var(--color-ink)" }}>
+                  {k.replace(/_/g, " ").toUpperCase()}
+                </span>
+                <span className="mono-tag" style={{ color: "var(--color-neon)" }}>
+                  {v}
+                </span>
               </div>
               <div className="mt-1 h-1 rounded" style={{ background: "var(--color-hair)" }}>
-                <div className="h-1 rounded" style={{ width: `${Math.max(0, Math.min(100, v))}%`, background: "var(--color-neon)" }} />
+                <div
+                  className="h-1 rounded"
+                  style={{
+                    width: `${Math.max(0, Math.min(100, v))}%`,
+                    background: "var(--color-neon)",
+                  }}
+                />
               </div>
             </div>
           ))}
@@ -98,17 +130,36 @@ function EntryReport() {
 
       {defects.length > 0 && (
         <section className="mt-6 px-5">
-          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>DETECTED ISSUES</p>
+          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+            DETECTED ISSUES
+          </p>
           <div className="space-y-1.5">
             {defects.map((d, i) => (
-              <div key={i} className="surface-1 lift-1 p-3 flex items-start justify-between gap-3" style={{ borderRadius: 8 }}>
+              <div
+                key={i}
+                className="surface-1 lift-1 p-3 flex items-start justify-between gap-3"
+                style={{ borderRadius: 8 }}
+              >
                 <div>
-                  <p className="text-[13px]" style={{ color: "var(--color-ink)" }}>{d.note ?? d.type}</p>
-                  <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>{(d.type ?? "").toUpperCase()}</p>
+                  <p className="text-[13px]" style={{ color: "var(--color-ink)" }}>
+                    {d.note ?? d.type}
+                  </p>
+                  <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>
+                    {(d.type ?? "").toUpperCase()}
+                  </p>
                 </div>
-                <span className="chip mono-tag"
-                  style={{ color: d.severity === "major" ? "#ff6b6b" : d.severity === "moderate" ? "#ffae42" : "var(--color-silver)",
-                           borderColor: "var(--color-hair-strong)" }}>
+                <span
+                  className="chip mono-tag"
+                  style={{
+                    color:
+                      d.severity === "major"
+                        ? "#ff6b6b"
+                        : d.severity === "moderate"
+                          ? "#ffae42"
+                          : "var(--color-silver)",
+                    borderColor: "var(--color-hair-strong)",
+                  }}
+                >
                   {(d.severity ?? "minor").toUpperCase()}
                 </span>
               </div>
@@ -119,35 +170,53 @@ function EntryReport() {
 
       {highlights.length > 0 && (
         <section className="mt-6 px-5">
-          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>HIGHLIGHTS</p>
+          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+            HIGHLIGHTS
+          </p>
           <ul className="space-y-1 text-[13px]" style={{ color: "var(--color-ink)" }}>
-            {highlights.map((h, i) => <li key={i}>▸ {h}</li>)}
+            {highlights.map((h, i) => (
+              <li key={i}>▸ {h}</li>
+            ))}
           </ul>
         </section>
       )}
 
       {suggestions.length > 0 && (
         <section className="mt-6 px-5">
-          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>SUGGESTED IMPROVEMENTS</p>
+          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+            SUGGESTED IMPROVEMENTS
+          </p>
           <ul className="space-y-1 text-[13px]" style={{ color: "var(--color-ink)" }}>
-            {suggestions.map((s, i) => <li key={i}>▸ {s}</li>)}
+            {suggestions.map((s, i) => (
+              <li key={i}>▸ {s}</li>
+            ))}
           </ul>
         </section>
       )}
 
       {e.ai_comments && (
         <section className="mt-6 px-5">
-          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>JUDGE'S NOTES</p>
-          <p className="text-[13px] whitespace-pre-wrap" style={{ color: "var(--color-ink)" }}>{e.ai_comments}</p>
+          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+            JUDGE'S NOTES
+          </p>
+          <p className="text-[13px] whitespace-pre-wrap" style={{ color: "var(--color-ink)" }}>
+            {e.ai_comments}
+          </p>
         </section>
       )}
 
       {media.length > 0 && (
         <section className="mt-6 px-5">
-          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>MEDIA</p>
+          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+            MEDIA
+          </p>
           <div className="grid grid-cols-2 gap-2">
             {media.map((m) => (
-              <div key={m.id} className="aspect-square overflow-hidden" style={{ background: "var(--color-hair)", borderRadius: 8 }}>
+              <div
+                key={m.id}
+                className="aspect-square overflow-hidden"
+                style={{ background: "var(--color-hair)", borderRadius: 8 }}
+              >
                 {urls[m.id] && (m.mime ?? "").startsWith("image/") && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={urls[m.id]} alt={m.kind} className="h-full w-full object-cover" />
@@ -162,7 +231,11 @@ function EntryReport() {
         <button
           onClick={() => window.print()}
           className="w-full py-3 mono-tag"
-          style={{ background: "var(--color-obsidian)", color: "var(--color-neon)", borderRadius: 8 }}
+          style={{
+            background: "var(--color-obsidian)",
+            color: "var(--color-neon)",
+            borderRadius: 8,
+          }}
         >
           DOWNLOAD REPORT (PRINT / SAVE PDF)
         </button>
@@ -174,8 +247,12 @@ function EntryReport() {
 function MiniStat({ label, v }: { label: string; v: number | null | undefined }) {
   return (
     <div className="surface-1 lift-1 p-2 text-center" style={{ borderRadius: 8 }}>
-      <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>{label.toUpperCase()}</p>
-      <p className="serif text-xl italic" style={{ color: "var(--color-ink)" }}>{v ?? "—"}</p>
+      <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>
+        {label.toUpperCase()}
+      </p>
+      <p className="serif text-xl italic" style={{ color: "var(--color-ink)" }}>
+        {v ?? "—"}
+      </p>
     </div>
   );
 }

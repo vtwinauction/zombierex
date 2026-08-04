@@ -9,7 +9,9 @@ const crashesQuery = queryOptions({
 });
 
 export const Route = createFileRoute("/_authenticated/admin/crashes")({
-  head: () => ({ meta: [{ title: "Crash Reports · ZOMBIEREX" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Crash Reports · ZOMBIEREX" }, { name: "robots", content: "noindex" }],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(crashesQuery),
   component: CrashesPage,
 });
@@ -23,10 +25,11 @@ function timeAgo(iso: string) {
 }
 
 function fingerprint(message: string, stack: string | null | undefined) {
-  const firstFrame = (stack ?? "")
-    .split("\n")
-    .map((s) => s.trim())
-    .find((l) => l.startsWith("at ") || /\.tsx?:\d+/.test(l)) ?? "";
+  const firstFrame =
+    (stack ?? "")
+      .split("\n")
+      .map((s) => s.trim())
+      .find((l) => l.startsWith("at ") || /\.tsx?:\d+/.test(l)) ?? "";
   return `${message.slice(0, 160)}::${firstFrame.slice(0, 200)}`;
 }
 
@@ -74,15 +77,18 @@ function groupRows(rows: Row[]): Group[] {
       });
     } else {
       g.count++;
-      if (r.created_at > g.lastSeen) { g.lastSeen = r.created_at; g.latest = r; }
+      if (r.created_at > g.lastSeen) {
+        g.lastSeen = r.created_at;
+        g.latest = r;
+      }
       if (r.created_at < g.firstSeen) g.firstSeen = r.created_at;
       if (r.route) g.routes.add(r.route);
       if (r.platform) g.platforms.add(r.platform);
       if (r.mechanism) g.mechanisms.add(r.mechanism);
     }
   }
-  return Array.from(map.values()).sort((a, b) =>
-    b.lastSeen.localeCompare(a.lastSeen) || b.count - a.count,
+  return Array.from(map.values()).sort(
+    (a, b) => b.lastSeen.localeCompare(a.lastSeen) || b.count - a.count,
   );
 }
 
@@ -92,27 +98,43 @@ function CrashesPage() {
   const [mode, setMode] = useState<"grouped" | "recent">("grouped");
   const [dismissed, setDismissed] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
-    try { return new Set(JSON.parse(window.localStorage.getItem("zrex.crashes.dismissed") ?? "[]")); }
-    catch { return new Set(); }
+    try {
+      return new Set(JSON.parse(window.localStorage.getItem("zrex.crashes.dismissed") ?? "[]"));
+    } catch {
+      return new Set();
+    }
   });
 
-  const groups = useMemo(() => groupRows(rows).filter((g) => !dismissed.has(g.key)), [rows, dismissed]);
-  const totalHidden = useMemo(() => rows.length - groups.reduce((s, g) => s + g.count, 0), [rows, groups]);
+  const groups = useMemo(
+    () => groupRows(rows).filter((g) => !dismissed.has(g.key)),
+    [rows, dismissed],
+  );
+  const totalHidden = useMemo(
+    () => rows.length - groups.reduce((s, g) => s + g.count, 0),
+    [rows, groups],
+  );
 
   function dismiss(key: string) {
-    const next = new Set(dismissed); next.add(key); setDismissed(next);
-    try { window.localStorage.setItem("zrex.crashes.dismissed", JSON.stringify(Array.from(next))); } catch {}
+    const next = new Set(dismissed);
+    next.add(key);
+    setDismissed(next);
+    try {
+      window.localStorage.setItem("zrex.crashes.dismissed", JSON.stringify(Array.from(next)));
+    } catch {}
   }
   function restoreAll() {
     setDismissed(new Set());
-    try { window.localStorage.removeItem("zrex.crashes.dismissed"); } catch {}
+    try {
+      window.localStorage.removeItem("zrex.crashes.dismissed");
+    } catch {}
   }
 
   return (
     <div className="px-5">
       <div className="flex items-center justify-between">
         <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
-          CRASHES · {rows.length} events · {groups.length} groups{totalHidden > 0 && ` · ${totalHidden} hidden`}
+          CRASHES · {rows.length} events · {groups.length} groups
+          {totalHidden > 0 && ` · ${totalHidden} hidden`}
         </p>
         <div className="flex gap-2">
           <button
@@ -123,7 +145,11 @@ function CrashesPage() {
             {mode === "grouped" ? "SHOW RECENT" : "SHOW GROUPED"}
           </button>
           {dismissed.size > 0 && (
-            <button className="mono-tag tap" onClick={restoreAll} style={{ color: "var(--color-silver)" }}>
+            <button
+              className="mono-tag tap"
+              onClick={restoreAll}
+              style={{ color: "var(--color-silver)" }}
+            >
               RESTORE
             </button>
           )}
@@ -131,17 +157,26 @@ function CrashesPage() {
       </div>
 
       {rows.length === 0 ? (
-        <div className="mt-4 rounded-md border p-6 text-center text-[13px]"
-          style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-silver)" }}>
+        <div
+          className="mt-4 rounded-md border p-6 text-center text-[13px]"
+          style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-silver)" }}
+        >
           No crashes reported. All systems nominal.
         </div>
       ) : mode === "grouped" ? (
         <ul className="mt-3 space-y-2">
           {groups.map((g) => (
-            <li key={g.key} className="p-3" style={{ border: "1px solid var(--color-hair-strong)", borderRadius: 6 }}>
+            <li
+              key={g.key}
+              className="p-3"
+              style={{ border: "1px solid var(--color-hair-strong)", borderRadius: 6 }}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate text-[13px] font-medium" style={{ color: "var(--color-ink)" }}>
+                  <p
+                    className="truncate text-[13px] font-medium"
+                    style={{ color: "var(--color-ink)" }}
+                  >
                     {g.message}
                   </p>
                   <p className="mono-tag mt-1" style={{ color: "var(--color-silver)" }}>
@@ -158,23 +193,36 @@ function CrashesPage() {
                 </button>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
-                {Array.from(g.routes).slice(0, 4).map((r) => (
-                  <span key={r} className="mono-tag" style={{ color: "var(--color-neon)" }}>{r}</span>
-                ))}
+                {Array.from(g.routes)
+                  .slice(0, 4)
+                  .map((r) => (
+                    <span key={r} className="mono-tag" style={{ color: "var(--color-neon)" }}>
+                      {r}
+                    </span>
+                  ))}
                 {Array.from(g.platforms).map((p) => (
-                  <span key={p} className="mono-tag" style={{ color: "var(--color-silver)" }}>{p}</span>
+                  <span key={p} className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                    {p}
+                  </span>
                 ))}
                 {Array.from(g.mechanisms).map((m) => (
-                  <span key={m} className="mono-tag" style={{ color: "var(--color-silver)" }}>{m}</span>
+                  <span key={m} className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                    {m}
+                  </span>
                 ))}
               </div>
               {g.stack && (
                 <details className="mt-2">
-                  <summary className="mono-tag cursor-pointer" style={{ color: "var(--color-silver)" }}>
+                  <summary
+                    className="mono-tag cursor-pointer"
+                    style={{ color: "var(--color-silver)" }}
+                  >
                     STACK TRACE (latest)
                   </summary>
-                  <pre className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-[11px] leading-tight"
-                    style={{ color: "var(--color-silver)" }}>
+                  <pre
+                    className="mt-2 max-h-64 overflow-auto whitespace-pre-wrap text-[11px] leading-tight"
+                    style={{ color: "var(--color-silver)" }}
+                  >
                     {g.stack}
                   </pre>
                 </details>
@@ -185,16 +233,40 @@ function CrashesPage() {
       ) : (
         <ul className="mt-3 space-y-2">
           {rows.slice(0, 100).map((r) => (
-            <li key={r.id} className="p-3" style={{ border: "1px solid var(--color-hair-strong)", borderRadius: 6 }}>
+            <li
+              key={r.id}
+              className="p-3"
+              style={{ border: "1px solid var(--color-hair-strong)", borderRadius: 6 }}
+            >
               <div className="flex items-start justify-between gap-3">
-                <p className="text-[13px] font-medium" style={{ color: "var(--color-ink)" }}>{r.message}</p>
-                <span className="mono-tag shrink-0" style={{ color: "var(--color-silver)" }}>{timeAgo(r.created_at)}</span>
+                <p className="text-[13px] font-medium" style={{ color: "var(--color-ink)" }}>
+                  {r.message}
+                </p>
+                <span className="mono-tag shrink-0" style={{ color: "var(--color-silver)" }}>
+                  {timeAgo(r.created_at)}
+                </span>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
-                {r.route && <span className="mono-tag" style={{ color: "var(--color-neon)" }}>{r.route}</span>}
-                {r.platform && <span className="mono-tag" style={{ color: "var(--color-silver)" }}>{r.platform}</span>}
-                {r.mechanism && <span className="mono-tag" style={{ color: "var(--color-silver)" }}>{r.mechanism}</span>}
-                {r.app_version && <span className="mono-tag" style={{ color: "var(--color-silver)" }}>v{r.app_version}</span>}
+                {r.route && (
+                  <span className="mono-tag" style={{ color: "var(--color-neon)" }}>
+                    {r.route}
+                  </span>
+                )}
+                {r.platform && (
+                  <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                    {r.platform}
+                  </span>
+                )}
+                {r.mechanism && (
+                  <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                    {r.mechanism}
+                  </span>
+                )}
+                {r.app_version && (
+                  <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                    v{r.app_version}
+                  </span>
+                )}
               </div>
             </li>
           ))}

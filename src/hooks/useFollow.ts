@@ -18,28 +18,54 @@ export function useFollow(id: string, label?: string) {
   useEffect(() => {
     let alive = true;
     (async () => {
-      if (!isUuid) { if (alive) { setFollowing(false); setReady(true); } return; }
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { if (alive) { setFollowing(false); setReady(true); } return; }
+      if (!isUuid) {
+        if (alive) {
+          setFollowing(false);
+          setReady(true);
+        }
+        return;
+      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        if (alive) {
+          setFollowing(false);
+          setReady(true);
+        }
+        return;
+      }
       const { data } = await supabase
         .from("follows")
         .select("follower_id")
         .eq("follower_id", user.id)
         .eq("followee_id", id)
         .maybeSingle();
-      if (alive) { setFollowing(!!data); setReady(true); }
+      if (alive) {
+        setFollowing(!!data);
+        setReady(true);
+      }
     })();
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [id, isUuid]);
-
 
   const toggle = useCallback(
     async (e?: { stopPropagation?: () => void; preventDefault?: () => void }) => {
       e?.stopPropagation?.();
       e?.preventDefault?.();
-      if (!isUuid) { toast.error("This rider isn't on the network yet"); return; }
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { toast.error("Sign in to follow riders"); return; }
+      if (!isUuid) {
+        toast.error("This rider isn't on the network yet");
+        return;
+      }
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Sign in to follow riders");
+        return;
+      }
 
       const next = !following;
       setFollowing(next); // optimistic

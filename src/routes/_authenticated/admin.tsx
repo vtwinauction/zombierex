@@ -23,7 +23,17 @@ function AdminShell() {
   const { data: stats } = useSuspenseQuery(statsQuery);
   const path = useRouterState({ select: (s) => s.location.pathname });
 
-  const tabs: { to: "/admin" | "/admin/vendors" | "/admin/crashes" | "/admin/judge" | "/admin/health" | "/admin/moderation"; label: string; exact?: boolean }[] = [
+  const tabs: {
+    to:
+      | "/admin"
+      | "/admin/vendors"
+      | "/admin/crashes"
+      | "/admin/judge"
+      | "/admin/health"
+      | "/admin/moderation";
+    label: string;
+    exact?: boolean;
+  }[] = [
     { to: "/admin", label: "Overview", exact: true },
     { to: "/admin/vendors", label: "Vendors" },
     { to: "/admin/moderation", label: "Moderation" },
@@ -35,9 +45,14 @@ function AdminShell() {
   return (
     <div className="pb-24">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ ADMIN CONSOLE</p>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ ADMIN CONSOLE
+        </p>
         <h1 className="serif mt-2 text-4xl leading-tight" style={{ color: "var(--color-ink)" }}>
-          Moderation <span className="italic" style={{ color: "var(--color-neon)" }}>bay</span>
+          Moderation{" "}
+          <span className="italic" style={{ color: "var(--color-neon)" }}>
+            bay
+          </span>
         </h1>
 
         <div className="mt-4 grid grid-cols-4 gap-2">
@@ -78,8 +93,13 @@ function AdminShell() {
 function Stat({ k, v, hi }: { k: string; v: number; hi?: boolean }) {
   return (
     <div className="surface-1 lift-1 p-3" style={{ borderRadius: 8 }}>
-      <p className="mono-tag" style={{ color: "var(--color-silver)" }}>{k}</p>
-      <p className="serif mt-1 text-2xl italic" style={{ color: hi ? "var(--color-neon)" : "var(--color-ink)" }}>
+      <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
+        {k}
+      </p>
+      <p
+        className="serif mt-1 text-2xl italic"
+        style={{ color: hi ? "var(--color-neon)" : "var(--color-ink)" }}
+      >
         {v}
       </p>
     </div>

@@ -1,7 +1,10 @@
 /**
  * Voice cues — Web Speech API wrapper. Safe no-op when unsupported.
  */
-export function speak(text: string, opts?: { rate?: number; pitch?: number; volume?: number; lang?: string }) {
+export function speak(
+  text: string,
+  opts?: { rate?: number; pitch?: number; volume?: number; lang?: string },
+) {
   if (typeof window === "undefined") return;
   const s = window.speechSynthesis;
   if (!s) return;
@@ -13,12 +16,18 @@ export function speak(text: string, opts?: { rate?: number; pitch?: number; volu
     u.lang = opts?.lang ?? "en-US";
     s.cancel();
     s.speak(u);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 export function cancelSpeech() {
   if (typeof window === "undefined") return;
-  try { window.speechSynthesis?.cancel(); } catch { /* ignore */ }
+  try {
+    window.speechSynthesis?.cancel();
+  } catch {
+    /* ignore */
+  }
 }
 
 export function isSpeechSupported() {

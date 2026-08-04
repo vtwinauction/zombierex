@@ -60,7 +60,9 @@ export async function reportCrash(error: unknown, extra: Partial<Payload> = {}) 
     stack,
     route: window.location.pathname,
     userAgent: navigator.userAgent.slice(0, 500),
-    platform: (window as { Capacitor?: { getPlatform?: () => string } }).Capacitor?.getPlatform?.() ?? "web",
+    platform:
+      (window as { Capacitor?: { getPlatform?: () => string } }).Capacitor?.getPlatform?.() ??
+      "web",
     appVersion: (import.meta.env.VITE_APP_VERSION as string | undefined) ?? "dev",
     mechanism: extra.mechanism ?? "manual",
     userId,

@@ -12,9 +12,22 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 });
 
 const INTERESTS = [
-  "Sportbikes", "Cruisers", "Adventure", "Cafe racers", "Vintage", "Electric",
-  "Trackdays", "MotoGP", "Off-road", "Rally", "Supercars", "Muscle cars",
-  "Drifting", "Mods", "Maintenance", "Gear",
+  "Sportbikes",
+  "Cruisers",
+  "Adventure",
+  "Cafe racers",
+  "Vintage",
+  "Electric",
+  "Trackdays",
+  "MotoGP",
+  "Off-road",
+  "Rally",
+  "Supercars",
+  "Muscle cars",
+  "Drifting",
+  "Mods",
+  "Maintenance",
+  "Gear",
 ];
 
 type Result = Awaited<ReturnType<typeof onboardingRecommendations>>;
@@ -31,7 +44,8 @@ function OnboardingPage() {
   }
 
   async function submit() {
-    setBusy(true); setError(null);
+    setBusy(true);
+    setError(null);
     try {
       const res = await call({ data: { interests: picked } });
       setResult(res);
@@ -45,9 +59,14 @@ function OnboardingPage() {
   return (
     <div className="pb-32">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ PERSONALIZE</p>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ PERSONALIZE
+        </p>
         <h1 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>
-          Tune ZOMBIEREX to <span className="italic" style={{ color: "var(--color-neon)" }}>your ride</span>
+          Tune ZOMBIEREX to{" "}
+          <span className="italic" style={{ color: "var(--color-neon)" }}>
+            your ride
+          </span>
         </h1>
         <p className="mt-2 text-[12px]" style={{ color: "var(--color-silver)" }}>
           Pick a few interests. REX will hand-pick crews, events, listings, and creators for you.
@@ -93,7 +112,9 @@ function OnboardingPage() {
               {busy ? "REX is curating…" : "Get my recommendations"}
             </button>
             {error && (
-              <p className="mt-3 text-[12px]" style={{ color: "#ff8080" }}>{error}</p>
+              <p className="mt-3 text-[12px]" style={{ color: "#ff8080" }}>
+                {error}
+              </p>
             )}
           </div>
         </>
@@ -105,7 +126,9 @@ function OnboardingPage() {
             {result.clubs.map((c: any) => (
               <Link key={c.id} to={`/communities/${c.slug}` as any} className="row">
                 <div>
-                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>{c.name}</div>
+                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>
+                    {c.name}
+                  </div>
                   <div className="text-[11px]" style={{ color: "var(--color-silver)" }}>
                     {(c.members_count ?? 0).toLocaleString()} members
                   </div>
@@ -117,7 +140,9 @@ function OnboardingPage() {
             {result.events.map((e: any) => (
               <Link key={e.id} to={`/events/${e.id}` as any} className="row">
                 <div>
-                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>{e.title}</div>
+                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>
+                    {e.title}
+                  </div>
                   <div className="text-[11px]" style={{ color: "var(--color-silver)" }}>
                     {e.location ?? "TBA"} · {new Date(e.starts_at).toLocaleDateString()}
                   </div>
@@ -129,7 +154,9 @@ function OnboardingPage() {
             {result.listings.map((l: any) => (
               <Link key={l.id} to={`/marketplace/${l.id}` as any} className="row">
                 <div>
-                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>{l.title}</div>
+                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>
+                    {l.title}
+                  </div>
                   <div className="text-[11px]" style={{ color: "var(--color-silver)" }}>
                     {(l.price_cents / 100).toLocaleString()} {l.currency}
                   </div>
@@ -141,7 +168,9 @@ function OnboardingPage() {
             {result.creators.map((c: any) => (
               <Link key={c.id} to={`/creator/${c.id}` as any} className="row">
                 <div>
-                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>{c.tagline ?? c.category}</div>
+                  <div className="text-[13px]" style={{ color: "var(--color-ink)" }}>
+                    {c.tagline ?? c.category}
+                  </div>
                   <div className="text-[11px]" style={{ color: "var(--color-silver)" }}>
                     {(c.subscribers_count ?? 0).toLocaleString()} subscribers
                   </div>
@@ -171,10 +200,10 @@ function OnboardingPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section>
-      <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>{title.toUpperCase()}</p>
-      <div className="space-y-1.5">
-        {children}
-      </div>
+      <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+        {title.toUpperCase()}
+      </p>
+      <div className="space-y-1.5">{children}</div>
       <style>{`
         .row {
           display: flex; align-items: center; justify-content: space-between;

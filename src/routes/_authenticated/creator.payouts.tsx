@@ -8,7 +8,10 @@ export const Route = createFileRoute("/_authenticated/creator/payouts")({
   head: () => ({
     meta: [
       { title: "Payouts · ZOMBIEREX" },
-      { name: "description", content: "Track tips, subscribers, and lifetime earnings from your ZOMBIEREX audience." },
+      {
+        name: "description",
+        content: "Track tips, subscribers, and lifetime earnings from your ZOMBIEREX audience.",
+      },
       { property: "og:title", content: "Creator Payouts · ZOMBIEREX" },
       { property: "og:description", content: "Every tip and subscription, one clean ledger." },
     ],
@@ -18,7 +21,9 @@ export const Route = createFileRoute("/_authenticated/creator/payouts")({
 
 function money(cents: number, currency = "USD") {
   try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency }).format((cents ?? 0) / 100);
+    return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(
+      (cents ?? 0) / 100,
+    );
   } catch {
     return `$${((cents ?? 0) / 100).toFixed(2)}`;
   }
@@ -35,12 +40,20 @@ function PayoutsPage() {
   if (!q.isLoading && data && !data.is_creator) {
     return (
       <div className="px-4 pt-20 pb-24 text-center">
-        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>NOT A CREATOR</p>
-        <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>Apply first</h1>
+        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+          NOT A CREATOR
+        </p>
+        <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>
+          Apply first
+        </h1>
         <p className="mt-2 text-[13px]" style={{ color: "var(--color-silver)" }}>
           Only approved creators can earn tips and subscriptions.
         </p>
-        <Link to="/creator/apply" className="btn-neon mt-6 inline-block" style={{ padding: "12px 18px", fontSize: 11 }}>
+        <Link
+          to="/creator/apply"
+          className="btn-neon mt-6 inline-block"
+          style={{ padding: "12px 18px", fontSize: 11 }}
+        >
           BECOME A CREATOR ▸
         </Link>
       </div>
@@ -50,14 +63,28 @@ function PayoutsPage() {
   const s = data?.summary;
 
   return (
-    <PullToRefresh onRefresh={async () => { await q.refetch(); }}>
+    <PullToRefresh
+      onRefresh={async () => {
+        await q.refetch();
+      }}
+    >
       <div className="pb-24">
         <div className="flex items-end justify-between px-4 pt-6">
           <div>
-            <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>LEDGER</p>
-            <h1 className="serif mt-2 text-4xl italic" style={{ color: "var(--color-ink)" }}>Payouts</h1>
+            <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+              LEDGER
+            </p>
+            <h1 className="serif mt-2 text-4xl italic" style={{ color: "var(--color-ink)" }}>
+              Payouts
+            </h1>
           </div>
-          <Link to="/creator/dashboard" className="mono-tag" style={{ color: "var(--color-titanium)" }}>← DASHBOARD</Link>
+          <Link
+            to="/creator/dashboard"
+            className="mono-tag"
+            style={{ color: "var(--color-titanium)" }}
+          >
+            ← DASHBOARD
+          </Link>
         </div>
 
         {/* Summary */}
@@ -65,11 +92,16 @@ function PayoutsPage() {
           className="mx-4 mt-6 border p-5"
           style={{ borderColor: "var(--color-hair-strong)", background: "var(--color-graphite)" }}
         >
-          <p className="mono-tag" style={{ color: "var(--color-neon)" }}>LIFETIME TIPS</p>
+          <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+            LIFETIME TIPS
+          </p>
           <p className="serif mt-1 text-5xl italic" style={{ color: "var(--color-ink)" }}>
             {s ? money(s.lifetime_tips_cents) : "—"}
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-2 border-t pt-4" style={{ borderColor: "var(--color-hair)" }}>
+          <div
+            className="mt-4 grid grid-cols-3 gap-2 border-t pt-4"
+            style={{ borderColor: "var(--color-hair)" }}
+          >
             <Stat label="THIS MONTH" value={s ? money(s.tips_this_month_cents) : "—"} />
             <Stat label="SUBSCRIBERS" value={s?.subscribers ?? 0} />
             <Stat label="ACTIVE SUBS" value={s?.active_subscriptions ?? 0} />
@@ -77,11 +109,16 @@ function PayoutsPage() {
         </section>
 
         {/* Payout method note */}
-        <section className="mx-4 mt-4 border p-3"
-          style={{ borderColor: "var(--color-hair)", background: "var(--color-obsidian)" }}>
-          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>PAYOUT METHOD</p>
+        <section
+          className="mx-4 mt-4 border p-3"
+          style={{ borderColor: "var(--color-hair)", background: "var(--color-obsidian)" }}
+        >
+          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+            PAYOUT METHOD
+          </p>
           <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
-            Bank / card payouts activate once ZOMBIEREX Payments goes live. Your balance keeps accruing.
+            Bank / card payouts activate once ZOMBIEREX Payments goes live. Your balance keeps
+            accruing.
           </p>
         </section>
 
@@ -91,28 +128,55 @@ function PayoutsPage() {
             RECENT TIPS · {data?.tips.length ?? 0}
           </p>
           {(data?.tips ?? []).length === 0 && (
-            <div className="border border-dashed p-6 text-center" style={{ borderColor: "var(--color-hair-strong)" }}>
-              <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>No tips yet.</p>
+            <div
+              className="border border-dashed p-6 text-center"
+              style={{ borderColor: "var(--color-hair-strong)" }}
+            >
+              <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
+                No tips yet.
+              </p>
             </div>
           )}
           <ul className="space-y-2">
             {(data?.tips ?? []).map((t) => (
-              <li key={t.id} className="border p-3 flex items-center gap-3"
-                style={{ borderColor: "var(--color-hair-strong)", background: "var(--color-graphite)" }}>
+              <li
+                key={t.id}
+                className="border p-3 flex items-center gap-3"
+                style={{
+                  borderColor: "var(--color-hair-strong)",
+                  background: "var(--color-graphite)",
+                }}
+              >
                 {t.supporter?.avatar_url ? (
-                  <img src={t.supporter.avatar_url} alt="" className="h-9 w-9 flex-none rounded-full object-cover" />
+                  <img
+                    src={t.supporter.avatar_url}
+                    alt=""
+                    className="h-9 w-9 flex-none rounded-full object-cover"
+                  />
                 ) : (
-                  <div className="h-9 w-9 flex-none rounded-full"
-                    style={{ background: "var(--color-obsidian)", border: "1px solid var(--color-hair)" }} />
+                  <div
+                    className="h-9 w-9 flex-none rounded-full"
+                    style={{
+                      background: "var(--color-obsidian)",
+                      border: "1px solid var(--color-hair)",
+                    }}
+                  />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold truncate" style={{ color: "var(--color-ink)" }}>
+                  <p
+                    className="text-[13px] font-semibold truncate"
+                    style={{ color: "var(--color-ink)" }}
+                  >
                     {t.supporter?.display_name || "Supporter"}
                   </p>
                   {t.message && (
-                    <p className="text-[12px] truncate" style={{ color: "var(--color-silver)" }}>"{t.message}"</p>
+                    <p className="text-[12px] truncate" style={{ color: "var(--color-silver)" }}>
+                      "{t.message}"
+                    </p>
                   )}
-                  <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>{fmtDate(t.created_at)}</p>
+                  <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+                    {fmtDate(t.created_at)}
+                  </p>
                 </div>
                 <p className="serif text-lg italic" style={{ color: "var(--color-neon)" }}>
                   {money(t.amount_cents, t.currency)}
@@ -128,31 +192,57 @@ function PayoutsPage() {
             SUBSCRIPTIONS · {data?.subscriptions.length ?? 0}
           </p>
           {(data?.subscriptions ?? []).length === 0 && (
-            <div className="border border-dashed p-6 text-center" style={{ borderColor: "var(--color-hair-strong)" }}>
-              <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>No subscribers yet.</p>
+            <div
+              className="border border-dashed p-6 text-center"
+              style={{ borderColor: "var(--color-hair-strong)" }}
+            >
+              <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
+                No subscribers yet.
+              </p>
             </div>
           )}
           <ul className="space-y-2">
             {(data?.subscriptions ?? []).map((sub) => (
-              <li key={sub.id} className="border p-3 flex items-center gap-3"
-                style={{ borderColor: "var(--color-hair-strong)", background: "var(--color-graphite)" }}>
+              <li
+                key={sub.id}
+                className="border p-3 flex items-center gap-3"
+                style={{
+                  borderColor: "var(--color-hair-strong)",
+                  background: "var(--color-graphite)",
+                }}
+              >
                 {sub.subscriber?.avatar_url ? (
-                  <img src={sub.subscriber.avatar_url} alt="" className="h-9 w-9 flex-none rounded-full object-cover" />
+                  <img
+                    src={sub.subscriber.avatar_url}
+                    alt=""
+                    className="h-9 w-9 flex-none rounded-full object-cover"
+                  />
                 ) : (
-                  <div className="h-9 w-9 flex-none rounded-full"
-                    style={{ background: "var(--color-obsidian)", border: "1px solid var(--color-hair)" }} />
+                  <div
+                    className="h-9 w-9 flex-none rounded-full"
+                    style={{
+                      background: "var(--color-obsidian)",
+                      border: "1px solid var(--color-hair)",
+                    }}
+                  />
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="text-[13px] font-semibold truncate" style={{ color: "var(--color-ink)" }}>
+                  <p
+                    className="text-[13px] font-semibold truncate"
+                    style={{ color: "var(--color-ink)" }}
+                  >
                     {sub.subscriber?.display_name || "Subscriber"}
                   </p>
                   <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
                     SINCE {fmtDate(sub.created_at)}
                   </p>
                 </div>
-                <span className="mono-tag" style={{
-                  color: sub.status === "active" ? "var(--color-neon)" : "var(--color-titanium)",
-                }}>
+                <span
+                  className="mono-tag"
+                  style={{
+                    color: sub.status === "active" ? "var(--color-neon)" : "var(--color-titanium)",
+                  }}
+                >
                   {sub.status.toUpperCase()}
                 </span>
               </li>
@@ -167,8 +257,12 @@ function PayoutsPage() {
 function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="text-center">
-      <p className="serif text-lg italic" style={{ color: "var(--color-ink)" }}>{value}</p>
-      <p className="mono-tag mt-1" style={{ color: "var(--color-titanium)", fontSize: 9 }}>{label}</p>
+      <p className="serif text-lg italic" style={{ color: "var(--color-ink)" }}>
+        {value}
+      </p>
+      <p className="mono-tag mt-1" style={{ color: "var(--color-titanium)", fontSize: 9 }}>
+        {label}
+      </p>
     </div>
   );
 }

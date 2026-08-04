@@ -52,11 +52,17 @@ export function FirstRunTour() {
         const t = setTimeout(() => setOpen(true), 900);
         return () => clearTimeout(t);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [marketing]);
 
   function finish() {
-    try { localStorage.setItem(STORAGE_KEY, "1"); } catch { /* ignore */ }
+    try {
+      localStorage.setItem(STORAGE_KEY, "1");
+    } catch {
+      /* ignore */
+    }
     setOpen(false);
     void haptic("light");
   }
@@ -89,7 +95,9 @@ export function FirstRunTour() {
         paddingLeft: 16,
         paddingRight: 16,
       }}
-      onClick={(e) => { if (e.target === e.currentTarget) finish(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) finish();
+      }}
     >
       <div
         style={{
@@ -103,7 +111,10 @@ export function FirstRunTour() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <p className="mono-tag" style={{ color: "var(--color-neon, #00c853)", letterSpacing: 1.4 }}>
+          <p
+            className="mono-tag"
+            style={{ color: "var(--color-neon, #00c853)", letterSpacing: 1.4 }}
+          >
             {step.tag}
           </p>
           <button
@@ -118,11 +129,23 @@ export function FirstRunTour() {
 
         <h2
           className="serif"
-          style={{ marginTop: 10, fontSize: 22, lineHeight: 1.15, color: "var(--color-ink, #f4f5f6)" }}
+          style={{
+            marginTop: 10,
+            fontSize: 22,
+            lineHeight: 1.15,
+            color: "var(--color-ink, #f4f5f6)",
+          }}
         >
           {step.title}
         </h2>
-        <p style={{ marginTop: 10, fontSize: 13.5, lineHeight: 1.5, color: "var(--color-silver, #c8cbd0)" }}>
+        <p
+          style={{
+            marginTop: 10,
+            fontSize: 13.5,
+            lineHeight: 1.5,
+            color: "var(--color-silver, #c8cbd0)",
+          }}
+        >
           {step.body}
         </p>
 
@@ -135,9 +158,7 @@ export function FirstRunTour() {
                 height: 3,
                 borderRadius: 2,
                 background:
-                  idx <= i
-                    ? "var(--color-neon, #00c853)"
-                    : "var(--color-hair-strong, #2a2d33)",
+                  idx <= i ? "var(--color-neon, #00c853)" : "var(--color-hair-strong, #2a2d33)",
                 transition: "background .2s ease",
               }}
             />
@@ -175,7 +196,7 @@ export function FirstRunTour() {
               boxShadow: "0 0 22px rgba(0,200,83,0.35)",
             }}
           >
-            {last ? step.accent ?? "Done" : `Next · ${i + 2}/${STEPS.length}`}
+            {last ? (step.accent ?? "Done") : `Next · ${i + 2}/${STEPS.length}`}
           </button>
         </div>
       </div>

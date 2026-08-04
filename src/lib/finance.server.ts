@@ -5,7 +5,14 @@
  * the unique index on transactions(provider, provider_ref) plus a status guard
  * mean a replayed webhook can never double-credit anyone.
  */
-import { computeSplit, formatMoney, resolveFeeRule, type FeeRule, type SplitContext, type TxnKind } from "@/lib/commission";
+import {
+  computeSplit,
+  formatMoney,
+  resolveFeeRule,
+  type FeeRule,
+  type SplitContext,
+  type TxnKind,
+} from "@/lib/commission";
 
 type Admin = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
@@ -167,13 +174,38 @@ async function writeLedger(sb: Admin, txn: any) {
   const rows: any[] = [];
   const base = { transaction_id: txn.id, currency: txn.currency };
   if (txn.platform_fee_cents > 0)
-    rows.push({ ...base, account: "platform_revenue", direction: "credit", amount_cents: txn.platform_fee_cents, memo: "Platform commission" });
+    rows.push({
+      ...base,
+      account: "platform_revenue",
+      direction: "credit",
+      amount_cents: txn.platform_fee_cents,
+      memo: "Platform commission",
+    });
   if (txn.net_cents > 0)
-    rows.push({ ...base, account: "seller_payable", direction: "credit", amount_cents: txn.net_cents, party_id: txn.seller_id, memo: "Seller net proceeds" });
+    rows.push({
+      ...base,
+      account: "seller_payable",
+      direction: "credit",
+      amount_cents: txn.net_cents,
+      party_id: txn.seller_id,
+      memo: "Seller net proceeds",
+    });
   if (txn.processor_fee_cents > 0)
-    rows.push({ ...base, account: "processor_fees", direction: "debit", amount_cents: txn.processor_fee_cents, memo: "Processor cost" });
+    rows.push({
+      ...base,
+      account: "processor_fees",
+      direction: "debit",
+      amount_cents: txn.processor_fee_cents,
+      memo: "Processor cost",
+    });
   if (txn.tax_cents > 0)
-    rows.push({ ...base, account: "tax_payable", direction: "credit", amount_cents: txn.tax_cents, memo: "Tax collected" });
+    rows.push({
+      ...base,
+      account: "tax_payable",
+      direction: "credit",
+      amount_cents: txn.tax_cents,
+      memo: "Tax collected",
+    });
   if (rows.length) {
     const { error } = await sb.from("ledger_entries").insert(rows);
     if (error) console.error("[finance] ledger write failed", error);
@@ -187,13 +219,19 @@ async function notifyParties(sb: Admin, txn: any) {
     rows.push({
       user_id: txn.buyer_id,
       kind: "order",
-      payload: { title: "Payment confirmed", body: `Your payment of ${txn.currency} ${amount} was successful.` },
+      payload: {
+        title: "Payment confirmed",
+        body: `Your payment of ${txn.currency} ${amount} was successful.`,
+      },
     });
   if (txn.seller_id)
     rows.push({
       user_id: txn.seller_id,
       kind: "order",
-      payload: { title: "You made a sale", body: `${txn.currency} ${(txn.net_cents / 100).toFixed(2)} added to your balance (after ${(txn.platform_fee_cents / 100).toFixed(2)} platform fee).` },
+      payload: {
+        title: "You made a sale",
+        body: `${txn.currency} ${(txn.net_cents / 100).toFixed(2)} added to your balance (after ${(txn.platform_fee_cents / 100).toFixed(2)} platform fee).`,
+      },
     });
   if (!rows.length) return;
   const { error } = await sb.from("notifications").insert(rows);
@@ -253,12 +291,34 @@ export async function refundTransaction(input: RefundInput) {
     .eq("id", t.id);
 
   const ledger: any[] = [
-    { transaction_id: t.id, account: "refunds", direction: "debit", amount_cents: amount, currency: t.currency, memo: input.reason ?? "Refund" },
+    {
+      transaction_id: t.id,
+      account: "refunds",
+      direction: "debit",
+      amount_cents: amount,
+      currency: t.currency,
+      memo: input.reason ?? "Refund",
+    },
   ];
   if (commissionBack > 0)
-    ledger.push({ transaction_id: t.id, account: "platform_revenue", direction: "debit", amount_cents: commissionBack, currency: t.currency, memo: "Commission clawback" });
+    ledger.push({
+      transaction_id: t.id,
+      account: "platform_revenue",
+      direction: "debit",
+      amount_cents: commissionBack,
+      currency: t.currency,
+      memo: "Commission clawback",
+    });
   if (sellerBack > 0)
-    ledger.push({ transaction_id: t.id, account: "seller_payable", direction: "debit", amount_cents: sellerBack, currency: t.currency, party_id: t.seller_id, memo: "Seller refund debit" });
+    ledger.push({
+      transaction_id: t.id,
+      account: "seller_payable",
+      direction: "debit",
+      amount_cents: sellerBack,
+      currency: t.currency,
+      party_id: t.seller_id,
+      memo: "Seller refund debit",
+    });
   await sb.from("ledger_entries").insert(ledger);
 
   // Only flip the order once it is fully refunded — a partial refund must
@@ -269,9 +329,23 @@ export async function refundTransaction(input: RefundInput) {
 
   const notes: any[] = [];
   if (t.buyer_id)
-    notes.push({ user_id: t.buyer_id, kind: "order", payload: { title: "Refund issued", body: `${formatMoney(amount, t.currency)} has been refunded.` } });
+    notes.push({
+      user_id: t.buyer_id,
+      kind: "order",
+      payload: {
+        title: "Refund issued",
+        body: `${formatMoney(amount, t.currency)} has been refunded.`,
+      },
+    });
   if (t.seller_id)
-    notes.push({ user_id: t.seller_id, kind: "order", payload: { title: "Refund processed", body: `A refund of ${formatMoney(amount, t.currency)} was issued on one of your sales.` } });
+    notes.push({
+      user_id: t.seller_id,
+      kind: "order",
+      payload: {
+        title: "Refund processed",
+        body: `A refund of ${formatMoney(amount, t.currency)} was issued on one of your sales.`,
+      },
+    });
   if (notes.length) await sb.from("notifications").insert(notes);
 
   return { refunded_cents: amount, commission_returned_cents: commissionBack };
@@ -316,7 +390,11 @@ export async function runPayoutBatch() {
   const periodStart = new Date(periodEnd.getTime() - 7 * 86_400_000);
   const { data: batch, error: bErr } = await sb
     .from("payout_batches")
-    .insert({ period_start: periodStart.toISOString(), period_end: periodEnd.toISOString(), status: "scheduled" })
+    .insert({
+      period_start: periodStart.toISOString(),
+      period_end: periodEnd.toISOString(),
+      status: "scheduled",
+    })
     .select("id")
     .single();
   if (bErr) throw new Error(bErr.message);

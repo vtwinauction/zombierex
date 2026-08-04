@@ -75,7 +75,9 @@ export const getVideoAsset = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("video_assets")
-      .select("provider_uid, status, playback_hls, playback_dash, thumbnail_url, duration_seconds, width, height, error_message")
+      .select(
+        "provider_uid, status, playback_hls, playback_dash, thumbnail_url, duration_seconds, width, height, error_message",
+      )
       .eq("provider_uid", data.uid)
       .maybeSingle();
     if (error) throw new Error(error.message);

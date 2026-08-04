@@ -12,9 +12,16 @@ export const Route = createFileRoute("/communities/")({
   head: () => ({
     meta: [
       { title: "Communities · ZOMBIEREX" },
-      { name: "description", content: "Discover, join and create motorsport communities — sportbikes, JDM, drift, overland, custom builds and local car meets." },
+      {
+        name: "description",
+        content:
+          "Discover, join and create motorsport communities — sportbikes, JDM, drift, overland, custom builds and local car meets.",
+      },
       { property: "og:title", content: "Communities · ZOMBIEREX" },
-      { property: "og:description", content: "Discover, join and create motorsport communities across the ZOMBIEREX network." },
+      {
+        property: "og:description",
+        content: "Discover, join and create motorsport communities across the ZOMBIEREX network.",
+      },
     ],
   }),
   component: CommunitiesPage,
@@ -69,7 +76,6 @@ function CommunitiesPage() {
 }
 
 function CommunitiesPageInner() {
-
   const [q, setQ] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [sort, setSort] = useState<(typeof SORTS)[number]["id"]>("trending");
@@ -77,145 +83,172 @@ function CommunitiesPageInner() {
   const discover = useServerFn(discoverCommunities);
   const { data, isPending, refetch } = useQuery({
     queryKey: ["communities", { q, category, sort }],
-    queryFn: () => discover({
-      data: {
-        q: q || undefined,
-        category: category === "all" ? undefined : category,
-        sort,
-        limit: 30,
-      },
-    }),
+    queryFn: () =>
+      discover({
+        data: {
+          q: q || undefined,
+          category: category === "all" ? undefined : category,
+          sort,
+          limit: 30,
+        },
+      }),
   });
 
   const items = data ?? [];
 
   return (
     <PullToRefresh onRefresh={() => refetch()}>
-    <div className="pb-24">
+      <div className="pb-24">
+        {/* Header */}
+        <div className="px-4 pt-6">
+          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+            Network · Communities
+          </p>
+          <div className="mt-1 flex items-end justify-between gap-3">
+            <h1
+              className="serif text-[36px] italic leading-[0.95]"
+              style={{ color: "var(--color-ink)" }}
+            >
+              Find your crew
+            </h1>
+            <Link
+              to="/communities/create"
+              className="tap shrink-0 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider"
+              style={{
+                background: "var(--color-neon)",
+                color: "var(--color-obsidian)",
+                letterSpacing: "0.14em",
+              }}
+            >
+              + New
+            </Link>
+          </div>
 
-
-      {/* Header */}
-      <div className="px-4 pt-6">
-        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>Network · Communities</p>
-        <div className="mt-1 flex items-end justify-between gap-3">
-          <h1 className="serif text-[36px] italic leading-[0.95]" style={{ color: "var(--color-ink)" }}>
-            Find your crew
-          </h1>
-          <Link
-            to="/communities/create"
-            className="tap shrink-0 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-wider"
-            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em" }}
-          >
-            + New
-          </Link>
-        </div>
-
-        {/* Search */}
-        <div
-          className="mt-4 flex items-stretch overflow-hidden rounded-full"
-          style={{ border: "1px solid var(--color-hair-strong)", background: "var(--color-graphite)" }}
-        >
-          <span className="grid place-items-center px-3 mono-tag" style={{ color: "var(--color-titanium)" }}>QRY</span>
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="riders, tags, cities…"
-            className="flex-1 bg-transparent py-2.5 pr-3 text-[13px] placeholder:text-titanium focus:outline-none"
-            style={{ color: "var(--color-ink)" }}
-          />
-        </div>
-      </div>
-
-      {/* Category dropdown */}
-      <div className="mt-4 px-4">
-        <label className="mono-tag block mb-1.5" style={{ color: "var(--color-titanium)", letterSpacing: "0.18em" }}>
-          CATEGORY
-        </label>
-        <div
-          className="relative flex items-center overflow-hidden rounded-full"
-          style={{ border: "1px solid var(--color-hair-strong)", background: "var(--color-graphite)" }}
-        >
-          <span className="pl-3.5 pr-2 mono-tag" style={{ color: "var(--color-neon)", letterSpacing: "0.14em" }}>
-            ▸
-          </span>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="tap flex-1 appearance-none bg-transparent py-2.5 pr-9 text-[13px] font-semibold focus:outline-none"
-            style={{ color: "var(--color-ink)" }}
-          >
-            {(["all", ...CATEGORIES] as const).map((c) => (
-              <option key={c} value={c} style={{ background: "var(--color-graphite)", color: "var(--color-ink)" }}>
-                {CATEGORY_LABELS[c] ?? c}
-              </option>
-            ))}
-          </select>
-          <span
-            className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px]"
-            style={{ color: "var(--color-titanium)" }}
-          >
-            ▼
-          </span>
-        </div>
-      </div>
-
-
-      {/* Sort tabs */}
-      <div className="mt-3 flex gap-1 px-4">
-        {SORTS.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => setSort(s.id)}
-            className="tap flex-1 rounded-md py-1.5 text-[11px] font-bold uppercase tracking-wider"
+          {/* Search */}
+          <div
+            className="mt-4 flex items-stretch overflow-hidden rounded-full"
             style={{
-              background: sort === s.id ? "var(--color-obsidian)" : "transparent",
-              color: sort === s.id ? "var(--color-neon)" : "var(--color-titanium)",
-              border: "1px solid var(--color-hair)",
-              letterSpacing: "0.14em",
+              border: "1px solid var(--color-hair-strong)",
+              background: "var(--color-graphite)",
             }}
           >
-            {s.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Featured */}
-      {items[0] && (
-        <FeaturedCard c={items[0]} />
-      )}
-
-      {/* Grid */}
-      <div className="mt-4 grid grid-cols-2 gap-2 px-4">
-        {items.slice(1).map((c) => (
-          <CommunityCard key={c.id} c={c} />
-        ))}
-      </div>
-
-      {isPending && (
-        <p className="mono-tag mt-6 text-center" style={{ color: "var(--color-titanium)" }}>
-          scanning frequencies…
-        </p>
-      )}
-      {!isPending && items.length === 0 && (
-        <div className="mt-10 px-6 text-center">
-          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>NO CREWS FOUND</p>
-          <p className="mt-2 text-[13px]" style={{ color: "var(--color-ink-2)" }}>
-            Try a different filter — or start your own crew.
-          </p>
-          <Link
-            to="/communities/create"
-            className="mt-4 inline-block rounded-full px-5 py-2 text-[12px] font-semibold"
-            style={{ background: "var(--color-neon)", color: "var(--color-ink-0)" }}
-          >
-            Create community
-          </Link>
+            <span
+              className="grid place-items-center px-3 mono-tag"
+              style={{ color: "var(--color-titanium)" }}
+            >
+              QRY
+            </span>
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="riders, tags, cities…"
+              className="flex-1 bg-transparent py-2.5 pr-3 text-[13px] placeholder:text-titanium focus:outline-none"
+              style={{ color: "var(--color-ink)" }}
+            />
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* Category dropdown */}
+        <div className="mt-4 px-4">
+          <label
+            className="mono-tag block mb-1.5"
+            style={{ color: "var(--color-titanium)", letterSpacing: "0.18em" }}
+          >
+            CATEGORY
+          </label>
+          <div
+            className="relative flex items-center overflow-hidden rounded-full"
+            style={{
+              border: "1px solid var(--color-hair-strong)",
+              background: "var(--color-graphite)",
+            }}
+          >
+            <span
+              className="pl-3.5 pr-2 mono-tag"
+              style={{ color: "var(--color-neon)", letterSpacing: "0.14em" }}
+            >
+              ▸
+            </span>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="tap flex-1 appearance-none bg-transparent py-2.5 pr-9 text-[13px] font-semibold focus:outline-none"
+              style={{ color: "var(--color-ink)" }}
+            >
+              {(["all", ...CATEGORIES] as const).map((c) => (
+                <option
+                  key={c}
+                  value={c}
+                  style={{ background: "var(--color-graphite)", color: "var(--color-ink)" }}
+                >
+                  {CATEGORY_LABELS[c] ?? c}
+                </option>
+              ))}
+            </select>
+            <span
+              className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px]"
+              style={{ color: "var(--color-titanium)" }}
+            >
+              ▼
+            </span>
+          </div>
+        </div>
+
+        {/* Sort tabs */}
+        <div className="mt-3 flex gap-1 px-4">
+          {SORTS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setSort(s.id)}
+              className="tap flex-1 rounded-md py-1.5 text-[11px] font-bold uppercase tracking-wider"
+              style={{
+                background: sort === s.id ? "var(--color-obsidian)" : "transparent",
+                color: sort === s.id ? "var(--color-neon)" : "var(--color-titanium)",
+                border: "1px solid var(--color-hair)",
+                letterSpacing: "0.14em",
+              }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Featured */}
+        {items[0] && <FeaturedCard c={items[0]} />}
+
+        {/* Grid */}
+        <div className="mt-4 grid grid-cols-2 gap-2 px-4">
+          {items.slice(1).map((c) => (
+            <CommunityCard key={c.id} c={c} />
+          ))}
+        </div>
+
+        {isPending && (
+          <p className="mono-tag mt-6 text-center" style={{ color: "var(--color-titanium)" }}>
+            scanning frequencies…
+          </p>
+        )}
+        {!isPending && items.length === 0 && (
+          <div className="mt-10 px-6 text-center">
+            <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+              NO CREWS FOUND
+            </p>
+            <p className="mt-2 text-[13px]" style={{ color: "var(--color-ink-2)" }}>
+              Try a different filter — or start your own crew.
+            </p>
+            <Link
+              to="/communities/create"
+              className="mt-4 inline-block rounded-full px-5 py-2 text-[12px] font-semibold"
+              style={{ background: "var(--color-neon)", color: "var(--color-ink-0)" }}
+            >
+              Create community
+            </Link>
+          </div>
+        )}
+      </div>
     </PullToRefresh>
   );
 }
-
 
 type CardCommunity = {
   id: string;
@@ -243,10 +276,20 @@ function FeaturedCard({ c }: { c: CardCommunity }) {
     >
       <div className="relative aspect-[16/9]">
         {img && <img src={img} alt="" className="h-full w-full object-cover" />}
-        <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,9,11,0.1) 30%, rgba(8,9,11,0.9) 100%)" }} />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: "linear-gradient(180deg, rgba(8,9,11,0.1) 30%, rgba(8,9,11,0.9) 100%)",
+          }}
+        />
         <span
           className="absolute left-2.5 top-2.5 mono-tag rounded-full px-2 py-0.5"
-          style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", fontSize: 9, letterSpacing: "0.14em" }}
+          style={{
+            background: "var(--color-neon)",
+            color: "var(--color-obsidian)",
+            fontSize: 9,
+            letterSpacing: "0.14em",
+          }}
         >
           FEATURED
         </span>
@@ -271,10 +314,21 @@ function CommunityCard({ c }: { c: CardCommunity }) {
       to="/communities/$slug"
       params={{ slug: c.slug }}
       className="tap overflow-hidden"
-      style={{ borderRadius: 12, border: "1px solid var(--color-hair)", background: "var(--color-graphite)" }}
+      style={{
+        borderRadius: 12,
+        border: "1px solid var(--color-hair)",
+        background: "var(--color-graphite)",
+      }}
     >
       <div className="relative h-24">
-        {img && <img src={img} alt="" className="h-full w-full object-cover" style={{ filter: "brightness(0.7)" }} />}
+        {img && (
+          <img
+            src={img}
+            alt=""
+            className="h-full w-full object-cover"
+            style={{ filter: "brightness(0.7)" }}
+          />
+        )}
         {c.is_private && (
           <span
             className="absolute right-1.5 top-1.5 mono-tag rounded px-1.5 py-0.5"
@@ -288,7 +342,10 @@ function CommunityCard({ c }: { c: CardCommunity }) {
         <p className="mono-tag truncate" style={{ color: "var(--color-titanium)", fontSize: 8.5 }}>
           {CATEGORY_LABELS[c.category] ?? c.category}
         </p>
-        <p className="mt-0.5 truncate text-[12.5px] font-semibold" style={{ color: "var(--color-ink)" }}>
+        <p
+          className="mt-0.5 truncate text-[12.5px] font-semibold"
+          style={{ color: "var(--color-ink)" }}
+        >
           {c.name}
         </p>
         <p className="mono-num mt-1 text-[10px]" style={{ color: "var(--color-neon)" }}>

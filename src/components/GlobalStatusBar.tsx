@@ -25,11 +25,31 @@ const ENTRIES: Entry[] = [
   { test: (p) => p === "/atlas", index: "03", section: "ATLAS" },
 
   // Communities
-  { test: (p) => /^\/communities\/[^/]+\/challenges\/new/.test(p), index: "06", section: "COMPOSE · CHALLENGE" },
-  { test: (p) => /^\/communities\/[^/]+\/events\/new/.test(p), index: "05", section: "COMPOSE · EVENT" },
-  { test: (p) => /^\/communities\/[^/]+\/post\/new/.test(p), index: "04", section: "COMPOSE · POST" },
-  { test: (p) => /^\/communities\/[^/]+\/manage/.test(p), index: "03", section: "COMMUNITY · MANAGE" },
-  { test: (p) => /^\/communities\/[^/]+\/challenges\//.test(p), index: "03", section: "COMMUNITY · CHALLENGE" },
+  {
+    test: (p) => /^\/communities\/[^/]+\/challenges\/new/.test(p),
+    index: "06",
+    section: "COMPOSE · CHALLENGE",
+  },
+  {
+    test: (p) => /^\/communities\/[^/]+\/events\/new/.test(p),
+    index: "05",
+    section: "COMPOSE · EVENT",
+  },
+  {
+    test: (p) => /^\/communities\/[^/]+\/post\/new/.test(p),
+    index: "04",
+    section: "COMPOSE · POST",
+  },
+  {
+    test: (p) => /^\/communities\/[^/]+\/manage/.test(p),
+    index: "03",
+    section: "COMMUNITY · MANAGE",
+  },
+  {
+    test: (p) => /^\/communities\/[^/]+\/challenges\//.test(p),
+    index: "03",
+    section: "COMMUNITY · CHALLENGE",
+  },
   { test: (p) => p === "/communities/create", index: "03", section: "COMMUNITY · CREATE" },
   { test: (p) => /^\/communities\/[^/]+/.test(p), index: "03", section: "COMMUNITY · LIVE" },
   { test: (p) => p.startsWith("/communities"), index: "03", section: "COMMUNITIES · DISCOVER" },
@@ -56,7 +76,11 @@ const ENTRIES: Entry[] = [
   { test: (p) => p.startsWith("/events"), index: "06", section: "EVENTS" },
 
   // Marketplace
-  { test: (p) => p.startsWith("/marketplace/dashboard"), index: "DSH", section: "SELLER DASHBOARD" },
+  {
+    test: (p) => p.startsWith("/marketplace/dashboard"),
+    index: "DSH",
+    section: "SELLER DASHBOARD",
+  },
   { test: (p) => p.startsWith("/marketplace/new"), index: "09", section: "NEW LISTING" },
   { test: (p) => p.startsWith("/marketplace/seller/"), index: "SLR", section: "SELLER PROFILE" },
   { test: (p) => /^\/marketplace\/[^/]+/.test(p), index: "LST", section: "LISTING" },
@@ -77,11 +101,19 @@ const ENTRIES: Entry[] = [
 
   // Profile
   { test: (p) => p.startsWith("/profile/edit"), index: "05", section: "EDIT · PROFILE" },
-  { test: (p) => p === "/profile" || p.startsWith("/profile/"), index: "05", section: "GARAGE · OPERATOR" },
+  {
+    test: (p) => p === "/profile" || p.startsWith("/profile/"),
+    index: "05",
+    section: "GARAGE · OPERATOR",
+  },
 
   // Judge
   { test: (p) => p.startsWith("/judge/submit"), index: "JDG", section: "JUDGE · SUBMIT" },
-  { test: (p) => p.startsWith("/judge/leaderboards"), index: "JDG", section: "JUDGE · LEADERBOARDS" },
+  {
+    test: (p) => p.startsWith("/judge/leaderboards"),
+    index: "JDG",
+    section: "JUDGE · LEADERBOARDS",
+  },
   { test: (p) => p.startsWith("/judge/entries"), index: "JDG", section: "JUDGE · ENTRY" },
   { test: (p) => p.startsWith("/judge/events"), index: "JDG", section: "JUDGE · EVENT" },
   { test: (p) => p.startsWith("/judge"), index: "JDG", section: "AI JUDGE" },

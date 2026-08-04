@@ -65,16 +65,17 @@ export const getOwnerMetrics = createServerFn({ method: "GET" })
     const dayAgo = new Date(Date.now() - 86_400_000).toISOString();
     const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
 
-    const [users, posts24, listings, msgs24, signups24, suspended, reports, broadcasts] = await Promise.all([
-      sb.from("profiles").select("id", { count: "exact", head: true }),
-      sb.from("posts").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
-      sb.from("listings").select("id", { count: "exact", head: true }).eq("status", "active"),
-      sb.from("messages").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
-      sb.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
-      sb.from("profiles").select("id", { count: "exact", head: true }).eq("is_suspended", true),
-      sb.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
-      sb.from("owner_broadcasts").select("id", { count: "exact", head: true }).eq("active", true),
-    ]);
+    const [users, posts24, listings, msgs24, signups24, suspended, reports, broadcasts] =
+      await Promise.all([
+        sb.from("profiles").select("id", { count: "exact", head: true }),
+        sb.from("posts").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
+        sb.from("listings").select("id", { count: "exact", head: true }).eq("status", "active"),
+        sb.from("messages").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
+        sb.from("profiles").select("id", { count: "exact", head: true }).gte("created_at", dayAgo),
+        sb.from("profiles").select("id", { count: "exact", head: true }).eq("is_suspended", true),
+        sb.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
+        sb.from("owner_broadcasts").select("id", { count: "exact", head: true }).eq("active", true),
+      ]);
 
     const activeSince = new Date(Date.now() - 7 * 86_400_000).toISOString();
     const { count: weeklyActive } = await sb
@@ -148,8 +149,6 @@ export const getOwnerAnalytics = createServerFn({ method: "GET" })
     };
   });
 
-
-
 // ─────────────────────────────────────────────────────────────
 // FEATURE FLAGS
 // ─────────────────────────────────────────────────────────────
@@ -169,22 +168,35 @@ export const listOwnerFlags = createServerFn({ method: "GET" })
 
 export const setFeatureFlag = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
-    z.object({ key: z.string().min(1), enabled: z.boolean() }).parse(raw),
-  )
+  .validator((raw) => z.object({ key: z.string().min(1), enabled: z.boolean() }).parse(raw))
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     const { data: before } = await context.supabase
-      .from("feature_flags_v2").select("*").eq("key", data.key).maybeSingle();
+      .from("feature_flags_v2")
+      .select("*")
+      .eq("key", data.key)
+      .maybeSingle();
     if (!before) throw new Error("Unknown feature flag");
     const { data: after, error } = await context.supabase
       .from("feature_flags_v2")
-      .update({ enabled: data.enabled, updated_by: context.userId, updated_at: new Date().toISOString() })
+      .update({
+        enabled: data.enabled,
+        updated_by: context.userId,
+        updated_at: new Date().toISOString(),
+      })
       .eq("key", data.key)
       .select("*")
       .single();
     if (error) throw new Error(error.message);
-    await audit(context.supabase, context.userId, "flag.set", "feature_flag", data.key, before, after);
+    await audit(
+      context.supabase,
+      context.userId,
+      "flag.set",
+      "feature_flag",
+      data.key,
+      before,
+      after,
+    );
     return after;
   });
 
@@ -206,15 +218,21 @@ export const getMaintenance = createServerFn({ method: "GET" })
 export const setGlobalMaintenance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      enabled: z.boolean(),
-      message: z.string().max(500).nullable().optional(),
-      scheduledUntil: z.string().datetime().nullable().optional(),
-    }).parse(raw),
+    z
+      .object({
+        enabled: z.boolean(),
+        message: z.string().max(500).nullable().optional(),
+        scheduledUntil: z.string().datetime().nullable().optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
-    const { data: before } = await context.supabase.from("maintenance_state").select("*").eq("id", 1).maybeSingle();
+    const { data: before } = await context.supabase
+      .from("maintenance_state")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
     const { data: after, error } = await context.supabase
       .from("maintenance_state")
       .update({
@@ -223,21 +241,40 @@ export const setGlobalMaintenance = createServerFn({ method: "POST" })
         scheduled_until: data.scheduledUntil ?? null,
         updated_by: context.userId,
       })
-      .eq("id", 1).select("*").single();
+      .eq("id", 1)
+      .select("*")
+      .single();
     if (error) throw new Error(error.message);
-    await audit(context.supabase, context.userId, "maintenance.global", "maintenance_state", "1", before, after);
+    await audit(
+      context.supabase,
+      context.userId,
+      "maintenance.global",
+      "maintenance_state",
+      "1",
+      before,
+      after,
+    );
     return after;
   });
 
 export const setModuleMaintenance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({ moduleKey: z.string(), enabled: z.boolean(), message: z.string().max(500).nullable().optional() }).parse(raw),
+    z
+      .object({
+        moduleKey: z.string(),
+        enabled: z.boolean(),
+        message: z.string().max(500).nullable().optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     const { data: before } = await context.supabase
-      .from("module_maintenance").select("*").eq("module_key", data.moduleKey).maybeSingle();
+      .from("module_maintenance")
+      .select("*")
+      .eq("module_key", data.moduleKey)
+      .maybeSingle();
     const { data: after, error } = await context.supabase
       .from("module_maintenance")
       .upsert(
@@ -249,9 +286,18 @@ export const setModuleMaintenance = createServerFn({ method: "POST" })
         },
         { onConflict: "module_key" },
       )
-      .select("*").single();
+      .select("*")
+      .single();
     if (error) throw new Error(error.message);
-    await audit(context.supabase, context.userId, "maintenance.module", "module_maintenance", data.moduleKey, before, after);
+    await audit(
+      context.supabase,
+      context.userId,
+      "maintenance.module",
+      "module_maintenance",
+      data.moduleKey,
+      before,
+      after,
+    );
     return after;
   });
 
@@ -262,19 +308,24 @@ export const setModuleMaintenance = createServerFn({ method: "POST" })
 export const listUsersForOwner = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      search: z.string().max(200).optional(),
-      onlySuspended: z.boolean().optional(),
-      onlyVerified: z.boolean().optional(),
-      limit: z.number().int().min(1).max(200).default(50),
-      offset: z.number().int().min(0).default(0),
-    }).parse(raw ?? {}),
+    z
+      .object({
+        search: z.string().max(200).optional(),
+        onlySuspended: z.boolean().optional(),
+        onlyVerified: z.boolean().optional(),
+        limit: z.number().int().min(1).max(200).default(50),
+        offset: z.number().int().min(0).default(0),
+      })
+      .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     let q = context.supabase
       .from("profiles")
-      .select("id, display_name, handle, avatar_url, is_verified, is_suspended, is_premium, xp_total, level, created_at", { count: "exact" })
+      .select(
+        "id, display_name, handle, avatar_url, is_verified, is_suspended, is_premium, xp_total, level, created_at",
+        { count: "exact" },
+      )
       .order("created_at", { ascending: false })
       .range(data.offset, data.offset + data.limit - 1);
     if (data.search) {
@@ -291,12 +342,22 @@ export const listUsersForOwner = createServerFn({ method: "GET" })
 export const setUserSuspension = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({ userId: z.string().uuid(), suspend: z.boolean(), reason: z.string().max(500).optional() }).parse(raw),
+    z
+      .object({
+        userId: z.string().uuid(),
+        suspend: z.boolean(),
+        reason: z.string().max(500).optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     if (data.userId === context.userId) throw new Error("Cannot suspend yourself");
-    const { data: before } = await context.supabase.from("profiles").select("*").eq("id", data.userId).maybeSingle();
+    const { data: before } = await context.supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", data.userId)
+      .maybeSingle();
     const patch = {
       is_suspended: data.suspend,
       suspended_reason: data.suspend ? (data.reason ?? null) : null,
@@ -304,11 +365,22 @@ export const setUserSuspension = createServerFn({ method: "POST" })
       suspended_by: data.suspend ? context.userId : null,
     };
     const { data: after, error } = await (context.supabase as any)
-      .from("profiles").update(patch).eq("id", data.userId).select("*").single();
+      .from("profiles")
+      .update(patch)
+      .eq("id", data.userId)
+      .select("*")
+      .single();
     if (error) throw new Error(error.message);
-    await audit(context.supabase, context.userId, data.suspend ? "user.suspend" : "user.unsuspend", "profile", data.userId, before, after);
+    await audit(
+      context.supabase,
+      context.userId,
+      data.suspend ? "user.suspend" : "user.unsuspend",
+      "profile",
+      data.userId,
+      before,
+      after,
+    );
     return after;
-
   });
 
 export const setUserVerified = createServerFn({ method: "POST" })
@@ -322,23 +394,40 @@ export const setUserVerified = createServerFn({ method: "POST" })
       verified_by: data.verified ? context.userId : null,
     };
     const { data: after, error } = await context.supabase
-      .from("profiles").update(patch).eq("id", data.userId).select("*").single();
+      .from("profiles")
+      .update(patch)
+      .eq("id", data.userId)
+      .select("*")
+      .single();
     if (error) throw new Error(error.message);
-    await audit(context.supabase, context.userId, data.verified ? "user.verify" : "user.unverify", "profile", data.userId, null, after);
+    await audit(
+      context.supabase,
+      context.userId,
+      data.verified ? "user.verify" : "user.unverify",
+      "profile",
+      data.userId,
+      null,
+      after,
+    );
     return after;
   });
 
 export const setUserRoles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      userId: z.string().uuid(),
-      roles: z.array(z.enum(["owner", "admin", "moderator", "standard", "super_admin"])),
-    }).parse(raw),
+    z
+      .object({
+        userId: z.string().uuid(),
+        roles: z.array(z.enum(["owner", "admin", "moderator", "standard", "super_admin"])),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
-    const { data: before } = await context.supabase.from("user_roles").select("role").eq("user_id", data.userId);
+    const { data: before } = await context.supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.userId);
     // Wipe and re-insert (trigger will refuse if we'd remove the last owner)
     await context.supabase.from("user_roles").delete().eq("user_id", data.userId);
     if (data.roles.length > 0) {
@@ -346,11 +435,22 @@ export const setUserRoles = createServerFn({ method: "POST" })
       const { error } = await context.supabase.from("user_roles").insert(rows);
       if (error) {
         // roll back would need a transaction; try re-inserting original
-        if (before) await context.supabase.from("user_roles").insert((before as any[]).map(r => ({ user_id: data.userId, role: r.role })));
+        if (before)
+          await context.supabase
+            .from("user_roles")
+            .insert((before as any[]).map((r) => ({ user_id: data.userId, role: r.role })));
         throw new Error(error.message);
       }
     }
-    await audit(context.supabase, context.userId, "user.roles", "profile", data.userId, before, data.roles);
+    await audit(
+      context.supabase,
+      context.userId,
+      "user.roles",
+      "profile",
+      data.userId,
+      before,
+      data.roles,
+    );
     return { userId: data.userId, roles: data.roles };
   });
 
@@ -363,7 +463,10 @@ export const listBroadcasts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertOwner(context.supabase, context.userId);
     const { data, error } = await context.supabase
-      .from("owner_broadcasts").select("*").order("created_at", { ascending: false }).limit(100);
+      .from("owner_broadcasts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100);
     if (error) throw new Error(error.message);
     return data ?? [];
   });
@@ -371,24 +474,39 @@ export const listBroadcasts = createServerFn({ method: "GET" })
 export const createBroadcast = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      title: z.string().min(1).max(120),
-      body: z.string().min(1).max(2000),
-      severity: z.enum(["info", "warning", "critical"]).default("info"),
-      expiresAt: z.string().datetime().nullable().optional(),
-    }).parse(raw),
+    z
+      .object({
+        title: z.string().min(1).max(120),
+        body: z.string().min(1).max(2000),
+        severity: z.enum(["info", "warning", "critical"]).default("info"),
+        expiresAt: z.string().datetime().nullable().optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     const { data: row, error } = await context.supabase
       .from("owner_broadcasts")
       .insert({
-        title: data.title, body: data.body, severity: data.severity,
-        expires_at: data.expiresAt ?? null, active: true, created_by: context.userId,
+        title: data.title,
+        body: data.body,
+        severity: data.severity,
+        expires_at: data.expiresAt ?? null,
+        active: true,
+        created_by: context.userId,
       })
-      .select("*").single();
+      .select("*")
+      .single();
     if (error) throw new Error(error.message);
-    await audit(context.supabase, context.userId, "broadcast.create", "broadcast", row.id, null, row);
+    await audit(
+      context.supabase,
+      context.userId,
+      "broadcast.create",
+      "broadcast",
+      row.id,
+      null,
+      row,
+    );
     return row;
   });
 
@@ -398,7 +516,9 @@ export const dismissBroadcast = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     const { error } = await context.supabase
-      .from("owner_broadcasts").update({ active: false }).eq("id", data.id);
+      .from("owner_broadcasts")
+      .update({ active: false })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     await audit(context.supabase, context.userId, "broadcast.dismiss", "broadcast", data.id);
     return { ok: true };
@@ -410,14 +530,24 @@ export const dismissBroadcast = createServerFn({ method: "POST" })
 
 export const listRecentPosts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ limit: z.number().int().min(1).max(200).default(50), search: z.string().optional() }).parse(raw ?? {}))
+  .validator((raw) =>
+    z
+      .object({
+        limit: z.number().int().min(1).max(200).default(50),
+        search: z.string().optional(),
+      })
+      .parse(raw ?? {}),
+  )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     let q = (context.supabase as any)
       .from("posts")
-      .select("id, author_id, caption, media_url, likes_count, comments_count, created_at, is_hidden")
+      .select(
+        "id, author_id, caption, media_url, likes_count, comments_count, created_at, is_hidden",
+      )
 
-      .order("created_at", { ascending: false }).limit(data.limit);
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
     if (data.search) q = q.ilike("caption", `%${data.search}%`);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
@@ -429,11 +559,26 @@ export const setPostHidden = createServerFn({ method: "POST" })
   .validator((raw) => z.object({ postId: z.string().uuid(), hidden: z.boolean() }).parse(raw))
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
-    const { data: before } = await (context.supabase as any).from("posts").select("id, is_hidden").eq("id", data.postId).maybeSingle();
-    const { error } = await (context.supabase as any).from("posts").update({ is_hidden: data.hidden }).eq("id", data.postId);
+    const { data: before } = await (context.supabase as any)
+      .from("posts")
+      .select("id, is_hidden")
+      .eq("id", data.postId)
+      .maybeSingle();
+    const { error } = await (context.supabase as any)
+      .from("posts")
+      .update({ is_hidden: data.hidden })
+      .eq("id", data.postId);
 
     if (error) throw new Error(error.message);
-    await audit(context.supabase, context.userId, data.hidden ? "post.hide" : "post.restore", "post", data.postId, before, { is_hidden: data.hidden });
+    await audit(
+      context.supabase,
+      context.userId,
+      data.hidden ? "post.hide" : "post.restore",
+      "post",
+      data.postId,
+      before,
+      { is_hidden: data.hidden },
+    );
     return { ok: true };
   });
 
@@ -444,18 +589,24 @@ export const listOpenReports = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("reports")
       .select("id, reporter_id, target_type:target_kind, target_id, reason, status, created_at")
-      .eq("status", "open").order("created_at", { ascending: false }).limit(200);
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(200);
     if (error) throw new Error(error.message);
     return data ?? [];
   });
 
 export const resolveReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ id: z.string().uuid(), action: z.enum(["dismiss", "action_taken"]) }).parse(raw))
+  .validator((raw) =>
+    z.object({ id: z.string().uuid(), action: z.enum(["dismiss", "action_taken"]) }).parse(raw),
+  )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     const { error } = await context.supabase
-      .from("reports").update({ status: data.action === "dismiss" ? "dismissed" : "resolved" }).eq("id", data.id);
+      .from("reports")
+      .update({ status: data.action === "dismiss" ? "dismissed" : "resolved" })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     await audit(context.supabase, context.userId, `report.${data.action}`, "report", data.id);
     return { ok: true };
@@ -468,17 +619,20 @@ export const resolveReport = createServerFn({ method: "POST" })
 export const listAuditLog = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      search: z.string().max(200).optional(),
-      action: z.string().optional(),
-      limit: z.number().int().min(1).max(500).default(100),
-      offset: z.number().int().min(0).default(0),
-    }).parse(raw ?? {}),
+    z
+      .object({
+        search: z.string().max(200).optional(),
+        action: z.string().optional(),
+        limit: z.number().int().min(1).max(500).default(100),
+        offset: z.number().int().min(0).default(0),
+      })
+      .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     let q = context.supabase
-      .from("owner_audit_log").select("*", { count: "exact" })
+      .from("owner_audit_log")
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(data.offset, data.offset + data.limit - 1);
     if (data.action) q = q.eq("action", data.action);

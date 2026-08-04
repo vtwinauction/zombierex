@@ -13,7 +13,12 @@ import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement> & { size?: number };
 
-function Base({ children, size = 22, strokeWidth = 1.6, ...rest }: IconProps & { children: React.ReactNode }) {
+function Base({
+  children,
+  size = 22,
+  strokeWidth = 1.6,
+  ...rest
+}: IconProps & { children: React.ReactNode }) {
   return (
     <svg
       viewBox="0 0 24 24"

@@ -34,7 +34,9 @@ export const cartCount = createServerFn({ method: "GET" })
 export const addToCart = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({ listingId: z.string().uuid(), qty: z.number().int().min(1).max(999).default(1) }).parse(raw),
+    z
+      .object({ listingId: z.string().uuid(), qty: z.number().int().min(1).max(999).default(1) })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase

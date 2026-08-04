@@ -12,7 +12,11 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const Point = z.object({
-  t_ms: z.number().int().min(0).max(60 * 60 * 1000),
+  t_ms: z
+    .number()
+    .int()
+    .min(0)
+    .max(60 * 60 * 1000),
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   speed_kmh: z.number().min(0).max(500).optional().nullable(),
@@ -27,7 +31,10 @@ const Vehicle = z.object({
   vehicle_name: z.string().max(140).optional().nullable(),
   engine_cc: z.number().int().positive().max(20000).optional().nullable(),
   aspiration: z.enum(["na", "turbo", "supercharged", "electric"]).optional().nullable(),
-  fuel_type: z.enum(["gasoline", "diesel", "e85", "electric", "hybrid", "other"]).optional().nullable(),
+  fuel_type: z
+    .enum(["gasoline", "diesel", "e85", "electric", "hybrid", "other"])
+    .optional()
+    .nullable(),
   weight_class: z.string().max(60).optional().nullable(),
   weight_kg: z.number().int().positive().max(10000).optional().nullable(),
   modifications: z.string().max(2000).optional().nullable(),
@@ -76,9 +83,12 @@ function buildSamples(pts: z.infer<typeof Point>[]): Sample[] {
       cum += haversine(prev, p);
     }
     const t = (p.t_ms - t0) / 1000;
-    const spd = p.speed_kmh ?? (i > 0
-      ? (haversine(sorted[i - 1], p) / Math.max(0.001, (p.t_ms - sorted[i - 1].t_ms) / 1000)) * 3.6
-      : 0);
+    const spd =
+      p.speed_kmh ??
+      (i > 0
+        ? (haversine(sorted[i - 1], p) / Math.max(0.001, (p.t_ms - sorted[i - 1].t_ms) / 1000)) *
+          3.6
+        : 0);
     out.push({ t, dist: cum, spd, acc: p.accuracy_m ?? null });
   }
   return out;
@@ -116,12 +126,14 @@ function windowedSplit(samples: Sample[], fromKmh: number, toKmh: number): numbe
   let startT: number | null = null;
   for (let i = 1; i < samples.length; i++) {
     if (startT === null && samples[i].spd >= fromKmh) {
-      const a = samples[i - 1], b = samples[i];
+      const a = samples[i - 1],
+        b = samples[i];
       const frac = (fromKmh - a.spd) / Math.max(0.001, b.spd - a.spd);
       startT = a.t + frac * (b.t - a.t);
     }
     if (startT !== null && samples[i].spd >= toKmh) {
-      const a = samples[i - 1], b = samples[i];
+      const a = samples[i - 1],
+        b = samples[i];
       const frac = (toKmh - a.spd) / Math.max(0.001, b.spd - a.spd);
       const endT = a.t + frac * (b.t - a.t);
       return Math.max(0, endT - startT);
@@ -159,17 +171,33 @@ function computeRun(pts: z.infer<typeof Point>[]): ComputedRun {
 
   // Anti-cheat heuristics
   let score = 100;
-  if (top > 450) { notes.push(`Top speed ${top.toFixed(1)}km/h exceeds plausible limit`); score -= 60; }
+  if (top > 450) {
+    notes.push(`Top speed ${top.toFixed(1)}km/h exceeds plausible limit`);
+    score -= 60;
+  }
   const badAcc = pts.filter((p) => (p.accuracy_m ?? 0) > 15).length;
-  if (badAcc / pts.length > 0.3) { notes.push("More than 30% of GPS samples above 15m accuracy"); score -= 25; }
-  if (dur < 1) { notes.push("Run duration under 1 second"); score -= 40; }
+  if (badAcc / pts.length > 0.3) {
+    notes.push("More than 30% of GPS samples above 15m accuracy");
+    score -= 25;
+  }
+  if (dur < 1) {
+    notes.push("Run duration under 1 second");
+    score -= 40;
+  }
   const dt = dur / Math.max(1, samples.length - 1);
-  if (dt > 0.5) { notes.push(`Average GPS cadence ${(1 / dt).toFixed(1)}Hz below 2Hz`); score -= 15; }
+  if (dt > 0.5) {
+    notes.push(`Average GPS cadence ${(1 / dt).toFixed(1)}Hz below 2Hz`);
+    score -= 15;
+  }
   // impossible acceleration: >2g sustained
   for (let i = 1; i < samples.length; i++) {
     const dv = (samples[i].spd - samples[i - 1].spd) / 3.6;
     const ddt = samples[i].t - samples[i - 1].t;
-    if (ddt > 0 && dv / ddt > 25) { notes.push("Instant acceleration exceeds 2.5g"); score -= 20; break; }
+    if (ddt > 0 && dv / ddt > 25) {
+      notes.push("Instant acceleration exceeds 2.5g");
+      score -= 20;
+      break;
+    }
   }
 
   const qm = timeAtDistance(samples, 402.336);
@@ -264,7 +292,9 @@ export const listMyDragRuns = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("drag_runs")
-      .select("id, vehicle_kind, vehicle_name, quarter_mile_s, zero_to_100_kmh_s, top_speed_kmh, status, verification_score, created_at")
+      .select(
+        "id, vehicle_kind, vehicle_name, quarter_mile_s, zero_to_100_kmh_s, top_speed_kmh, status, verification_score, created_at",
+      )
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false })
       .limit(100);
@@ -277,7 +307,10 @@ export const getDragRun = createServerFn({ method: "GET" })
   .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: run, error } = await context.supabase
-      .from("drag_runs").select("*").eq("id", data.id).maybeSingle();
+      .from("drag_runs")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!run) throw new Error("Run not found");
     return run;
@@ -285,15 +318,23 @@ export const getDragRun = createServerFn({ method: "GET" })
 
 export const listDragLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((d) => z.object({
-    kind: z.enum(["motorcycle", "car"]).default("motorcycle"),
-    metric: z.enum(["quarter_mile_s", "zero_to_100_kmh_s", "eighth_mile_s", "top_speed_kmh"]).default("quarter_mile_s"),
-  }).parse(d ?? {}))
+  .validator((d) =>
+    z
+      .object({
+        kind: z.enum(["motorcycle", "car"]).default("motorcycle"),
+        metric: z
+          .enum(["quarter_mile_s", "zero_to_100_kmh_s", "eighth_mile_s", "top_speed_kmh"])
+          .default("quarter_mile_s"),
+      })
+      .parse(d ?? {}),
+  )
   .handler(async ({ data, context }) => {
     const ascending = data.metric !== "top_speed_kmh";
     const { data: rows, error } = await context.supabase
       .from("drag_runs")
-      .select(`id, user_id, vehicle_kind, vehicle_name, engine_cc, aspiration, fuel_type, ${data.metric}, verification_score, created_at`)
+      .select(
+        `id, user_id, vehicle_kind, vehicle_name, engine_cc, aspiration, fuel_type, ${data.metric}, verification_score, created_at`,
+      )
       .eq("vehicle_kind", data.kind)
       .eq("status", "verified")
       .eq("visibility", "public")
@@ -321,16 +362,23 @@ export const coachDragRun = createServerFn({ method: "POST" })
   .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: run, error } = await context.supabase
-      .from("drag_runs").select("*").eq("id", data.id).maybeSingle();
+      .from("drag_runs")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!run) throw new Error("Run not found");
 
     const { aiCompleteJson } = await import("./ai-gateway.server");
     const summary = {
       vehicle: {
-        kind: run.vehicle_kind, name: run.vehicle_name, cc: run.engine_cc,
-        aspiration: run.aspiration, fuel: run.fuel_type,
-        weight_kg: run.weight_kg, modifications: run.modifications,
+        kind: run.vehicle_kind,
+        name: run.vehicle_name,
+        cc: run.engine_cc,
+        aspiration: run.aspiration,
+        fuel: run.fuel_type,
+        weight_kg: run.weight_kg,
+        modifications: run.modifications,
       },
       splits: {
         zero_to_60_kmh_s: run.zero_to_60_kmh_s,
@@ -343,15 +391,31 @@ export const coachDragRun = createServerFn({ method: "POST" })
         top_speed_kmh: run.top_speed_kmh,
         duration_s: run.duration_s,
       },
-      verification: { status: run.status, score: run.verification_score, notes: run.anti_cheat_notes },
+      verification: {
+        status: run.status,
+        score: run.verification_score,
+        notes: run.anti_cheat_notes,
+      },
     };
     const out = await aiCompleteJson<{
-      grade: string; headline: string; launch: string; shift: string;
-      weakness: string; next_target: string; tips: string[];
-    }>([
-      { role: "system", content: "You are REX, a professional drag-racing coach. Reply as strict JSON with keys: grade (A+..F), headline, launch, shift, weakness, next_target, tips (array of 3 short strings). Be concise, technical, use km/h and seconds." },
-      { role: "user", content: `Coach this GPS-verified drag run:\n${JSON.stringify(summary)}` },
-    ], { temperature: 0.4, maxTokens: 500 });
+      grade: string;
+      headline: string;
+      launch: string;
+      shift: string;
+      weakness: string;
+      next_target: string;
+      tips: string[];
+    }>(
+      [
+        {
+          role: "system",
+          content:
+            "You are REX, a professional drag-racing coach. Reply as strict JSON with keys: grade (A+..F), headline, launch, shift, weakness, next_target, tips (array of 3 short strings). Be concise, technical, use km/h and seconds.",
+        },
+        { role: "user", content: `Coach this GPS-verified drag run:\n${JSON.stringify(summary)}` },
+      ],
+      { temperature: 0.4, maxTokens: 500 },
+    );
 
     return out;
   });

@@ -20,18 +20,30 @@ function titleFor(kind: string, payload: Record<string, unknown> | null): string
   const p = payload ?? {};
   const actor = (p.actor_name as string) || (p.from as string) || "Someone";
   switch (kind) {
-    case "like": return `${actor} liked your post`;
-    case "comment": return `${actor} commented on your post`;
-    case "follow": return `${actor} followed you`;
-    case "mention": return `${actor} mentioned you`;
-    case "message": return `${actor} sent you a message`;
-    case "marketplace": return "Marketplace update";
-    case "booking": return "Booking update";
-    case "order": return "Order update";
-    case "event": return "Event update";
-    case "vendor_update": return "Vendor update";
-    case "subscription": return "Subscription update";
-    default: return "ZOMBIEREX";
+    case "like":
+      return `${actor} liked your post`;
+    case "comment":
+      return `${actor} commented on your post`;
+    case "follow":
+      return `${actor} followed you`;
+    case "mention":
+      return `${actor} mentioned you`;
+    case "message":
+      return `${actor} sent you a message`;
+    case "marketplace":
+      return "Marketplace update";
+    case "booking":
+      return "Booking update";
+    case "order":
+      return "Order update";
+    case "event":
+      return "Event update";
+    case "vendor_update":
+      return "Vendor update";
+    case "subscription":
+      return "Subscription update";
+    default:
+      return "ZOMBIEREX";
   }
 }
 
@@ -94,7 +106,10 @@ export const Route = createFileRoute("/api/public/hooks/fanout-push")({
 
         const [{ data: prefs }, { data: tokens }] = await Promise.all([
           supabaseAdmin.from("notification_preferences").select("*").in("user_id", userIds),
-          supabaseAdmin.from("device_tokens").select("user_id, token, platform").in("user_id", userIds),
+          supabaseAdmin
+            .from("device_tokens")
+            .select("user_id, token, platform")
+            .in("user_id", userIds),
         ]);
 
         const prefsByUser = new Map<string, Record<string, unknown>>(
@@ -114,12 +129,24 @@ export const Route = createFileRoute("/api/public/hooks/fanout-push")({
 
         for (const n of pending) {
           const pref = prefsByUser.get(n.user_id);
-          if (pref && pref.push_enabled === false) { pushedIds.push(n.id); skipped++; continue; }
+          if (pref && pref.push_enabled === false) {
+            pushedIds.push(n.id);
+            skipped++;
+            continue;
+          }
           const prefKey = KIND_PREF[n.kind];
-          if (pref && prefKey && pref[prefKey] === false) { pushedIds.push(n.id); skipped++; continue; }
+          if (pref && prefKey && pref[prefKey] === false) {
+            pushedIds.push(n.id);
+            skipped++;
+            continue;
+          }
 
           const deviceList = tokensByUser.get(n.user_id) ?? [];
-          if (deviceList.length === 0) { pushedIds.push(n.id); skipped++; continue; }
+          if (deviceList.length === 0) {
+            pushedIds.push(n.id);
+            skipped++;
+            continue;
+          }
 
           const payload = (n.payload ?? {}) as Record<string, unknown>;
           const title = titleFor(n.kind, payload);

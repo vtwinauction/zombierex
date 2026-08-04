@@ -3,7 +3,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 type Reel = {
   id: string;
-  user: { id: string; handle: string; avatar: string; verified?: boolean; name?: string; location?: string };
+  user: {
+    id: string;
+    handle: string;
+    avatar: string;
+    verified?: boolean;
+    name?: string;
+    location?: string;
+  };
   vehicle?: { name: string; year?: number };
   video?: string;
   poster: string;
@@ -34,17 +41,21 @@ export const Route = createFileRoute("/reels")({
   head: () => ({
     meta: [
       { title: "Reels · ZOMBIEREX" },
-      { name: "description", content: "Full-screen vertical rides, builds and burnouts from the ZOMBIEREX network." },
+      {
+        name: "description",
+        content: "Full-screen vertical rides, builds and burnouts from the ZOMBIEREX network.",
+      },
       { property: "og:title", content: "Reels · ZOMBIEREX" },
-      { property: "og:description", content: "Full-screen vertical rides, builds and burnouts from the ZOMBIEREX network." },
+      {
+        property: "og:description",
+        content: "Full-screen vertical rides, builds and burnouts from the ZOMBIEREX network.",
+      },
       { property: "og:type", content: "video.other" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ReelsPage,
 });
-
-
 
 function ReelsPage() {
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -55,15 +66,21 @@ function ReelsPage() {
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     let alive = true;
-    supabase.auth.getUser().then(({ data }) => { if (alive) setSignedIn(!!data.user); });
+    supabase.auth.getUser().then(({ data }) => {
+      if (alive) setSignedIn(!!data.user);
+    });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
-    return () => { alive = false; sub.subscription.unsubscribe(); };
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
   const live = useQuery({
     queryKey: ["reels", "live", signedIn ? "authed" : "anon"],
-    queryFn: () => (signedIn
-      ? fetchAuthedFeed({ data: { kind: "video", limit: 24 } })
-      : fetchFeed({ data: { kind: "video", limit: 24 } })),
+    queryFn: () =>
+      signedIn
+        ? fetchAuthedFeed({ data: { kind: "video", limit: 24 } })
+        : fetchFeed({ data: { kind: "video", limit: 24 } }),
     staleTime: 60_000,
   });
 
@@ -79,7 +96,8 @@ function ReelsPage() {
             id: (a.id ?? r.author_id) as string,
             handle: a.handle ? `@${String(a.handle).replace(/^@/, "")}` : "@rider",
             name: a.display_name || a.handle || "Rider",
-            avatar: a.avatar_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${a.id ?? r.author_id}`,
+            avatar:
+              a.avatar_url || `https://api.dicebear.com/7.x/shapes/svg?seed=${a.id ?? r.author_id}`,
             verified: !!a.is_verified,
             location: a.location || "",
           },
@@ -150,8 +168,15 @@ function ReelsPage() {
     const onMove = (e: TouchEvent) => {
       if (!pulling || startY == null) return;
       const dy = (e.touches[0]?.clientY ?? 0) - startY;
-      if (dy <= 0) { setPtrPull(0); return; }
-      if (el.scrollTop > 0) { setPtrPull(0); pulling = false; return; }
+      if (dy <= 0) {
+        setPtrPull(0);
+        return;
+      }
+      if (el.scrollTop > 0) {
+        setPtrPull(0);
+        pulling = false;
+        return;
+      }
       const eased = Math.min(MAX, dy * 0.55);
       setPtrPull(eased);
       if (eased > 4 && e.cancelable) e.preventDefault();
@@ -166,7 +191,11 @@ function ReelsPage() {
       if (fire && !ptrRefreshing) {
         setPtrRefreshing(true);
         setPtrPull(THRESHOLD);
-        try { await live.refetch(); } catch { /* ignore */ }
+        try {
+          await live.refetch();
+        } catch {
+          /* ignore */
+        }
         setPtrRefreshing(false);
         setPtrPull(0);
       } else {
@@ -185,12 +214,8 @@ function ReelsPage() {
     };
   }, [ptrRefreshing, live]);
 
-
   return (
-    <div
-      className="on-dark fixed inset-0 z-40"
-      style={{ background: "var(--color-obsidian)" }}
-    >
+    <div className="on-dark fixed inset-0 z-40" style={{ background: "var(--color-obsidian)" }}>
       {/* Top overlay: tabs + back */}
       <header
         className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between px-4 pt-[max(env(safe-area-inset-top),14px)] pb-3"
@@ -200,13 +225,21 @@ function ReelsPage() {
           to="/"
           className="pointer-events-auto tap grid h-9 w-9 place-items-center rounded-full text-white"
           aria-label="Back"
-          style={{ background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.18)", backdropFilter: "blur(10px)" }}
+          style={{
+            background: "rgba(0,0,0,0.35)",
+            border: "1px solid rgba(255,255,255,0.18)",
+            backdropFilter: "blur(10px)",
+          }}
         >
           ‹
         </Link>
         <div className="pointer-events-auto flex items-center gap-5 text-white">
-          <button className="text-[15px] font-semibold" style={{ opacity: 0.55 }}>Following</button>
-          <span style={{ height: 4, width: 4, borderRadius: 999, background: "var(--color-neon)" }} />
+          <button className="text-[15px] font-semibold" style={{ opacity: 0.55 }}>
+            Following
+          </button>
+          <span
+            style={{ height: 4, width: 4, borderRadius: 999, background: "var(--color-neon)" }}
+          />
           <button className="text-[15px] font-bold">For you</button>
         </div>
         <div style={{ width: 36 }} />
@@ -226,23 +259,36 @@ function ReelsPage() {
       >
         <div
           style={{
-            width: 34, height: 34, borderRadius: 999,
+            width: 34,
+            height: 34,
+            borderRadius: 999,
             border: "1px solid rgba(255,255,255,0.18)",
             background: "rgba(0,0,0,0.55)",
             backdropFilter: "blur(10px)",
-            display: "grid", placeItems: "center",
+            display: "grid",
+            placeItems: "center",
             boxShadow: ptrPull >= 72 || ptrRefreshing ? "0 0 18px rgba(0,200,83,0.55)" : "none",
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
             style={{
-              transform: ptrRefreshing ? undefined : `rotate(${Math.min(1, ptrPull / 72) * 270}deg)`,
+              transform: ptrRefreshing
+                ? undefined
+                : `rotate(${Math.min(1, ptrPull / 72) * 270}deg)`,
               animation: ptrRefreshing ? "zx-spin 0.9s linear infinite" : undefined,
             }}
           >
-            <path d="M21 12a9 9 0 1 1-3.2-6.9M21 4v5h-5"
-              stroke="var(--color-neon, #00c853)" strokeWidth="2"
-              strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M21 12a9 9 0 1 1-3.2-6.9M21 4v5h-5"
+              stroke="var(--color-neon, #00c853)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
         <style>{`@keyframes zx-spin { to { transform: rotate(360deg); } }`}</style>
@@ -257,19 +303,33 @@ function ReelsPage() {
         {live.isLoading && feed.length === 0 && (
           <div className="flex h-full w-full flex-col items-center justify-center gap-3">
             <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
-            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Loading reels</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
+              Loading reels
+            </p>
           </div>
         )}
         {!live.isLoading && live.isError && (
           <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-8 text-center">
             <p className="text-sm text-muted-foreground">Couldn't load reels right now.</p>
-            <button onClick={() => live.refetch()} className="rounded-full border border-border px-5 py-2 text-xs uppercase tracking-[0.2em]">Retry</button>
+            <button
+              onClick={() => live.refetch()}
+              className="rounded-full border border-border px-5 py-2 text-xs uppercase tracking-[0.2em]"
+            >
+              Retry
+            </button>
           </div>
         )}
         {!live.isLoading && !live.isError && feed.length === 0 && (
           <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-8 text-center">
-            <p className="text-sm text-muted-foreground">No reels yet. Be the first to post a video.</p>
-            <Link to="/post/new" className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground">Create</Link>
+            <p className="text-sm text-muted-foreground">
+              No reels yet. Be the first to post a video.
+            </p>
+            <Link
+              to="/post/new"
+              className="rounded-full bg-primary px-5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary-foreground"
+            >
+              Create
+            </Link>
           </div>
         )}
         {feed.map((r, i) => (
@@ -281,14 +341,22 @@ function ReelsPage() {
             near={Math.abs(i - activeIdx) <= 1}
           />
         ))}
-
       </div>
-
     </div>
   );
 }
 
-function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number; active: boolean; near?: boolean }) {
+function ReelSlide({
+  reel,
+  idx,
+  active,
+  near = true,
+}: {
+  reel: Reel;
+  idx: number;
+  active: boolean;
+  near?: boolean;
+}) {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [followed, setFollowed] = useState(reel.followed);
@@ -300,7 +368,9 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
   function setMuted(next: boolean | ((p: boolean) => boolean)) {
     setMutedState((prev) => {
       const v = typeof next === "function" ? (next as any)(prev) : next;
-      try { window.sessionStorage.setItem("zrex:reels_muted", v ? "1" : "0"); } catch {}
+      try {
+        window.sessionStorage.setItem("zrex:reels_muted", v ? "1" : "0");
+      } catch {}
       window.dispatchEvent(new CustomEvent("zrex:reels-mute", { detail: v }));
       return v;
     });
@@ -324,7 +394,9 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
   const [heartPing, setHeartPing] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentDraft, setCommentDraft] = useState("");
-  const [localComments, setLocalComments] = useState<{ handle: string; text: string; avatar: string }[]>([
+  const [localComments, setLocalComments] = useState<
+    { handle: string; text: string; avatar: string }[]
+  >([
     { handle: "@nitro_rider", text: "That widebody stance is unreal 🔥", avatar: reel.user.avatar },
     { handle: "@apex_kai", text: "Berlin meet — I'm in.", avatar: reel.user.avatar },
     { handle: "@turbo_lila", text: "Wheels spec?", avatar: reel.user.avatar },
@@ -385,7 +457,10 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
           forcePlay={active && !paused}
           muted={muted}
           preload={active ? "auto" : "metadata"}
-          onTime={(t, d) => { setProgress(d ? t / d : 0); if (d && d !== duration) setDuration(d); }}
+          onTime={(t, d) => {
+            setProgress(d ? t / d : 0);
+            if (d && d !== duration) setDuration(d);
+          }}
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
@@ -395,16 +470,29 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover"
-          style={{ animation: active && !hasVideo ? "ken-burns 18s ease-in-out infinite alternate" : "none" }}
+          style={{
+            animation:
+              active && !hasVideo ? "ken-burns 18s ease-in-out infinite alternate" : "none",
+          }}
         />
       )}
-      <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.9) 100%)" }} />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 55%, rgba(0,0,0,0.9) 100%)",
+        }}
+      />
 
       {paused && hasVideo && active && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <span
             className="grid h-20 w-20 place-items-center rounded-full text-white"
-            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.25)" }}
+            style={{
+              background: "rgba(0,0,0,0.55)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.25)",
+            }}
           >
             <Play size={36} fill="currentColor" />
           </span>
@@ -412,7 +500,10 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
       )}
 
       <button
-        onClick={(e) => { e.stopPropagation(); setMuted((m) => !m); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setMuted((m) => !m);
+        }}
         aria-label={muted ? "Unmute" : "Mute"}
         className="tap absolute right-3 grid h-9 w-9 place-items-center rounded-full text-white"
         style={{
@@ -425,7 +516,10 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
       </button>
 
       <button
-        onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setReportOpen(true);
+        }}
         aria-label="More options"
         className="tap absolute right-3 grid h-9 w-9 place-items-center rounded-full text-white"
         style={{
@@ -436,8 +530,6 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
       >
         <MoreVertical size={16} />
       </button>
-
-
 
       {heartPing && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
@@ -463,12 +555,18 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
           count={fmt(reel.likes + (liked ? 1 : 0))}
           active={liked}
           tint="var(--color-neon)"
-          onClick={(e) => { e.stopPropagation(); setLiked((v) => !v); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setLiked((v) => !v);
+          }}
         />
         <RailBtn
           Icon={IconVisor}
           count={fmt(reel.comments + (localComments.length - 3))}
-          onClick={(e) => { e.stopPropagation(); setCommentsOpen(true); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setCommentsOpen(true);
+          }}
         />
         <RailBtn
           Icon={IconBoneMark}
@@ -487,7 +585,10 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
         <button
           onClick={(e) => e.stopPropagation()}
           className="tap mt-1 h-10 w-10 overflow-hidden rounded-full border-2"
-          style={{ borderColor: "var(--color-neon)", animation: active ? "spin 12s linear infinite" : "none" }}
+          style={{
+            borderColor: "var(--color-neon)",
+            animation: active ? "spin 12s linear infinite" : "none",
+          }}
           aria-label="Sound"
         >
           <img src={reel.user.avatar} alt="" className="h-full w-full object-cover" />
@@ -500,14 +601,23 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
         style={{ bottom: "calc(env(safe-area-inset-bottom) + 34px)" }}
       >
         <div className="flex items-center gap-2">
-          <img src={reel.user.avatar} alt="" className="h-9 w-9 rounded-full object-cover" style={{ boxShadow: "0 0 0 1.5px var(--color-neon)" }} />
+          <img
+            src={reel.user.avatar}
+            alt=""
+            className="h-9 w-9 rounded-full object-cover"
+            style={{ boxShadow: "0 0 0 1.5px var(--color-neon)" }}
+          />
           <p className="flex items-center gap-1.5 text-[14px] font-semibold">
             {reel.user.handle}
             {reel.user.verified && <RiderMark tier={idx % 2 === 0 ? "APEX_REX" : "LEGEND"} />}
           </p>
           {!followed && (
             <button
-              onClick={(e) => { e.stopPropagation(); setFollowed(true); toast.success(`Following ${reel.user.handle}`); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setFollowed(true);
+                toast.success(`Following ${reel.user.handle}`);
+              }}
               className="tap ml-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-wider"
               style={{ background: "var(--color-neon)", color: "#0b0b0b", letterSpacing: "0.14em" }}
             >
@@ -520,24 +630,44 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
           {reel.hashtags.slice(0, 3).join(" ")}
         </p>
         {reel.location && (
-          <p className="mono-tag mt-1.5" style={{ color: "rgba(255,255,255,0.75)" }}>◎ {reel.location}</p>
+          <p className="mono-tag mt-1.5" style={{ color: "rgba(255,255,255,0.75)" }}>
+            ◎ {reel.location}
+          </p>
         )}
         {reel.taggedProduct && (
           <div
             className="mt-2.5 inline-flex items-center gap-2 rounded-full px-2.5 py-1.5"
-            style={{ background: "rgba(0,0,0,0.55)", border: "1px solid rgba(198,255,61,0.35)", backdropFilter: "blur(10px)" }}
+            style={{
+              background: "rgba(0,0,0,0.55)",
+              border: "1px solid rgba(198,255,61,0.35)",
+              backdropFilter: "blur(10px)",
+            }}
           >
             <span style={{ color: "var(--color-neon)" }}>◇</span>
             <span className="text-[12px] font-semibold">{reel.taggedProduct.name}</span>
-            <span className="mono-num text-[11px]" style={{ color: "var(--color-neon)" }}>{reel.taggedProduct.price}</span>
+            <span className="mono-num text-[11px]" style={{ color: "var(--color-neon)" }}>
+              {reel.taggedProduct.price}
+            </span>
           </div>
         )}
 
         <div className="mt-3 flex items-center gap-2 overflow-hidden">
-          <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px]" style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}>♫</span>
+          <span
+            className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px]"
+            style={{
+              background: "rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.25)",
+            }}
+          >
+            ♫
+          </span>
           <div className="min-w-0 flex-1 overflow-hidden">
-            <p className="marquee whitespace-nowrap text-[11px]" style={{ color: "rgba(255,255,255,0.9)" }}>
-              {reel.music.title} — {reel.music.artist} · original sound · {reel.views} views &nbsp;·&nbsp;
+            <p
+              className="marquee whitespace-nowrap text-[11px]"
+              style={{ color: "rgba(255,255,255,0.9)" }}
+            >
+              {reel.music.title} — {reel.music.artist} · original sound · {reel.views} views
+              &nbsp;·&nbsp;
               {reel.music.title} — {reel.music.artist} &nbsp;·&nbsp;
             </p>
           </div>
@@ -545,7 +675,10 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
       </div>
 
       {/* Progress rail — real video time when video, timed animation for stills */}
-      <div className="absolute inset-x-0 bottom-0 h-[3px]" style={{ background: "rgba(255,255,255,0.12)" }}>
+      <div
+        className="absolute inset-x-0 bottom-0 h-[3px]"
+        style={{ background: "rgba(255,255,255,0.12)" }}
+      >
         <div
           key={`${idx}-${active}-${hasVideo}`}
           style={{
@@ -555,21 +688,26 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
             animation: hasVideo
               ? "none"
               : active
-              ? `reel-progress ${reel.duration}s linear forwards`
-              : "none",
+                ? `reel-progress ${reel.duration}s linear forwards`
+                : "none",
             transition: hasVideo ? "width 120ms linear" : undefined,
           }}
         />
       </div>
 
-
       {/* Comment sheet */}
       {commentsOpen && (
         <div
           className="absolute inset-0 z-50 flex flex-col justify-end"
-          onClick={(e) => { e.stopPropagation(); setCommentsOpen(false); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setCommentsOpen(false);
+          }}
         >
-          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }} />
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+          />
           <div
             onClick={(e) => e.stopPropagation()}
             className="relative flex flex-col rounded-t-3xl"
@@ -580,9 +718,15 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
               paddingBottom: "env(safe-area-inset-bottom)",
             }}
           >
-            <div className="mx-auto mt-2 h-1 w-10 rounded-full" style={{ background: "rgba(255,255,255,0.25)" }} />
+            <div
+              className="mx-auto mt-2 h-1 w-10 rounded-full"
+              style={{ background: "rgba(255,255,255,0.25)" }}
+            />
             <div className="flex items-center justify-between px-4 pt-3 pb-2">
-              <p className="text-[13px] font-bold uppercase tracking-widest text-white" style={{ fontFamily: "var(--font-mono)" }}>
+              <p
+                className="text-[13px] font-bold uppercase tracking-widest text-white"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
                 Comments · {localComments.length}
               </p>
               <button
@@ -596,11 +740,20 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
             </div>
             <div className="flex-1 overflow-y-auto px-4 pb-3">
               {localComments.map((c, i) => (
-                <div key={i} className="flex items-start gap-3 py-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <div
+                  key={i}
+                  className="flex items-start gap-3 py-3"
+                  style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+                >
                   <img src={c.avatar} alt="" className="h-8 w-8 rounded-full object-cover" />
                   <div className="min-w-0 flex-1">
                     <p className="text-[12.5px] font-semibold text-white">{c.handle}</p>
-                    <p className="text-[13.5px] leading-snug" style={{ color: "rgba(255,255,255,0.85)" }}>{c.text}</p>
+                    <p
+                      className="text-[13.5px] leading-snug"
+                      style={{ color: "rgba(255,255,255,0.85)" }}
+                    >
+                      {c.text}
+                    </p>
                   </div>
                   <button
                     className="tap grid h-8 w-8 place-items-center rounded-full text-white"
@@ -612,7 +765,11 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
                 </div>
               ))}
             </div>
-            <form onSubmit={submitComment} className="flex items-center gap-2 border-t px-4 py-3" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+            <form
+              onSubmit={submitComment}
+              className="flex items-center gap-2 border-t px-4 py-3"
+              style={{ borderColor: "rgba(255,255,255,0.08)" }}
+            >
               <input
                 value={commentDraft}
                 onChange={(e) => setCommentDraft(e.target.value)}
@@ -624,7 +781,11 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
                 type="submit"
                 disabled={!commentDraft.trim()}
                 className="tap rounded-full px-4 py-2 text-[12px] font-bold uppercase tracking-wider disabled:opacity-40"
-                style={{ background: "var(--color-neon)", color: "#0b0b0b", letterSpacing: "0.14em" }}
+                style={{
+                  background: "var(--color-neon)",
+                  color: "#0b0b0b",
+                  letterSpacing: "0.14em",
+                }}
               >
                 Post
               </button>
@@ -644,7 +805,6 @@ function ReelSlide({ reel, idx, active, near = true }: { reel: Reel; idx: number
     </section>
   );
 }
-
 
 function RailBtn({
   Icon,

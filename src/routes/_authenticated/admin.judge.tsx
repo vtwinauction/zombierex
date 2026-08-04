@@ -13,10 +13,15 @@ import {
 import { judgeIsEnabled } from "@/lib/judge.functions";
 
 const flagQ = queryOptions({ queryKey: ["judge-enabled-admin"], queryFn: () => judgeIsEnabled() });
-const eventsQ = queryOptions({ queryKey: ["admin-judge-events"], queryFn: () => adminJudgeListEvents() });
+const eventsQ = queryOptions({
+  queryKey: ["admin-judge-events"],
+  queryFn: () => adminJudgeListEvents(),
+});
 
 export const Route = createFileRoute("/_authenticated/admin/judge")({
-  head: () => ({ meta: [{ title: "Judge Admin · ZOMBIEREX" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({
+    meta: [{ title: "Judge Admin · ZOMBIEREX" }, { name: "robots", content: "noindex" }],
+  }),
   loader: async ({ context }) => {
     try {
       await Promise.all([
@@ -47,14 +52,26 @@ function JudgeAdmin() {
   return (
     <div className="pb-24">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ JUDGE ADMIN</p>
-        <h1 className="serif mt-2 text-3xl" style={{ color: "var(--color-ink)" }}>AI Judge control</h1>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ JUDGE ADMIN
+        </p>
+        <h1 className="serif mt-2 text-3xl" style={{ color: "var(--color-ink)" }}>
+          AI Judge control
+        </h1>
       </header>
 
-      <div className="mx-5 mt-5 p-4 surface-1 lift-1 flex items-center justify-between" style={{ borderRadius: 10 }}>
+      <div
+        className="mx-5 mt-5 p-4 surface-1 lift-1 flex items-center justify-between"
+        style={{ borderRadius: 10 }}
+      >
         <div>
-          <p className="mono-tag" style={{ color: "var(--color-silver)" }}>MODULE STATE</p>
-          <p className="serif text-xl mt-1" style={{ color: flag.enabled ? "var(--color-neon)" : "var(--color-ink)" }}>
+          <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
+            MODULE STATE
+          </p>
+          <p
+            className="serif text-xl mt-1"
+            style={{ color: flag.enabled ? "var(--color-neon)" : "var(--color-ink)" }}
+          >
             {flag.enabled ? "ENABLED" : "DISABLED"}
           </p>
         </div>
@@ -62,33 +79,59 @@ function JudgeAdmin() {
           onClick={() => setFlagMut.mutate(!flag.enabled)}
           disabled={setFlagMut.isPending}
           className="px-4 py-2 mono-tag"
-          style={{ background: "var(--color-obsidian)", color: "var(--color-neon)", borderRadius: 8 }}
+          style={{
+            background: "var(--color-obsidian)",
+            color: "var(--color-neon)",
+            borderRadius: 8,
+          }}
         >
           {flag.enabled ? "DISABLE" : "ENABLE"}
         </button>
       </div>
 
       {err && (
-        <div className="mx-5 mt-4 p-3 text-[12px]" style={{ background: "#3a0f0f", color: "#ffb0b0", borderRadius: 8 }}>
+        <div
+          className="mx-5 mt-4 p-3 text-[12px]"
+          style={{ background: "#3a0f0f", color: "#ffb0b0", borderRadius: 8 }}
+        >
           {err}
         </div>
       )}
 
       <section className="mt-6 px-5">
         <div className="flex justify-between items-center mb-2">
-          <p className="mono-tag" style={{ color: "var(--color-silver)" }}>EVENTS · {events.length}</p>
-          <button onClick={() => setCreating((v) => !v)} className="chip"
-            style={{ background: "var(--color-obsidian)", color: "var(--color-neon)", borderColor: "var(--color-obsidian)" }}>
+          <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
+            EVENTS · {events.length}
+          </p>
+          <button
+            onClick={() => setCreating((v) => !v)}
+            className="chip"
+            style={{
+              background: "var(--color-obsidian)",
+              color: "var(--color-neon)",
+              borderColor: "var(--color-obsidian)",
+            }}
+          >
             {creating ? "Cancel" : "+ New event"}
           </button>
         </div>
 
-        {creating && <EventForm onDone={() => { setCreating(false); qc.invalidateQueries({ queryKey: ["admin-judge-events"] }); }} onError={setErr} />}
+        {creating && (
+          <EventForm
+            onDone={() => {
+              setCreating(false);
+              qc.invalidateQueries({ queryKey: ["admin-judge-events"] });
+            }}
+            onError={setErr}
+          />
+        )}
 
         <div className="space-y-2 mt-3">
           {events.length === 0 && (
             <div className="p-6 surface-1 lift-1 text-center" style={{ borderRadius: 10 }}>
-              <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>No events yet.</p>
+              <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
+                No events yet.
+              </p>
             </div>
           )}
           {events.map((e: any) => (
@@ -133,26 +176,50 @@ function EventRow({ event, onError }: { event: any; onError: (m: string) => void
     <div className="p-4 surface-1 lift-1" style={{ borderRadius: 10 }}>
       <div className="flex justify-between">
         <div>
-          <p className="serif text-[15px]" style={{ color: "var(--color-ink)" }}>{event.title}</p>
+          <p className="serif text-[15px]" style={{ color: "var(--color-ink)" }}>
+            {event.title}
+          </p>
           <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 10 }}>
             {event.slug} · {(event.vehicle_types ?? []).join("/")}
           </p>
         </div>
-        <span className="mono-tag" style={{ color: event.status === "published" ? "var(--color-neon)" : "var(--color-silver)" }}>
+        <span
+          className="mono-tag"
+          style={{
+            color: event.status === "published" ? "var(--color-neon)" : "var(--color-silver)",
+          }}
+        >
           {event.status.toUpperCase()}
         </span>
       </div>
       <div className="mt-3 flex gap-2 flex-wrap">
-        <button onClick={() => compute.mutate()} disabled={compute.isPending} className="chip"
-          style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}>
+        <button
+          onClick={() => compute.mutate()}
+          disabled={compute.isPending}
+          className="chip"
+          style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}
+        >
           {compute.isPending ? "Computing…" : "Compute awards"}
         </button>
-        <button onClick={() => publish.mutate()} disabled={publish.isPending} className="chip"
-          style={{ background: "var(--color-obsidian)", color: "var(--color-neon)", borderColor: "var(--color-obsidian)" }}>
+        <button
+          onClick={() => publish.mutate()}
+          disabled={publish.isPending}
+          className="chip"
+          style={{
+            background: "var(--color-obsidian)",
+            color: "var(--color-neon)",
+            borderColor: "var(--color-obsidian)",
+          }}
+        >
           {publish.isPending ? "Publishing…" : "Publish results"}
         </button>
-        <button onClick={exportCsv} className="chip"
-          style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}>Export CSV</button>
+        <button
+          onClick={exportCsv}
+          className="chip"
+          style={{ borderColor: "var(--color-hair-strong)", color: "var(--color-ink)" }}
+        >
+          Export CSV
+        </button>
       </div>
     </div>
   );
@@ -174,46 +241,87 @@ function EventForm({ onDone, onError }: { onDone: () => void; onError: (m: strin
 
   return (
     <div className="p-4 surface-1 lift-1 space-y-3" style={{ borderRadius: 10 }}>
-      <Input label="Slug" v={form.slug} on={(v) => setForm((f) => ({ ...f, slug: v.replace(/[^a-z0-9-]/g, "").toLowerCase() }))} />
+      <Input
+        label="Slug"
+        v={form.slug}
+        on={(v) => setForm((f) => ({ ...f, slug: v.replace(/[^a-z0-9-]/g, "").toLowerCase() }))}
+      />
       <Input label="Title" v={form.title} on={(v) => setForm((f) => ({ ...f, title: v }))} />
       <div>
-        <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>DESCRIPTION</p>
-        <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-          rows={3} className="w-full px-3 py-2 text-[13px]"
-          style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", borderRadius: 8, color: "var(--color-ink)" }} />
+        <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>
+          DESCRIPTION
+        </p>
+        <textarea
+          value={form.description}
+          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+          rows={3}
+          className="w-full px-3 py-2 text-[13px]"
+          style={{
+            background: "var(--color-graphite)",
+            border: "1px solid var(--color-hair)",
+            borderRadius: 8,
+            color: "var(--color-ink)",
+          }}
+        />
       </div>
       <div>
-        <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>TYPES</p>
+        <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>
+          TYPES
+        </p>
         <div className="flex gap-2">
           {(["motorcycle", "car"] as const).map((t) => {
             const on = form.vehicle_types.includes(t);
             return (
-              <button key={t}
-                onClick={() => setForm((f) => ({ ...f, vehicle_types: on ? f.vehicle_types.filter((x) => x !== t) : [...f.vehicle_types, t] }))}
+              <button
+                key={t}
+                onClick={() =>
+                  setForm((f) => ({
+                    ...f,
+                    vehicle_types: on
+                      ? f.vehicle_types.filter((x) => x !== t)
+                      : [...f.vehicle_types, t],
+                  }))
+                }
                 className="chip"
                 style={{
                   background: on ? "var(--color-obsidian)" : "transparent",
                   color: on ? "var(--color-neon)" : "var(--color-ink)",
                   borderColor: on ? "var(--color-obsidian)" : "var(--color-hair-strong)",
-                }}>{t.toUpperCase()}</button>
+                }}
+              >
+                {t.toUpperCase()}
+              </button>
             );
           })}
         </div>
       </div>
       <div>
-        <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>STATUS</p>
-        <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as any }))}
+        <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>
+          STATUS
+        </p>
+        <select
+          value={form.status}
+          onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as any }))}
           className="w-full px-3 py-2 text-[13px]"
-          style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", borderRadius: 8, color: "var(--color-ink)" }}>
+          style={{
+            background: "var(--color-graphite)",
+            border: "1px solid var(--color-hair)",
+            borderRadius: 8,
+            color: "var(--color-ink)",
+          }}
+        >
           <option value="draft">draft</option>
           <option value="open">open</option>
           <option value="judging">judging</option>
           <option value="published">published</option>
         </select>
       </div>
-      <button onClick={() => create.mutate()} disabled={!form.slug || !form.title || create.isPending}
+      <button
+        onClick={() => create.mutate()}
+        disabled={!form.slug || !form.title || create.isPending}
         className="w-full py-2 mono-tag"
-        style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", borderRadius: 8 }}>
+        style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", borderRadius: 8 }}
+      >
         {create.isPending ? "SAVING…" : "CREATE EVENT"}
       </button>
     </div>
@@ -223,10 +331,20 @@ function EventForm({ onDone, onError }: { onDone: () => void; onError: (m: strin
 function Input({ label, v, on }: { label: string; v: string; on: (s: string) => void }) {
   return (
     <div>
-      <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>{label.toUpperCase()}</p>
-      <input value={v} onChange={(e) => on(e.target.value)}
+      <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>
+        {label.toUpperCase()}
+      </p>
+      <input
+        value={v}
+        onChange={(e) => on(e.target.value)}
         className="w-full px-3 py-2 text-[13px]"
-        style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", borderRadius: 8, color: "var(--color-ink)" }} />
+        style={{
+          background: "var(--color-graphite)",
+          border: "1px solid var(--color-hair)",
+          borderRadius: 8,
+          color: "var(--color-ink)",
+        }}
+      />
     </div>
   );
 }

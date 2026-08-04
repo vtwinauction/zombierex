@@ -25,13 +25,15 @@ export const CREATOR_CATEGORIES = [
   "other",
 ] as const;
 
-const SocialLinks = z.object({
-  instagram: z.string().max(200).optional().nullable(),
-  youtube: z.string().max(200).optional().nullable(),
-  tiktok: z.string().max(200).optional().nullable(),
-  twitter: z.string().max(200).optional().nullable(),
-  website: z.string().max(200).optional().nullable(),
-}).partial();
+const SocialLinks = z
+  .object({
+    instagram: z.string().max(200).optional().nullable(),
+    youtube: z.string().max(200).optional().nullable(),
+    tiktok: z.string().max(200).optional().nullable(),
+    twitter: z.string().max(200).optional().nullable(),
+    website: z.string().max(200).optional().nullable(),
+  })
+  .partial();
 
 const ApplySchema = z.object({
   category: z.enum(CREATOR_CATEGORIES),
@@ -77,9 +79,11 @@ export const getMyCreatorProfile = createServerFn({ method: "GET" })
 export const updateMyCreatorProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    ApplySchema.partial().extend({
-      featured_post_ids: z.array(z.string().uuid()).max(6).optional(),
-    }).parse(raw),
+    ApplySchema.partial()
+      .extend({
+        featured_post_ids: z.array(z.string().uuid()).max(6).optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const patch: any = { ...data };
@@ -101,44 +105,65 @@ export const getCreatorProfile = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: cp, error } = await context.supabase
       .from("creator_profiles")
-      .select("id, user_id, category, tagline, accepts_collabs, is_verified, is_featured, status, subscribers_count, tips_total_cents, social_links, portfolio_url, featured_post_ids, created_at, updated_at, approved_at")
+      .select(
+        "id, user_id, category, tagline, accepts_collabs, is_verified, is_featured, status, subscribers_count, tips_total_cents, social_links, portfolio_url, featured_post_ids, created_at, updated_at, approved_at",
+      )
       .eq("user_id", data.user_id)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!cp) return null;
 
     const [{ data: profile }, { data: tiers }, { data: sub }] = await Promise.all([
-      context.supabase.from("profiles")
-        .select("id, handle, display_name, avatar_url, tier, is_verified, followers_count, following_count, posts_count, bio, location")
-        .eq("id", data.user_id).maybeSingle(),
-      context.supabase.from("creator_tiers").select("*").eq("creator_id", cp.id).eq("is_active", true).order("sort_order"),
-      context.supabase.from("creator_subscriptions").select("id, status, tier_id, current_period_end")
-        .eq("creator_id", cp.id).eq("subscriber_id", context.userId).maybeSingle(),
+      context.supabase
+        .from("profiles")
+        .select(
+          "id, handle, display_name, avatar_url, tier, is_verified, followers_count, following_count, posts_count, bio, location",
+        )
+        .eq("id", data.user_id)
+        .maybeSingle(),
+      context.supabase
+        .from("creator_tiers")
+        .select("*")
+        .eq("creator_id", cp.id)
+        .eq("is_active", true)
+        .order("sort_order"),
+      context.supabase
+        .from("creator_subscriptions")
+        .select("id, status, tier_id, current_period_end")
+        .eq("creator_id", cp.id)
+        .eq("subscriber_id", context.userId)
+        .maybeSingle(),
     ]);
 
     return { ...cp, profile, tiers: tiers ?? [], my_subscription: sub ?? null };
   });
 
-
 export const listCreators = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      scope: z.enum(["trending", "rising", "featured", "recommended", "local", "top"]).default("trending"),
-      category: z.enum(CREATOR_CATEGORIES).optional(),
-      search: z.string().trim().max(120).optional(),
-      limit: z.number().int().min(1).max(50).default(24),
-    }).parse(raw ?? {}),
+    z
+      .object({
+        scope: z
+          .enum(["trending", "rising", "featured", "recommended", "local", "top"])
+          .default("trending"),
+        category: z.enum(CREATOR_CATEGORIES).optional(),
+        search: z.string().trim().max(120).optional(),
+        limit: z.number().int().min(1).max(50).default(24),
+      })
+      .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
     let q = context.supabase
       .from("creator_profiles")
-      .select("id, user_id, category, tagline, is_verified, is_featured, subscribers_count, tips_total_cents, created_at")
+      .select(
+        "id, user_id, category, tagline, is_verified, is_featured, subscribers_count, tips_total_cents, created_at",
+      )
       .eq("status", "approved")
       .limit(data.limit);
 
     if (data.scope === "featured") q = q.eq("is_featured", true);
-    if (data.scope === "trending" || data.scope === "top") q = q.order("subscribers_count", { ascending: false });
+    if (data.scope === "trending" || data.scope === "top")
+      q = q.order("subscribers_count", { ascending: false });
     if (data.scope === "rising") q = q.order("created_at", { ascending: false });
     if (data.scope === "recommended") q = q.order("tips_total_cents", { ascending: false });
     if (data.scope === "local") q = q.order("subscribers_count", { ascending: false });
@@ -157,7 +182,6 @@ export const listCreators = createServerFn({ method: "GET" })
     return (rows ?? []).map((r) => ({ ...r, profiles: byId.get(r.user_id) ?? null }));
   });
 
-
 /* ============ TIERS ============ */
 const TierInput = z.object({
   name: z.string().trim().min(1).max(80),
@@ -170,7 +194,11 @@ const TierInput = z.object({
 });
 
 async function getMyCreatorId(supabase: any, userId: string) {
-  const { data, error } = await supabase.from("creator_profiles").select("id").eq("user_id", userId).maybeSingle();
+  const { data, error } = await supabase
+    .from("creator_profiles")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Not a creator");
   return data.id as string;
@@ -180,7 +208,11 @@ export const listMyTiers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const cid = await getMyCreatorId(context.supabase, context.userId);
-    const { data, error } = await context.supabase.from("creator_tiers").select("*").eq("creator_id", cid).order("sort_order");
+    const { data, error } = await context.supabase
+      .from("creator_tiers")
+      .select("*")
+      .eq("creator_id", cid)
+      .order("sort_order");
     if (error) throw new Error(error.message);
     return data ?? [];
   });
@@ -192,7 +224,13 @@ export const upsertTier = createServerFn({ method: "POST" })
     const cid = await getMyCreatorId(context.supabase, context.userId);
     const row = { creator_id: cid, ...data };
     const q = data.id
-      ? context.supabase.from("creator_tiers").update(row).eq("id", data.id).eq("creator_id", cid).select().single()
+      ? context.supabase
+          .from("creator_tiers")
+          .update(row)
+          .eq("id", data.id)
+          .eq("creator_id", cid)
+          .select()
+          .single()
       : context.supabase.from("creator_tiers").insert(row).select().single();
     const { data: r, error } = await q;
     if (error) throw new Error(error.message);
@@ -204,7 +242,11 @@ export const deleteTier = createServerFn({ method: "POST" })
   .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const cid = await getMyCreatorId(context.supabase, context.userId);
-    const { error } = await context.supabase.from("creator_tiers").delete().eq("id", data.id).eq("creator_id", cid);
+    const { error } = await context.supabase
+      .from("creator_tiers")
+      .delete()
+      .eq("id", data.id)
+      .eq("creator_id", cid);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -212,19 +254,27 @@ export const deleteTier = createServerFn({ method: "POST" })
 /* ============ SUBSCRIPTIONS ============ */
 export const subscribeToCreator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ creator_id: z.string().uuid(), tier_id: z.string().uuid().nullable().optional() }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({ creator_id: z.string().uuid(), tier_id: z.string().uuid().nullable().optional() })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
-    const period_end = new Date(); period_end.setMonth(period_end.getMonth() + 1);
+    const period_end = new Date();
+    period_end.setMonth(period_end.getMonth() + 1);
     const { data: row, error } = await context.supabase
       .from("creator_subscriptions")
-      .upsert({
-        creator_id: data.creator_id,
-        subscriber_id: context.userId,
-        tier_id: data.tier_id ?? null,
-        status: "active",
-        current_period_end: period_end.toISOString(),
-        cancelled_at: null,
-      }, { onConflict: "creator_id,subscriber_id" })
+      .upsert(
+        {
+          creator_id: data.creator_id,
+          subscriber_id: context.userId,
+          tier_id: data.tier_id ?? null,
+          status: "active",
+          current_period_end: period_end.toISOString(),
+          cancelled_at: null,
+        },
+        { onConflict: "creator_id,subscriber_id" },
+      )
       .select()
       .single();
     if (error) throw new Error(error.message);
@@ -248,13 +298,15 @@ export const cancelSubscription = createServerFn({ method: "POST" })
 export const tipCreator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      creator_id: z.string().uuid(),
-      amount_cents: z.number().int().min(100).max(1_000_000),
-      message: z.string().max(500).optional(),
-      context: z.enum(["profile", "post", "live"]).default("profile"),
-      post_id: z.string().uuid().optional().nullable(),
-    }).parse(raw),
+    z
+      .object({
+        creator_id: z.string().uuid(),
+        amount_cents: z.number().int().min(100).max(1_000_000),
+        message: z.string().max(500).optional(),
+        context: z.enum(["profile", "post", "live"]).default("profile"),
+        post_id: z.string().uuid().optional().nullable(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -284,29 +336,65 @@ export const getCreatorDashboard = createServerFn({ method: "GET" })
       .maybeSingle();
     if (!cp) return null;
 
-    const since = new Date(); since.setDate(since.getDate() - 30);
+    const since = new Date();
+    since.setDate(since.getDate() - 30);
     const sinceIso = since.toISOString();
 
-    const [{ data: recentPosts }, { count: newSubs }, { count: newTips }, { data: tipsSum }, { count: newCollabs }, { data: topPosts }] = await Promise.all([
-      context.supabase.from("posts").select("id, created_at, likes_count, comments_count, shares_count, views_count")
-        .eq("author_id", context.userId).order("created_at", { ascending: false }).limit(50),
-      context.supabase.from("creator_subscriptions").select("*", { count: "exact", head: true })
-        .eq("creator_id", cp.id).eq("status", "active").gte("created_at", sinceIso),
-      context.supabase.from("creator_tips").select("*", { count: "exact", head: true })
-        .eq("creator_id", cp.id).gte("created_at", sinceIso),
-      context.supabase.from("creator_tips").select("amount_cents").eq("creator_id", cp.id).gte("created_at", sinceIso),
-      context.supabase.from("collab_requests").select("*", { count: "exact", head: true })
-        .eq("creator_id", cp.id).eq("status", "new"),
-      context.supabase.from("posts").select("id, kind, caption, thumbnail_url, media_url, likes_count, comments_count, views_count, created_at")
-        .eq("author_id", context.userId).order("likes_count", { ascending: false }).limit(5),
+    const [
+      { data: recentPosts },
+      { count: newSubs },
+      { count: newTips },
+      { data: tipsSum },
+      { count: newCollabs },
+      { data: topPosts },
+    ] = await Promise.all([
+      context.supabase
+        .from("posts")
+        .select("id, created_at, likes_count, comments_count, shares_count, views_count")
+        .eq("author_id", context.userId)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      context.supabase
+        .from("creator_subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("creator_id", cp.id)
+        .eq("status", "active")
+        .gte("created_at", sinceIso),
+      context.supabase
+        .from("creator_tips")
+        .select("*", { count: "exact", head: true })
+        .eq("creator_id", cp.id)
+        .gte("created_at", sinceIso),
+      context.supabase
+        .from("creator_tips")
+        .select("amount_cents")
+        .eq("creator_id", cp.id)
+        .gte("created_at", sinceIso),
+      context.supabase
+        .from("collab_requests")
+        .select("*", { count: "exact", head: true })
+        .eq("creator_id", cp.id)
+        .eq("status", "new"),
+      context.supabase
+        .from("posts")
+        .select(
+          "id, kind, caption, thumbnail_url, media_url, likes_count, comments_count, views_count, created_at",
+        )
+        .eq("author_id", context.userId)
+        .order("likes_count", { ascending: false })
+        .limit(5),
     ]);
 
     const totalViews = (recentPosts ?? []).reduce((s, p: any) => s + (p.views_count ?? 0), 0);
     const totalLikes = (recentPosts ?? []).reduce((s, p: any) => s + (p.likes_count ?? 0), 0);
     const totalComments = (recentPosts ?? []).reduce((s, p: any) => s + (p.comments_count ?? 0), 0);
     const totalShares = (recentPosts ?? []).reduce((s, p: any) => s + (p.shares_count ?? 0), 0);
-    const engagementRate = totalViews > 0 ? (totalLikes + totalComments + totalShares) / totalViews : 0;
-    const tipsThisPeriod = (tipsSum ?? []).reduce((s: number, t: any) => s + (t.amount_cents ?? 0), 0);
+    const engagementRate =
+      totalViews > 0 ? (totalLikes + totalComments + totalShares) / totalViews : 0;
+    const tipsThisPeriod = (tipsSum ?? []).reduce(
+      (s: number, t: any) => s + (t.amount_cents ?? 0),
+      0,
+    );
 
     // Best posting time heuristic — hour-of-day with the highest average engagement
     const hourBuckets = Array.from({ length: 24 }, () => ({ n: 0, eng: 0 }));
@@ -315,9 +403,10 @@ export const getCreatorDashboard = createServerFn({ method: "GET" })
       hourBuckets[h].n += 1;
       hourBuckets[h].eng += (p.likes_count ?? 0) + (p.comments_count ?? 0) + (p.shares_count ?? 0);
     }
-    const bestHour = hourBuckets
-      .map((b, h) => ({ h, avg: b.n ? b.eng / b.n : 0 }))
-      .sort((a, b) => b.avg - a.avg)[0]?.h ?? null;
+    const bestHour =
+      hourBuckets
+        .map((b, h) => ({ h, avg: b.n ? b.eng / b.n : 0 }))
+        .sort((a, b) => b.avg - a.avg)[0]?.h ?? null;
 
     return {
       profile: cp,
@@ -341,7 +430,13 @@ export const getCreatorDashboard = createServerFn({ method: "GET" })
 export const listMyCollabInbox = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({ status: z.enum(["new","read","replied","accepted","declined","archived","all"]).default("all") }).parse(raw ?? {}),
+    z
+      .object({
+        status: z
+          .enum(["new", "read", "replied", "accepted", "declined", "archived", "all"])
+          .default("all"),
+      })
+      .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
     const cid = await getMyCreatorId(context.supabase, context.userId);
@@ -356,26 +451,32 @@ export const listMyCollabInbox = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     const sids = Array.from(new Set((rows ?? []).map((r) => r.sender_id)));
     const { data: senders } = sids.length
-      ? await context.supabase.from("profiles").select("id, handle, display_name, avatar_url").in("id", sids)
+      ? await context.supabase
+          .from("profiles")
+          .select("id, handle, display_name, avatar_url")
+          .in("id", sids)
       : { data: [] as any[] };
     const byId = new Map((senders ?? []).map((s) => [s.id, s]));
     return (rows ?? []).map((r) => ({ ...r, sender: byId.get(r.sender_id) ?? null }));
   });
 
-
 export const sendCollabRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      creator_id: z.string().uuid(),
-      brand_name: z.string().trim().min(1).max(120),
-      brand_website: z.string().url().max(300).optional().or(z.literal("")),
-      subject: z.string().trim().min(1).max(200),
-      message: z.string().trim().min(1).max(4000),
-      campaign_type: z.enum(["sponsorship","product_seed","ambassador","ugc","other"]).default("other"),
-      budget_cents: z.number().int().min(0).max(100_000_000).optional(),
-      currency: z.string().length(3).default("USD"),
-    }).parse(raw),
+    z
+      .object({
+        creator_id: z.string().uuid(),
+        brand_name: z.string().trim().min(1).max(120),
+        brand_website: z.string().url().max(300).optional().or(z.literal("")),
+        subject: z.string().trim().min(1).max(200),
+        message: z.string().trim().min(1).max(4000),
+        campaign_type: z
+          .enum(["sponsorship", "product_seed", "ambassador", "ugc", "other"])
+          .default("other"),
+        budget_cents: z.number().int().min(0).max(100_000_000).optional(),
+        currency: z.string().length(3).default("USD"),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -401,16 +502,19 @@ export const sendCollabRequest = createServerFn({ method: "POST" })
 export const updateCollabStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      id: z.string().uuid(),
-      status: z.enum(["new","read","replied","accepted","declined","archived"]),
-    }).parse(raw),
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["new", "read", "replied", "accepted", "declined", "archived"]),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const cid = await getMyCreatorId(context.supabase, context.userId);
     const patch: any = { status: data.status };
     if (data.status === "read") patch.read_at = new Date().toISOString();
-    if (["replied","accepted","declined"].includes(data.status)) patch.responded_at = new Date().toISOString();
+    if (["replied", "accepted", "declined"].includes(data.status))
+      patch.responded_at = new Date().toISOString();
     const { error } = await context.supabase
       .from("collab_requests")
       .update(patch)
@@ -422,11 +526,11 @@ export const updateCollabStatus = createServerFn({ method: "POST" })
 
 /* ============ DRAFTS ============ */
 const DraftInput = z.object({
-  kind: z.enum(["photo","video","telemetry","event"]).default("photo"),
+  kind: z.enum(["photo", "video", "telemetry", "event"]).default("photo"),
   caption: z.string().max(4000).optional().nullable(),
   media_urls: z.array(z.string().url()).max(10).default([]),
   hashtags: z.array(z.string().max(80)).max(30).default([]),
-  visibility: z.enum(["public","followers","subscribers","club","private"]).default("public"),
+  visibility: z.enum(["public", "followers", "subscribers", "club", "private"]).default("public"),
   club_id: z.string().uuid().optional().nullable(),
   is_subscribers_only: z.boolean().default(false),
 });
@@ -450,7 +554,13 @@ export const saveDraft = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const row = { author_id: context.userId, ...data };
     const q = data.id
-      ? context.supabase.from("post_drafts").update(row).eq("id", data.id).eq("author_id", context.userId).select().single()
+      ? context.supabase
+          .from("post_drafts")
+          .update(row)
+          .eq("id", data.id)
+          .eq("author_id", context.userId)
+          .select()
+          .single()
       : context.supabase.from("post_drafts").insert(row).select().single();
     const { data: r, error } = await q;
     if (error) throw new Error(error.message);
@@ -461,7 +571,11 @@ export const deleteDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("post_drafts").delete().eq("id", data.id).eq("author_id", context.userId);
+    const { error } = await context.supabase
+      .from("post_drafts")
+      .delete()
+      .eq("id", data.id)
+      .eq("author_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -482,11 +596,22 @@ export const listMyScheduled = createServerFn({ method: "GET" })
 
 export const schedulePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => DraftInput.extend({ id: z.string().uuid().optional(), publish_at: z.string().datetime() }).parse(raw))
+  .validator((raw) =>
+    DraftInput.extend({
+      id: z.string().uuid().optional(),
+      publish_at: z.string().datetime(),
+    }).parse(raw),
+  )
   .handler(async ({ data, context }) => {
     const row = { author_id: context.userId, status: "scheduled" as const, ...data };
     const q = data.id
-      ? context.supabase.from("scheduled_posts").update(row).eq("id", data.id).eq("author_id", context.userId).select().single()
+      ? context.supabase
+          .from("scheduled_posts")
+          .update(row)
+          .eq("id", data.id)
+          .eq("author_id", context.userId)
+          .select()
+          .single()
       : context.supabase.from("scheduled_posts").insert(row).select().single();
     const { data: r, error } = await q;
     if (error) throw new Error(error.message);
@@ -535,10 +660,12 @@ export const getMyPayoutsLedger = createServerFn({ method: "GET" })
         .limit(50),
     ]);
 
-    const supporterIds = Array.from(new Set([
-      ...(tips ?? []).map((t) => t.supporter_id),
-      ...(subs ?? []).map((s) => s.subscriber_id),
-    ]));
+    const supporterIds = Array.from(
+      new Set([
+        ...(tips ?? []).map((t) => t.supporter_id),
+        ...(subs ?? []).map((s) => s.subscriber_id),
+      ]),
+    );
     let profiles: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
     if (supporterIds.length > 0) {
       const { data: rows } = await context.supabase
@@ -567,14 +694,19 @@ export const getMyPayoutsLedger = createServerFn({ method: "GET" })
         status: creator.status,
       },
       tips: (tips ?? []).map((t) => ({ ...t, supporter: profiles[t.supporter_id] ?? null })),
-      subscriptions: (subs ?? []).map((s) => ({ ...s, subscriber: profiles[s.subscriber_id] ?? null })),
+      subscriptions: (subs ?? []).map((s) => ({
+        ...s,
+        subscriber: profiles[s.subscriber_id] ?? null,
+      })),
     };
   });
 
 /* ============ ANALYTICS DEEP-DIVE ============ */
 export const getCreatorAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ days: z.number().int().min(7).max(365).default(30) }).parse(raw ?? {}))
+  .validator((raw) =>
+    z.object({ days: z.number().int().min(7).max(365).default(30) }).parse(raw ?? {}),
+  )
   .handler(async ({ data, context }) => {
     const { data: creator } = await context.supabase
       .from("creator_profiles")
@@ -584,41 +716,73 @@ export const getCreatorAnalytics = createServerFn({ method: "GET" })
 
     if (!creator) return null;
 
-    const since = new Date(); since.setDate(since.getDate() - data.days);
+    const since = new Date();
+    since.setDate(since.getDate() - data.days);
     const sinceIso = since.toISOString();
 
-    const [{ data: posts }, { data: subs }, { data: tips }, { count: allTimePostsCount }] = await Promise.all([
-      context.supabase
-        .from("posts")
-        .select("id, created_at, likes_count, comments_count, shares_count, views_count, kind, caption, thumbnail_url")
-        .eq("author_id", context.userId)
-        .gte("created_at", sinceIso)
-        .order("created_at", { ascending: true }),
-      context.supabase
-        .from("creator_subscriptions")
-        .select("id, created_at, status, cancelled_at, tier_id")
-        .eq("creator_id", creator.id)
-        .gte("created_at", sinceIso)
-        .order("created_at", { ascending: true }),
-      context.supabase
-        .from("creator_tips")
-        .select("id, created_at, amount_cents, currency")
-        .eq("creator_id", creator.id)
-        .gte("created_at", sinceIso)
-        .order("created_at", { ascending: true }),
-      context.supabase
-        .from("posts")
-        .select("id, likes_count, comments_count, shares_count, views_count", { count: "exact", head: true })
-        .eq("author_id", context.userId),
-    ]);
+    const [{ data: posts }, { data: subs }, { data: tips }, { count: allTimePostsCount }] =
+      await Promise.all([
+        context.supabase
+          .from("posts")
+          .select(
+            "id, created_at, likes_count, comments_count, shares_count, views_count, kind, caption, thumbnail_url",
+          )
+          .eq("author_id", context.userId)
+          .gte("created_at", sinceIso)
+          .order("created_at", { ascending: true }),
+        context.supabase
+          .from("creator_subscriptions")
+          .select("id, created_at, status, cancelled_at, tier_id")
+          .eq("creator_id", creator.id)
+          .gte("created_at", sinceIso)
+          .order("created_at", { ascending: true }),
+        context.supabase
+          .from("creator_tips")
+          .select("id, created_at, amount_cents, currency")
+          .eq("creator_id", creator.id)
+          .gte("created_at", sinceIso)
+          .order("created_at", { ascending: true }),
+        context.supabase
+          .from("posts")
+          .select("id, likes_count, comments_count, shares_count, views_count", {
+            count: "exact",
+            head: true,
+          })
+          .eq("author_id", context.userId),
+      ]);
 
-    const days: Record<string, { date: string; views: number; likes: number; comments: number; shares: number; posts: number; tips: number; subs: number; cancels: number }> = {};
+    const days: Record<
+      string,
+      {
+        date: string;
+        views: number;
+        likes: number;
+        comments: number;
+        shares: number;
+        posts: number;
+        tips: number;
+        subs: number;
+        cancels: number;
+      }
+    > = {};
     const labels: string[] = [];
     for (let i = data.days - 1; i >= 0; i--) {
-      const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0, 0, 0, 0);
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      d.setHours(0, 0, 0, 0);
       const key = d.toISOString().slice(0, 10);
       labels.push(key);
-      days[key] = { date: key, views: 0, likes: 0, comments: 0, shares: 0, posts: 0, tips: 0, subs: 0, cancels: 0 };
+      days[key] = {
+        date: key,
+        views: 0,
+        likes: 0,
+        comments: 0,
+        shares: 0,
+        posts: 0,
+        tips: 0,
+        subs: 0,
+        cancels: 0,
+      };
     }
 
     for (const p of (posts ?? []) as any[]) {
@@ -646,21 +810,31 @@ export const getCreatorAnalytics = createServerFn({ method: "GET" })
     }
 
     const daily = labels.map((k) => days[k]);
-    const totals = daily.reduce((a, b) => ({
-      views: a.views + b.views,
-      likes: a.likes + b.likes,
-      comments: a.comments + b.comments,
-      shares: a.shares + b.shares,
-      posts: a.posts + b.posts,
-      tips: a.tips + b.tips,
-      subs: a.subs + b.subs,
-      cancels: a.cancels + b.cancels,
-    }), { views: 0, likes: 0, comments: 0, shares: 0, posts: 0, tips: 0, subs: 0, cancels: 0 });
+    const totals = daily.reduce(
+      (a, b) => ({
+        views: a.views + b.views,
+        likes: a.likes + b.likes,
+        comments: a.comments + b.comments,
+        shares: a.shares + b.shares,
+        posts: a.posts + b.posts,
+        tips: a.tips + b.tips,
+        subs: a.subs + b.subs,
+        cancels: a.cancels + b.cancels,
+      }),
+      { views: 0, likes: 0, comments: 0, shares: 0, posts: 0, tips: 0, subs: 0, cancels: 0 },
+    );
 
     const topPosts = (posts ?? [])
       .sort((a: any, b: any) => (b.views_count ?? 0) - (a.views_count ?? 0))
       .slice(0, 5)
-      .map((p: any) => ({ id: p.id, caption: p.caption, thumbnail_url: p.thumbnail_url, views: p.views_count ?? 0, likes: p.likes_count ?? 0, comments: p.comments_count ?? 0 }));
+      .map((p: any) => ({
+        id: p.id,
+        caption: p.caption,
+        thumbnail_url: p.thumbnail_url,
+        views: p.views_count ?? 0,
+        likes: p.likes_count ?? 0,
+        comments: p.comments_count ?? 0,
+      }));
 
     return {
       profile: creator,

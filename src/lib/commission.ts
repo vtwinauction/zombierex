@@ -140,11 +140,7 @@ export function computeSplit(grossCents: number, rule: FeeRule | null): Split {
 }
 
 /** Convenience: resolve + compute in one call. */
-export function priceTransaction(
-  grossCents: number,
-  rules: FeeRule[],
-  ctx: SplitContext,
-): Split {
+export function priceTransaction(grossCents: number, rules: FeeRule[], ctx: SplitContext): Split {
   return computeSplit(grossCents, resolveFeeRule(rules, ctx));
 }
 
@@ -154,8 +150,16 @@ export function priceTransaction(
  * divided by 100 or the displayed figure is off by 10x-100x.
  */
 const MINOR_UNITS: Record<string, number> = {
-  BHD: 1000, KWD: 1000, OMR: 1000, JOD: 1000, TND: 1000,
-  JPY: 1, KRW: 1, VND: 1, CLP: 1, ISK: 1,
+  BHD: 1000,
+  KWD: 1000,
+  OMR: 1000,
+  JOD: 1000,
+  TND: 1000,
+  JPY: 1,
+  KRW: 1,
+  VND: 1,
+  CLP: 1,
+  ISK: 1,
 };
 
 /** Minor units per whole unit for a currency (default 100). */
@@ -184,7 +188,9 @@ export function formatMoney(cents: number, currency = "USD"): string {
   }
 }
 
-export function describeRule(rule: Pick<FeeRule, "percent_bps" | "fixed_cents" | "min_fee_cents" | "max_fee_cents">): string {
+export function describeRule(
+  rule: Pick<FeeRule, "percent_bps" | "fixed_cents" | "min_fee_cents" | "max_fee_cents">,
+): string {
   const parts: string[] = [];
   if (rule.percent_bps > 0) parts.push(`${(rule.percent_bps / 100).toFixed(2)}%`);
   if (rule.fixed_cents > 0) parts.push(`${formatMoney(rule.fixed_cents)}`);

@@ -28,7 +28,8 @@ export function SpeedoHUD({
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
     watchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
-        const mps = typeof pos.coords.speed === "number" && pos.coords.speed >= 0 ? pos.coords.speed : 0;
+        const mps =
+          typeof pos.coords.speed === "number" && pos.coords.speed >= 0 ? pos.coords.speed : 0;
         // EMA smoothing
         const prev = emaRef.current ?? mps;
         const next = prev * 0.6 + mps * 0.4;
@@ -63,7 +64,9 @@ export function SpeedoHUD({
     <div
       className={className}
       style={{
-        display: "inline-flex", flexDirection: "column", alignItems: "center",
+        display: "inline-flex",
+        flexDirection: "column",
+        alignItems: "center",
         padding: compact ? 8 : 10,
         borderRadius: 20,
         background: "hsl(var(--card) / 0.9)",
@@ -73,9 +76,16 @@ export function SpeedoHUD({
       }}
     >
       <div style={{ position: "relative", width: size, height: size * 0.82 }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(135deg)" }}>
+        <svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          style={{ transform: "rotate(135deg)" }}
+        >
           <circle
-            cx={size / 2} cy={size / 2} r={r}
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
             fill="none"
             stroke="hsl(var(--muted))"
             strokeWidth={stroke}
@@ -83,31 +93,61 @@ export function SpeedoHUD({
             strokeLinecap="round"
           />
           <circle
-            cx={size / 2} cy={size / 2} r={r}
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
             fill="none"
             stroke="var(--color-neon, #7cff3f)"
             strokeWidth={stroke}
             strokeDasharray={`${dash} ${c}`}
             strokeLinecap="round"
-            style={{ transition: "stroke-dasharray 220ms ease-out", filter: "drop-shadow(0 0 6px rgba(124,255,63,0.55))" }}
+            style={{
+              transition: "stroke-dasharray 220ms ease-out",
+              filter: "drop-shadow(0 0 6px rgba(124,255,63,0.55))",
+            }}
           />
         </svg>
-        <div style={{
-          position: "absolute", inset: 0, display: "grid", placeItems: "center",
-          fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+          }}
+        >
           <div style={{ textAlign: "center", lineHeight: 1 }}>
-            <div style={{ fontSize: compact ? 26 : 34, fontWeight: 800, color: "hsl(var(--foreground))" }}>
+            <div
+              style={{
+                fontSize: compact ? 26 : 34,
+                fontWeight: 800,
+                color: "hsl(var(--foreground))",
+              }}
+            >
               {value == null ? "—" : Math.round(value)}
             </div>
-            <div style={{ fontSize: 9, letterSpacing: 1.4, color: "hsl(var(--muted-foreground))", marginTop: 2 }}>
+            <div
+              style={{
+                fontSize: 9,
+                letterSpacing: 1.4,
+                color: "hsl(var(--muted-foreground))",
+                marginTop: 2,
+              }}
+            >
               {label}
             </div>
           </div>
         </div>
       </div>
       {heading != null && !compact && (
-        <div style={{ fontSize: 9, letterSpacing: 1.4, color: "hsl(var(--muted-foreground))", fontFamily: "'JetBrains Mono', ui-monospace, monospace" }}>
+        <div
+          style={{
+            fontSize: 9,
+            letterSpacing: 1.4,
+            color: "hsl(var(--muted-foreground))",
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+          }}
+        >
           HDG {Math.round(heading)}°
         </div>
       )}

@@ -16,7 +16,15 @@ export const Route = createFileRoute("/_authenticated/owner/finance/transactions
   component: TransactionsPage,
 });
 
-const STATUSES = ["", "pending", "succeeded", "failed", "refunded", "partially_refunded", "cancelled"];
+const STATUSES = [
+  "",
+  "pending",
+  "succeeded",
+  "failed",
+  "refunded",
+  "partially_refunded",
+  "cancelled",
+];
 const KINDS = ["", "order", "tip", "creator_subscription", "plan", "ad", "other"];
 
 function TransactionsPage() {
@@ -32,7 +40,10 @@ function TransactionsPage() {
   const [openId, setOpenId] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  const gate = useQuery({ queryKey: ["finance", "access"], queryFn: () => access({ data: undefined as any }) });
+  const gate = useQuery({
+    queryKey: ["finance", "access"],
+    queryFn: () => access({ data: undefined as any }),
+  });
   const canWrite = !!gate.data?.canWrite;
 
   const q = useQuery({
@@ -72,8 +83,19 @@ function TransactionsPage() {
     const header = "id,date,kind,status,gross,commission,net,buyer,seller,provider,ref";
     const body = rows
       .map((r: any) =>
-        [r.id, r.created_at, r.kind, r.status, r.gross_cents / 100, r.platform_fee_cents / 100, r.net_cents / 100,
-         r.buyer_name ?? "", r.seller_name ?? "", r.provider, r.provider_ref ?? ""].join(","),
+        [
+          r.id,
+          r.created_at,
+          r.kind,
+          r.status,
+          r.gross_cents / 100,
+          r.platform_fee_cents / 100,
+          r.net_cents / 100,
+          r.buyer_name ?? "",
+          r.seller_name ?? "",
+          r.provider,
+          r.provider_ref ?? "",
+        ].join(","),
       )
       .join("\n");
     const blob = new Blob([`${header}\n${body}`], { type: "text/csv" });
@@ -88,38 +110,88 @@ function TransactionsPage() {
   return (
     <div className="space-y-4 p-5">
       <div className="grid grid-cols-2 gap-2">
-        <input className="zx-input col-span-2" placeholder="Search reference or category…" value={filters.q} onChange={(e) => setFilters({ ...filters, q: e.target.value })} />
-        <select className="zx-input" value={filters.status} onChange={(e) => setFilters({ ...filters, status: e.target.value })}>
-          {STATUSES.map((s) => <option key={s} value={s}>{s || "All statuses"}</option>)}
+        <input
+          className="zx-input col-span-2"
+          placeholder="Search reference or category…"
+          value={filters.q}
+          onChange={(e) => setFilters({ ...filters, q: e.target.value })}
+        />
+        <select
+          className="zx-input"
+          value={filters.status}
+          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+        >
+          {STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {s || "All statuses"}
+            </option>
+          ))}
         </select>
-        <select className="zx-input" value={filters.kind} onChange={(e) => setFilters({ ...filters, kind: e.target.value })}>
-          {KINDS.map((s) => <option key={s} value={s}>{s || "All streams"}</option>)}
+        <select
+          className="zx-input"
+          value={filters.kind}
+          onChange={(e) => setFilters({ ...filters, kind: e.target.value })}
+        >
+          {KINDS.map((s) => (
+            <option key={s} value={s}>
+              {s || "All streams"}
+            </option>
+          ))}
         </select>
-        <input type="date" className="zx-input" value={filters.from} onChange={(e) => setFilters({ ...filters, from: e.target.value })} />
-        <input type="date" className="zx-input" value={filters.to} onChange={(e) => setFilters({ ...filters, to: e.target.value })} />
+        <input
+          type="date"
+          className="zx-input"
+          value={filters.from}
+          onChange={(e) => setFilters({ ...filters, from: e.target.value })}
+        />
+        <input
+          type="date"
+          className="zx-input"
+          value={filters.to}
+          onChange={(e) => setFilters({ ...filters, to: e.target.value })}
+        />
       </div>
 
       <div className="flex items-center justify-between">
         <p className="mono-tag text-[10px] opacity-60">{q.data?.total ?? 0} TRANSACTIONS</p>
-        <button className="btn-ghost text-[10px]" onClick={exportCsv}>Export CSV</button>
+        <button className="btn-ghost text-[10px]" onClick={exportCsv}>
+          Export CSV
+        </button>
       </div>
 
-      {err && <div className="rounded px-3 py-2 text-[12px]" style={{ background: "rgba(220,60,60,0.1)" }}>{err}</div>}
+      {err && (
+        <div
+          className="rounded px-3 py-2 text-[12px]"
+          style={{ background: "rgba(220,60,60,0.1)" }}
+        >
+          {err}
+        </div>
+      )}
       {q.isLoading && <p className="text-sm opacity-60">Loading…</p>}
-      {q.data?.rows.length === 0 && <p className="text-xs opacity-50">No transactions match these filters.</p>}
+      {q.data?.rows.length === 0 && (
+        <p className="text-xs opacity-50">No transactions match these filters.</p>
+      )}
 
       <div className="space-y-2">
         {(q.data?.rows ?? []).map((r: any) => (
           <div key={r.id} className="card-surface p-3">
-            <button className="w-full text-left" onClick={() => setOpenId(openId === r.id ? null : r.id)}>
+            <button
+              className="w-full text-left"
+              onClick={() => setOpenId(openId === r.id ? null : r.id)}
+            >
               <div className="flex items-baseline justify-between">
                 <span className="text-sm">{formatMoney(r.gross_cents, r.currency)}</span>
-                <span className="mono-tag text-[10px]" style={{ color: r.status === "succeeded" ? "#00c853" : "var(--color-silver)" }}>
+                <span
+                  className="mono-tag text-[10px]"
+                  style={{ color: r.status === "succeeded" ? "#00c853" : "var(--color-silver)" }}
+                >
                   {r.status.toUpperCase()}
                 </span>
               </div>
               <p className="mono-tag mt-1 text-[10px] opacity-60">
-                {new Date(r.created_at).toLocaleString()} · {r.kind} · fee {formatMoney(r.platform_fee_cents, r.currency)} · net {formatMoney(r.net_cents, r.currency)}
+                {new Date(r.created_at).toLocaleString()} · {r.kind} · fee{" "}
+                {formatMoney(r.platform_fee_cents, r.currency)} · net{" "}
+                {formatMoney(r.net_cents, r.currency)}
               </p>
               <p className="mt-0.5 text-[11px] opacity-50">
                 {r.buyer_name ?? "—"} → {r.seller_name ?? "platform"} · {r.provider}
@@ -135,11 +207,17 @@ function TransactionsPage() {
                     <ul className="mt-1 space-y-1">
                       {(det.data.ledger as any[]).map((l) => (
                         <li key={l.id} className="flex justify-between text-[11px]">
-                          <span>{l.account} · {l.direction}</span>
-                          <span className="tabular-nums">{formatMoney(l.amount_cents, l.currency)}</span>
+                          <span>
+                            {l.account} · {l.direction}
+                          </span>
+                          <span className="tabular-nums">
+                            {formatMoney(l.amount_cents, l.currency)}
+                          </span>
                         </li>
                       ))}
-                      {(det.data.ledger as any[]).length === 0 && <li className="text-[11px] opacity-50">No ledger lines.</li>}
+                      {(det.data.ledger as any[]).length === 0 && (
+                        <li className="text-[11px] opacity-50">No ledger lines.</li>
+                      )}
                     </ul>
                     {(det.data.refunds as any[]).length > 0 && (
                       <>
@@ -157,14 +235,18 @@ function TransactionsPage() {
                           <button
                             className="btn-ghost text-[10px]"
                             onClick={() => {
-                              const amt = prompt("Refund amount in dollars (blank = full remaining)");
+                              const amt = prompt(
+                                "Refund amount in dollars (blank = full remaining)",
+                              );
                               if (amt === null) return;
                               const reason = prompt("Reason") ?? undefined;
                               act(() =>
                                 refund({
                                   data: {
                                     transaction_id: r.id,
-                                    amount_cents: amt ? Math.round(parseFloat(amt) * 100) : undefined,
+                                    amount_cents: amt
+                                      ? Math.round(parseFloat(amt) * 100)
+                                      : undefined,
                                     reason,
                                   },
                                 }),
@@ -175,15 +257,31 @@ function TransactionsPage() {
                           </button>
                         ) : null}
                         {r.status === "pending" && (
-                          <button className="btn-ghost text-[10px]" onClick={() => act(() => cancel({ data: { id: r.id } }))}>Cancel</button>
+                          <button
+                            className="btn-ghost text-[10px]"
+                            onClick={() => act(() => cancel({ data: { id: r.id } }))}
+                          >
+                            Cancel
+                          </button>
                         )}
                         <button
                           className="btn-ghost text-[10px]"
                           onClick={() => {
-                            const fee = prompt("New commission in dollars", (r.platform_fee_cents / 100).toFixed(2));
+                            const fee = prompt(
+                              "New commission in dollars",
+                              (r.platform_fee_cents / 100).toFixed(2),
+                            );
                             if (!fee) return;
                             const reason = prompt("Reason for adjustment") ?? "manual";
-                            act(() => adjust({ data: { id: r.id, platform_fee_cents: Math.round(parseFloat(fee) * 100), reason } }));
+                            act(() =>
+                              adjust({
+                                data: {
+                                  id: r.id,
+                                  platform_fee_cents: Math.round(parseFloat(fee) * 100),
+                                  reason,
+                                },
+                              }),
+                            );
                           }}
                         >
                           Adjust commission

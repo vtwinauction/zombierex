@@ -12,7 +12,8 @@ function publicClient() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -31,14 +32,27 @@ export const listActiveStories = createServerFn({ method: "GET" }).handler(async
   if (error) throw new Error(error.message);
   const rows = data ?? [];
   const authorIds = Array.from(new Set(rows.map((r) => r.author_id)));
-  let profilesById = new Map<string, { id: string; display_name: string | null; handle: string | null; avatar_url: string | null; is_verified: boolean | null }>();
+  let profilesById = new Map<
+    string,
+    {
+      id: string;
+      display_name: string | null;
+      handle: string | null;
+      avatar_url: string | null;
+      is_verified: boolean | null;
+    }
+  >();
   if (authorIds.length) {
     const { data: profs, error: pErr } = await sb
       .from("profiles_public")
       .select("id, display_name, handle, avatar_url, is_verified")
       .in("id", authorIds);
     if (pErr) throw new Error(pErr.message);
-    profilesById = new Map((profs ?? []).filter((p): p is NonNullable<typeof p> & { id: string } => !!p.id).map((p) => [p.id, p]));
+    profilesById = new Map(
+      (profs ?? [])
+        .filter((p): p is NonNullable<typeof p> & { id: string } => !!p.id)
+        .map((p) => [p.id, p]),
+    );
   }
   const items = rows.map((r) => ({ ...r, author: profilesById.get(r.author_id) ?? null }));
   return { items };
@@ -82,7 +96,11 @@ export const deleteStory = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
-    const { error } = await sb.from("stories").delete().eq("id", data.id).eq("author_id", context.userId);
+    const { error } = await sb
+      .from("stories")
+      .delete()
+      .eq("id", data.id)
+      .eq("author_id", context.userId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

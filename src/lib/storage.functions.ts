@@ -60,8 +60,7 @@ function assertOwnPath(bucket: Bucket, path: string, userId: string) {
       throw new Error("documents path must be vendor/<vendor_id>/…");
     return;
   }
-  if (!path.startsWith(`${userId}/`))
-    throw new Error(`${bucket} path must start with ${userId}/`);
+  if (!path.startsWith(`${userId}/`)) throw new Error(`${bucket} path must start with ${userId}/`);
 }
 
 const UploadSchema = z.object({
@@ -109,7 +108,6 @@ const ReadSchema = z.object({
   expires_in: z.number().int().min(30).max(YEAR).default(YEAR),
 });
 
-
 // Verify visibility via the caller's RLS-scoped client. A row the user cannot
 // see returns nothing — so the signed URL cannot bypass RLS.
 async function assertPathVisibleToUser(
@@ -120,11 +118,21 @@ async function assertPathVisibleToUser(
 ): Promise<boolean> {
   if (path.startsWith(`${userId}/`)) return true;
   if (bucket === "avatars") {
-    const { data } = await supabase.from("profiles").select("id").ilike("avatar_url", `%${path}%`).limit(1).maybeSingle();
+    const { data } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("avatar_url", `%${path}%`)
+      .limit(1)
+      .maybeSingle();
     return !!data;
   }
   if (bucket === "posts") {
-    const { data } = await supabase.from("posts").select("id").or(`media_url.ilike.%${path}%,thumbnail_url.ilike.%${path}%`).limit(1).maybeSingle();
+    const { data } = await supabase
+      .from("posts")
+      .select("id")
+      .or(`media_url.ilike.%${path}%,thumbnail_url.ilike.%${path}%`)
+      .limit(1)
+      .maybeSingle();
     return !!data;
   }
   if (bucket === "vehicles") {
@@ -132,7 +140,12 @@ async function assertPathVisibleToUser(
     return !!data;
   }
   if (bucket === "marketplace") {
-    const { data } = await supabase.from("listing_photos").select("id").ilike("url", `%${path}%`).limit(1).maybeSingle();
+    const { data } = await supabase
+      .from("listing_photos")
+      .select("id")
+      .ilike("url", `%${path}%`)
+      .limit(1)
+      .maybeSingle();
     return !!data;
   }
   return false;
@@ -155,8 +168,7 @@ export const createSignedReadUrl = createServerFn({ method: "POST" })
         .eq("id", m[1])
         .maybeSingle();
       const admin = await isAdmin(context.supabase, context.userId);
-      if (!admin && (!vendor || vendor.owner_id !== context.userId))
-        throw new Error("Forbidden");
+      if (!admin && (!vendor || vendor.owner_id !== context.userId)) throw new Error("Forbidden");
     } else {
       const ok = await assertPathVisibleToUser(context.supabase, bucket, data.path, context.userId);
       if (!ok) throw new Error("Forbidden");

@@ -9,9 +9,6 @@ import { getInboxCounts } from "@/lib/inbox.functions";
 import { getMyPreferences } from "@/lib/notifications.functions";
 import { supabase } from "@/integrations/supabase/client";
 
-
-
-
 /**
  * Editorial masthead — light glass, wordmark left, system actions right.
  * Section eyebrow (e.g. № 03 · ATLAS) sits under the wordmark.
@@ -56,8 +53,10 @@ export function StatusBar({ index, section }: { index: string; section: string }
   useEffect(() => {
     if (!uid) return;
     const bump = () => qc.invalidateQueries({ queryKey: ["inbox-counts"] });
-    const ch = supabase.channel(`statusbar-inbox-${uid}-${Math.random().toString(36).slice(2)}`)
-      .on("postgres_changes",
+    const ch = supabase
+      .channel(`statusbar-inbox-${uid}-${Math.random().toString(36).slice(2)}`)
+      .on(
+        "postgres_changes",
         { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${uid}` },
         (payload: any) => {
           bump();
@@ -75,9 +74,10 @@ export function StatusBar({ index, section }: { index: string; section: string }
         },
       )
       .subscribe();
-    return () => { void supabase.removeChannel(ch); };
+    return () => {
+      void supabase.removeChannel(ch);
+    };
   }, [uid, qc]);
-
 
   const notif = counts.data?.notifications ?? 0;
 
@@ -105,7 +105,12 @@ export function StatusBar({ index, section }: { index: string; section: string }
           </span>
           <span
             className="mono-tag mt-1.5"
-            style={{ fontSize: 9, letterSpacing: "0.28em", color: "var(--color-ink-1, #2a2a2a)", fontWeight: 600 }}
+            style={{
+              fontSize: 9,
+              letterSpacing: "0.28em",
+              color: "var(--color-ink-1, #2a2a2a)",
+              fontWeight: 600,
+            }}
           >
             № {index} · {friendlyLabel(section)}
           </span>
@@ -137,8 +142,16 @@ export function StatusBar({ index, section }: { index: string; section: string }
 }
 
 function ActionCell({
-  to, label, children, badge,
-}: { to: string; label: string; children: React.ReactNode; badge?: number }) {
+  to,
+  label,
+  children,
+  badge,
+}: {
+  to: string;
+  label: string;
+  children: React.ReactNode;
+  badge?: number;
+}) {
   return (
     <Link
       to={to}
@@ -167,9 +180,6 @@ function ActionCell({
   );
 }
 
-
-
-
 /**
  * Bluetooth pairing button — connects to action cameras / helmet cams via
  * Web Bluetooth so riders can trigger capture from the app. Falls back
@@ -179,7 +189,12 @@ function BluetoothCell() {
   const [state, setState] = useState<"idle" | "scanning" | "linked" | "unsupported">("idle");
 
   async function onPair() {
-    const nav = typeof navigator !== "undefined" ? (navigator as Navigator & { bluetooth?: { requestDevice: (opts: unknown) => Promise<{ name?: string }> } }) : undefined;
+    const nav =
+      typeof navigator !== "undefined"
+        ? (navigator as Navigator & {
+            bluetooth?: { requestDevice: (opts: unknown) => Promise<{ name?: string }> };
+          })
+        : undefined;
     if (!nav?.bluetooth) {
       setState("unsupported");
       window.setTimeout(() => setState("idle"), 1800);
@@ -194,8 +209,13 @@ function BluetoothCell() {
       if (device) {
         setState("linked");
         try {
-          sessionStorage.setItem("zrex:btcam", JSON.stringify({ name: device.name ?? "Camera", at: Date.now() }));
-        } catch { /* noop */ }
+          sessionStorage.setItem(
+            "zrex:btcam",
+            JSON.stringify({ name: device.name ?? "Camera", at: Date.now() }),
+          );
+        } catch {
+          /* noop */
+        }
       } else {
         setState("idle");
       }
@@ -214,8 +234,8 @@ function BluetoothCell() {
         state === "unsupported"
           ? "Bluetooth not supported on this device"
           : linked
-          ? "Camera linked"
-          : "Pair action camera"
+            ? "Camera linked"
+            : "Pair action camera"
       }
       className="tap relative grid h-9 w-9 place-items-center"
       style={{
@@ -231,8 +251,8 @@ function BluetoothCell() {
           state === "scanning"
             ? { animation: "pulse 1.2s ease-in-out infinite", color: "var(--color-neon, #7cff3f)" }
             : linked
-            ? { filter: "drop-shadow(0 0 5px rgba(124,255,63,0.75))" }
-            : undefined
+              ? { filter: "drop-shadow(0 0 5px rgba(124,255,63,0.75))" }
+              : undefined
         }
       />
       {linked && (
@@ -247,32 +267,48 @@ function BluetoothCell() {
 
 function labelForKind(kind?: string): string {
   switch (kind) {
-    case "like": return "liked your post";
-    case "comment": return "commented on your post";
-    case "follow": return "started following you";
-    case "mention": return "mentioned you";
-    case "message": return "sent you a message";
-    case "marketplace": return "activity on your listing";
-    case "booking": return "booking update";
-    case "order": return "order update";
-    case "event": return "event update";
-    default: return "sent you a signal";
+    case "like":
+      return "liked your post";
+    case "comment":
+      return "commented on your post";
+    case "follow":
+      return "started following you";
+    case "mention":
+      return "mentioned you";
+    case "message":
+      return "sent you a message";
+    case "marketplace":
+      return "activity on your listing";
+    case "booking":
+      return "booking update";
+    case "order":
+      return "order update";
+    case "event":
+      return "event update";
+    default:
+      return "sent you a signal";
   }
 }
 
 function kindAllowed(kind: string | undefined, prefs: Record<string, any>): boolean {
   if (prefs?.push_enabled === false) return false;
   const map: Record<string, string> = {
-    like: "likes", comment: "comments", follow: "follows", mention: "mentions",
-    message: "messages", marketplace: "marketplace", booking: "bookings",
-    order: "orders", vendor_update: "vendor_updates", subscription: "subscriptions",
+    like: "likes",
+    comment: "comments",
+    follow: "follows",
+    mention: "mentions",
+    message: "messages",
+    marketplace: "marketplace",
+    booking: "bookings",
+    order: "orders",
+    vendor_update: "vendor_updates",
+    subscription: "subscriptions",
     event: "events",
   };
   const key = kind ? map[kind] : undefined;
   if (!key) return true;
   return prefs?.[key] !== false;
 }
-
 
 function friendlyLabel(section: string) {
   const map: Record<string, string> = {

@@ -12,13 +12,8 @@ export function Panel({
   variant?: "bone" | "ink" | "signal";
   chamfer?: boolean;
 }) {
-  const base =
-    variant === "ink" ? "panel-ink" : variant === "signal" ? "panel-signal" : "panel";
-  return (
-    <div className={`${base} ${chamfer ? "clip-chamfer" : ""} ${className}`}>
-      {children}
-    </div>
-  );
+  const base = variant === "ink" ? "panel-ink" : variant === "signal" ? "panel-signal" : "panel";
+  return <div className={`${base} ${chamfer ? "clip-chamfer" : ""} ${className}`}>{children}</div>;
 }
 
 /** Slash-prefixed section header ala // MISSIONS · 03 */
@@ -46,27 +41,11 @@ export function SlashHeader({
 }
 
 /** Hex-clipped identity chip — replaces round avatars. */
-export function HexChip({
-  src,
-  size = 40,
-  live,
-}: {
-  src: string;
-  size?: number;
-  live?: boolean;
-}) {
+export function HexChip({ src, size = 40, live }: { src: string; size?: number; live?: boolean }) {
   return (
-    <div
-      className="relative shrink-0"
-      style={{ width: size, height: size * 1.08 }}
-    >
+    <div className="relative shrink-0" style={{ width: size, height: size * 1.08 }}>
       <div className="clip-hex bg-ink absolute inset-0" />
-      <img
-        src={src}
-        alt=""
-        className="clip-hex absolute object-cover"
-        style={{ inset: 2 }}
-      />
+      <img src={src} alt="" className="clip-hex absolute object-cover" style={{ inset: 2 }} />
       {live && (
         <span
           className="clip-hex absolute -right-1 -top-1 signal-pulse block bg-signal"
@@ -88,7 +67,11 @@ export function DataChip({
   tone?: "default" | "signal" | "warn";
 }) {
   const toneClass =
-    tone === "signal" ? "bg-signal text-ink" : tone === "warn" ? "bg-warn text-bone" : "bg-mist text-ink";
+    tone === "signal"
+      ? "bg-signal text-ink"
+      : tone === "warn"
+        ? "bg-warn text-bone"
+        : "bg-mist text-ink";
   return (
     <span className={`clip-chamfer-sm inline-flex items-center gap-1 px-2 py-1 ${toneClass}`}>
       <span className="mono-caps opacity-70">{k}</span>
@@ -117,10 +100,10 @@ export function AngularButton({
     variant === "solid"
       ? "bg-ink text-bone"
       : variant === "signal"
-      ? "bg-signal text-ink"
-      : variant === "warn"
-      ? "bg-warn text-bone"
-      : "bg-bone text-ink";
+        ? "bg-signal text-ink"
+        : variant === "warn"
+          ? "bg-warn text-bone"
+          : "bg-bone text-ink";
   const s = size === "sm" ? "h-8 px-3 text-[11px]" : "h-10 px-4 text-xs";
   return (
     <button
@@ -152,7 +135,14 @@ export function GaugeRing({
   return (
     <div className="flex flex-col items-center gap-1">
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-mist)" strokeWidth="4" />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="var(--color-mist)"
+          strokeWidth="4"
+        />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -165,19 +155,25 @@ export function GaugeRing({
         />
         <g transform={`rotate(90 ${size / 2} ${size / 2})`}>
           <text
-            x="50%" y="48%"
-            textAnchor="middle" dominantBaseline="middle"
+            x="50%"
+            y="48%"
+            textAnchor="middle"
+            dominantBaseline="middle"
             className="mono-num fill-ink"
-            fontSize="18" fontWeight="700"
+            fontSize="18"
+            fontWeight="700"
           >
             {value.toLocaleString()}
           </text>
           <text
-            x="50%" y="66%"
-            textAnchor="middle" dominantBaseline="middle"
+            x="50%"
+            y="66%"
+            textAnchor="middle"
+            dominantBaseline="middle"
             className="fill-ash"
             fontFamily="var(--font-mono)"
-            fontSize="8" letterSpacing="2"
+            fontSize="8"
+            letterSpacing="2"
           >
             {unit ?? ""}
           </text>
@@ -189,7 +185,15 @@ export function GaugeRing({
 }
 
 /** Vertical tick ruler with a value marker */
-export function TickBar({ value, max, className = "" }: { value: number; max: number; className?: string }) {
+export function TickBar({
+  value,
+  max,
+  className = "",
+}: {
+  value: number;
+  max: number;
+  className?: string;
+}) {
   const pct = Math.min(100, (value / max) * 100);
   return (
     <div className={`relative h-2 w-full border border-ink bg-bone ${className}`}>

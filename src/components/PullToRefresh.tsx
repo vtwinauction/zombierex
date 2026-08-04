@@ -56,8 +56,15 @@ export function PullToRefresh({
     const onMove = (e: TouchEvent) => {
       if (!pulling.current || startY.current == null) return;
       const dy = (e.touches[0]?.clientY ?? 0) - startY.current;
-      if (dy <= 0) { setPull(0); return; }
-      if (!atTop()) { setPull(0); pulling.current = false; return; }
+      if (dy <= 0) {
+        setPull(0);
+        return;
+      }
+      if (!atTop()) {
+        setPull(0);
+        pulling.current = false;
+        return;
+      }
       // Resistance curve
       const eased = Math.min(maxPull, dy * 0.55);
       setPull(eased);
@@ -78,7 +85,11 @@ export function PullToRefresh({
         setRefreshing(true);
         setPull(threshold);
         void haptic("medium");
-        try { await onRefresh(); } catch { /* ignore */ }
+        try {
+          await onRefresh();
+        } catch {
+          /* ignore */
+        }
         setRefreshing(false);
         setPull(0);
       } else {
@@ -113,8 +124,13 @@ export function PullToRefresh({
       <div
         aria-hidden={!active}
         style={{
-          position: "absolute", top: -56, left: 0, right: 0,
-          height: 56, display: "grid", placeItems: "center",
+          position: "absolute",
+          top: -56,
+          left: 0,
+          right: 0,
+          height: 56,
+          display: "grid",
+          placeItems: "center",
           transform: active ? `translateY(${pull}px)` : undefined,
           transition: pulling.current ? "none" : "transform .22s ease",
           pointerEvents: "none",
@@ -123,16 +139,22 @@ export function PullToRefresh({
       >
         <div
           style={{
-            width: 32, height: 32, borderRadius: 999,
+            width: 32,
+            height: 32,
+            borderRadius: 999,
             border: "1px solid var(--color-hair-strong, #2a2d33)",
             background: "var(--color-paper-0, #0f1113)",
-            display: "grid", placeItems: "center",
+            display: "grid",
+            placeItems: "center",
             boxShadow: pull >= threshold || refreshing ? "0 0 18px rgba(0,200,83,0.35)" : "none",
             transition: "box-shadow .18s ease",
           }}
         >
           <svg
-            width="16" height="16" viewBox="0 0 24 24" fill="none"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
             style={{
               transform: refreshing ? undefined : `rotate(${rotation}deg)`,
               animation: refreshing ? "zx-spin 0.9s linear infinite" : undefined,
@@ -141,7 +163,9 @@ export function PullToRefresh({
             <path
               d="M21 12a9 9 0 1 1-3.2-6.9M21 4v5h-5"
               stroke="var(--color-neon, #00c853)"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
         </div>

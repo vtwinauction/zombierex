@@ -67,48 +67,93 @@ export function useChristmasTree(mode: TreeMode = "sportsman") {
 
   const reset = useCallback(() => {
     clearTimers();
-    setState({ phase: "idle", mode, greenAt: null, launchedAt: null, reactionMs: null, foul: false });
+    setState({
+      phase: "idle",
+      mode,
+      greenAt: null,
+      launchedAt: null,
+      reactionMs: null,
+      foul: false,
+    });
   }, [clearTimers, mode]);
 
   const start = useCallback(() => {
     clearTimers();
-    setState((s) => ({ ...s, phase: "prestage", greenAt: null, launchedAt: null, reactionMs: null, foul: false }));
+    setState((s) => ({
+      ...s,
+      phase: "prestage",
+      greenAt: null,
+      launchedAt: null,
+      reactionMs: null,
+      foul: false,
+    }));
     beep(660);
 
     // Randomized delay before stage → 0.6–1.4s to prevent anticipation
     const stageDelay = 600 + Math.random() * 800;
-    timers.current.push(window.setTimeout(() => {
-      setState((s) => ({ ...s, phase: "stage" }));
-      beep(660);
-    }, 500));
-    timers.current.push(window.setTimeout(() => {
-      setState((s) => ({ ...s, phase: "armed" }));
-    }, 500 + stageDelay));
+    timers.current.push(
+      window.setTimeout(() => {
+        setState((s) => ({ ...s, phase: "stage" }));
+        beep(660);
+      }, 500),
+    );
+    timers.current.push(
+      window.setTimeout(() => {
+        setState((s) => ({ ...s, phase: "armed" }));
+      }, 500 + stageDelay),
+    );
 
     const gap = mode === "pro" ? 0 : 500;
     const base = 500 + stageDelay + 400;
 
     if (mode === "pro") {
       // Pro tree: all three amber at once
-      timers.current.push(window.setTimeout(() => {
-        setState((s) => ({ ...s, phase: "amber3" }));
-        beep(880);
-      }, base));
-      timers.current.push(window.setTimeout(() => {
-        const t = performance.now();
-        setState((s) => ({ ...s, phase: "green", greenAt: t }));
-        beep(1320, 0.22, 0.2);
-      }, base + 400));
+      timers.current.push(
+        window.setTimeout(() => {
+          setState((s) => ({ ...s, phase: "amber3" }));
+          beep(880);
+        }, base),
+      );
+      timers.current.push(
+        window.setTimeout(() => {
+          const t = performance.now();
+          setState((s) => ({ ...s, phase: "green", greenAt: t }));
+          beep(1320, 0.22, 0.2);
+        }, base + 400),
+      );
     } else {
       // Sportsman: cascade
-      timers.current.push(window.setTimeout(() => { setState((s) => ({ ...s, phase: "amber1" })); beep(770); }, base));
-      timers.current.push(window.setTimeout(() => { setState((s) => ({ ...s, phase: "amber2" })); beep(880); }, base + gap));
-      timers.current.push(window.setTimeout(() => { setState((s) => ({ ...s, phase: "amber3" })); beep(990); }, base + gap * 2));
-      timers.current.push(window.setTimeout(() => {
-        const t = performance.now();
-        setState((s) => ({ ...s, phase: "green", greenAt: t }));
-        beep(1320, 0.22, 0.2);
-      }, base + gap * 3));
+      timers.current.push(
+        window.setTimeout(() => {
+          setState((s) => ({ ...s, phase: "amber1" }));
+          beep(770);
+        }, base),
+      );
+      timers.current.push(
+        window.setTimeout(() => {
+          setState((s) => ({ ...s, phase: "amber2" }));
+          beep(880);
+        }, base + gap),
+      );
+      timers.current.push(
+        window.setTimeout(
+          () => {
+            setState((s) => ({ ...s, phase: "amber3" }));
+            beep(990);
+          },
+          base + gap * 2,
+        ),
+      );
+      timers.current.push(
+        window.setTimeout(
+          () => {
+            const t = performance.now();
+            setState((s) => ({ ...s, phase: "green", greenAt: t }));
+            beep(1320, 0.22, 0.2);
+          },
+          base + gap * 3,
+        ),
+      );
     }
   }, [mode, clearTimers]);
 

@@ -73,13 +73,15 @@ export const getRide = createServerFn({ method: "GET" })
 export const updateRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) =>
-    z.object({
-      id: z.string().uuid(),
-      title: z.string().max(140).optional().nullable(),
-      notes: z.string().max(4000).optional().nullable(),
-      visibility: z.enum(["private", "unlisted", "public"]).optional(),
-      photos: z.array(z.string().url()).max(24).optional(),
-    }).parse(d),
+    z
+      .object({
+        id: z.string().uuid(),
+        title: z.string().max(140).optional().nullable(),
+        notes: z.string().max(4000).optional().nullable(),
+        visibility: z.enum(["private", "unlisted", "public"]).optional(),
+        photos: z.array(z.string().url()).max(24).optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { id, ...patch } = data;

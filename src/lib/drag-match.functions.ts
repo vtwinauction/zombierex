@@ -40,9 +40,9 @@ export const createChallenge = createServerFn({ method: "POST" })
       .limit(2);
     if (oppErr) throw new Error(oppErr.message);
     const opp = opps?.[0];
-    if (!opp) throw new Error(`No rider found matching "${handle}". Check the handle and try again.`);
+    if (!opp)
+      throw new Error(`No rider found matching "${handle}". Check the handle and try again.`);
     if (opp.id === userId) throw new Error("You cannot challenge yourself");
-
 
     const { data: row, error } = await supabase
       .from("drag_challenges")
@@ -71,9 +71,9 @@ export const createChallenge = createServerFn({ method: "POST" })
           kind: "drag_challenge",
         },
       });
-    } catch { /* noop */ }
-
-
+    } catch {
+      /* noop */
+    }
 
     return { id: row.id as string };
   });
@@ -84,7 +84,9 @@ export const listChallenges = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("drag_challenges")
-      .select("id, challenger_id, opponent_id, strip_mode, tree_mode, stake_xp, status, match_id, expires_at, created_at, message")
+      .select(
+        "id, challenger_id, opponent_id, strip_mode, tree_mode, stake_xp, status, match_id, expires_at, created_at, message",
+      )
       .or(`challenger_id.eq.${userId},opponent_id.eq.${userId}`)
       .order("created_at", { ascending: false })
       .limit(50);
@@ -104,14 +106,21 @@ export const listChallenges = createServerFn({ method: "GET" })
 
 export const respondChallenge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d) => z.object({
-    id: z.string().uuid(),
-    action: z.enum(["accept", "decline", "cancel"]),
-  }).parse(d))
+  .validator((d) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        action: z.enum(["accept", "decline", "cancel"]),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: ch, error } = await supabase
-      .from("drag_challenges").select("*").eq("id", data.id).maybeSingle();
+      .from("drag_challenges")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!ch) throw new Error("Challenge not found");
     if (ch.status !== "pending") throw new Error("Challenge is no longer pending");
@@ -122,34 +131,44 @@ export const respondChallenge = createServerFn({ method: "POST" })
 
     if (data.action === "cancel") {
       if (ch.challenger_id !== userId) throw new Error("Only the challenger can cancel");
-      const { error: uErr } = await supabase.from("drag_challenges")
-        .update({ status: "cancelled" }).eq("id", ch.id);
+      const { error: uErr } = await supabase
+        .from("drag_challenges")
+        .update({ status: "cancelled" })
+        .eq("id", ch.id);
       if (uErr) throw new Error(uErr.message);
       return { status: "cancelled" as const };
     }
     if (ch.opponent_id !== userId) throw new Error("Only the challenged rider can respond");
 
     if (data.action === "decline") {
-      const { error: uErr } = await supabase.from("drag_challenges")
-        .update({ status: "declined" }).eq("id", ch.id);
+      const { error: uErr } = await supabase
+        .from("drag_challenges")
+        .update({ status: "declined" })
+        .eq("id", ch.id);
       if (uErr) throw new Error(uErr.message);
       return { status: "declined" as const };
     }
 
     // Accept — create the match
-    const { data: match, error: mErr } = await supabase.from("drag_matches").insert({
-      challenge_id: ch.id,
-      rider_a: ch.challenger_id,
-      rider_b: ch.opponent_id,
-      strip_mode: ch.strip_mode,
-      tree_mode: ch.tree_mode,
-      stake_xp: ch.stake_xp,
-      status: "lobby",
-    }).select("id").single();
+    const { data: match, error: mErr } = await supabase
+      .from("drag_matches")
+      .insert({
+        challenge_id: ch.id,
+        rider_a: ch.challenger_id,
+        rider_b: ch.opponent_id,
+        strip_mode: ch.strip_mode,
+        tree_mode: ch.tree_mode,
+        stake_xp: ch.stake_xp,
+        status: "lobby",
+      })
+      .select("id")
+      .single();
     if (mErr) throw new Error(mErr.message);
 
-    await supabase.from("drag_challenges")
-      .update({ status: "accepted", match_id: match.id }).eq("id", ch.id);
+    await supabase
+      .from("drag_challenges")
+      .update({ status: "accepted", match_id: match.id })
+      .eq("id", ch.id);
 
     // Notify challenger (best effort)
     try {
@@ -164,8 +183,9 @@ export const respondChallenge = createServerFn({ method: "POST" })
           kind: "drag_match",
         },
       });
-    } catch { /* noop */ }
-
+    } catch {
+      /* noop */
+    }
 
     return { status: "accepted" as const, match_id: match.id as string };
   });
@@ -176,15 +196,23 @@ export const getMatch = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: m, error } = await supabase
-      .from("drag_matches").select("*").eq("id", data.id).maybeSingle();
+      .from("drag_matches")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!m) throw new Error("Match not found");
     if (m.rider_a !== userId && m.rider_b !== userId) throw new Error("Not your match");
-    const { data: profs } = await supabase.from("profiles")
+    const { data: profs } = await supabase
+      .from("profiles")
       .select("id, handle, display_name, avatar_url")
       .in("id", [m.rider_a, m.rider_b]);
     const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
-    return { ...m, rider_a_profile: byId.get(m.rider_a) ?? null, rider_b_profile: byId.get(m.rider_b) ?? null };
+    return {
+      ...m,
+      rider_a_profile: byId.get(m.rider_a) ?? null,
+      rider_b_profile: byId.get(m.rider_b) ?? null,
+    };
   });
 
 export const markMatchReady = createServerFn({ method: "POST" })
@@ -193,7 +221,10 @@ export const markMatchReady = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { data: m, error } = await supabase
-      .from("drag_matches").select("id, rider_a, rider_b, ready_a, ready_b, status").eq("id", data.id).maybeSingle();
+      .from("drag_matches")
+      .select("id, rider_a, rider_b, ready_a, ready_b, status")
+      .eq("id", data.id)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     if (!m) throw new Error("Match not found");
     const isA = m.rider_a === userId;
@@ -202,7 +233,8 @@ export const markMatchReady = createServerFn({ method: "POST" })
     if (!["lobby", "armed"].includes(m.status)) throw new Error("Match already started");
 
     type MatchUpdate = {
-      ready_a?: boolean; ready_b?: boolean;
+      ready_a?: boolean;
+      ready_b?: boolean;
       status?: "lobby" | "armed" | "countdown" | "live" | "finished" | "void";
       green_at?: string | null;
     };
@@ -221,25 +253,36 @@ export const markMatchReady = createServerFn({ method: "POST" })
     return { ok: true, green_at: patch.green_at ?? null };
   });
 
-
 export const pushMatchTelemetry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d) => z.object({
-    match_id: z.string().uuid(),
-    samples: z.array(z.object({
-      t_ms: z.number().int().min(0).max(120_000),
-      distance_m: z.number().min(0).max(1200),
-      speed_kmh: z.number().min(0).max(500),
-      accuracy_m: z.number().min(0).max(500).optional().nullable(),
-      lat: z.number().min(-90).max(90).optional().nullable(),
-      lng: z.number().min(-180).max(180).optional().nullable(),
-    })).min(1).max(80),
-  }).parse(d))
+  .validator((d) =>
+    z
+      .object({
+        match_id: z.string().uuid(),
+        samples: z
+          .array(
+            z.object({
+              t_ms: z.number().int().min(0).max(120_000),
+              distance_m: z.number().min(0).max(1200),
+              speed_kmh: z.number().min(0).max(500),
+              accuracy_m: z.number().min(0).max(500).optional().nullable(),
+              lat: z.number().min(-90).max(90).optional().nullable(),
+              lng: z.number().min(-180).max(180).optional().nullable(),
+            }),
+          )
+          .min(1)
+          .max(80),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     // Server enforces status = live via a read; also flips to live on first sample
-    const { data: m } = await supabase.from("drag_matches")
-      .select("id, rider_a, rider_b, status, green_at").eq("id", data.match_id).maybeSingle();
+    const { data: m } = await supabase
+      .from("drag_matches")
+      .select("id, rider_a, rider_b, status, green_at")
+      .eq("id", data.match_id)
+      .maybeSingle();
     if (!m) throw new Error("Match not found");
     if (m.rider_a !== userId && m.rider_b !== userId) throw new Error("Not your match");
     if (!["countdown", "live"].includes(m.status)) throw new Error("Match not active");
@@ -266,57 +309,83 @@ export const finalizeMatch = createServerFn({ method: "POST" })
   .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: m } = await supabase.from("drag_matches").select("*").eq("id", data.id).maybeSingle();
+    const { data: m } = await supabase
+      .from("drag_matches")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (!m) throw new Error("Match not found");
     if (m.rider_a !== userId && m.rider_b !== userId) throw new Error("Not your match");
     if (m.status === "finished") return { ok: true, winner_id: m.winner_id, margin_s: m.margin_s };
 
     const target = m.strip_mode === "quarter" ? 402.336 : 201.168;
-    const { data: tel, error } = await supabase.from("drag_match_telemetry")
-      .select("rider_id, t_ms, distance_m, speed_kmh").eq("match_id", m.id).order("t_ms", { ascending: true });
+    const { data: tel, error } = await supabase
+      .from("drag_match_telemetry")
+      .select("rider_id, t_ms, distance_m, speed_kmh")
+      .eq("match_id", m.id)
+      .order("t_ms", { ascending: true });
     if (error) throw new Error(error.message);
 
     function pickResult(riderId: string) {
       const pts = (tel ?? []).filter((t) => t.rider_id === riderId);
-      let finishMs: number | null = null; let trap: number | null = null; let peak = 0;
+      let finishMs: number | null = null;
+      let trap: number | null = null;
+      let peak = 0;
       for (let i = 1; i < pts.length; i++) {
         if (pts[i].speed_kmh > peak) peak = Number(pts[i].speed_kmh);
         if (finishMs == null && Number(pts[i].distance_m) >= target) {
-          const a = pts[i - 1], b = pts[i];
-          const da = Number(a.distance_m), db = Number(b.distance_m);
+          const a = pts[i - 1],
+            b = pts[i];
+          const da = Number(a.distance_m),
+            db = Number(b.distance_m);
           const frac = db === da ? 0 : (target - da) / (db - da);
           finishMs = a.t_ms + frac * (b.t_ms - a.t_ms);
           trap = Number(a.speed_kmh) + frac * (Number(b.speed_kmh) - Number(a.speed_kmh));
         }
       }
-      return { finish_s: finishMs != null ? finishMs / 1000 : null, trap_kmh: trap, peak_kmh: peak };
+      return {
+        finish_s: finishMs != null ? finishMs / 1000 : null,
+        trap_kmh: trap,
+        peak_kmh: peak,
+      };
     }
     const rA = pickResult(m.rider_a);
     const rB = pickResult(m.rider_b);
-    let winner_id: string | null = null; let margin_s: number | null = null;
+    let winner_id: string | null = null;
+    let margin_s: number | null = null;
     if (rA.finish_s != null && rB.finish_s != null) {
       winner_id = rA.finish_s < rB.finish_s ? m.rider_a : m.rider_b;
       margin_s = Math.abs(rA.finish_s - rB.finish_s);
-    } else if (rA.finish_s != null) { winner_id = m.rider_a; }
-    else if (rB.finish_s != null) { winner_id = m.rider_b; }
+    } else if (rA.finish_s != null) {
+      winner_id = m.rider_a;
+    } else if (rB.finish_s != null) {
+      winner_id = m.rider_b;
+    }
 
-    const { error: uErr } = await supabase.from("drag_matches").update({
-      status: "finished",
-      winner_id,
-      margin_s: margin_s != null ? Number(margin_s.toFixed(3)) : null,
-      result_a: rA,
-      result_b: rB,
-    }).eq("id", m.id);
+    const { error: uErr } = await supabase
+      .from("drag_matches")
+      .update({
+        status: "finished",
+        winner_id,
+        margin_s: margin_s != null ? Number(margin_s.toFixed(3)) : null,
+        result_a: rA,
+        result_b: rB,
+      })
+      .eq("id", m.id);
     if (uErr) throw new Error(uErr.message);
 
     // XP payout — best effort
     if (winner_id && m.stake_xp > 0) {
       try {
         await supabase.from("xp_events").insert({
-          user_id: winner_id, amount: m.stake_xp, kind: "drag_match_win", ref_id: m.id,
+          user_id: winner_id,
+          amount: m.stake_xp,
+          kind: "drag_match_win",
+          ref_id: m.id,
         });
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
     }
     return { ok: true, winner_id, margin_s };
   });
-

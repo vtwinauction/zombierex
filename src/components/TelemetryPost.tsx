@@ -34,7 +34,9 @@ export function TelemetryPost({ post, index = 0 }: { post: Post; index?: number 
               </p>
               {post.user.verified && <RiderMark tier="ELITE" />}
             </div>
-            <p className="mono-caps text-ash mt-0.5 truncate">{post.user.handle} · {post.user.location}</p>
+            <p className="mono-caps text-ash mt-0.5 truncate">
+              {post.user.handle} · {post.user.location}
+            </p>
           </div>
           <button className="tap mono-caps border border-ink px-2 py-1 text-[9px]">TRACK</button>
         </div>
@@ -55,11 +57,11 @@ export function TelemetryPost({ post, index = 0 }: { post: Post; index?: number 
           {post.vehicle && (
             <div className="panel-ink absolute inset-x-0 bottom-0 flex items-center gap-2 px-2 py-1.5">
               <span className="mono-caps text-signal">◇</span>
-              <span className="font-display truncate text-xs uppercase">
-                {post.vehicle.name}
-              </span>
+              <span className="font-display truncate text-xs uppercase">{post.vehicle.name}</span>
               <div className="ml-auto flex items-center gap-1">
-                <span className="mono-num text-signal text-[10px] font-bold">{post.vehicle.hp}HP</span>
+                <span className="mono-num text-signal text-[10px] font-bold">
+                  {post.vehicle.hp}HP
+                </span>
                 <span className="text-bone/40">·</span>
                 <span className="mono-num text-bone/80 text-[10px]">{post.vehicle.year}</span>
               </div>
@@ -67,7 +69,10 @@ export function TelemetryPost({ post, index = 0 }: { post: Post; index?: number 
           )}
           {liked && (
             <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <span className="heart-burst text-signal" style={{ filter: "drop-shadow(0 4px 12px rgba(182,255,60,0.8))" }}>
+              <span
+                className="heart-burst text-signal"
+                style={{ filter: "drop-shadow(0 4px 12px rgba(182,255,60,0.8))" }}
+              >
                 <IconClaw size={92} strokeWidth={2.5} />
               </span>
             </span>
@@ -86,7 +91,11 @@ export function TelemetryPost({ post, index = 0 }: { post: Post; index?: number 
           </div>
           {/* engagement telemetry */}
           <div className="flex items-center gap-1 pt-1">
-            <DataChip k="LIKES" v={(post.likes + (liked ? 1 : 0)).toLocaleString()} tone={liked ? "signal" : "default"} />
+            <DataChip
+              k="LIKES"
+              v={(post.likes + (liked ? 1 : 0)).toLocaleString()}
+              tone={liked ? "signal" : "default"}
+            />
             <DataChip k="CMTS" v={post.comments} />
             <DataChip k="VIEW" v={`${((post.likes * 6.2) / 1000).toFixed(1)}k`} />
           </div>
@@ -95,17 +104,32 @@ export function TelemetryPost({ post, index = 0 }: { post: Post; index?: number 
 
       {/* RIGHT: vertical action rail — fossil/mechanical glyphs */}
       <div className="flex flex-col items-stretch justify-start border-l border-ink bg-mist">
-        <RailAction Icon={IconClaw}     label="LIKE" active={liked} onClick={() => setLiked((v) => !v)} tone="signal" />
-        <RailAction Icon={IconVisor}    label="RPLY" />
+        <RailAction
+          Icon={IconClaw}
+          label="LIKE"
+          active={liked}
+          onClick={() => setLiked((v) => !v)}
+          tone="signal"
+        />
+        <RailAction Icon={IconVisor} label="RPLY" />
         <RailAction Icon={IconMechClaw} label="SEND" />
-        <RailAction Icon={IconBoneMark} label="SAVE" active={saved} onClick={() => setSaved((v) => !v)} />
+        <RailAction
+          Icon={IconBoneMark}
+          label="SAVE"
+          active={saved}
+          onClick={() => setSaved((v) => !v)}
+        />
       </div>
     </article>
   );
 }
 
 function RailAction({
-  Icon, label, onClick, active, tone,
+  Icon,
+  label,
+  onClick,
+  active,
+  tone,
 }: {
   Icon: ComponentType<{ size?: number }>;
   label: string;
@@ -121,7 +145,9 @@ function RailAction({
       }`}
     >
       <Icon size={18} />
-      <span className="mono-caps" style={{ fontSize: 8 }}>{label}</span>
+      <span className="mono-caps" style={{ fontSize: 8 }}>
+        {label}
+      </span>
     </button>
   );
 }

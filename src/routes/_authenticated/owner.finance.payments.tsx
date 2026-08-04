@@ -25,8 +25,14 @@ function GatewayPage() {
   const save = useServerFn(setPaymentConfig);
   const access = useServerFn(checkFinanceAccess);
 
-  const gate = useQuery({ queryKey: ["finance", "access"], queryFn: () => access({ data: undefined as any }) });
-  const cfg = useQuery({ queryKey: ["finance", "payment-config"], queryFn: () => load({ data: undefined as any }) });
+  const gate = useQuery({
+    queryKey: ["finance", "access"],
+    queryFn: () => access({ data: undefined as any }),
+  });
+  const cfg = useQuery({
+    queryKey: ["finance", "payment-config"],
+    queryFn: () => load({ data: undefined as any }),
+  });
 
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
@@ -59,12 +65,19 @@ function GatewayPage() {
       <div className="card-surface p-4">
         <p className="mono-tag text-[10px] opacity-60">LIVE CONFIGURATION</p>
         <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
-          These settings are read at transaction time. Saving takes effect immediately — no app release needed. Card
-          data never touches this app; gateways are the record of card details.
+          These settings are read at transaction time. Saving takes effect immediately — no app
+          release needed. Card data never touches this app; gateways are the record of card details.
         </p>
       </div>
 
-      {err && <div className="rounded px-3 py-2 text-[12px]" style={{ background: "rgba(220,60,60,0.1)" }}>{err}</div>}
+      {err && (
+        <div
+          className="rounded px-3 py-2 text-[12px]"
+          style={{ background: "rgba(220,60,60,0.1)" }}
+        >
+          {err}
+        </div>
+      )}
       {cfg.isLoading && <p className="text-sm opacity-60">Loading configuration…</p>}
 
       {(cfg.data as any[] | undefined)?.map((row) => (
@@ -83,7 +96,11 @@ function GatewayPage() {
             spellCheck={false}
           />
           {canWrite && (
-            <button className="btn-solid mt-2 w-full" disabled={busy === row.key} onClick={() => commit(row.key)}>
+            <button
+              className="btn-solid mt-2 w-full"
+              disabled={busy === row.key}
+              onClick={() => commit(row.key)}
+            >
               {busy === row.key ? "Saving…" : "Save"}
             </button>
           )}
