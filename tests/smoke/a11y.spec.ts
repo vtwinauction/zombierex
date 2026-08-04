@@ -28,7 +28,17 @@ for (const path of ROUTES) {
 }
 
 test.describe("mobile viewport (iPhone 13)", () => {
-  test.use({ ...devices["iPhone 13"] });
+  // Only override emulation options — spreading the full device descriptor sets
+  // `defaultBrowserType`, which Playwright forbids inside a describe group.
+  const iphone = devices["iPhone 13"];
+  test.use({
+    viewport: iphone.viewport,
+    userAgent: iphone.userAgent,
+    deviceScaleFactor: iphone.deviceScaleFactor,
+    isMobile: iphone.isMobile,
+    hasTouch: iphone.hasTouch,
+  });
+
 
   test("no horizontal overflow on home", async ({ page }) => {
     await page.goto("http://localhost:8080/", { waitUntil: "domcontentloaded" });
