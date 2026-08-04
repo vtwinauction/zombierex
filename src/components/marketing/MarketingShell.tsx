@@ -32,6 +32,10 @@ export function MarketingShell({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Mark the website synchronously during render. RootEntry can swap this
+  // surface for the signed-in feed, whose cleanup restores normal app mode.
+  setMarketingMode(true);
+
   return (
     <div className="mkt">
       <MarketingStyles />

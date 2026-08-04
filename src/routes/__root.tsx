@@ -159,6 +159,11 @@ function RootComponent() {
   const [shellReady, setShellReady] = useState(false);
   const pathname = router.state.location.pathname;
   const marketing = useMarketingMode() || isMarketingPath(pathname);
+  // The root route initially renders the public website while its cached
+  // session is resolved. Keep app-wide network gates and touch wrappers out
+  // of that render path; MarketingShell opts back into app mode if RootEntry
+  // resolves to the signed-in feed.
+  const websiteMounted = marketing;
   const isImmersive =
     marketing ||
     pathname.startsWith("/atlas/cockpit") ||
@@ -324,11 +329,15 @@ function RootComponent() {
           {!isImmersive && <OfflineBanner />}
           {!isImmersive && <OwnerBroadcastBanner />}
           {!isImmersive && <GlobalStatusBar />}
-          <PullToRefresh onRefresh={globalRefresh} disabled={isImmersive}>
-            <MaintenanceGate>
-              <Outlet />
-            </MaintenanceGate>
-          </PullToRefresh>
+          {websiteMounted ? (
+            <Outlet />
+          ) : (
+            <PullToRefresh onRefresh={globalRefresh} disabled={isImmersive}>
+              <MaintenanceGate>
+                <Outlet />
+              </MaintenanceGate>
+            </PullToRefresh>
+          )}
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
         {shellReady && !marketing && (
