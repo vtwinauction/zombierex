@@ -20,7 +20,6 @@ export type CommentItem = {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-
 export function CommentsSheet({
   open,
   onClose,
@@ -61,8 +60,8 @@ export function CommentsSheet({
   }, [open, raw, isLive]);
 
   const items: CommentItem[] = isLive
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? ((query.data ?? []) as any[]).map((r) => ({
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((query.data ?? []) as any[]).map((r) => ({
         id: r.id,
         author: r.author?.handle || r.author?.display_name || "rider",
         authorId: r.author_id,
@@ -124,7 +123,10 @@ export function CommentsSheet({
     if (!body) return;
     const parentId = replyTo ? (replyTo.parentId ?? replyTo.id) : null;
     if (isLive) {
-      if (!meId) { toast.error("Sign in to comment"); return; }
+      if (!meId) {
+        toast.error("Sign in to comment");
+        return;
+      }
       addMut.mutate({ body, parent_id: parentId });
     } else {
       const next: CommentItem = {
@@ -145,7 +147,10 @@ export function CommentsSheet({
   };
 
   const toggleLike = (c: CommentItem) => {
-    if (isLive) { void haptic("light"); return; } // like on live comments not modeled yet
+    if (isLive) {
+      void haptic("light");
+      return;
+    } // like on live comments not modeled yet
     const merged = localItems.map((it) =>
       it.id === c.id
         ? { ...it, likedByMe: !it.likedByMe, likes: (it.likes ?? 0) + (it.likedByMe ? -1 : 1) }
@@ -161,9 +166,11 @@ export function CommentsSheet({
   };
 
   const canDelete = (c: CommentItem) => isLive && !!c.authorId && c.authorId === meId;
-  const removeMine = (c: CommentItem) => { if (canDelete(c)) delMut.mutate(c.id); };
-  void removeMine; void canDelete;
-
+  const removeMine = (c: CommentItem) => {
+    if (canDelete(c)) delMut.mutate(c.id);
+  };
+  void removeMine;
+  void canDelete;
 
   return (
     <div
@@ -205,7 +212,10 @@ export function CommentsSheet({
         </div>
 
         <div className="flex items-center justify-between px-5 pb-3">
-          <h3 className="text-[15px] font-semibold tracking-tight" style={{ color: "var(--color-ink-0)" }}>
+          <h3
+            className="text-[15px] font-semibold tracking-tight"
+            style={{ color: "var(--color-ink-0)" }}
+          >
             {title}{" "}
             <span className="mono-num text-[11px]" style={{ color: "var(--color-ink-3)" }}>
               {items.length}
@@ -244,15 +254,26 @@ export function CommentsSheet({
         {replyTo && (
           <div
             className="flex items-center justify-between px-5 py-1.5 text-[11px]"
-            style={{ background: "var(--color-paper-1)", color: "var(--color-ink-2)", borderTop: "1px solid var(--color-line)" }}
+            style={{
+              background: "var(--color-paper-1)",
+              color: "var(--color-ink-2)",
+              borderTop: "1px solid var(--color-line)",
+            }}
           >
-            <span>Replying to <b style={{ color: "var(--color-ink-0)" }}>@{replyTo.author}</b></span>
-            <button className="tap" onClick={() => setReplyTo(null)} aria-label="Cancel reply">✕</button>
+            <span>
+              Replying to <b style={{ color: "var(--color-ink-0)" }}>@{replyTo.author}</b>
+            </span>
+            <button className="tap" onClick={() => setReplyTo(null)} aria-label="Cancel reply">
+              ✕
+            </button>
           </div>
         )}
 
         <form
-          onSubmit={(e) => { e.preventDefault(); submit(); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
           className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-4 pt-3"
           style={{
             paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)",
@@ -345,7 +366,9 @@ function CommentRow({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
-          <span className="text-[13px] font-semibold" style={{ color: "var(--color-ink-0)" }}>{c.author}</span>
+          <span className="text-[13px] font-semibold" style={{ color: "var(--color-ink-0)" }}>
+            {c.author}
+          </span>
           <span className="mono-num text-[10px]" style={{ color: "var(--color-ink-3)" }}>
             {timeAgo(c.createdAt)}
           </span>
@@ -353,7 +376,10 @@ function CommentRow({
         <p className="mt-0.5 text-[13.5px] leading-snug" style={{ color: "var(--color-ink-1)" }}>
           {c.body}
         </p>
-        <div className="mt-1 flex items-center gap-4 text-[11px]" style={{ color: "var(--color-ink-3)" }}>
+        <div
+          className="mt-1 flex items-center gap-4 text-[11px]"
+          style={{ color: "var(--color-ink-3)" }}
+        >
           <button
             className="tap"
             onClick={() => onLike(c)}
@@ -362,12 +388,12 @@ function CommentRow({
           >
             {c.likedByMe ? "♥" : "♡"} {c.likes ?? 0}
           </button>
-          {!nested && <button className="tap" onClick={() => onReply(c)}>Reply</button>}
-          <button
-            className="tap ml-auto"
-            aria-label="Report comment"
-            onClick={() => onFlag(c)}
-          >
+          {!nested && (
+            <button className="tap" onClick={() => onReply(c)}>
+              Reply
+            </button>
+          )}
+          <button className="tap ml-auto" aria-label="Report comment" onClick={() => onFlag(c)}>
             ⋯
           </button>
         </div>
@@ -377,7 +403,9 @@ function CommentRow({
             style={{ color: "var(--color-ink-2)" }}
             onClick={() => setExpanded((v) => !v)}
           >
-            {expanded ? "Hide replies" : `View ${replyCount} ${replyCount === 1 ? "reply" : "replies"}`}
+            {expanded
+              ? "Hide replies"
+              : `View ${replyCount} ${replyCount === 1 ? "reply" : "replies"}`}
           </button>
         )}
         {expanded && replies && (

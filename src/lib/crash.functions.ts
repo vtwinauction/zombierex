@@ -49,7 +49,9 @@ export const submitCrashReport = createServerFn({ method: "POST" })
       q = data.userAgent ? q.eq("user_agent", data.userAgent) : q.is("user_agent", null);
       const { data: recent } = await q.limit(1).maybeSingle();
       if (recent) return { ok: true as const, deduped: true };
-    } catch { /* dedupe best-effort */ }
+    } catch {
+      /* dedupe best-effort */
+    }
 
     const { error } = await supabase.from("crash_reports").insert({
       user_id: data.userId ?? null,

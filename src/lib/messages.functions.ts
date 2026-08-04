@@ -35,7 +35,7 @@ export const listConversations = createServerFn({ method: "GET" })
       .in("conversation_id", convIds);
 
     const otherIds = Array.from(
-      new Set((allMembers ?? []).filter((m: any) => m.user_id !== uid).map((m: any) => m.user_id))
+      new Set((allMembers ?? []).filter((m: any) => m.user_id !== uid).map((m: any) => m.user_id)),
     );
     const { data: profiles } = otherIds.length
       ? await sb.from("profiles").select("id, display_name, handle, avatar_url").in("id", otherIds)
@@ -50,10 +50,13 @@ export const listConversations = createServerFn({ method: "GET" })
       .limit(200);
     const lastByConv = new Map<string, any>();
     for (const m of lastMsgs ?? []) {
-      if (!lastByConv.has((m as any).conversation_id)) lastByConv.set((m as any).conversation_id, m);
+      if (!lastByConv.has((m as any).conversation_id))
+        lastByConv.set((m as any).conversation_id, m);
     }
 
-    const lastReadMap = new Map((memberRows ?? []).map((m: any) => [m.conversation_id, m.last_read_at]));
+    const lastReadMap = new Map(
+      (memberRows ?? []).map((m: any) => [m.conversation_id, m.last_read_at]),
+    );
 
     return (convs ?? []).map((c: any) => {
       const others = (allMembers ?? [])
@@ -62,14 +65,21 @@ export const listConversations = createServerFn({ method: "GET" })
         .filter(Boolean);
       const last = lastByConv.get(c.id);
       const lastRead = lastReadMap.get(c.id);
-      const unread = last && last.sender_id !== uid && (!lastRead || new Date(last.created_at) > new Date(lastRead)) ? 1 : 0;
+      const unread =
+        last &&
+        last.sender_id !== uid &&
+        (!lastRead || new Date(last.created_at) > new Date(lastRead))
+          ? 1
+          : 0;
       return {
         id: c.id,
         kind: c.kind,
         title: c.title,
         lastMessageAt: c.last_message_at,
         others,
-        lastMessage: last ? { body: last.body, createdAt: last.created_at, mine: last.sender_id === uid } : null,
+        lastMessage: last
+          ? { body: last.body, createdAt: last.created_at, mine: last.sender_id === uid }
+          : null,
         unread,
       };
     });
@@ -77,7 +87,14 @@ export const listConversations = createServerFn({ method: "GET" })
 
 export const getMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({ conversationId: z.string().uuid(), limit: z.number().int().min(1).max(200).default(100) }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        conversationId: z.string().uuid(),
+        limit: z.number().int().min(1).max(200).default(100),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
     const sb = context.supabase;
     const { data: msgs, error } = await sb
@@ -137,32 +154,46 @@ export const getMessages = createServerFn({ method: "GET" })
 
 export const sendMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
-    conversationId: z.string().uuid(),
-    body: z.string().max(4000).default(""),
-    mediaUrl: z.string().url().max(2048).optional(),
-  }).refine((v) => v.body.trim().length > 0 || !!v.mediaUrl, { message: "Message is empty" }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        conversationId: z.string().uuid(),
+        body: z.string().max(4000).default(""),
+        mediaUrl: z.string().url().max(2048).optional(),
+      })
+      .refine((v) => v.body.trim().length > 0 || !!v.mediaUrl, { message: "Message is empty" })
+      .parse(raw),
+  )
 
   .handler(async ({ data, context }) => {
     const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
-      _bucket: "messages", _max_hits: 30, _window_seconds: 60,
+      _bucket: "messages",
+      _max_hits: 30,
+      _window_seconds: 60,
     });
-    if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
-      ? "You're sending messages too fast — wait a moment."
-      : rlErr.message);
+    if (rlErr)
+      throw new Error(
+        rlErr.message.includes("rate_limit_exceeded")
+          ? "You're sending messages too fast — wait a moment."
+          : rlErr.message,
+      );
     // Server-side moderation — fail-open on gateway errors.
     if (data.body && data.body.trim().length >= 3) {
       const { moderateText } = await import("./moderation-text.server");
       const verdict = await moderateText(data.body);
       if (!verdict.safe && !verdict.skipped) {
-        throw new Error(`Message blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+        throw new Error(
+          `Message blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`,
+        );
       }
     }
     if (data.mediaUrl) {
       const { moderateImageUrl } = await import("./moderation-image.server");
       const verdict = await moderateImageUrl(data.mediaUrl);
       if (!verdict.safe && !verdict.skipped) {
-        throw new Error(`Image blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+        throw new Error(
+          `Image blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`,
+        );
       }
     }
     const { data: row, error } = await context.supabase
@@ -178,7 +209,6 @@ export const sendMessage = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return row;
   });
-
 
 export const startDirectMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -196,7 +226,10 @@ export const startDirectMessage = createServerFn({ method: "POST" })
       .select("allow_messages")
       .eq("id", data.recipientId)
       .maybeSingle();
-    const pref = ((recipient as any)?.allow_messages ?? "everyone") as "everyone" | "followers" | "none";
+    const pref = ((recipient as any)?.allow_messages ?? "everyone") as
+      | "everyone"
+      | "followers"
+      | "none";
     if (pref === "none") {
       throw new Error("This user isn't accepting messages.");
     }
@@ -215,25 +248,40 @@ export const startDirectMessage = createServerFn({ method: "POST" })
       .select("blocker_id, blocked_id")
       .or(
         `and(blocker_id.eq.${context.userId},blocked_id.eq.${data.recipientId}),` +
-        `and(blocker_id.eq.${data.recipientId},blocked_id.eq.${context.userId})`,
+          `and(blocker_id.eq.${data.recipientId},blocked_id.eq.${context.userId})`,
       );
     if (blocks && blocks.length > 0) throw new Error("Unable to start conversation.");
 
     // Look for existing DM containing both users
-    const { data: mine } = await sb.from("conversation_members").select("conversation_id").eq("user_id", context.userId);
-    const { data: theirs } = await sb.from("conversation_members").select("conversation_id").eq("user_id", data.recipientId);
+    const { data: mine } = await sb
+      .from("conversation_members")
+      .select("conversation_id")
+      .eq("user_id", context.userId);
+    const { data: theirs } = await sb
+      .from("conversation_members")
+      .select("conversation_id")
+      .eq("user_id", data.recipientId);
     const mineSet = new Set((mine ?? []).map((r: any) => r.conversation_id));
-    const shared = (theirs ?? []).map((r: any) => r.conversation_id).filter((id: string) => mineSet.has(id));
+    const shared = (theirs ?? [])
+      .map((r: any) => r.conversation_id)
+      .filter((id: string) => mineSet.has(id));
 
     if (shared.length > 0) {
-      const { data: dm } = await sb.from("conversations").select("id, kind").in("id", shared).eq("kind", "dm").limit(1).maybeSingle();
+      const { data: dm } = await sb
+        .from("conversations")
+        .select("id, kind")
+        .in("id", shared)
+        .eq("kind", "dm")
+        .limit(1)
+        .maybeSingle();
       if (dm) return { id: (dm as any).id, existing: true };
     }
 
     const { data: conv, error: cErr } = await sb
       .from("conversations")
       .insert({ kind: "dm", created_by: context.userId })
-      .select("id").single();
+      .select("id")
+      .single();
     if (cErr) throw new Error(cErr.message);
 
     const { error: mErr } = await sb.from("conversation_members").insert([

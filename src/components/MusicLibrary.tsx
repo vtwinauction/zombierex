@@ -20,7 +20,7 @@ export type SelectedTrack = {
   artist: string;
   url: string;
   startAt: number; // seconds
-  volume: number;  // 0..1
+  volume: number; // 0..1
 };
 
 type Props = {
@@ -43,7 +43,8 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
     return MUSIC_LIBRARY.filter((t) => {
       if (category !== "all" && t.category !== category) return false;
       if (mood !== "all" && t.mood !== mood) return false;
-      if (query && !`${t.title} ${t.artist}`.toLowerCase().includes(query.toLowerCase())) return false;
+      if (query && !`${t.title} ${t.artist}`.toLowerCase().includes(query.toLowerCase()))
+        return false;
       return true;
     });
   }, [category, mood, query]);
@@ -59,7 +60,9 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
     audioRef.current.src = selected.url;
     audioRef.current.currentTime = startAt;
     audioRef.current.volume = volume;
-    audioRef.current.play().catch(() => { /* autoplay blocked */ });
+    audioRef.current.play().catch(() => {
+      /* autoplay blocked */
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
 
@@ -67,14 +70,20 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
-  useEffect(() => () => {
-    audioRef.current?.pause();
-  }, []);
+  useEffect(
+    () => () => {
+      audioRef.current?.pause();
+    },
+    [],
+  );
 
   if (!open) return null;
 
   const confirm = () => {
-    if (!selected) { onConfirm(null); return; }
+    if (!selected) {
+      onConfirm(null);
+      return;
+    }
     onConfirm({
       id: selected.id,
       title: selected.title,
@@ -107,10 +116,16 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
           borderBottom: "1px solid var(--color-hair)",
         }}
       >
-        <button onClick={close} className="mono-tag tap px-2 py-1" style={{ color: "var(--color-titanium)" }}>
+        <button
+          onClick={close}
+          className="mono-tag tap px-2 py-1"
+          style={{ color: "var(--color-titanium)" }}
+        >
           ← Close
         </button>
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>♪ MUSIC LIBRARY</p>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ♪ MUSIC LIBRARY
+        </p>
         <button
           onClick={confirm}
           disabled={!selected}
@@ -141,13 +156,19 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
         />
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
           {MUSIC_CATEGORIES.map((c) => (
-            <Chip key={c.id} active={category === c.id} onClick={() => setCategory(c.id as MusicCategory | "all")}>
+            <Chip
+              key={c.id}
+              active={category === c.id}
+              onClick={() => setCategory(c.id as MusicCategory | "all")}
+            >
               {c.label}
             </Chip>
           ))}
         </div>
         <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1">
-          <Chip active={mood === "all"} onClick={() => setMood("all")}>Any mood</Chip>
+          <Chip active={mood === "all"} onClick={() => setMood("all")}>
+            Any mood
+          </Chip>
           {MUSIC_MOODS.map((m) => (
             <Chip key={m.id} active={mood === m.id} onClick={() => setMood(m.id)}>
               {m.label}
@@ -169,7 +190,10 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
                 key={t.id}
                 t={t}
                 active={t.id === selectedId}
-                onSelect={() => { setSelectedId(t.id); setStartAt(0); }}
+                onSelect={() => {
+                  setSelectedId(t.id);
+                  setStartAt(0);
+                }}
               />
             ))}
           </ul>
@@ -189,10 +213,16 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
           <div className="flex items-center gap-3">
             <div
               className="h-12 w-12 shrink-0 rounded-md"
-              style={{ background: selected.coverGradient, border: "1px solid var(--color-hair-strong)" }}
+              style={{
+                background: selected.coverGradient,
+                border: "1px solid var(--color-hair-strong)",
+              }}
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-semibold" style={{ color: "var(--color-ink)" }}>
+              <p
+                className="truncate text-[13px] font-semibold"
+                style={{ color: "var(--color-ink)" }}
+              >
                 {selected.title}
               </p>
               <p className="mono-tag truncate" style={{ color: "var(--color-silver)" }}>
@@ -215,8 +245,12 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
 
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Start at</span>
-              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{formatDuration(startAt)}</span>
+              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                Start at
+              </span>
+              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+                {formatDuration(startAt)}
+              </span>
             </div>
             <input
               type="range"
@@ -235,8 +269,12 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
 
           <div>
             <div className="mb-1 flex items-center justify-between">
-              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Volume</span>
-              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>{Math.round(volume * 100)}%</span>
+              <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                Volume
+              </span>
+              <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+                {Math.round(volume * 100)}%
+              </span>
             </div>
             <input
               type="range"
@@ -254,7 +292,15 @@ export function MusicLibrary({ open, initial, onClose, onConfirm }: Props) {
   );
 }
 
-function TrackRow({ t, active, onSelect }: { t: MusicTrack; active: boolean; onSelect: () => void }) {
+function TrackRow({
+  t,
+  active,
+  onSelect,
+}: {
+  t: MusicTrack;
+  active: boolean;
+  onSelect: () => void;
+}) {
   return (
     <li>
       <button
@@ -277,7 +323,10 @@ function TrackRow({ t, active, onSelect }: { t: MusicTrack; active: boolean; onS
             {t.artist} · {t.bpm} BPM
           </p>
         </div>
-        <span className="mono-tag" style={{ color: active ? "var(--color-neon)" : "var(--color-titanium)" }}>
+        <span
+          className="mono-tag"
+          style={{ color: active ? "var(--color-neon)" : "var(--color-titanium)" }}
+        >
           {formatDuration(t.duration)}
         </span>
       </button>
@@ -285,7 +334,15 @@ function TrackRow({ t, active, onSelect }: { t: MusicTrack; active: boolean; onS
   );
 }
 
-function Chip({ children, active, onClick }: { children: React.ReactNode; active: boolean; onClick: () => void }) {
+function Chip({
+  children,
+  active,
+  onClick,
+}: {
+  children: React.ReactNode;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}

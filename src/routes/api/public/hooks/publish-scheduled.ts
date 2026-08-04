@@ -22,7 +22,9 @@ export const Route = createFileRoute("/api/public/hooks/publish-scheduled")({
         const nowIso = new Date().toISOString();
         const { data: due, error } = await supabaseAdmin
           .from("scheduled_posts")
-          .select("id, author_id, kind, caption, media_urls, hashtags, visibility, is_subscribers_only, club_id")
+          .select(
+            "id, author_id, kind, caption, media_urls, hashtags, visibility, is_subscribers_only, club_id",
+          )
           .eq("status", "scheduled")
           .lte("publish_at", nowIso)
           .order("publish_at", { ascending: true })
@@ -35,7 +37,9 @@ export const Route = createFileRoute("/api/public/hooks/publish-scheduled")({
 
         for (const s of due) {
           const media = Array.isArray(s.media_urls) ? s.media_urls : [];
-          const kind = (["video", "photo", "telemetry", "event"].includes(s.kind) ? s.kind : "photo") as "video" | "photo" | "telemetry" | "event";
+          const kind = (
+            ["video", "photo", "telemetry", "event"].includes(s.kind) ? s.kind : "photo"
+          ) as "video" | "photo" | "telemetry" | "event";
           const insertRow = {
             author_id: s.author_id,
             kind,
@@ -59,12 +63,19 @@ export const Route = createFileRoute("/api/public/hooks/publish-scheduled")({
           }
 
           // Attach hashtags if any
-          const tags = (s.hashtags ?? []).filter((t): t is string => typeof t === "string" && t.length > 0);
+          const tags = (s.hashtags ?? []).filter(
+            (t): t is string => typeof t === "string" && t.length > 0,
+          );
           if (tags.length) {
-            const uniq = Array.from(new Set(tags.map((t) => t.replace(/^#/, "").toLowerCase()))).slice(0, 30);
+            const uniq = Array.from(
+              new Set(tags.map((t) => t.replace(/^#/, "").toLowerCase())),
+            ).slice(0, 30);
             const { data: hashRows } = await supabaseAdmin
               .from("hashtags")
-              .upsert(uniq.map((tag) => ({ tag })), { onConflict: "tag" })
+              .upsert(
+                uniq.map((tag) => ({ tag })),
+                { onConflict: "tag" },
+              )
               .select("id, tag");
             if (hashRows?.length) {
               await supabaseAdmin

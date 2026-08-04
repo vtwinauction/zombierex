@@ -27,7 +27,10 @@ export function useDragRecorder() {
   useEffect(() => () => stop(), []);
 
   function arm() {
-    if (!("geolocation" in navigator)) { setError("Geolocation not supported"); return; }
+    if (!("geolocation" in navigator)) {
+      setError("Geolocation not supported");
+      return;
+    }
     setError(null);
     setArmed(true);
     setPoints([]);
@@ -35,7 +38,7 @@ export function useDragRecorder() {
     startRef.current = null;
     watchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
-        const spd = ((pos.coords.speed ?? 0) * 3.6);
+        const spd = (pos.coords.speed ?? 0) * 3.6;
         setLiveKmh(spd);
         // Auto-start: speed crosses 8 km/h from stopped
         if (!recording && startRef.current === null && spd > 8) {

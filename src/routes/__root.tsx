@@ -26,7 +26,9 @@ import { ConfirmHost } from "@/lib/confirm";
 
 // Lazy-loaded non-critical shell add-ons — not needed for first paint.
 const PushNotificationBridge = lazy(() =>
-  import("@/components/PushNotificationBridge").then((m) => ({ default: m.PushNotificationBridge })),
+  import("@/components/PushNotificationBridge").then((m) => ({
+    default: m.PushNotificationBridge,
+  })),
 );
 const PushPrimer = lazy(() =>
   import("@/components/PushPrimer").then((m) => ({ default: m.PushPrimer })),
@@ -44,10 +46,16 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="card-surface max-w-md p-8 text-center">
-        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>ERR·404 · SIGNAL LOST</p>
+        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>
+          ERR·404 · SIGNAL LOST
+        </p>
         <h1 className="mt-3 text-4xl display-xl">OFF THE MAP</h1>
-        <p className="mt-2 text-sm" style={{ color: "var(--color-ash)" }}>This coordinate returns nothing.</p>
-        <Link to="/" className="btn-solid mt-6 inline-flex">Return home</Link>
+        <p className="mt-2 text-sm" style={{ color: "var(--color-ash)" }}>
+          This coordinate returns nothing.
+        </p>
+        <Link to="/" className="btn-solid mt-6 inline-flex">
+          Return home
+        </Link>
       </div>
     </div>
   );
@@ -64,11 +72,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="card-surface max-w-md p-8 text-center">
-        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>ERR·500 · SYSTEM FAULT</p>
+        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>
+          ERR·500 · SYSTEM FAULT
+        </p>
         <h1 className="mt-3 text-4xl display-xl">BACKFIRE</h1>
         <div className="mt-6 flex justify-center gap-2">
-          <button onClick={() => { router.invalidate(); reset(); }} className="btn-solid">Retry</button>
-          <a href="/" className="btn-ghost">Home</a>
+          <button
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
+            className="btn-solid"
+          >
+            Retry
+          </button>
+          <a href="/" className="btn-ghost">
+            Home
+          </a>
         </div>
       </div>
     </div>
@@ -82,11 +102,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#fafafa" },
       { title: "ZOMBIEREX — Precision social for riders & drivers" },
-      { name: "description", content: "The premium social platform engineered for motorcycle and automotive culture. Short-form video, garage, marketplace, events." },
+      {
+        name: "description",
+        content:
+          "The premium social platform engineered for motorcycle and automotive culture. Short-form video, garage, marketplace, events.",
+      },
       { name: "author", content: "ZOMBIEREX" },
       { property: "og:site_name", content: "ZOMBIEREX" },
       { property: "og:title", content: "ZOMBIEREX — Ride. Rev. Resurrect." },
-      { property: "og:description", content: "Precision social for motorcycle & automotive culture." },
+      {
+        property: "og:description",
+        content: "Precision social for motorcycle & automotive culture.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@zombierex" },
@@ -98,7 +125,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap",
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -129,7 +159,12 @@ function RootComponent() {
   const [shellReady, setShellReady] = useState(false);
   const pathname = router.state.location.pathname;
   const marketing = useMarketingMode() || isMarketingPath(pathname);
-  const isImmersive = marketing || pathname.startsWith("/atlas/cockpit") || pathname.startsWith("/drag/race") || pathname === "/reels" || pathname.startsWith("/reels/");
+  const isImmersive =
+    marketing ||
+    pathname.startsWith("/atlas/cockpit") ||
+    pathname.startsWith("/drag/race") ||
+    pathname === "/reels" ||
+    pathname.startsWith("/reels/");
 
   useEffect(() => {
     const onScroll = () => setIsTop(window.scrollY < 40);
@@ -157,21 +192,37 @@ function RootComponent() {
     const activate = (reg: ServiceWorkerRegistration) => {
       const w = reg.waiting;
       if (!w) return;
-      try { w.postMessage({ type: "PURGE_CACHES" }); } catch { /* ignore */ }
-      try { w.postMessage({ type: "SKIP_WAITING" }); } catch { /* ignore */ }
+      try {
+        w.postMessage({ type: "PURGE_CACHES" });
+      } catch {
+        /* ignore */
+      }
+      try {
+        w.postMessage({ type: "SKIP_WAITING" });
+      } catch {
+        /* ignore */
+      }
     };
-    navigator.serviceWorker.register("/sw.js").then((reg) => {
-      if (reg.waiting) activate(reg);
-      reg.addEventListener("updatefound", () => {
-        const nw = reg.installing;
-        if (!nw) return;
-        nw.addEventListener("statechange", () => {
-          if (nw.state === "installed" && navigator.serviceWorker.controller) activate(reg);
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => {
+        if (reg.waiting) activate(reg);
+        reg.addEventListener("updatefound", () => {
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener("statechange", () => {
+            if (nw.state === "installed" && navigator.serviceWorker.controller) activate(reg);
+          });
         });
-      });
-      // Poll for new versions every 30 minutes while app is open
-      setInterval(() => { reg.update().catch(() => {}); }, 30 * 60 * 1000);
-    }).catch(() => {});
+        // Poll for new versions every 30 minutes while app is open
+        setInterval(
+          () => {
+            reg.update().catch(() => {});
+          },
+          30 * 60 * 1000,
+        );
+      })
+      .catch(() => {});
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (reloaded) return;
       reloaded = true;
@@ -196,9 +247,10 @@ function RootComponent() {
         if (p.largeText) document.documentElement.classList.add("text-large");
         if (p.theme) document.documentElement.dataset.theme = p.theme;
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
-
 
   // Fire screen_view on every pathname change.
   useEffect(() => {
@@ -221,7 +273,9 @@ function RootComponent() {
     void import("@/lib/native/bootstrap").then((m) => {
       if (!cancelled) void m.bootstrapNative(router);
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   // Refresh live data whenever the app returns to the foreground
@@ -260,7 +314,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="relative min-h-[100svh] bg-background text-foreground">
-        <main className={isImmersive ? "min-h-[100svh]" : "min-h-[100svh] pb-[calc(64px+env(safe-area-inset-bottom))]"}>
+        <main
+          className={
+            isImmersive
+              ? "min-h-[100svh]"
+              : "min-h-[100svh] pb-[calc(64px+env(safe-area-inset-bottom))]"
+          }
+        >
           {!isImmersive && <OfflineBanner />}
           {!isImmersive && <OwnerBroadcastBanner />}
           {!isImmersive && <GlobalStatusBar />}
@@ -283,7 +343,6 @@ function RootComponent() {
         <Toaster position="top-center" richColors closeButton />
         <ConfirmHost />
       </div>
-
     </QueryClientProvider>
   );
 }

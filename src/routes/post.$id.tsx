@@ -60,18 +60,37 @@ function PostDetailPage() {
   const post = q.data;
 
   return (
-    <PullToRefresh onRefresh={async () => { await q.refetch(); }}>
+    <PullToRefresh
+      onRefresh={async () => {
+        await q.refetch();
+      }}
+    >
       <div>
-        <div className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 hairline-b" style={{ background: "var(--color-bone, #fff)" }}>
+        <div
+          className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 hairline-b"
+          style={{ background: "var(--color-bone, #fff)" }}
+        >
           <div className="flex items-center gap-3">
-            <Link to="/" className="inline-flex items-center justify-center h-9 w-9 -ml-2" aria-label="Back">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center h-9 w-9 -ml-2"
+              aria-label="Back"
+            >
               <ArrowLeft size={20} />
             </Link>
             <p className="mono-tag">POST</p>
           </div>
           {post && (
-            <ShareSheet type="post" id={post.id} title={post.caption} subtitle={post.author?.display_name || undefined}>
-              <button className="inline-flex items-center justify-center h-9 w-9" aria-label="Share post">
+            <ShareSheet
+              type="post"
+              id={post.id}
+              title={post.caption}
+              subtitle={post.author?.display_name || undefined}
+            >
+              <button
+                className="inline-flex items-center justify-center h-9 w-9"
+                aria-label="Share post"
+              >
                 <Share2 size={20} />
               </button>
             </ShareSheet>
@@ -79,13 +98,19 @@ function PostDetailPage() {
         </div>
 
         {q.isLoading && (
-          <div className="px-4 py-16 text-center mono-tag" style={{ color: "var(--color-ash)" }}>LOADING…</div>
+          <div className="px-4 py-16 text-center mono-tag" style={{ color: "var(--color-ash)" }}>
+            LOADING…
+          </div>
         )}
 
         {!q.isLoading && !post && (
           <div className="px-4 py-16 text-center">
-            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>POST NOT FOUND</p>
-            <Link to="/" className="mt-4 inline-block underline text-sm">Return to feed</Link>
+            <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+              POST NOT FOUND
+            </p>
+            <Link to="/" className="mt-4 inline-block underline text-sm">
+              Return to feed
+            </Link>
           </div>
         )}
 
@@ -93,7 +118,11 @@ function PostDetailPage() {
           <article className="px-4 pt-4 pb-24">
             <header className="flex items-center gap-3 mb-3">
               {post.author?.handle ? (
-                <Link to="/u/$handle" params={{ handle: post.author.handle }} className="flex items-center gap-3 min-w-0">
+                <Link
+                  to="/u/$handle"
+                  params={{ handle: post.author.handle }}
+                  className="flex items-center gap-3 min-w-0"
+                >
                   <img
                     src={post.author?.avatar_url || "/favicon.ico"}
                     alt={post.author?.display_name ?? "author"}
@@ -103,7 +132,8 @@ function PostDetailPage() {
                   <div className="min-w-0">
                     <p className="font-bold truncate">{post.author?.display_name ?? "Rider"}</p>
                     <p className="mono-tag truncate" style={{ color: "var(--color-ash)" }}>
-                      @{post.author.handle}{post.author?.location ? ` · ${post.author.location}` : ""}
+                      @{post.author.handle}
+                      {post.author?.location ? ` · ${post.author.location}` : ""}
                     </p>
                   </div>
                 </Link>
@@ -116,7 +146,10 @@ function PostDetailPage() {
             </header>
 
             {post.media_url && (
-              <div className="relative w-full overflow-hidden hairline" style={{ background: "var(--color-ink)" }}>
+              <div
+                className="relative w-full overflow-hidden hairline"
+                style={{ background: "var(--color-ink)" }}
+              >
                 {isVideoUrl(post.media_url) ? (
                   <AutoplayVideo
                     src={post.media_url}

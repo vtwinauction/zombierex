@@ -10,7 +10,6 @@
  * states end-to-end from the UI.
  */
 
-
 export type InteractionKind = "like" | "unlike" | "save" | "unsave" | "share";
 
 export type QueuedAction = {
@@ -101,10 +100,14 @@ async function sendAction(action: QueuedAction): Promise<void> {
   const { react, unreact } = await import("@/lib/feed.functions");
   try {
     if (action.kind === "like") await react({ data: { post_id: action.targetId, kind: "like" } });
-    else if (action.kind === "unlike") await unreact({ data: { post_id: action.targetId, kind: "like" } });
-    else if (action.kind === "save") await react({ data: { post_id: action.targetId, kind: "save" } });
-    else if (action.kind === "unsave") await unreact({ data: { post_id: action.targetId, kind: "save" } });
-    else if (action.kind === "share") await react({ data: { post_id: action.targetId, kind: "share" } });
+    else if (action.kind === "unlike")
+      await unreact({ data: { post_id: action.targetId, kind: "like" } });
+    else if (action.kind === "save")
+      await react({ data: { post_id: action.targetId, kind: "save" } });
+    else if (action.kind === "unsave")
+      await unreact({ data: { post_id: action.targetId, kind: "save" } });
+    else if (action.kind === "share")
+      await react({ data: { post_id: action.targetId, kind: "share" } });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "error";
     // Auth errors shouldn't retry forever — mark as terminal.
@@ -118,9 +121,9 @@ async function sendAction(action: QueuedAction): Promise<void> {
 export function enqueue(targetId: string, kind: InteractionKind): QueuedAction {
   const action: QueuedAction = {
     id:
-      (typeof crypto !== "undefined" && "randomUUID" in crypto
+      typeof crypto !== "undefined" && "randomUUID" in crypto
         ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).slice(2)}`),
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
     targetId,
     kind,
     createdAt: Date.now(),
@@ -165,7 +168,7 @@ async function drain() {
         persist();
         emit();
       } catch (err) {
-        const attempts = (queue.find((a) => a.id === next.id)?.attempts) ?? next.attempts + 1;
+        const attempts = queue.find((a) => a.id === next.id)?.attempts ?? next.attempts + 1;
         const message = err instanceof Error ? err.message : "error";
         if (message === "offline") {
           // leave it as pending until we come back online

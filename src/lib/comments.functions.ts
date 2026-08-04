@@ -16,7 +16,8 @@ function serverPublic() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -25,15 +26,21 @@ function serverPublic() {
 }
 
 export const listComments = createServerFn({ method: "GET" })
-  .validator((raw) => z.object({
-    post_id: z.string().uuid(),
-    limit: z.number().int().min(1).max(200).default(100),
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        post_id: z.string().uuid(),
+        limit: z.number().int().min(1).max(200).default(100),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data }) => {
     const sb = serverPublic();
     const { data: rows, error } = await sb
       .from("comments")
-      .select("id, post_id, author_id, body, parent_id, created_at, author:profiles!comments_author_id_fkey(id, handle, display_name, avatar_url, is_verified)")
+      .select(
+        "id, post_id, author_id, body, parent_id, created_at, author:profiles!comments_author_id_fkey(id, handle, display_name, avatar_url, is_verified)",
+      )
       .eq("post_id", data.post_id)
       .is("deleted_at", null)
       .order("created_at", { ascending: true })
@@ -44,23 +51,34 @@ export const listComments = createServerFn({ method: "GET" })
 
 export const addComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) => z.object({
-    post_id: z.string().uuid(),
-    body: z.string().trim().min(1).max(2000),
-    parent_id: z.string().uuid().nullable().optional(),
-  }).parse(raw))
+  .validator((raw) =>
+    z
+      .object({
+        post_id: z.string().uuid(),
+        body: z.string().trim().min(1).max(2000),
+        parent_id: z.string().uuid().nullable().optional(),
+      })
+      .parse(raw),
+  )
   .handler(async ({ data, context }) => {
     const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
-      _bucket: "comments", _max_hits: 30, _window_seconds: 3600,
+      _bucket: "comments",
+      _max_hits: 30,
+      _window_seconds: 3600,
     });
-    if (rlErr) throw new Error(rlErr.message.includes("rate_limit_exceeded")
-      ? "You're commenting too fast — try again in a bit."
-      : rlErr.message);
+    if (rlErr)
+      throw new Error(
+        rlErr.message.includes("rate_limit_exceeded")
+          ? "You're commenting too fast — try again in a bit."
+          : rlErr.message,
+      );
     // Server-side text moderation (fail-open on gateway errors).
     const { moderateText } = await import("./moderation-text.server");
     const verdict = await moderateText(data.body);
     if (!verdict.safe && !verdict.skipped) {
-      throw new Error(`Comment blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`);
+      throw new Error(
+        `Comment blocked by safety filter${verdict.reason ? `: ${verdict.reason}` : "."}`,
+      );
     }
     const { data: row, error } = await context.supabase
       .from("comments")

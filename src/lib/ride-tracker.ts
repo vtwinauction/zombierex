@@ -31,7 +31,10 @@ export function emptyState(): TrackerState {
 }
 
 // Haversine in meters
-export function haversine(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+export function haversine(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+): number {
   const R = 6371000;
   const toRad = (d: number) => (d * Math.PI) / 180;
   const dLat = toRad(b.lat - a.lat);
@@ -75,5 +78,9 @@ export async function requestWakeLock(): Promise<WakeLockSentinel | null> {
   if (typeof navigator === "undefined") return null;
   const anyNav = navigator as any;
   if (!anyNav.wakeLock?.request) return null;
-  try { return await anyNav.wakeLock.request("screen"); } catch { return null; }
+  try {
+    return await anyNav.wakeLock.request("screen");
+  } catch {
+    return null;
+  }
 }

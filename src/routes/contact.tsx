@@ -9,17 +9,30 @@ export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
       { title: "Contact ZOMBIEREX — Support, Business & Press" },
-      { name: "description", content: "Get in touch with the ZOMBIEREX team for support, partnerships, advertising, press or legal enquiries." },
+      {
+        name: "description",
+        content:
+          "Get in touch with the ZOMBIEREX team for support, partnerships, advertising, press or legal enquiries.",
+      },
       { property: "og:title", content: "Contact ZOMBIEREX" },
-      { property: "og:description", content: "Support, partnerships, advertising, press and legal contacts for ZOMBIEREX." },
+      {
+        property: "og:description",
+        content: "Support, partnerships, advertising, press and legal contacts for ZOMBIEREX.",
+      },
       { property: "og:type", content: "website" },
-      
     ],
   }),
   component: ContactPage,
 });
 
-const TOPICS = ["Support", "Business & partnerships", "Advertising", "Press", "Legal", "Other"] as const;
+const TOPICS = [
+  "Support",
+  "Business & partnerships",
+  "Advertising",
+  "Press",
+  "Legal",
+  "Other",
+] as const;
 
 function ContactPage() {
   const [topic, setTopic] = useState<string>(TOPICS[0]);
@@ -28,10 +41,13 @@ function ContactPage() {
   const [message, setMessage] = useState("");
 
   const routeTo =
-    topic === "Business & partnerships" || topic === "Advertising" ? siteConfig.contact.business
-      : topic === "Press" ? siteConfig.contact.press
-      : topic === "Legal" ? siteConfig.contact.legal
-      : siteConfig.contact.support;
+    topic === "Business & partnerships" || topic === "Advertising"
+      ? siteConfig.contact.business
+      : topic === "Press"
+        ? siteConfig.contact.press
+        : topic === "Legal"
+          ? siteConfig.contact.legal
+          : siteConfig.contact.support;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,26 +76,54 @@ function ContactPage() {
           </div>
 
           <div className="mkt-split">
-            <form className="mkt-card" style={{ display: "grid", gap: 14, padding: 24 }} onSubmit={submit}>
+            <form
+              className="mkt-card"
+              style={{ display: "grid", gap: 14, padding: 24 }}
+              onSubmit={submit}
+            >
               <label className="mkt-field">
                 <span>Topic</span>
                 <select value={topic} onChange={(e) => setTopic(e.target.value)}>
-                  {TOPICS.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {TOPICS.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="mkt-field">
                 <span>Name</span>
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" autoComplete="name" />
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  autoComplete="name"
+                />
               </label>
               <label className="mkt-field">
                 <span>Email</span>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                />
               </label>
               <label className="mkt-field">
                 <span>Message</span>
-                <textarea rows={5} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="How can we help?" />
+                <textarea
+                  rows={5}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="How can we help?"
+                />
               </label>
-              <button type="submit" className="mkt-btn mkt-btn-neon" style={{ justifySelf: "start" }}>
+              <button
+                type="submit"
+                className="mkt-btn mkt-btn-neon"
+                style={{ justifySelf: "start" }}
+              >
                 <Send size={15} /> Send message
               </button>
               <p className="mkt-muted" style={{ fontSize: 11.5 }}>
@@ -89,16 +133,24 @@ function ContactPage() {
 
             <div style={{ display: "grid", gap: 12 }}>
               <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.support}`}>
-                <Mail size={16} /><h3>Support</h3><p className="mkt-muted">{siteConfig.contact.support}</p>
+                <Mail size={16} />
+                <h3>Support</h3>
+                <p className="mkt-muted">{siteConfig.contact.support}</p>
               </a>
               <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.business}`}>
-                <Briefcase size={16} /><h3>Business &amp; advertising</h3><p className="mkt-muted">{siteConfig.contact.business}</p>
+                <Briefcase size={16} />
+                <h3>Business &amp; advertising</h3>
+                <p className="mkt-muted">{siteConfig.contact.business}</p>
               </a>
               <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.legal}`}>
-                <ShieldCheck size={16} /><h3>Legal</h3><p className="mkt-muted">{siteConfig.contact.legal}</p>
+                <ShieldCheck size={16} />
+                <h3>Legal</h3>
+                <p className="mkt-muted">{siteConfig.contact.legal}</p>
               </a>
               <div className="mkt-card mkt-contact">
-                <MapPin size={16} /><h3>Headquarters</h3><p className="mkt-muted">{siteConfig.contact.location}</p>
+                <MapPin size={16} />
+                <h3>Headquarters</h3>
+                <p className="mkt-muted">{siteConfig.contact.location}</p>
               </div>
             </div>
           </div>

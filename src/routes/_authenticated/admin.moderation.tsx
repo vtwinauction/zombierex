@@ -23,8 +23,16 @@ export const Route = createFileRoute("/_authenticated/admin/moderation")({
 
 type Status = "open" | "reviewing" | "resolved" | "dismissed" | "all";
 type Kind =
-  | "all" | "post" | "reel" | "story" | "comment" | "message"
-  | "profile" | "community" | "event" | "listing";
+  | "all"
+  | "post"
+  | "reel"
+  | "story"
+  | "comment"
+  | "message"
+  | "profile"
+  | "community"
+  | "event"
+  | "listing";
 type Report = {
   id: string;
   reporter_id: string;
@@ -37,29 +45,50 @@ type Report = {
 };
 
 const KINDS: Kind[] = [
-  "all", "post", "reel", "story", "comment", "message",
-  "profile", "community", "event", "listing",
+  "all",
+  "post",
+  "reel",
+  "story",
+  "comment",
+  "message",
+  "profile",
+  "community",
+  "event",
+  "listing",
 ];
 
 const SEVERE = new Set(["hate", "violence", "self_harm", "nudity", "harassment"]);
 
 function hrefFor(kind: string, id: string): string | null {
   switch (kind) {
-    case "post": return `/post/${id}`;
-    case "reel": return `/reels/${id}`;
-    case "comment": return `/post/${id}`;
-    case "profile": return `/u/${id}`;
-    case "event": return `/events/${id}`;
-    case "listing": return `/marketplace/${id}`;
-    case "community": return `/communities/${id}`;
-    case "message": return `/messages/${id}`;
-    default: return null;
+    case "post":
+      return `/post/${id}`;
+    case "reel":
+      return `/reels/${id}`;
+    case "comment":
+      return `/post/${id}`;
+    case "profile":
+      return `/u/${id}`;
+    case "event":
+      return `/events/${id}`;
+    case "listing":
+      return `/marketplace/${id}`;
+    case "community":
+      return `/communities/${id}`;
+    case "message":
+      return `/messages/${id}`;
+    default:
+      return null;
   }
 }
 
 function slaAge(iso: string): { label: string; tone: "ok" | "warn" | "hot" } {
   const hrs = Math.floor((Date.now() - new Date(iso).getTime()) / 3_600_000);
-  if (hrs < 1) return { label: `${Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 60000))}m`, tone: "ok" };
+  if (hrs < 1)
+    return {
+      label: `${Math.max(1, Math.floor((Date.now() - new Date(iso).getTime()) / 60000))}m`,
+      tone: "ok",
+    };
   if (hrs < 24) return { label: `${hrs}h`, tone: hrs >= 12 ? "warn" : "ok" };
   const days = Math.floor(hrs / 24);
   return { label: `${days}d`, tone: days >= 3 ? "hot" : "warn" };
@@ -135,7 +164,9 @@ function ModerationPage() {
       try {
         await resolveFn({ data: { id, status: action } });
         ok++;
-      } catch { /* continue */ }
+      } catch {
+        /* continue */
+      }
     }
     toast.success(`${action} · ${ok}/${ids.length}`, { id: "mod-bulk" });
     setSelected(new Set());
@@ -144,17 +175,28 @@ function ModerationPage() {
   }
 
   return (
-    <div style={{ background: "var(--color-cream, #fafaf7)", minHeight: "100vh", color: "var(--color-ink, #0a0a0a)" }}>
+    <div
+      style={{
+        background: "var(--color-cream, #fafaf7)",
+        minHeight: "100vh",
+        color: "var(--color-ink, #0a0a0a)",
+      }}
+    >
       <main className="mx-auto max-w-3xl px-4 pb-32 pt-4">
         <h1 className="text-2xl font-bold mb-4">Moderation</h1>
 
         <div className="grid grid-cols-2 gap-2 mb-6">
-          {stats.data && Object.entries(stats.data).map(([k, v]) => (
-            <div key={k} className="p-3" style={{ background: "var(--color-graphite, #eee)", borderRadius: 12 }}>
-              <p className="text-xs opacity-70 uppercase">{k.replace(/_/g, " ")}</p>
-              <p className="text-2xl font-bold">{String(v)}</p>
-            </div>
-          ))}
+          {stats.data &&
+            Object.entries(stats.data).map(([k, v]) => (
+              <div
+                key={k}
+                className="p-3"
+                style={{ background: "var(--color-graphite, #eee)", borderRadius: 12 }}
+              >
+                <p className="text-xs opacity-70 uppercase">{k.replace(/_/g, " ")}</p>
+                <p className="text-2xl font-bold">{String(v)}</p>
+              </div>
+            ))}
         </div>
 
         {/* Status tabs */}
@@ -162,7 +204,10 @@ function ModerationPage() {
           {(["open", "reviewing", "resolved", "dismissed", "all"] as const).map((s) => (
             <button
               key={s}
-              onClick={() => { setStatus(s); setSelected(new Set()); }}
+              onClick={() => {
+                setStatus(s);
+                setSelected(new Set());
+              }}
               className="px-3 py-1.5 text-xs whitespace-nowrap"
               style={{
                 background: status === s ? "var(--color-ink)" : "transparent",
@@ -199,11 +244,19 @@ function ModerationPage() {
         {/* Toggles */}
         <div className="flex items-center gap-3 mb-4 text-xs">
           <label className="inline-flex items-center gap-1.5">
-            <input type="checkbox" checked={severeOnly} onChange={(e) => setSevereOnly(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={severeOnly}
+              onChange={(e) => setSevereOnly(e.target.checked)}
+            />
             Severe only
           </label>
           <label className="inline-flex items-center gap-1.5">
-            <input type="checkbox" checked={groupByTarget} onChange={(e) => setGroupByTarget(e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={groupByTarget}
+              onChange={(e) => setGroupByTarget(e.target.checked)}
+            />
             Group by target
           </label>
           <span className="ml-auto opacity-60">{filtered.length} items</span>
@@ -211,13 +264,43 @@ function ModerationPage() {
 
         {/* Bulk bar */}
         {selected.size > 0 && (
-          <div className="sticky top-14 z-10 mb-3 p-2 flex items-center gap-2"
-            style={{ background: "var(--color-ink)", color: "var(--color-cream, #fafaf7)", borderRadius: 10 }}>
+          <div
+            className="sticky top-14 z-10 mb-3 p-2 flex items-center gap-2"
+            style={{
+              background: "var(--color-ink)",
+              color: "var(--color-cream, #fafaf7)",
+              borderRadius: 10,
+            }}
+          >
             <span className="text-xs font-mono px-2">{selected.size} selected</span>
-            <button className="ml-auto px-2 py-1 text-[11px]" style={btnDark} onClick={() => bulk("reviewing")}>Review</button>
-            <button className="px-2 py-1 text-[11px]" style={btnGreen} onClick={() => bulk("resolved")}>Resolve</button>
-            <button className="px-2 py-1 text-[11px]" style={btnDark} onClick={() => bulk("dismissed")}>Dismiss</button>
-            <button className="px-2 py-1 text-[11px]" style={btnDark} onClick={() => setSelected(new Set())}>Clear</button>
+            <button
+              className="ml-auto px-2 py-1 text-[11px]"
+              style={btnDark}
+              onClick={() => bulk("reviewing")}
+            >
+              Review
+            </button>
+            <button
+              className="px-2 py-1 text-[11px]"
+              style={btnGreen}
+              onClick={() => bulk("resolved")}
+            >
+              Resolve
+            </button>
+            <button
+              className="px-2 py-1 text-[11px]"
+              style={btnDark}
+              onClick={() => bulk("dismissed")}
+            >
+              Dismiss
+            </button>
+            <button
+              className="px-2 py-1 text-[11px]"
+              style={btnDark}
+              onClick={() => setSelected(new Set())}
+            >
+              Clear
+            </button>
           </div>
         )}
 
@@ -235,18 +318,41 @@ function ModerationPage() {
               const first = items[0];
               const link = hrefFor(first.target_kind, first.target_id);
               return (
-                <div key={key} className="p-3" style={{ background: "white", border: "1px solid var(--color-hair, #ddd)", borderRadius: 12 }}>
+                <div
+                  key={key}
+                  className="p-3"
+                  style={{
+                    background: "white",
+                    border: "1px solid var(--color-hair, #ddd)",
+                    borderRadius: 12,
+                  }}
+                >
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="mono-tag text-[10px] px-2 py-0.5" style={{ background: "var(--color-graphite, #eee)", borderRadius: 4 }}>
+                    <span
+                      className="mono-tag text-[10px] px-2 py-0.5"
+                      style={{ background: "var(--color-graphite, #eee)", borderRadius: 4 }}
+                    >
                       {first.target_kind.toUpperCase()}
                     </span>
-                    <span className="text-xs font-bold">{items.length} report{items.length > 1 ? "s" : ""}</span>
+                    <span className="text-xs font-bold">
+                      {items.length} report{items.length > 1 ? "s" : ""}
+                    </span>
                     {link && (
-                      <Link to={link} className="ml-auto text-xs underline">Open target →</Link>
+                      <Link to={link} className="ml-auto text-xs underline">
+                        Open target →
+                      </Link>
                     )}
                   </div>
                   <div className="space-y-2">
-                    {items.map((r) => <Row key={r.id} r={r} selected={selected.has(r.id)} toggle={() => toggle(r.id)} resolve={resolve.mutate} />)}
+                    {items.map((r) => (
+                      <Row
+                        key={r.id}
+                        r={r}
+                        selected={selected.has(r.id)}
+                        toggle={() => toggle(r.id)}
+                        resolve={resolve.mutate}
+                      />
+                    ))}
                   </div>
                 </div>
               );
@@ -257,7 +363,16 @@ function ModerationPage() {
         {/* Flat view */}
         {!groups && (
           <div className="space-y-2">
-            {filtered.map((r) => <Row key={r.id} r={r} selected={selected.has(r.id)} toggle={() => toggle(r.id)} resolve={resolve.mutate} showLink />)}
+            {filtered.map((r) => (
+              <Row
+                key={r.id}
+                r={r}
+                selected={selected.has(r.id)}
+                toggle={() => toggle(r.id)}
+                resolve={resolve.mutate}
+                showLink
+              />
+            ))}
           </div>
         )}
 
@@ -270,7 +385,11 @@ function ModerationPage() {
 }
 
 function Row({
-  r, selected, toggle, resolve, showLink,
+  r,
+  selected,
+  toggle,
+  resolve,
+  showLink,
 }: {
   r: Report;
   selected: boolean;
@@ -281,7 +400,8 @@ function Row({
   const sla = slaAge(r.created_at);
   const severe = SEVERE.has(r.reason);
   const link = showLink ? hrefFor(r.target_kind, r.target_id) : null;
-  const slaColor = sla.tone === "hot" ? "#ff3b3b" : sla.tone === "warn" ? "#f5a623" : "var(--color-ash, #888)";
+  const slaColor =
+    sla.tone === "hot" ? "#ff3b3b" : sla.tone === "warn" ? "#f5a623" : "var(--color-ash, #888)";
 
   return (
     <div className="p-2" style={{ border: "1px solid var(--color-hair, #ddd)", borderRadius: 10 }}>
@@ -290,20 +410,33 @@ function Row({
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
             {showLink && (
-              <span className="mono-tag px-1.5 py-0.5" style={{ background: "var(--color-graphite, #eee)", borderRadius: 4 }}>
+              <span
+                className="mono-tag px-1.5 py-0.5"
+                style={{ background: "var(--color-graphite, #eee)", borderRadius: 4 }}
+              >
                 {r.target_kind}
               </span>
             )}
-            <span className="px-1.5 py-0.5"
+            <span
+              className="px-1.5 py-0.5"
               style={{
                 background: severe ? "#ff3b3b" : "var(--color-graphite, #eee)",
                 color: severe ? "white" : "var(--color-ink)",
                 borderRadius: 4,
                 fontWeight: severe ? 700 : 500,
-              }}>
+              }}
+            >
               {r.reason}
             </span>
-            <span className="px-1.5 py-0.5" style={{ color: slaColor, border: `1px solid ${slaColor}`, borderRadius: 4, fontWeight: 600 }}>
+            <span
+              className="px-1.5 py-0.5"
+              style={{
+                color: slaColor,
+                border: `1px solid ${slaColor}`,
+                borderRadius: 4,
+                fontWeight: 600,
+              }}
+            >
               {sla.label}
             </span>
             <span className="ml-auto opacity-60">{new Date(r.created_at).toLocaleString()}</span>
@@ -311,15 +444,37 @@ function Row({
           {r.details && <p className="text-sm mt-1.5">{r.details}</p>}
           <p className="text-[10px] font-mono opacity-50 break-all mt-1">{r.target_id}</p>
           <div className="flex gap-1.5 mt-2 flex-wrap">
-            {link && <Link to={link} className="px-2 py-1 text-[11px] underline">Open</Link>}
+            {link && (
+              <Link to={link} className="px-2 py-1 text-[11px] underline">
+                Open
+              </Link>
+            )}
             {r.status === "open" && (
-              <button onClick={() => resolve({ id: r.id, status: "reviewing" })} className="px-2 py-1 text-[11px]" style={btn}>Review</button>
+              <button
+                onClick={() => resolve({ id: r.id, status: "reviewing" })}
+                className="px-2 py-1 text-[11px]"
+                style={btn}
+              >
+                Review
+              </button>
             )}
             {r.status !== "resolved" && (
-              <button onClick={() => resolve({ id: r.id, status: "resolved" })} className="px-2 py-1 text-[11px]" style={btnPrimary}>Resolve</button>
+              <button
+                onClick={() => resolve({ id: r.id, status: "resolved" })}
+                className="px-2 py-1 text-[11px]"
+                style={btnPrimary}
+              >
+                Resolve
+              </button>
             )}
             {r.status !== "dismissed" && (
-              <button onClick={() => resolve({ id: r.id, status: "dismissed" })} className="px-2 py-1 text-[11px]" style={btn}>Dismiss</button>
+              <button
+                onClick={() => resolve({ id: r.id, status: "dismissed" })}
+                className="px-2 py-1 text-[11px]"
+                style={btn}
+              >
+                Dismiss
+              </button>
             )}
           </div>
         </div>

@@ -16,19 +16,25 @@ function randCode() {
 export const createGroupRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) =>
-    z.object({
-      title: z.string().trim().min(1).max(80).default("Group Ride"),
-      meet_lat: z.number().optional().nullable(),
-      meet_lng: z.number().optional().nullable(),
-      meet_label: z.string().max(160).optional().nullable(),
-    }).parse(d),
+    z
+      .object({
+        title: z.string().trim().min(1).max(80).default("Group Ride"),
+        meet_lat: z.number().optional().nullable(),
+        meet_lng: z.number().optional().nullable(),
+        meet_label: z.string().max(160).optional().nullable(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     let code = randCode();
     // Try a few times if collision
     for (let i = 0; i < 4; i++) {
-      const { data: existing } = await supabase.from("group_rides").select("id").eq("join_code", code).maybeSingle();
+      const { data: existing } = await supabase
+        .from("group_rides")
+        .select("id")
+        .eq("join_code", code)
+        .maybeSingle();
       if (!existing) break;
       code = randCode();
     }
@@ -59,14 +65,23 @@ export const joinGroupRide = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
     const code = data.code.toUpperCase();
-    const { data: found, error: rpcErr } = await supabase.rpc("find_group_ride_by_code", { _code: code });
+    const { data: found, error: rpcErr } = await supabase.rpc("find_group_ride_by_code", {
+      _code: code,
+    });
     if (rpcErr) throw rpcErr;
     const match = Array.isArray(found) ? found[0] : found;
     if (!match) throw new Error("Ride not found or ended.");
     await supabase
       .from("group_ride_members")
-      .upsert({ group_ride_id: match.id, user_id: context.userId, role: "rider" }, { onConflict: "group_ride_id,user_id" });
-    const { data: ride } = await supabase.from("group_rides").select("*").eq("id", match.id).maybeSingle();
+      .upsert(
+        { group_ride_id: match.id, user_id: context.userId, role: "rider" },
+        { onConflict: "group_ride_id,user_id" },
+      );
+    const { data: ride } = await supabase
+      .from("group_rides")
+      .select("*")
+      .eq("id", match.id)
+      .maybeSingle();
     return ride ?? match;
   });
 
@@ -75,7 +90,11 @@ export const getGroupRide = createServerFn({ method: "GET" })
   .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;
-    const { data: ride } = await supabase.from("group_rides").select("*").eq("id", data.id).maybeSingle();
+    const { data: ride } = await supabase
+      .from("group_rides")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (!ride) throw new Error("Ride not found.");
     const { data: membersRaw } = await supabase
       .from("group_ride_members")
@@ -83,10 +102,16 @@ export const getGroupRide = createServerFn({ method: "GET" })
       .eq("group_ride_id", data.id);
     const userIds = (membersRaw ?? []).map((m) => m.user_id);
     const { data: profs } = userIds.length
-      ? await supabase.from("profiles").select("id, handle, display_name, avatar_url").in("id", userIds)
+      ? await supabase
+          .from("profiles")
+          .select("id, handle, display_name, avatar_url")
+          .in("id", userIds)
       : { data: [] as any[] };
     const profMap = new Map((profs ?? []).map((p: any) => [p.id, p]));
-    const members = (membersRaw ?? []).map((m) => ({ ...m, profiles: profMap.get(m.user_id) ?? null }));
+    const members = (membersRaw ?? []).map((m) => ({
+      ...m,
+      profiles: profMap.get(m.user_id) ?? null,
+    }));
     // Latest ping per member (last 10 min)
     const { data: pings } = await supabase
       .from("group_ride_pings")
@@ -103,14 +128,16 @@ export const getGroupRide = createServerFn({ method: "GET" })
 export const sendGroupPing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) =>
-    z.object({
-      group_ride_id: z.string().uuid(),
-      lat: z.number(),
-      lng: z.number(),
-      speed_kmh: z.number().min(0).max(500).optional().nullable(),
-      heading: z.number().min(0).max(360).optional().nullable(),
-      battery: z.number().min(0).max(1).optional().nullable(),
-    }).parse(d),
+    z
+      .object({
+        group_ride_id: z.string().uuid(),
+        lat: z.number(),
+        lng: z.number(),
+        speed_kmh: z.number().min(0).max(500).optional().nullable(),
+        heading: z.number().min(0).max(360).optional().nullable(),
+        battery: z.number().min(0).max(1).optional().nullable(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const supabase = context.supabase;

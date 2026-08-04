@@ -27,8 +27,7 @@ export function SideRail() {
 
       <ul className="flex-1 space-y-0.5 py-1">
         {NAV.map((item) => {
-          const active =
-            item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
+          const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
           return (
             <li key={item.to}>
               <Link

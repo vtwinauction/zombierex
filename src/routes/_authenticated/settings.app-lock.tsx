@@ -9,14 +9,19 @@ import {
 } from "@/lib/native/biometric";
 
 export const Route = createFileRoute("/_authenticated/settings/app-lock")({
-  head: () => ({ meta: [
-    { title: "App Lock · ZOMBIEREX" },
-    { name: "description", content: "Require FaceID, TouchID or fingerprint to open ZOMBIEREX." },
-    { property: "og:title", content: "App Lock · ZOMBIEREX" },
-    { property: "og:description", content: "Require FaceID, TouchID or fingerprint to open ZOMBIEREX." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "App Lock · ZOMBIEREX" },
+      { name: "description", content: "Require FaceID, TouchID or fingerprint to open ZOMBIEREX." },
+      { property: "og:title", content: "App Lock · ZOMBIEREX" },
+      {
+        property: "og:description",
+        content: "Require FaceID, TouchID or fingerprint to open ZOMBIEREX.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AppLockPage,
 });
 
@@ -54,7 +59,10 @@ function AppLockPage() {
       setBusy(true);
       const ok = await authenticateBiometric("Enable App Lock");
       setBusy(false);
-      if (!ok) { setStatus("Authentication cancelled. App Lock not enabled."); return; }
+      if (!ok) {
+        setStatus("Authentication cancelled. App Lock not enabled.");
+        return;
+      }
     }
     setEnabled(next);
     saveAppLockPrefs({ enabled: next, graceMs });
@@ -69,7 +77,9 @@ function AppLockPage() {
   return (
     <div className="pb-24">
       <header className="px-5 pt-6">
-        <Link to="/settings" className="mono-tag" style={{ color: "var(--color-titanium)" }}>← Settings</Link>
+        <Link to="/settings" className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+          ← Settings
+        </Link>
         <h1 className="serif mt-2 text-4xl leading-tight" style={{ color: "var(--color-ink)" }}>
           App Lock
         </h1>
@@ -79,10 +89,19 @@ function AppLockPage() {
       </header>
 
       <div className="mt-6 space-y-3 px-4">
-        <section style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", borderRadius: 10, padding: 16 }}>
+        <section
+          style={{
+            background: "var(--color-graphite)",
+            border: "1px solid var(--color-hair)",
+            borderRadius: 10,
+            padding: 16,
+          }}
+        >
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>Enable App Lock</p>
+              <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>
+                Enable App Lock
+              </p>
               <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", fontSize: 10 }}>
                 {available === null
                   ? "Checking availability…"
@@ -103,16 +122,33 @@ function AppLockPage() {
               aria-pressed={enabled}
               aria-label="Toggle App Lock"
             >
-              <span style={{
-                position: "absolute", top: 2, left: enabled ? 22 : 2, height: 20, width: 20, borderRadius: 999,
-                background: "#fff", transition: "left .16s ease",
-              }} />
+              <span
+                style={{
+                  position: "absolute",
+                  top: 2,
+                  left: enabled ? 22 : 2,
+                  height: 20,
+                  width: 20,
+                  borderRadius: 999,
+                  background: "#fff",
+                  transition: "left .16s ease",
+                }}
+              />
             </button>
           </div>
         </section>
 
-        <section style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", borderRadius: 10, padding: 16 }}>
-          <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>Auto-lock after</p>
+        <section
+          style={{
+            background: "var(--color-graphite)",
+            border: "1px solid var(--color-hair)",
+            borderRadius: 10,
+            padding: 16,
+          }}
+        >
+          <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>
+            Auto-lock after
+          </p>
           <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", fontSize: 10 }}>
             Time in background before ZOMBIEREX re-locks.
           </p>
@@ -128,7 +164,9 @@ function AppLockPage() {
                 onClick={() => updateGrace(opt.v)}
                 className="tap mono-tag rounded px-2 py-2 text-[11px]"
                 style={{
-                  border: "1px solid " + (graceMs === opt.v ? "var(--color-neon)" : "var(--color-hair-strong)"),
+                  border:
+                    "1px solid " +
+                    (graceMs === opt.v ? "var(--color-neon)" : "var(--color-hair-strong)"),
                   color: graceMs === opt.v ? "var(--color-neon)" : "var(--color-ink)",
                   background: "transparent",
                 }}
@@ -140,11 +178,14 @@ function AppLockPage() {
         </section>
 
         {status && (
-          <p className="mono-tag px-1" style={{ color: "var(--color-titanium)" }}>{status}</p>
+          <p className="mono-tag px-1" style={{ color: "var(--color-titanium)" }}>
+            {status}
+          </p>
         )}
 
         <p className="mono-tag mt-2 px-1" style={{ color: "var(--color-silver)", fontSize: 10 }}>
-          App Lock protects viewing only. Your account still requires your password for sign-in on new devices.
+          App Lock protects viewing only. Your account still requires your password for sign-in on
+          new devices.
         </p>
       </div>
     </div>

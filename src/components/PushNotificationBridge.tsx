@@ -47,9 +47,7 @@ export function PushNotificationBridge() {
       const { title, body, path } = extract((e as CustomEvent).detail);
       toast(title, {
         description: body || undefined,
-        action: path
-          ? { label: "Open", onClick: () => router.navigate({ to: path }) }
-          : undefined,
+        action: path ? { label: "Open", onClick: () => router.navigate({ to: path }) } : undefined,
       });
     };
 

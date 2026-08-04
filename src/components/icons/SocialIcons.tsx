@@ -45,11 +45,7 @@ export function HeartIcon({ size = 24, active = false, className }: IconProps) {
       ) : (
         <>
           <path d="M12 21.35s-6.8-4.35-9.2-8.35C1.1 10.1 2.55 6 6.25 6c2.1 0 4.05 1.25 5.75 3.35C13.7 7.25 15.65 6 17.75 6 21.45 6 22.9 10.1 21.2 13c-2.4 4-9.2 8.35-9.2 8.35z" />
-          <path
-            d="M5 12.5l2.5-1.5 1.5 3 2.5-5 2 4 2-2.5 2.5 2"
-            strokeWidth={1.3}
-            opacity={0.75}
-          />
+          <path d="M5 12.5l2.5-1.5 1.5 3 2.5-5 2 4 2-2.5 2.5 2" strokeWidth={1.3} opacity={0.75} />
         </>
       )}
     </svg>
@@ -124,14 +120,7 @@ export function ShareIcon({ size = 24, active = false, className }: IconProps) {
       strokeWidth={1.5}
       {...roundJoin}
     >
-      <rect
-        x="7"
-        y="6"
-        width="10"
-        height="14"
-        rx="1.5"
-        fill={active ? "currentColor" : "none"}
-      />
+      <rect x="7" y="6" width="10" height="14" rx="1.5" fill={active ? "currentColor" : "none"} />
       <path d="M12 6V3" />
       <circle
         cx="12"

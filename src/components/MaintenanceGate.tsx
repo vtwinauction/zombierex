@@ -15,7 +15,9 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-[100svh] flex-col items-center justify-center px-8 text-center">
-      <p className="mono-tag text-[10px]" style={{ color: "var(--color-heat)" }}>SYSTEM · OFFLINE</p>
+      <p className="mono-tag text-[10px]" style={{ color: "var(--color-heat)" }}>
+        SYSTEM · OFFLINE
+      </p>
       <h1 className="display-xl mt-3 text-2xl">MAINTENANCE IN PROGRESS</h1>
       <p className="mt-3 max-w-sm text-[13px]" style={{ color: "var(--color-silver)" }}>
         {data.global.message ?? "ZOMBIEREX is being serviced. We'll be back shortly."}

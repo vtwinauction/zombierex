@@ -70,9 +70,7 @@ export const createEvent = createServerFn({ method: "POST" })
 
 export const updateEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw) =>
-    z.object({ id: z.string().uuid(), patch: EventInput.partial() }).parse(raw),
-  )
+  .validator((raw) => z.object({ id: z.string().uuid(), patch: EventInput.partial() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("events")
@@ -102,7 +100,9 @@ export const listEvents = createServerFn({ method: "GET" })
   .validator((raw) =>
     z
       .object({
-        scope: z.enum(["upcoming", "featured", "week", "month", "past", "mine"]).default("upcoming"),
+        scope: z
+          .enum(["upcoming", "featured", "week", "month", "past", "mine"])
+          .default("upcoming"),
         category: z.enum(EVENT_CATEGORIES).optional(),
         search: z.string().trim().max(120).optional(),
         limit: z.number().int().min(1).max(50).default(24),
@@ -117,7 +117,8 @@ export const listEvents = createServerFn({ method: "GET" })
       global: {
         fetch: (input, init) => {
           const h = new Headers(init?.headers);
-          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+            h.delete("Authorization");
           h.set("apikey", key);
           return fetch(input, { ...init, headers: h });
         },
@@ -126,7 +127,9 @@ export const listEvents = createServerFn({ method: "GET" })
 
     let q = supabase
       .from("events")
-      .select("id, title, cover_url, category, starts_at, ends_at, location, rsvp_count, host_id, status, is_featured, visibility")
+      .select(
+        "id, title, cover_url, category, starts_at, ends_at, location, rsvp_count, host_id, status, is_featured, visibility",
+      )
       .neq("status", "cancelled")
       .eq("visibility", "public")
       .order("starts_at", { ascending: true })
@@ -136,11 +139,13 @@ export const listEvents = createServerFn({ method: "GET" })
     if (data.scope === "upcoming") q = q.gte("starts_at", now);
     if (data.scope === "featured") q = q.eq("is_featured", true).gte("starts_at", now);
     if (data.scope === "week") {
-      const end = new Date(); end.setDate(end.getDate() + 7);
+      const end = new Date();
+      end.setDate(end.getDate() + 7);
       q = q.gte("starts_at", now).lte("starts_at", end.toISOString());
     }
     if (data.scope === "month") {
-      const end = new Date(); end.setMonth(end.getMonth() + 1);
+      const end = new Date();
+      end.setMonth(end.getMonth() + 1);
       q = q.gte("starts_at", now).lte("starts_at", end.toISOString());
     }
     if (data.scope === "past") q = q.lt("starts_at", now).order("starts_at", { ascending: false });
@@ -177,11 +182,28 @@ export const getEvent = createServerFn({ method: "GET" })
       { count: commentsCount },
       { count: checkinsCount },
     ] = await Promise.all([
-      sb.from("event_rsvps").select("status").match({ ...eq, user_id: context.userId }).maybeSingle(),
-      sb.from("profiles").select("id, handle, display_name, avatar_url, tier, is_verified").eq("id", event.host_id).maybeSingle(),
-      sb.from("event_rsvps").select("*", { count: "exact", head: true }).match({ ...eq, status: "interested" }),
-      sb.from("event_rsvps").select("*", { count: "exact", head: true }).match({ ...eq, status: "not_going" }),
-      sb.from("event_rsvps").select("*", { count: "exact", head: true }).match({ ...eq, status: "going" }),
+      sb
+        .from("event_rsvps")
+        .select("status")
+        .match({ ...eq, user_id: context.userId })
+        .maybeSingle(),
+      sb
+        .from("profiles")
+        .select("id, handle, display_name, avatar_url, tier, is_verified")
+        .eq("id", event.host_id)
+        .maybeSingle(),
+      sb
+        .from("event_rsvps")
+        .select("*", { count: "exact", head: true })
+        .match({ ...eq, status: "interested" }),
+      sb
+        .from("event_rsvps")
+        .select("*", { count: "exact", head: true })
+        .match({ ...eq, status: "not_going" }),
+      sb
+        .from("event_rsvps")
+        .select("*", { count: "exact", head: true })
+        .match({ ...eq, status: "going" }),
       sb.from("event_photos").select("*", { count: "exact", head: true }).match(eq),
       sb.from("event_comments").select("*", { count: "exact", head: true }).match(eq),
       sb.from("event_checkins").select("*", { count: "exact", head: true }).match(eq),
@@ -203,10 +225,12 @@ export const getEvent = createServerFn({ method: "GET" })
 export const rsvpEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      event_id: z.string().uuid(),
-      status: z.enum(["going", "interested", "not_going"]),
-    }).parse(raw),
+    z
+      .object({
+        event_id: z.string().uuid(),
+        status: z.enum(["going", "interested", "not_going"]),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     if (data.status === "not_going") {
@@ -241,16 +265,20 @@ export const rsvpEvent = createServerFn({ method: "POST" })
 export const listAttendees = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      event_id: z.string().uuid(),
-      status: z.enum(["going", "interested"]).default("going"),
-      limit: z.number().int().min(1).max(100).default(50),
-    }).parse(raw),
+    z
+      .object({
+        event_id: z.string().uuid(),
+        status: z.enum(["going", "interested"]).default("going"),
+        limit: z.number().int().min(1).max(100).default(50),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("event_rsvps")
-      .select("user_id, status, profiles:profiles!event_rsvps_user_id_fkey(id, handle, display_name, avatar_url, tier)")
+      .select(
+        "user_id, status, profiles:profiles!event_rsvps_user_id_fkey(id, handle, display_name, avatar_url, tier)",
+      )
       .eq("event_id", data.event_id)
       .eq("status", data.status)
       .limit(data.limit);
@@ -261,21 +289,24 @@ export const listAttendees = createServerFn({ method: "GET" })
 export const checkInEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      event_id: z.string().uuid(),
-      lat: z.number().optional().nullable(),
-      lng: z.number().optional().nullable(),
-    }).parse(raw),
+    z
+      .object({
+        event_id: z.string().uuid(),
+        lat: z.number().optional().nullable(),
+        lng: z.number().optional().nullable(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
-      .from("event_checkins")
-      .upsert({
+    const { error } = await context.supabase.from("event_checkins").upsert(
+      {
         event_id: data.event_id,
         user_id: context.userId,
         lat: data.lat ?? null,
         lng: data.lng ?? null,
-      }, { onConflict: "event_id,user_id" });
+      },
+      { onConflict: "event_id,user_id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -283,12 +314,16 @@ export const checkInEvent = createServerFn({ method: "POST" })
 export const listEventComments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({ event_id: z.string().uuid(), limit: z.number().int().min(1).max(100).default(50) }).parse(raw),
+    z
+      .object({ event_id: z.string().uuid(), limit: z.number().int().min(1).max(100).default(50) })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
       .from("event_comments")
-      .select("id, user_id, body, created_at, profiles:profiles!event_comments_user_id_fkey(handle, display_name, avatar_url, tier)")
+      .select(
+        "id, user_id, body, created_at, profiles:profiles!event_comments_user_id_fkey(handle, display_name, avatar_url, tier)",
+      )
       .eq("event_id", data.event_id)
       .order("created_at", { ascending: false })
       .limit(data.limit);
@@ -314,7 +349,9 @@ export const commentOnEvent = createServerFn({ method: "POST" })
 export const listEventPhotos = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({ event_id: z.string().uuid(), limit: z.number().int().min(1).max(100).default(60) }).parse(raw),
+    z
+      .object({ event_id: z.string().uuid(), limit: z.number().int().min(1).max(100).default(60) })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
@@ -330,12 +367,14 @@ export const listEventPhotos = createServerFn({ method: "GET" })
 export const addEventPhoto = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      event_id: z.string().uuid(),
-      media_url: z.string().url(),
-      media_type: z.enum(["image", "video"]).default("image"),
-      caption: z.string().max(500).optional().nullable(),
-    }).parse(raw),
+    z
+      .object({
+        event_id: z.string().uuid(),
+        media_url: z.string().url(),
+        media_type: z.enum(["image", "video"]).default("image"),
+        caption: z.string().max(500).optional().nullable(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -370,11 +409,13 @@ export const listAnnouncements = createServerFn({ method: "GET" })
 export const announceEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      event_id: z.string().uuid(),
-      title: z.string().max(160).optional(),
-      body: z.string().trim().min(1).max(4000),
-    }).parse(raw),
+    z
+      .object({
+        event_id: z.string().uuid(),
+        title: z.string().max(160).optional(),
+        body: z.string().trim().min(1).max(4000),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -394,10 +435,12 @@ export const announceEvent = createServerFn({ method: "POST" })
 export const inviteToEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      event_id: z.string().uuid(),
-      invitee_ids: z.array(z.string().uuid()).min(1).max(50),
-    }).parse(raw),
+    z
+      .object({
+        event_id: z.string().uuid(),
+        invitee_ids: z.array(z.string().uuid()).min(1).max(50),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const rows = data.invitee_ids.map((id) => ({
@@ -405,7 +448,9 @@ export const inviteToEvent = createServerFn({ method: "POST" })
       inviter_id: context.userId,
       invitee_id: id,
     }));
-    const { error } = await context.supabase.from("event_invites").upsert(rows, { onConflict: "event_id,invitee_id" });
+    const { error } = await context.supabase
+      .from("event_invites")
+      .upsert(rows, { onConflict: "event_id,invitee_id" });
     if (error) throw new Error(error.message);
     return { ok: true, count: rows.length };
   });
@@ -413,10 +458,12 @@ export const inviteToEvent = createServerFn({ method: "POST" })
 export const listMyEvents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      scope: z.enum(["upcoming", "past", "hosting", "all"]).default("upcoming"),
-      limit: z.number().int().min(1).max(50).default(24),
-    }).parse(raw ?? {}),
+    z
+      .object({
+        scope: z.enum(["upcoming", "past", "hosting", "all"]).default("upcoming"),
+        limit: z.number().int().min(1).max(50).default(24),
+      })
+      .parse(raw ?? {}),
   )
   .handler(async ({ data, context }) => {
     const now = new Date().toISOString();
@@ -429,7 +476,9 @@ export const listMyEvents = createServerFn({ method: "GET" })
     const eventIds = (rsvps ?? []).map((r) => r.event_id);
     let q = context.supabase
       .from("events")
-      .select("id, title, cover_url, category, starts_at, ends_at, location, rsvp_count, host_id, status, is_featured, visibility")
+      .select(
+        "id, title, cover_url, category, starts_at, ends_at, location, rsvp_count, host_id, status, is_featured, visibility",
+      )
       .or(`id.in.(${eventIds.join(",")}),host_id.eq.${context.userId}`)
       .neq("status", "cancelled")
       .order("starts_at", { ascending: true })

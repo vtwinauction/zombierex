@@ -6,11 +6,12 @@
 import { isNative } from "./index";
 import { loadPlugin } from "./plugins";
 
-
 type CamMod = {
   Camera: {
     checkPermissions: () => Promise<{ camera: string; photos: string }>;
-    requestPermissions: (o?: { permissions?: string[] }) => Promise<{ camera: string; photos: string }>;
+    requestPermissions: (o?: {
+      permissions?: string[];
+    }) => Promise<{ camera: string; photos: string }>;
     getPhoto: (o: {
       quality?: number;
       allowEditing?: boolean;
@@ -38,9 +39,16 @@ export async function pickNativePhoto(kind: CameraKind = "prompt"): Promise<File
     if (perm.camera !== "granted" || perm.photos !== "granted") {
       perm = await Camera.requestPermissions({ permissions: ["camera", "photos"] });
     }
-  } catch { /* proceed — getPhoto will surface the error */ }
+  } catch {
+    /* proceed — getPhoto will surface the error */
+  }
 
-  const source = kind === "photo" ? CameraSource.Camera : kind === "gallery" ? CameraSource.Photos : CameraSource.Prompt;
+  const source =
+    kind === "photo"
+      ? CameraSource.Camera
+      : kind === "gallery"
+        ? CameraSource.Photos
+        : CameraSource.Prompt;
 
   try {
     const shot = await Camera.getPhoto({

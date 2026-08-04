@@ -25,7 +25,8 @@ export function useScrollDirection(threshold = 12) {
 
         // Ignore tiny bounces and direction reversals below threshold.
         if (Math.abs(delta) < threshold) return;
-        if (Math.sign(delta) === Math.sign(lastDelta.current) && Math.abs(delta) < threshold * 2) return;
+        if (Math.sign(delta) === Math.sign(lastDelta.current) && Math.abs(delta) < threshold * 2)
+          return;
 
         lastY.current = y;
         lastDelta.current = delta;

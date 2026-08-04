@@ -30,7 +30,11 @@ export type ObdEvent =
   | { type: "log"; line: string }
   | { type: "reading"; reading: ObdReading }
   | { type: "dtc"; codes: string[] }
-  | { type: "status"; state: "idle" | "scanning" | "connecting" | "ready" | "disconnected" | "error"; message?: string };
+  | {
+      type: "status";
+      state: "idle" | "scanning" | "connecting" | "ready" | "disconnected" | "error";
+      message?: string;
+    };
 
 type Listener = (e: ObdEvent) => void;
 
@@ -41,23 +45,18 @@ const SERVICE_CANDIDATES: { service: string; write: string; notify: string; labe
   { service: 0xffe0 as any, write: 0xffe1 as any, notify: 0xffe1 as any, label: "FFE0" },
 ];
 
-const PID_DECODERS: Record<ObdPid, { cmd: string; decode: (b: number[]) => number; unit: string; label: string }> = {
-  rpm: { cmd: "010C", unit: "rpm", label: "RPM",
-    decode: (b) => ((b[0] << 8) + b[1]) / 4 },
-  speed: { cmd: "010D", unit: "km/h", label: "Speed",
-    decode: (b) => b[0] },
-  coolant: { cmd: "0105", unit: "°C", label: "Coolant",
-    decode: (b) => b[0] - 40 },
-  throttle: { cmd: "0111", unit: "%", label: "Throttle",
-    decode: (b) => (b[0] * 100) / 255 },
-  engine_load: { cmd: "0104", unit: "%", label: "Engine Load",
-    decode: (b) => (b[0] * 100) / 255 },
-  intake_temp: { cmd: "010F", unit: "°C", label: "Intake",
-    decode: (b) => b[0] - 40 },
-  maf: { cmd: "0110", unit: "g/s", label: "MAF",
-    decode: (b) => ((b[0] << 8) + b[1]) / 100 },
-  voltage: { cmd: "ATRV", unit: "V", label: "Battery",
-    decode: (b) => b[0] }, // handled specially
+const PID_DECODERS: Record<
+  ObdPid,
+  { cmd: string; decode: (b: number[]) => number; unit: string; label: string }
+> = {
+  rpm: { cmd: "010C", unit: "rpm", label: "RPM", decode: (b) => ((b[0] << 8) + b[1]) / 4 },
+  speed: { cmd: "010D", unit: "km/h", label: "Speed", decode: (b) => b[0] },
+  coolant: { cmd: "0105", unit: "°C", label: "Coolant", decode: (b) => b[0] - 40 },
+  throttle: { cmd: "0111", unit: "%", label: "Throttle", decode: (b) => (b[0] * 100) / 255 },
+  engine_load: { cmd: "0104", unit: "%", label: "Engine Load", decode: (b) => (b[0] * 100) / 255 },
+  intake_temp: { cmd: "010F", unit: "°C", label: "Intake", decode: (b) => b[0] - 40 },
+  maf: { cmd: "0110", unit: "g/s", label: "MAF", decode: (b) => ((b[0] << 8) + b[1]) / 100 },
+  voltage: { cmd: "ATRV", unit: "V", label: "Battery", decode: (b) => b[0] }, // handled specially
 };
 
 export const PID_META = PID_DECODERS;
@@ -77,9 +76,16 @@ export class ObdClient {
   private busy = false;
   private stopped = false;
 
-  on(fn: Listener) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
-  private emit(e: ObdEvent) { for (const l of this.listeners) l(e); }
-  private log(line: string) { this.emit({ type: "log", line }); }
+  on(fn: Listener) {
+    this.listeners.add(fn);
+    return () => this.listeners.delete(fn);
+  }
+  private emit(e: ObdEvent) {
+    for (const l of this.listeners) l(e);
+  }
+  private log(line: string) {
+    this.emit({ type: "log", line });
+  }
 
   async connect() {
     if (!isWebBluetoothSupported()) {
@@ -88,7 +94,13 @@ export class ObdClient {
     }
     this.emit({ type: "status", state: "scanning" });
     const filters = SERVICE_CANDIDATES.map((c) => ({ services: [c.service] }));
-    const namePrefixes = [{ namePrefix: "OBD" }, { namePrefix: "VEEPEAK" }, { namePrefix: "Vgate" }, { namePrefix: "iCar" }, { namePrefix: "LELink" }];
+    const namePrefixes = [
+      { namePrefix: "OBD" },
+      { namePrefix: "VEEPEAK" },
+      { namePrefix: "Vgate" },
+      { namePrefix: "iCar" },
+      { namePrefix: "LELink" },
+    ];
     const device = await (navigator as any).bluetooth.requestDevice({
       filters: [...filters, ...namePrefixes],
       optionalServices: SERVICE_CANDIDATES.map((c) => c.service),
@@ -100,7 +112,7 @@ export class ObdClient {
     this.emit({ type: "status", state: "connecting", message: device.name || "device" });
     this.server = await device.gatt.connect();
 
-    let chosen: typeof SERVICE_CANDIDATES[number] | null = null;
+    let chosen: (typeof SERVICE_CANDIDATES)[number] | null = null;
     for (const c of SERVICE_CANDIDATES) {
       try {
         const svc = await this.server.getPrimaryService(c.service);
@@ -108,7 +120,9 @@ export class ObdClient {
         this.notify = await svc.getCharacteristic(c.notify);
         chosen = c;
         break;
-      } catch { /* try next */ }
+      } catch {
+        /* try next */
+      }
     }
     if (!chosen) {
       this.emit({ type: "status", state: "error", message: "No known OBD service on this dongle" });
@@ -116,7 +130,9 @@ export class ObdClient {
     }
     this.log(`Bound to ${chosen.label}`);
     await this.notify.startNotifications();
-    this.notify.addEventListener("characteristicvaluechanged", (ev: any) => this.onData(ev.target.value));
+    this.notify.addEventListener("characteristicvaluechanged", (ev: any) =>
+      this.onData(ev.target.value),
+    );
 
     // ELM327 handshake
     await this.raw("ATZ", 1500);
@@ -131,8 +147,12 @@ export class ObdClient {
 
   async disconnect() {
     this.stopped = true;
-    try { await this.notify?.stopNotifications(); } catch {}
-    try { this.server?.disconnect(); } catch {}
+    try {
+      await this.notify?.stopNotifications();
+    } catch {}
+    try {
+      this.server?.disconnect();
+    } catch {}
     this.device = null;
     this.emit({ type: "status", state: "disconnected" });
   }
@@ -157,7 +177,9 @@ export class ObdClient {
     if (!next) return;
     this.busy = true;
     const bytes = new TextEncoder().encode(next.cmd + "\r");
-    this.write.writeValueWithoutResponse ? this.write.writeValueWithoutResponse(bytes) : this.write.writeValue(bytes);
+    this.write.writeValueWithoutResponse
+      ? this.write.writeValueWithoutResponse(bytes)
+      : this.write.writeValue(bytes);
   }
 
   private raw(cmd: string, _timeout = 1500): Promise<string> {
@@ -182,7 +204,11 @@ export class ObdClient {
       const startIdx = parts.findIndex((p) => p === pidHex);
       if (startIdx > 0 && parts[startIdx - 1].toUpperCase() === "41") {
         const data = parts.slice(startIdx + 1).map((h) => parseInt(h, 16));
-        try { value = meta.decode(data); } catch { value = NaN; }
+        try {
+          value = meta.decode(data);
+        } catch {
+          value = NaN;
+        }
       }
     }
     if (!isFinite(value)) return null;
@@ -200,7 +226,8 @@ export class ObdClient {
     if (idx < 0) return [];
     const codes: string[] = [];
     for (let i = idx + 1; i + 1 < parts.length; i += 2) {
-      const a = parseInt(parts[i], 16), b = parseInt(parts[i + 1], 16);
+      const a = parseInt(parts[i], 16),
+        b = parseInt(parts[i + 1], 16);
       if (a === 0 && b === 0) continue;
       const first = (a & 0xc0) >> 6;
       const type = ["P", "C", "B", "U"][first];
@@ -212,18 +239,30 @@ export class ObdClient {
     return codes;
   }
 
-  async clearDtcs() { await this.raw("04").catch(() => ""); }
+  async clearDtcs() {
+    await this.raw("04").catch(() => "");
+  }
 
-  isConnected() { return !!this.device?.gatt?.connected; }
+  isConnected() {
+    return !!this.device?.gatt?.connected;
+  }
 }
 
 /** Simulated readings for the demo/preview mode (no dongle). */
 export function createDemoStream(cb: (r: ObdReading) => void) {
-  let rpm = 900, speed = 0, coolant = 55, load = 22, thr = 8, intake = 30, maf = 3.2, volt = 13.9;
+  let rpm = 900,
+    speed = 0,
+    coolant = 55,
+    load = 22,
+    thr = 8,
+    intake = 30,
+    maf = 3.2,
+    volt = 13.9;
   let t = 0;
   const id = setInterval(() => {
     t += 1;
-    const s = Math.sin(t / 6), n = Math.random() - 0.5;
+    const s = Math.sin(t / 6),
+      n = Math.random() - 0.5;
     rpm = Math.max(850, Math.min(9200, 3200 + s * 2400 + n * 400));
     speed = Math.max(0, Math.min(180, 60 + s * 45 + n * 8));
     coolant = Math.min(96, coolant + 0.05);

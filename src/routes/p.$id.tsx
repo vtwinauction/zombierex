@@ -21,7 +21,9 @@ export const Route = createFileRoute("/p/$id")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Post unavailable · ZOMBIEREX" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Post unavailable · ZOMBIEREX" }, { name: "robots", content: "noindex" }],
+      };
     }
     const p: any = loaderData.post;
     const title = p.caption
@@ -50,12 +52,16 @@ export const Route = createFileRoute("/p/$id")({
 function PostMissing() {
   return (
     <div className="px-6 pt-24 pb-24 text-center">
-      <p className="mono-tag" style={{ color: "var(--color-ash)" }}>SIGNAL LOST</p>
+      <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+        SIGNAL LOST
+      </p>
       <h1 className="mt-2 display-xl text-4xl uppercase">Post not found</h1>
       <p className="mt-3 text-sm" style={{ color: "var(--color-ash)" }}>
         It may have been removed or never existed.
       </p>
-      <Link to="/" className="btn-solid mt-8 inline-block mono-tag">OPEN FEED</Link>
+      <Link to="/" className="btn-solid mt-8 inline-block mono-tag">
+        OPEN FEED
+      </Link>
     </div>
   );
 }
@@ -64,7 +70,8 @@ function PostDetail() {
   const { data } = useSuspenseQuery(postQO(Route.useParams().id));
   const p: any = data!;
   const src = p.media_url ?? p.thumbnail_url;
-  const isVideo = p.kind === "video" || (typeof src === "string" && /\.(mp4|webm|mov)(\?|$)/i.test(src));
+  const isVideo =
+    p.kind === "video" || (typeof src === "string" && /\.(mp4|webm|mov)(\?|$)/i.test(src));
   const [commentsOpen, setCommentsOpen] = useState(false);
   return (
     <article className="mx-auto max-w-xl px-4 pt-6 pb-32">
@@ -75,14 +82,22 @@ function PostDetail() {
           className="flex items-center gap-3"
         >
           {p.author.avatar_url ? (
-            <img src={p.author.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover hairline" />
+            <img
+              src={p.author.avatar_url}
+              alt=""
+              className="h-11 w-11 rounded-full object-cover hairline"
+            />
           ) : (
-            <div className="h-11 w-11 rounded-full hairline" style={{ background: "var(--color-mist)" }} />
+            <div
+              className="h-11 w-11 rounded-full hairline"
+              style={{ background: "var(--color-mist)" }}
+            />
           )}
           <div className="min-w-0">
             <p className="truncate font-semibold">{p.author.display_name ?? p.author.handle}</p>
             <p className="mono-tag truncate" style={{ color: "var(--color-ash)" }}>
-              @{p.author.handle}{p.author.location ? ` · ${p.author.location}` : ""}
+              @{p.author.handle}
+              {p.author.location ? ` · ${p.author.location}` : ""}
             </p>
           </div>
         </Link>
@@ -105,7 +120,11 @@ function PostDetail() {
       <div className="mt-6">
         <InteractionBar
           targetId={`db:${p.id}`}
-          counts={{ likes: p.likes_count ?? 0, comments: p.comments_count ?? 0, shares: p.shares_count ?? 0 }}
+          counts={{
+            likes: p.likes_count ?? 0,
+            comments: p.comments_count ?? 0,
+            shares: p.shares_count ?? 0,
+          }}
           variant="light"
           onComment={() => setCommentsOpen(true)}
         />

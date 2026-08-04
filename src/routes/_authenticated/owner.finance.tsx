@@ -7,7 +7,10 @@ export const Route = createFileRoute("/_authenticated/owner/finance")({
   head: () => ({
     meta: [
       { title: "Revenue Control · ZOMBIEREX" },
-      { name: "description", content: "Commission engine, settlements, payouts and platform revenue analytics." },
+      {
+        name: "description",
+        content: "Commission engine, settlements, payouts and platform revenue analytics.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Revenue Control · ZOMBIEREX" },
       { property: "og:description", content: "Platform commission and settlement control plane." },
@@ -39,9 +42,13 @@ function FinanceShell() {
   if (!gate.data?.canRead) {
     return (
       <div className="p-8 text-center">
-        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>ERR·403</p>
+        <p className="mono-tag" style={{ color: "var(--color-heat)" }}>
+          ERR·403
+        </p>
         <h1 className="display-xl mt-2 text-2xl">FINANCE CLEARANCE REQUIRED</h1>
-        <Link to="/" className="btn-ghost mt-6 inline-flex">Return home</Link>
+        <Link to="/" className="btn-ghost mt-6 inline-flex">
+          Return home
+        </Link>
       </div>
     );
   }
@@ -51,10 +58,14 @@ function FinanceShell() {
       <div className="border-b px-5 py-4" style={{ borderColor: "var(--color-hair)" }}>
         <div className="flex items-center justify-between">
           <div>
-            <p className="mono-tag" style={{ color: "#00c853" }}>ROOT · TREASURY</p>
+            <p className="mono-tag" style={{ color: "#00c853" }}>
+              ROOT · TREASURY
+            </p>
             <h1 className="display-xl text-xl">Revenue Control</h1>
           </div>
-          <Link to="/owner" className="btn-ghost text-xs">← Owner</Link>
+          <Link to="/owner" className="btn-ghost text-xs">
+            ← Owner
+          </Link>
         </div>
         <nav className="mt-3 -mx-1 flex gap-1 overflow-x-auto pb-1">
           {TABS.map((t) => (
@@ -64,7 +75,9 @@ function FinanceShell() {
               activeOptions={{ exact: (t as any).exact ?? false }}
               className="mono-tag whitespace-nowrap rounded px-3 py-1.5 text-[10px]"
               activeProps={{ style: { background: "rgba(0,200,83,0.14)", color: "#00c853" } }}
-              inactiveProps={{ style: { color: "var(--color-silver)", border: "1px solid var(--color-hair)" } }}
+              inactiveProps={{
+                style: { color: "var(--color-silver)", border: "1px solid var(--color-hair)" },
+              }}
             >
               {t.label}
             </Link>

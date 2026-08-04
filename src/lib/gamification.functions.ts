@@ -33,13 +33,15 @@ const XP_TABLE: Record<string, number> = {
 export const awardXp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      kind: z.string().min(2).max(48),
-      amount: z.number().int().min(1).max(1000).optional(),
-      ref_kind: z.string().max(32).optional(),
-      ref_id: z.string().uuid().optional(),
-      metadata: z.record(z.string(), z.any()).optional(),
-    }).parse(raw),
+    z
+      .object({
+        kind: z.string().min(2).max(48),
+        amount: z.number().int().min(1).max(1000).optional(),
+        ref_kind: z.string().max(32).optional(),
+        ref_id: z.string().uuid().optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const amount = data.amount ?? XP_TABLE[data.kind] ?? 5;
@@ -116,7 +118,9 @@ export const getMyGamificationSummary = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data: p } = await context.supabase
       .from("profiles")
-      .select("xp_total, level, streak_days, last_checkin_at, is_premium, profile_theme, featured_badge_slug, referral_code")
+      .select(
+        "xp_total, level, streak_days, last_checkin_at, is_premium, profile_theme, featured_badge_slug, referral_code",
+      )
       .eq("id", context.userId)
       .maybeSingle();
 
@@ -124,7 +128,10 @@ export const getMyGamificationSummary = createServerFn({ method: "GET" })
     const xpForLevel = (l: number) => Math.pow(l - 1, 2) * 100;
     const currentBase = xpForLevel(level);
     const nextBase = xpForLevel(level + 1);
-    const progress = Math.max(0, Math.min(1, ((p?.xp_total ?? 0) - currentBase) / Math.max(1, nextBase - currentBase)));
+    const progress = Math.max(
+      0,
+      Math.min(1, ((p?.xp_total ?? 0) - currentBase) / Math.max(1, nextBase - currentBase)),
+    );
 
     const [{ count: unlocked }, { count: refCount }] = await Promise.all([
       context.supabase
@@ -277,10 +284,12 @@ export const claimChallenge = createServerFn({ method: "POST" })
 export const getLeaderboard = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      board: z.enum(["xp", "creators", "communities"]).default("xp"),
-      limit: z.number().int().min(5).max(100).default(25),
-    }).parse(raw),
+    z
+      .object({
+        board: z.enum(["xp", "creators", "communities"]).default("xp"),
+        limit: z.number().int().min(5).max(100).default(25),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     if (data.board === "communities") {
@@ -352,10 +361,12 @@ export const claimReferral = createServerFn({ method: "POST" })
 export const activatePremium = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      tier: z.enum(["apex", "legend"]).default("apex"),
-      months: z.number().int().min(1).max(24).default(1),
-    }).parse(raw),
+    z
+      .object({
+        tier: z.enum(["apex", "legend"]).default("apex"),
+        months: z.number().int().min(1).max(24).default(1),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const now = new Date();
@@ -418,14 +429,21 @@ export const listMyReferrals = createServerFn({ method: "GET" })
       .limit(100);
 
     const ids = (refs ?? []).map((r) => r.referred_user_id);
-    let profiles: Record<string, { display_name: string | null; avatar_url: string | null; handle: string | null }> = {};
+    let profiles: Record<
+      string,
+      { display_name: string | null; avatar_url: string | null; handle: string | null }
+    > = {};
     if (ids.length > 0) {
       const { data: rows } = await context.supabase
         .from("profiles")
         .select("id, display_name, avatar_url, handle")
         .in("id", ids);
       for (const row of rows ?? []) {
-        profiles[row.id] = { display_name: row.display_name, avatar_url: row.avatar_url, handle: row.handle };
+        profiles[row.id] = {
+          display_name: row.display_name,
+          avatar_url: row.avatar_url,
+          handle: row.handle,
+        };
       }
     }
 
@@ -446,4 +464,3 @@ export const listMyReferrals = createServerFn({ method: "GET" })
       })),
     };
   });
-

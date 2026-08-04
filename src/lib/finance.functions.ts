@@ -49,7 +49,10 @@ export const checkFinanceAccess = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const [{ data: canRead }, { data: canWrite }] = await Promise.all([
       context.supabase.rpc("has_any_role", { _user_id: context.userId, _roles: READ_ROLES as any }),
-      context.supabase.rpc("has_any_role", { _user_id: context.userId, _roles: WRITE_ROLES as any }),
+      context.supabase.rpc("has_any_role", {
+        _user_id: context.userId,
+        _roles: WRITE_ROLES as any,
+      }),
     ]);
     return { canRead: !!canRead, canWrite: !!canWrite };
   });
@@ -57,7 +60,9 @@ export const checkFinanceAccess = createServerFn({ method: "GET" })
 // ─────────────────────────────────────────────────────────── dashboard
 export const getRevenueOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((raw: unknown) => z.object({ days: z.number().int().min(7).max(365).default(30) }).parse(raw ?? {}))
+  .validator((raw: unknown) =>
+    z.object({ days: z.number().int().min(7).max(365).default(30) }).parse(raw ?? {}),
+  )
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, READ_ROLES);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -65,7 +70,9 @@ export const getRevenueOverview = createServerFn({ method: "GET" })
     const since = new Date(Date.now() - data.days * 86_400_000).toISOString();
     const { data: rows, error } = await supabaseAdmin
       .from("transactions")
-      .select("gross_cents, platform_fee_cents, net_cents, refunded_cents, status, currency, created_at, kind")
+      .select(
+        "gross_cents, platform_fee_cents, net_cents, refunded_cents, status, currency, created_at, kind",
+      )
       .gte("created_at", new Date(Date.now() - 400 * 86_400_000).toISOString())
       .order("created_at", { ascending: true })
       .limit(50_000);
@@ -85,7 +92,8 @@ export const getRevenueOverview = createServerFn({ method: "GET" })
       succeeded: all.filter((r) => r.status === "succeeded").length,
       pending: all.filter((r) => r.status === "pending").length,
       failed: all.filter((r) => r.status === "failed").length,
-      refunded: all.filter((r) => r.status === "refunded" || r.status === "partially_refunded").length,
+      refunded: all.filter((r) => r.status === "refunded" || r.status === "partially_refunded")
+        .length,
       cancelled: all.filter((r) => r.status === "cancelled").length,
     };
 
@@ -134,7 +142,10 @@ export const getRevenueOverview = createServerFn({ method: "GET" })
         transactions: ok.length,
         avg_commission_cents: ok.length ? Math.round(totalFees / ok.length) : 0,
         effective_take_bps: totalGross ? Math.round((totalFees / totalGross) * 10_000) : 0,
-        payouts_pending_cents: ((pendingPayouts ?? []) as any[]).reduce((a, p) => a + p.amount_cents, 0),
+        payouts_pending_cents: ((pendingPayouts ?? []) as any[]).reduce(
+          (a, p) => a + p.amount_cents,
+          0,
+        ),
       },
       today: {
         gmv_cents: sum(since_(startOfDay), (r) => r.gross_cents),
@@ -201,7 +212,11 @@ export const upsertFeeRule = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let before: unknown = null;
     if (data.id) {
-      const { data: prev } = await supabaseAdmin.from("fee_rules").select("*").eq("id", data.id).maybeSingle();
+      const { data: prev } = await supabaseAdmin
+        .from("fee_rules")
+        .select("*")
+        .eq("id", data.id)
+        .maybeSingle();
       before = prev;
     }
 
@@ -213,7 +228,14 @@ export const upsertFeeRule = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    await finAudit(context.userId, data.id ? "fee_rule.update" : "fee_rule.create", "fee_rule", (row as any).id, before, row);
+    await finAudit(
+      context.userId,
+      data.id ? "fee_rule.update" : "fee_rule.create",
+      "fee_rule",
+      (row as any).id,
+      before,
+      row,
+    );
     return row;
   });
 
@@ -223,7 +245,11 @@ export const deleteFeeRule = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, WRITE_ROLES);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: before } = await supabaseAdmin.from("fee_rules").select("*").eq("id", data.id).maybeSingle();
+    const { data: before } = await supabaseAdmin
+      .from("fee_rules")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if ((before as any)?.scope === "default")
       throw new Error("Default rules can be edited but not deleted");
     const { error } = await supabaseAdmin.from("fee_rules").delete().eq("id", data.id);
@@ -237,21 +263,35 @@ export const getPaymentConfig = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertRole(context.supabase, context.userId, READ_ROLES);
-    const { data, error } = await context.supabase.from("payment_config").select("key, value, description").order("key");
+    const { data, error } = await context.supabase
+      .from("payment_config")
+      .select("key, value, description")
+      .order("key");
     if (error) throw new Error(error.message);
     return data ?? [];
   });
 
 export const setPaymentConfig = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw: unknown) => z.object({ key: z.string().min(1).max(60), value: z.any() }).parse(raw))
+  .validator((raw: unknown) =>
+    z.object({ key: z.string().min(1).max(60), value: z.any() }).parse(raw),
+  )
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, WRITE_ROLES);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: before } = await supabaseAdmin.from("payment_config").select("*").eq("key", data.key).maybeSingle();
+    const { data: before } = await supabaseAdmin
+      .from("payment_config")
+      .select("*")
+      .eq("key", data.key)
+      .maybeSingle();
     const { data: row, error } = await supabaseAdmin
       .from("payment_config")
-      .upsert({ key: data.key, value: data.value, updated_by: context.userId, updated_at: new Date().toISOString() } as any)
+      .upsert({
+        key: data.key,
+        value: data.value,
+        updated_by: context.userId,
+        updated_at: new Date().toISOString(),
+      } as any)
       .select("*")
       .single();
     if (error) throw new Error(error.message);
@@ -308,7 +348,10 @@ export const listTransactions = createServerFn({ method: "GET" })
     );
     const names: Record<string, string> = {};
     if (ids.length) {
-      const { data: profs } = await supabaseAdmin.from("profiles").select("id, display_name").in("id", ids);
+      const { data: profs } = await supabaseAdmin
+        .from("profiles")
+        .select("id, display_name")
+        .in("id", ids);
       for (const p of (profs ?? []) as any[]) names[p.id] = p.display_name ?? "—";
     }
 
@@ -330,7 +373,11 @@ export const getTransactionDetail = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [{ data: txn }, { data: ledger }, { data: refunds }] = await Promise.all([
       supabaseAdmin.from("transactions").select("*").eq("id", data.id).maybeSingle(),
-      supabaseAdmin.from("ledger_entries").select("*").eq("transaction_id", data.id).order("created_at"),
+      supabaseAdmin
+        .from("ledger_entries")
+        .select("*")
+        .eq("transaction_id", data.id)
+        .order("created_at"),
       supabaseAdmin.from("refunds").select("*").eq("transaction_id", data.id).order("created_at"),
     ]);
     if (!txn) throw new Error("Transaction not found");
@@ -353,37 +400,67 @@ export const refundTransactionFn = createServerFn({ method: "POST" })
     await assertRole(context.supabase, context.userId, WRITE_ROLES);
     const { refundTransaction } = await import("@/lib/finance.server");
     const res = await refundTransaction({ ...data, actor_id: context.userId });
-    await finAudit(context.userId, "transaction.refund", "transaction", data.transaction_id, null, res);
+    await finAudit(
+      context.userId,
+      "transaction.refund",
+      "transaction",
+      data.transaction_id,
+      null,
+      res,
+    );
     return res;
   });
 
 export const cancelTransaction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((raw: unknown) => z.object({ id: z.string().uuid(), reason: z.string().max(300).optional() }).parse(raw))
+  .validator((raw: unknown) =>
+    z.object({ id: z.string().uuid(), reason: z.string().max(300).optional() }).parse(raw),
+  )
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, WRITE_ROLES);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: before } = await supabaseAdmin.from("transactions").select("*").eq("id", data.id).maybeSingle();
+    const { data: before } = await supabaseAdmin
+      .from("transactions")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (!before) throw new Error("Transaction not found");
-    if ((before as any).status !== "pending") throw new Error("Only pending transactions can be cancelled");
-    const { error } = await supabaseAdmin.from("transactions").update({ status: "cancelled" }).eq("id", data.id);
+    if ((before as any).status !== "pending")
+      throw new Error("Only pending transactions can be cancelled");
+    const { error } = await supabaseAdmin
+      .from("transactions")
+      .update({ status: "cancelled" })
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
-    await finAudit(context.userId, "transaction.cancel", "transaction", data.id, before, { reason: data.reason });
+    await finAudit(context.userId, "transaction.cancel", "transaction", data.id, before, {
+      reason: data.reason,
+    });
     return { ok: true };
   });
 
 export const adjustCommission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw: unknown) =>
-    z.object({ id: z.string().uuid(), platform_fee_cents: z.number().int().min(0), reason: z.string().max(300) }).parse(raw),
+    z
+      .object({
+        id: z.string().uuid(),
+        platform_fee_cents: z.number().int().min(0),
+        reason: z.string().max(300),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, WRITE_ROLES);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: before } = await supabaseAdmin.from("transactions").select("*").eq("id", data.id).maybeSingle();
+    const { data: before } = await supabaseAdmin
+      .from("transactions")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (!before) throw new Error("Transaction not found");
     const t = before as any;
-    if (data.platform_fee_cents > t.gross_cents) throw new Error("Commission cannot exceed the gross amount");
+    if (data.platform_fee_cents > t.gross_cents)
+      throw new Error("Commission cannot exceed the gross amount");
 
     const delta = data.platform_fee_cents - t.platform_fee_cents;
     const { error } = await supabaseAdmin
@@ -419,17 +496,26 @@ export const adjustCommission = createServerFn({ method: "POST" })
       ] as any);
     }
 
-    await finAudit(context.userId, "transaction.adjust_commission", "transaction", data.id, before, {
-      platform_fee_cents: data.platform_fee_cents,
-      reason: data.reason,
-    });
+    await finAudit(
+      context.userId,
+      "transaction.adjust_commission",
+      "transaction",
+      data.id,
+      before,
+      {
+        platform_fee_cents: data.platform_fee_cents,
+        reason: data.reason,
+      },
+    );
     return { ok: true, delta_cents: delta };
   });
 
 // ─────────────────────────────────────────────────────────── sellers
 export const listSellerFinance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((raw: unknown) => z.object({ q: z.string().trim().max(80).optional() }).parse(raw ?? {}))
+  .validator((raw: unknown) =>
+    z.object({ q: z.string().trim().max(80).optional() }).parse(raw ?? {}),
+  )
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, READ_ROLES);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -441,7 +527,9 @@ export const listSellerFinance = createServerFn({ method: "GET" })
       .limit(50_000);
 
     const agg = new Map<string, { gross: number; fees: number; net: number; sales: number }>();
-    for (const t of ((txns ?? []) as any[]).filter((t) => t.status === "succeeded" || t.status === "partially_refunded")) {
+    for (const t of ((txns ?? []) as any[]).filter(
+      (t) => t.status === "succeeded" || t.status === "partially_refunded",
+    )) {
       const cur = agg.get(t.seller_id) ?? { gross: 0, fees: 0, net: 0, sales: 0 };
       cur.gross += t.gross_cents;
       cur.fees += t.platform_fee_cents;
@@ -487,7 +575,10 @@ export const listSellerFinance = createServerFn({ method: "GET" })
 
     const q = data.q?.toLowerCase();
     return q
-      ? rows.filter((r) => r.display_name.toLowerCase().includes(q) || (r.handle ?? "").toLowerCase().includes(q))
+      ? rows.filter(
+          (r) =>
+            r.display_name.toLowerCase().includes(q) || (r.handle ?? "").toLowerCase().includes(q),
+        )
       : rows;
   });
 
@@ -528,7 +619,9 @@ export const updateSellerFinance = createServerFn({ method: "POST" })
 // ─────────────────────────────────────────────────────────── buyers
 export const listBuyerFinance = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((raw: unknown) => z.object({ q: z.string().trim().max(80).optional() }).parse(raw ?? {}))
+  .validator((raw: unknown) =>
+    z.object({ q: z.string().trim().max(80).optional() }).parse(raw ?? {}),
+  )
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, READ_ROLES);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -538,7 +631,10 @@ export const listBuyerFinance = createServerFn({ method: "GET" })
       .not("buyer_id", "is", null)
       .limit(50_000);
 
-    const agg = new Map<string, { spent: number; refunded: number; orders: number; last: string }>();
+    const agg = new Map<
+      string,
+      { spent: number; refunded: number; orders: number; last: string }
+    >();
     for (const t of (txns ?? []) as any[]) {
       const cur = agg.get(t.buyer_id) ?? { spent: 0, refunded: 0, orders: 0, last: t.created_at };
       if (t.status === "succeeded" || t.status === "partially_refunded") {
@@ -551,7 +647,10 @@ export const listBuyerFinance = createServerFn({ method: "GET" })
     }
     const ids = Array.from(agg.keys());
     if (!ids.length) return [];
-    const { data: profs } = await supabaseAdmin.from("profiles").select("id, display_name, handle").in("id", ids);
+    const { data: profs } = await supabaseAdmin
+      .from("profiles")
+      .select("id, display_name, handle")
+      .in("id", ids);
     const rows = ((profs ?? []) as any[]).map((p) => ({
       buyer_id: p.id,
       display_name: p.display_name ?? "—",
@@ -560,7 +659,10 @@ export const listBuyerFinance = createServerFn({ method: "GET" })
     }));
     const q = data.q?.toLowerCase();
     return q
-      ? rows.filter((r) => r.display_name.toLowerCase().includes(q) || (r.handle ?? "").toLowerCase().includes(q))
+      ? rows.filter(
+          (r) =>
+            r.display_name.toLowerCase().includes(q) || (r.handle ?? "").toLowerCase().includes(q),
+        )
       : rows;
   });
 
@@ -592,7 +694,13 @@ export const runPayoutsNow = createServerFn({ method: "POST" })
 export const markPayoutPaid = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw: unknown) =>
-    z.object({ id: z.string().uuid(), status: z.enum(["paid", "failed", "cancelled"]), note: z.string().max(200).optional() }).parse(raw),
+    z
+      .object({
+        id: z.string().uuid(),
+        status: z.enum(["paid", "failed", "cancelled"]),
+        note: z.string().max(200).optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertRole(context.supabase, context.userId, WRITE_ROLES);
@@ -627,7 +735,9 @@ export const getMyFinanceSummary = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(50);
 
-    const ok = ((txns ?? []) as any[]).filter((t) => t.status === "succeeded" || t.status === "partially_refunded");
+    const ok = ((txns ?? []) as any[]).filter(
+      (t) => t.status === "succeeded" || t.status === "partially_refunded",
+    );
     const net = ok.reduce((a, t) => a + t.net_cents, 0);
     const claimed = ((payouts ?? []) as any[])
       .filter((p) => ["scheduled", "processing", "paid"].includes(p.status))

@@ -32,7 +32,10 @@ function b64url(bytes: ArrayBuffer | Uint8Array | string): string {
 }
 
 function pemToArrayBuffer(pem: string): ArrayBuffer {
-  const b64 = pem.replace(/-----BEGIN [^-]+-----/g, "").replace(/-----END [^-]+-----/g, "").replace(/\s+/g, "");
+  const b64 = pem
+    .replace(/-----BEGIN [^-]+-----/g, "")
+    .replace(/-----END [^-]+-----/g, "")
+    .replace(/\s+/g, "");
   const bin = atob(b64);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -71,7 +74,11 @@ async function getAccessToken(): Promise<{ token: string; projectId: string }> {
     false,
     ["sign"],
   );
-  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(signingInput));
+  const sig = await crypto.subtle.sign(
+    "RSASSA-PKCS1-v1_5",
+    key,
+    new TextEncoder().encode(signingInput),
+  );
   const jwt = `${signingInput}.${b64url(sig)}`;
 
   const res = await fetch(claim.aud, {
@@ -127,7 +134,11 @@ export async function sendPush(msg: PushMessage): Promise<PushResult> {
 export function isPermanentPushFailure(r: PushResult): boolean {
   if (r.ok) return false;
   if (r.status === 404) return true;
-  if (r.status === 400 && /INVALID_ARGUMENT|invalid registration|not a valid FCM/i.test(r.error ?? "")) return true;
+  if (
+    r.status === 400 &&
+    /INVALID_ARGUMENT|invalid registration|not a valid FCM/i.test(r.error ?? "")
+  )
+    return true;
   if (r.status === 403 && /SenderIdMismatch/i.test(r.error ?? "")) return true;
   return false;
 }

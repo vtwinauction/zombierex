@@ -13,9 +13,15 @@ export const Route = createFileRoute("/_authenticated/settings/account-privacy")
   head: () => ({
     meta: [
       { title: "Account privacy · Settings · ZOMBIEREX" },
-      { name: "description", content: "Control who can see your garage and who can message you on ZOMBIEREX." },
+      {
+        name: "description",
+        content: "Control who can see your garage and who can message you on ZOMBIEREX.",
+      },
       { property: "og:title", content: "Account privacy · Settings · ZOMBIEREX" },
-      { property: "og:description", content: "Control who can see your garage and who can message you on ZOMBIEREX." },
+      {
+        property: "og:description",
+        content: "Control who can see your garage and who can message you on ZOMBIEREX.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -33,7 +39,10 @@ function AccountPrivacyPage() {
     queryFn: async () => await getProfile(),
   });
 
-  const [prefs, setPrefs] = useState<PrivacyPrefs>({ is_private: false, allow_messages: "followers" });
+  const [prefs, setPrefs] = useState<PrivacyPrefs>({
+    is_private: false,
+    allow_messages: "followers",
+  });
 
   useEffect(() => {
     const p = profileQ.data as any;
@@ -55,7 +64,10 @@ function AccountPrivacyPage() {
     onError: (e: any) => toast.error(e?.message ?? "Failed to save"),
   });
 
-  const commit = (next: PrivacyPrefs) => { setPrefs(next); saveM.mutate(next); };
+  const commit = (next: PrivacyPrefs) => {
+    setPrefs(next);
+    saveM.mutate(next);
+  };
 
   return (
     <SettingsScreen
@@ -66,7 +78,9 @@ function AccountPrivacyPage() {
     >
       {profileQ.isLoading && (
         <Card>
-          <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>Loading…</p>
+          <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
+            Loading…
+          </p>
         </Card>
       )}
 
@@ -75,7 +89,9 @@ function AccountPrivacyPage() {
           <Card>
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>Private account</p>
+                <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>
+                  Private account
+                </p>
                 <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
                   Only approved followers can see your posts and garage updates.
                 </p>
@@ -88,20 +104,25 @@ function AccountPrivacyPage() {
             </div>
           </Card>
           <Card>
-            <p className="mono-tag mb-3" style={{ color: "var(--color-silver)" }}>Who can message you</p>
+            <p className="mono-tag mb-3" style={{ color: "var(--color-silver)" }}>
+              Who can message you
+            </p>
             <div className="grid gap-2">
-              {([
-                ["everyone", "Everyone", "Any rider can start a conversation."],
-                ["followers", "Followers", "Only riders you follow or approve."],
-                ["none", "No one", "Close all new message requests."],
-              ] as const).map(([value, label, hint]) => (
+              {(
+                [
+                  ["everyone", "Everyone", "Any rider can start a conversation."],
+                  ["followers", "Followers", "Only riders you follow or approve."],
+                  ["none", "No one", "Close all new message requests."],
+                ] as const
+              ).map(([value, label, hint]) => (
                 <button
                   key={value}
                   disabled={saveM.isPending}
                   onClick={() => commit({ ...prefs, allow_messages: value })}
                   className="tap w-full rounded-md px-3 py-3 text-left disabled:opacity-60"
                   style={{
-                    background: prefs.allow_messages === value ? "var(--color-neon)" : "var(--color-paper-2)",
+                    background:
+                      prefs.allow_messages === value ? "var(--color-neon)" : "var(--color-paper-2)",
                     color: prefs.allow_messages === value ? "#000" : "var(--color-ink)",
                     border: "1px solid var(--color-hair-strong)",
                   }}
@@ -121,16 +142,38 @@ function AccountPrivacyPage() {
   );
 }
 
-function Switch({ checked, disabled, onChange }: { checked: boolean; disabled?: boolean; onChange: (value: boolean) => void }) {
+function Switch({
+  checked,
+  disabled,
+  onChange,
+}: {
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (value: boolean) => void;
+}) {
   return (
     <button
       onClick={() => onChange(!checked)}
       disabled={disabled}
       className="tap h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-60"
-      style={{ background: checked ? "var(--color-neon)" : "var(--color-hair-strong)", position: "relative" }}
+      style={{
+        background: checked ? "var(--color-neon)" : "var(--color-hair-strong)",
+        position: "relative",
+      }}
       aria-pressed={checked}
     >
-      <span style={{ position: "absolute", top: 3, left: checked ? 24 : 3, height: 21, width: 21, borderRadius: 999, background: "#fff", transition: "left .16s ease" }} />
+      <span
+        style={{
+          position: "absolute",
+          top: 3,
+          left: checked ? 24 : 3,
+          height: 21,
+          width: 21,
+          borderRadius: 999,
+          background: "#fff",
+          transition: "left .16s ease",
+        }}
+      />
     </button>
   );
 }

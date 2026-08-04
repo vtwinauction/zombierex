@@ -61,21 +61,23 @@ export const getMyPreferences = createServerFn({ method: "GET" })
 export const updateMyPreferences = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      likes: z.boolean().optional(),
-      comments: z.boolean().optional(),
-      follows: z.boolean().optional(),
-      mentions: z.boolean().optional(),
-      messages: z.boolean().optional(),
-      marketplace: z.boolean().optional(),
-      bookings: z.boolean().optional(),
-      orders: z.boolean().optional(),
-      vendor_updates: z.boolean().optional(),
-      subscriptions: z.boolean().optional(),
-      events: z.boolean().optional(),
-      push_enabled: z.boolean().optional(),
-      email_enabled: z.boolean().optional(),
-    }).parse(raw),
+    z
+      .object({
+        likes: z.boolean().optional(),
+        comments: z.boolean().optional(),
+        follows: z.boolean().optional(),
+        mentions: z.boolean().optional(),
+        messages: z.boolean().optional(),
+        marketplace: z.boolean().optional(),
+        bookings: z.boolean().optional(),
+        orders: z.boolean().optional(),
+        vendor_updates: z.boolean().optional(),
+        subscriptions: z.boolean().optional(),
+        events: z.boolean().optional(),
+        push_enabled: z.boolean().optional(),
+        email_enabled: z.boolean().optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase

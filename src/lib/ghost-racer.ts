@@ -9,17 +9,17 @@
 export type GhostPreset = {
   id: string;
   label: string;
-  targetEtS: number;   // 1/4 mile
-  trapKmh: number;     // ~ trap
-  reactionMs: number;  // AI reaction
+  targetEtS: number; // 1/4 mile
+  trapKmh: number; // ~ trap
+  reactionMs: number; // AI reaction
 };
 
 export const GHOST_PRESETS: GhostPreset[] = [
-  { id: "street",   label: "STREET · 14.5s",   targetEtS: 14.5, trapKmh: 155, reactionMs: 320 },
-  { id: "sport",    label: "SPORT · 12.0s",    targetEtS: 12.0, trapKmh: 190, reactionMs: 260 },
-  { id: "super",    label: "SUPERSPORT · 10.5s", targetEtS: 10.5, trapKmh: 220, reactionMs: 220 },
-  { id: "pro",      label: "PRO · 9.2s",       targetEtS: 9.2,  trapKmh: 250, reactionMs: 180 },
-  { id: "hyper",    label: "HYPER · 8.0s",     targetEtS: 8.0,  trapKmh: 280, reactionMs: 150 },
+  { id: "street", label: "STREET · 14.5s", targetEtS: 14.5, trapKmh: 155, reactionMs: 320 },
+  { id: "sport", label: "SPORT · 12.0s", targetEtS: 12.0, trapKmh: 190, reactionMs: 260 },
+  { id: "super", label: "SUPERSPORT · 10.5s", targetEtS: 10.5, trapKmh: 220, reactionMs: 220 },
+  { id: "pro", label: "PRO · 9.2s", targetEtS: 9.2, trapKmh: 250, reactionMs: 180 },
+  { id: "hyper", label: "HYPER · 8.0s", targetEtS: 8.0, trapKmh: 280, reactionMs: 150 },
 ];
 
 /**
@@ -29,7 +29,7 @@ export const GHOST_PRESETS: GhostPreset[] = [
  * Solve for k so that d(ET) = 402.336m given vMax = trap (m/s).
  */
 export class Ghost {
-  readonly vMax: number;    // m/s
+  readonly vMax: number; // m/s
   readonly k: number;
   readonly reactionMs: number;
   readonly preset: GhostPreset;
@@ -41,11 +41,13 @@ export class Ghost {
     // Binary search k in [0.05, 3.0]
     const target = 402.336;
     const et = preset.targetEtS;
-    let lo = 0.05, hi = 3.0;
+    let lo = 0.05,
+      hi = 3.0;
     for (let i = 0; i < 40; i++) {
       const mid = (lo + hi) / 2;
       const d = this.vMax * et + (this.vMax / mid) * (Math.exp(-mid * et) - 1);
-      if (d > target) lo = mid; else hi = mid;
+      if (d > target) lo = mid;
+      else hi = mid;
     }
     this.k = (lo + hi) / 2;
   }
@@ -66,7 +68,8 @@ export class Ghost {
   /** Time (ms from GREEN) at which cumulative distance passes `targetM`. */
   timeAtDistanceMs(targetM: number): number {
     // Simple bisection on t
-    let lo = 0, hi = 60;
+    let lo = 0,
+      hi = 60;
     for (let i = 0; i < 40; i++) {
       const mid = (lo + hi) / 2;
       if (this.distanceM(mid * 1000 + this.reactionMs) < targetM) lo = mid;

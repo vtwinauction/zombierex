@@ -3,7 +3,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  getCommunityBySlug, decideRequest, setMemberRole, removeMember, pinPost, deleteCommunityPost,
+  getCommunityBySlug,
+  decideRequest,
+  setMemberRole,
+  removeMember,
+  pinPost,
+  deleteCommunityPost,
   awardBadge,
 } from "@/lib/communities.functions";
 import { useEffect, useState } from "react";
@@ -15,14 +20,19 @@ const BADGE_PRESETS = [
   { code: "event_champ", label: "Event Champ" },
 ];
 
-
 export const Route = createFileRoute("/_authenticated/communities/$slug/manage")({
   head: ({ params }) => ({ meta: [{ title: `Manage ${params.slug} · ZOMBIEREX` }] }),
   component: ManageCommunity,
 });
 
 type Member = { user_id: string; role: string; joined_at: string };
-type Request = { id: string; user_id: string; message: string | null; created_at: string; status: string };
+type Request = {
+  id: string;
+  user_id: string;
+  message: string | null;
+  created_at: string;
+  status: string;
+};
 
 function ManageCommunity() {
   const { slug } = Route.useParams();
@@ -36,7 +46,6 @@ function ManageCommunity() {
   const award = useServerFn(awardBadge);
   const [pickerFor, setPickerFor] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-
 
   const { data: community } = useQuery({
     queryKey: ["community", slug],
@@ -52,7 +61,11 @@ function ManageCommunity() {
     (async () => {
       const [{ data: m }, { data: r }] = await Promise.all([
         supabase.from("club_members").select("user_id, role, joined_at").eq("club_id", clubId),
-        supabase.from("club_join_requests").select("id, user_id, message, created_at, status").eq("club_id", clubId).eq("status", "pending"),
+        supabase
+          .from("club_join_requests")
+          .select("id, user_id, message, created_at, status")
+          .eq("club_id", clubId)
+          .eq("status", "pending"),
       ]);
       setMembers((m as Member[]) ?? []);
       setRequests((r as Request[]) ?? []);
@@ -62,15 +75,23 @@ function ManageCommunity() {
   const refreshLists = async () => {
     if (!community?.club.id) return;
     const [{ data: m }, { data: r }] = await Promise.all([
-      supabase.from("club_members").select("user_id, role, joined_at").eq("club_id", community.club.id),
-      supabase.from("club_join_requests").select("id, user_id, message, created_at, status").eq("club_id", community.club.id).eq("status", "pending"),
+      supabase
+        .from("club_members")
+        .select("user_id, role, joined_at")
+        .eq("club_id", community.club.id),
+      supabase
+        .from("club_join_requests")
+        .select("id, user_id, message, created_at, status")
+        .eq("club_id", community.club.id)
+        .eq("status", "pending"),
     ]);
     setMembers((m as Member[]) ?? []);
     setRequests((r as Request[]) ?? []);
   };
 
   const decideMut = useMutation({
-    mutationFn: (v: { id: string; approve: boolean }) => decide({ data: { request_id: v.id, approve: v.approve } }),
+    mutationFn: (v: { id: string; approve: boolean }) =>
+      decide({ data: { request_id: v.id, approve: v.approve } }),
     onSuccess: refreshLists,
   });
   const roleMut = useMutation({
@@ -101,20 +122,35 @@ function ManageCommunity() {
     },
   });
 
-
   if (!community) {
-    return <div className="grid min-h-[50vh] place-items-center"><p className="mono-tag" style={{ color: "var(--color-titanium)" }}>loading…</p></div>;
+    return (
+      <div className="grid min-h-[50vh] place-items-center">
+        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+          loading…
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="pb-24">
-
       <div className="flex items-baseline justify-between px-4 pt-6">
         <div>
-          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>{community.club.name}</p>
-          <h1 className="serif text-[28px] italic" style={{ color: "var(--color-ink)" }}>Command deck</h1>
+          <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+            {community.club.name}
+          </p>
+          <h1 className="serif text-[28px] italic" style={{ color: "var(--color-ink)" }}>
+            Command deck
+          </h1>
         </div>
-        <Link to="/communities/$slug" params={{ slug }} className="mono-tag" style={{ color: "var(--color-neon)" }}>← Public view</Link>
+        <Link
+          to="/communities/$slug"
+          params={{ slug }}
+          className="mono-tag"
+          style={{ color: "var(--color-neon)" }}
+        >
+          ← Public view
+        </Link>
       </div>
 
       <Section title={`Join requests · ${requests.length}`}>
@@ -122,11 +158,27 @@ function ManageCommunity() {
         {requests.map((r) => (
           <Row key={r.id}>
             <div className="min-w-0 flex-1">
-              <p className="mono-num text-[11px]" style={{ color: "var(--color-ink)" }}>{r.user_id.slice(0, 8)}</p>
-              {r.message && <p className="text-[12px]" style={{ color: "var(--color-titanium)" }}>"{r.message}"</p>}
+              <p className="mono-num text-[11px]" style={{ color: "var(--color-ink)" }}>
+                {r.user_id.slice(0, 8)}
+              </p>
+              {r.message && (
+                <p className="text-[12px]" style={{ color: "var(--color-titanium)" }}>
+                  "{r.message}"
+                </p>
+              )}
             </div>
-            <button className={btnDanger} onClick={() => decideMut.mutate({ id: r.id, approve: false })}>Reject</button>
-            <button className={btnPrimary} onClick={() => decideMut.mutate({ id: r.id, approve: true })}>Approve</button>
+            <button
+              className={btnDanger}
+              onClick={() => decideMut.mutate({ id: r.id, approve: false })}
+            >
+              Reject
+            </button>
+            <button
+              className={btnPrimary}
+              onClick={() => decideMut.mutate({ id: r.id, approve: true })}
+            >
+              Approve
+            </button>
           </Row>
         ))}
       </Section>
@@ -136,29 +188,58 @@ function ManageCommunity() {
           <div key={m.user_id}>
             <Row>
               <div className="min-w-0 flex-1">
-                <p className="mono-num text-[11px]" style={{ color: "var(--color-ink)" }}>{m.user_id.slice(0, 8)}</p>
-                <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>{m.role.toUpperCase()}</p>
+                <p className="mono-num text-[11px]" style={{ color: "var(--color-ink)" }}>
+                  {m.user_id.slice(0, 8)}
+                </p>
+                <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>
+                  {m.role.toUpperCase()}
+                </p>
               </div>
-              <button className={btnGhost} onClick={() => setPickerFor(pickerFor === m.user_id ? null : m.user_id)}>
+              <button
+                className={btnGhost}
+                onClick={() => setPickerFor(pickerFor === m.user_id ? null : m.user_id)}
+              >
                 🏅 Badge
               </button>
               {m.role !== "owner" && (
                 <>
                   {m.role === "moderator" ? (
-                    <button className={btnGhost} onClick={() => roleMut.mutate({ user_id: m.user_id, role: "member" })}>Demote</button>
+                    <button
+                      className={btnGhost}
+                      onClick={() => roleMut.mutate({ user_id: m.user_id, role: "member" })}
+                    >
+                      Demote
+                    </button>
                   ) : (
-                    <button className={btnGhost} onClick={() => roleMut.mutate({ user_id: m.user_id, role: "moderator" })}>Promote</button>
+                    <button
+                      className={btnGhost}
+                      onClick={() => roleMut.mutate({ user_id: m.user_id, role: "moderator" })}
+                    >
+                      Promote
+                    </button>
                   )}
-                  <button className={btnDanger} onClick={() => kickMut.mutate(m.user_id)}>Remove</button>
+                  <button className={btnDanger} onClick={() => kickMut.mutate(m.user_id)}>
+                    Remove
+                  </button>
                 </>
               )}
             </Row>
             {pickerFor === m.user_id && (
-              <div className="mt-1.5 flex flex-wrap gap-1.5 rounded-lg px-3 py-2"
-                style={{ background: "var(--color-obsidian)", border: "1px solid var(--color-hair-strong)" }}>
+              <div
+                className="mt-1.5 flex flex-wrap gap-1.5 rounded-lg px-3 py-2"
+                style={{
+                  background: "var(--color-obsidian)",
+                  border: "1px solid var(--color-hair-strong)",
+                }}
+              >
                 {BADGE_PRESETS.map((b) => (
-                  <button key={b.code} className={btnGhost}
-                    onClick={() => awardMut.mutate({ user_id: m.user_id, code: b.code, label: b.label })}>
+                  <button
+                    key={b.code}
+                    className={btnGhost}
+                    onClick={() =>
+                      awardMut.mutate({ user_id: m.user_id, code: b.code, label: b.label })
+                    }
+                  >
                     {b.label}
                   </button>
                 ))}
@@ -169,25 +250,40 @@ function ManageCommunity() {
       </Section>
 
       {toast && (
-        <div className="fixed inset-x-0 bottom-24 z-50 mx-auto w-max rounded-full px-4 py-2 mono-tag"
-          style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", fontSize: 10, letterSpacing: "0.14em" }}>
+        <div
+          className="fixed inset-x-0 bottom-24 z-50 mx-auto w-max rounded-full px-4 py-2 mono-tag"
+          style={{
+            background: "var(--color-neon)",
+            color: "var(--color-obsidian)",
+            fontSize: 10,
+            letterSpacing: "0.14em",
+          }}
+        >
           {toast}
         </div>
       )}
-
 
       <Section title="Recent posts">
         {community.posts.length === 0 && <Empty>No posts yet.</Empty>}
         {[...community.pinned, ...community.posts].map((p) => (
           <Row key={p.id}>
             <div className="min-w-0 flex-1">
-              <p className="line-clamp-1 text-[12px]" style={{ color: "var(--color-ink)" }}>{p.caption ?? "(no caption)"}</p>
-              <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 9 }}>{new Date(p.created_at).toLocaleDateString()}</p>
+              <p className="line-clamp-1 text-[12px]" style={{ color: "var(--color-ink)" }}>
+                {p.caption ?? "(no caption)"}
+              </p>
+              <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 9 }}>
+                {new Date(p.created_at).toLocaleDateString()}
+              </p>
             </div>
-            <button className={btnGhost} onClick={() => pinMut.mutate({ post_id: p.id, pinned: !p.is_pinned })}>
+            <button
+              className={btnGhost}
+              onClick={() => pinMut.mutate({ post_id: p.id, pinned: !p.is_pinned })}
+            >
               {p.is_pinned ? "Unpin" : "Pin"}
             </button>
-            <button className={btnDanger} onClick={() => delMut.mutate(p.id)}>Delete</button>
+            <button className={btnDanger} onClick={() => delMut.mutate(p.id)}>
+              Delete
+            </button>
           </Row>
         ))}
       </Section>
@@ -200,11 +296,15 @@ const btnPrimary = `${baseBtn} bg-[var(--color-neon)] text-[var(--color-obsidian
 const btnGhost = `${baseBtn} bg-transparent text-[var(--color-ink)] border border-[var(--color-hair-strong)]`;
 const btnDanger = `${baseBtn} bg-transparent text-[#ff8080] border border-[rgba(255,80,80,0.4)]`;
 
-
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mt-6 px-4">
-      <h2 className="mono-tag mb-2" style={{ color: "var(--color-neon)", fontSize: 10, letterSpacing: "0.16em" }}>{title.toUpperCase()}</h2>
+      <h2
+        className="mono-tag mb-2"
+        style={{ color: "var(--color-neon)", fontSize: 10, letterSpacing: "0.16em" }}
+      >
+        {title.toUpperCase()}
+      </h2>
       <div className="space-y-1.5">{children}</div>
     </section>
   );
@@ -223,8 +323,13 @@ function Row({ children }: { children: React.ReactNode }) {
 
 function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg px-3 py-4 text-center" style={{ background: "var(--color-graphite)", border: "1px dashed var(--color-hair-strong)" }}>
-      <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 10 }}>{children}</p>
+    <div
+      className="rounded-lg px-3 py-4 text-center"
+      style={{ background: "var(--color-graphite)", border: "1px dashed var(--color-hair-strong)" }}
+    >
+      <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 10 }}>
+        {children}
+      </p>
     </div>
   );
 }

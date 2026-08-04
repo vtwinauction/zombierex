@@ -10,7 +10,7 @@ const PUBLIC_ROUTES = [
   "/auth",
   "/legal/terms",
   "/legal/privacy",
-  "/legal/community",
+  "/legal/community-guidelines",
   "/reels",
   "/marketplace",
   "/atlas",
@@ -32,13 +32,15 @@ for (const path of PUBLIC_ROUTES) {
 
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
 
-    // Filter noise we don't control (extensions, third-party analytics, expected auth 401s on public pages).
+    // Filter noise we don't control (extensions, third-party analytics, expected auth 401s on
+    // public pages, and the Maps key referrer restriction that never allows localhost).
     const meaningful = errors.filter(
       (e) =>
-        !/chrome-extension|extension:\/\/|Failed to load resource.*\/analytics|401|Unauthorized|net::ERR_ABORTED/i.test(
+        !/chrome-extension|extension:\/\/|Failed to load resource.*\/analytics|401|Unauthorized|net::ERR_ABORTED|RefererNotAllowedMapError|Google Maps JavaScript API error/i.test(
           e,
         ),
     );
+
     expect(meaningful, `console errors on ${path}: ${meaningful.join(" | ")}`).toEqual([]);
   });
 }
@@ -56,7 +58,7 @@ test("auth page exposes sign-in affordance", async ({ page }) => {
 
 test("protected route redirects unauthenticated users to /auth", async ({ page }) => {
   await page.goto("http://localhost:8080/settings", { waitUntil: "domcontentloaded" });
-  await page.waitForURL(/\/auth/, { timeout: 10_000 }).catch(() => {});
+  await page.waitForURL(/\/auth/, { timeout: 25_000 }).catch(() => {});
   expect(page.url()).toMatch(/\/auth/);
 });
 

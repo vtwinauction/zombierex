@@ -51,8 +51,7 @@ export const Route = createFileRoute("/api/public/webhooks/stream")({
         if (!uid) return new Response("Missing uid", { status: 400 });
 
         const state: string = payload?.status?.state ?? "inprogress";
-        const status =
-          state === "ready" ? "ready" : state === "error" ? "error" : "processing";
+        const status = state === "ready" ? "ready" : state === "error" ? "error" : "processing";
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { error } = await supabaseAdmin

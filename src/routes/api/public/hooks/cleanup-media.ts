@@ -20,7 +20,9 @@ function parseStorageUrl(url: string | null | undefined): BucketPath | null {
   try {
     const u = new URL(url);
     // /storage/v1/object/{sign|public|authenticated}/<bucket>/<path>
-    const m = u.pathname.match(/\/storage\/v1\/object\/(?:sign|public|authenticated)\/([^/]+)\/(.+)$/);
+    const m = u.pathname.match(
+      /\/storage\/v1\/object\/(?:sign|public|authenticated)\/([^/]+)\/(.+)$/,
+    );
     if (!m) return null;
     return { bucket: m[1], path: decodeURIComponent(m[2]) };
   } catch {
@@ -72,7 +74,10 @@ export const Route = createFileRoute("/api/public/hooks/cleanup-media")({
             const { error: delErr } = await admin
               .from("stories")
               .delete()
-              .in("id", rows.map((r) => r.id));
+              .in(
+                "id",
+                rows.map((r) => r.id),
+              );
             if (delErr) summary.errors.push(`stories delete:${delErr.message}`);
             else summary.stories = rows.length;
           }
@@ -102,7 +107,10 @@ export const Route = createFileRoute("/api/public/hooks/cleanup-media")({
             const { error: delErr } = await admin
               .from("posts")
               .delete()
-              .in("id", rows.map((r) => r.id));
+              .in(
+                "id",
+                rows.map((r) => r.id),
+              );
             if (delErr) summary.errors.push(`posts delete:${delErr.message}`);
             else summary.posts = rows.length;
           }

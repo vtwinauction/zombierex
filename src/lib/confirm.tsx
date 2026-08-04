@@ -90,7 +90,12 @@ export function ConfirmHost() {
   const canConfirm = !promptState?.required || value.trim().length > 0;
 
   return (
-    <AlertDialog open={!!state} onOpenChange={(open) => { if (!open) finish(false); }}>
+    <AlertDialog
+      open={!!state}
+      onOpenChange={(open) => {
+        if (!open) finish(false);
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{state?.title ?? "Are you sure?"}</AlertDialogTitle>
@@ -98,8 +103,8 @@ export function ConfirmHost() {
             <AlertDialogDescription>{state.description}</AlertDialogDescription>
           )}
         </AlertDialogHeader>
-        {promptState && (
-          promptState.multiline ? (
+        {promptState &&
+          (promptState.multiline ? (
             <textarea
               autoFocus
               value={value}
@@ -115,12 +120,13 @@ export function ConfirmHost() {
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder={promptState.placeholder}
-              onKeyDown={(e) => { if (e.key === "Enter" && canConfirm) finish(true); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && canConfirm) finish(true);
+              }}
               className="mt-1 w-full rounded-md border bg-transparent p-2 text-sm"
               style={{ borderColor: "var(--color-hair-strong)" }}
             />
-          )
-        )}
+          ))}
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => finish(false)}>
             {state?.cancelLabel ?? "Cancel"}
@@ -128,7 +134,11 @@ export function ConfirmHost() {
           <AlertDialogAction
             onClick={() => finish(true)}
             disabled={!canConfirm}
-            style={state?.destructive ? { background: "var(--color-heat, #ef4444)", color: "#fff" } : undefined}
+            style={
+              state?.destructive
+                ? { background: "var(--color-heat, #ef4444)", color: "#fff" }
+                : undefined
+            }
           >
             {state?.confirmLabel ?? "Confirm"}
           </AlertDialogAction>

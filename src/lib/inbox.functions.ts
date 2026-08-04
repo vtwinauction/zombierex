@@ -36,7 +36,8 @@ export const getInboxCounts = createServerFn({ method: "GET" })
         .limit(200);
       const lastByConv = new Map<string, any>();
       for (const m of lastMsgs ?? []) {
-        if (!lastByConv.has((m as any).conversation_id)) lastByConv.set((m as any).conversation_id, m);
+        if (!lastByConv.has((m as any).conversation_id))
+          lastByConv.set((m as any).conversation_id, m);
       }
       for (const m of members ?? []) {
         const last = lastByConv.get((m as any).conversation_id);

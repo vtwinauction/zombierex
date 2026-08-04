@@ -138,11 +138,13 @@ export const updateMyVendor = createServerFn({ method: "POST" })
 export const subscribeVendor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      vendor_id: z.string().uuid(),
-      plan_code: z.string().min(2).max(40),
-      billing_interval: z.enum(["month", "quarter", "semiannual", "year"]).default("month"),
-    }).parse(raw),
+    z
+      .object({
+        vendor_id: z.string().uuid(),
+        plan_code: z.string().min(2).max(40),
+        billing_interval: z.enum(["month", "quarter", "semiannual", "year"]).default("month"),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     // Verify caller owns the vendor
@@ -195,7 +197,9 @@ export const getMySubscription = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("subscriptions")
-      .select("id, status, plan_id, trial_ends_at, current_period_end, cancel_at_period_end, vendor_id, plan:subscription_plans(code, name, price_cents, currency, interval, features)")
+      .select(
+        "id, status, plan_id, trial_ends_at, current_period_end, cancel_at_period_end, vendor_id, plan:subscription_plans(code, name, price_cents, currency, interval, features)",
+      )
       .eq("user_id", context.userId)
       .in("status", ["active", "trialing", "past_due"])
       .order("created_at", { ascending: false })
@@ -216,10 +220,22 @@ export const getVendorDashboardStats = createServerFn({ method: "GET" })
     if (!vendor) return null;
 
     const [products, services, orders, bookings, reviews] = await Promise.all([
-      context.supabase.from("products").select("id", { count: "exact", head: true }).eq("vendor_id", vendor.id),
-      context.supabase.from("services").select("id", { count: "exact", head: true }).eq("vendor_id", vendor.id),
-      context.supabase.from("orders").select("id, total_cents", { count: "exact" }).eq("vendor_id", vendor.id),
-      context.supabase.from("bookings").select("id", { count: "exact", head: true }).eq("vendor_id", vendor.id),
+      context.supabase
+        .from("products")
+        .select("id", { count: "exact", head: true })
+        .eq("vendor_id", vendor.id),
+      context.supabase
+        .from("services")
+        .select("id", { count: "exact", head: true })
+        .eq("vendor_id", vendor.id),
+      context.supabase
+        .from("orders")
+        .select("id, total_cents", { count: "exact" })
+        .eq("vendor_id", vendor.id),
+      context.supabase
+        .from("bookings")
+        .select("id", { count: "exact", head: true })
+        .eq("vendor_id", vendor.id),
       context.supabase.from("reviews").select("rating").eq("vendor_id", vendor.id),
     ]);
     const revenue = (orders.data ?? []).reduce((sum, o: any) => sum + (o.total_cents ?? 0), 0);

@@ -4,7 +4,6 @@ import { getPostPublic } from "@/lib/feed.functions";
 import { RichCaption } from "@/components/RichCaption";
 import { AutoplayVideo } from "@/components/AutoplayVideo";
 
-
 const reelQO = (id: string) =>
   queryOptions({
     queryKey: ["public-reel", id],
@@ -20,7 +19,9 @@ export const Route = createFileRoute("/reels/$id")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Reel unavailable · ZOMBIEREX" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Reel unavailable · ZOMBIEREX" }, { name: "robots", content: "noindex" }],
+      };
     }
     const p: any = loaderData.post;
     const author = p.author?.display_name ?? p.author?.handle ?? "Rider";
@@ -47,10 +48,17 @@ export const Route = createFileRoute("/reels/$id")({
 
 function ReelMissing() {
   return (
-    <div className="grid min-h-screen place-items-center px-6 text-center" style={{ background: "#000", color: "#fff" }}>
+    <div
+      className="grid min-h-screen place-items-center px-6 text-center"
+      style={{ background: "#000", color: "#fff" }}
+    >
       <div>
-        <p className="mono-tag" style={{ color: "#888" }}>REEL NOT FOUND</p>
-        <Link to="/reels" className="btn-solid mt-6 inline-block mono-tag">OPEN REELS</Link>
+        <p className="mono-tag" style={{ color: "#888" }}>
+          REEL NOT FOUND
+        </p>
+        <Link to="/reels" className="btn-solid mt-6 inline-block mono-tag">
+          OPEN REELS
+        </Link>
       </div>
     </div>
   );
@@ -71,12 +79,16 @@ function ReelSolo() {
           className="absolute inset-0 h-full w-full object-contain"
         />
       ) : (
-
-        <div className="grid h-screen w-full place-items-center text-white/60 mono-tag">NO MEDIA</div>
+        <div className="grid h-screen w-full place-items-center text-white/60 mono-tag">
+          NO MEDIA
+        </div>
       )}
       <div
         className="absolute inset-x-0 bottom-0 p-5 pb-24"
-        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)", color: "#fff" }}
+        style={{
+          background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+          color: "#fff",
+        }}
       >
         {p.author && (
           <Link
@@ -85,13 +97,15 @@ function ReelSolo() {
             className="flex items-center gap-3"
           >
             {p.author.avatar_url && (
-              <img src={p.author.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
+              <img
+                src={p.author.avatar_url}
+                alt=""
+                className="h-10 w-10 rounded-full object-cover"
+              />
             )}
             <div className="min-w-0">
               <p className="truncate font-semibold">@{p.author.handle}</p>
-              {p.author.location && (
-                <p className="mono-tag text-white/60">{p.author.location}</p>
-              )}
+              {p.author.location && <p className="mono-tag text-white/60">{p.author.location}</p>}
             </div>
           </Link>
         )}

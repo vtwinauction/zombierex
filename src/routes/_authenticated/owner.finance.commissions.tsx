@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { listFeeRules, upsertFeeRule, deleteFeeRule, checkFinanceAccess } from "@/lib/finance.functions";
+import {
+  listFeeRules,
+  upsertFeeRule,
+  deleteFeeRule,
+  checkFinanceAccess,
+} from "@/lib/finance.functions";
 import { computeSplit, describeRule, formatMoney, type FeeRule } from "@/lib/commission";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/commissions")({
@@ -70,8 +75,14 @@ function CommissionsPage() {
   const remove = useServerFn(deleteFeeRule);
   const access = useServerFn(checkFinanceAccess);
 
-  const gate = useQuery({ queryKey: ["finance", "access"], queryFn: () => access({ data: undefined as any }) });
-  const rules = useQuery({ queryKey: ["finance", "fee-rules"], queryFn: () => load({ data: undefined as any }) });
+  const gate = useQuery({
+    queryKey: ["finance", "access"],
+    queryFn: () => access({ data: undefined as any }),
+  });
+  const rules = useQuery({
+    queryKey: ["finance", "fee-rules"],
+    queryFn: () => load({ data: undefined as any }),
+  });
 
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
@@ -131,84 +142,207 @@ function CommissionsPage() {
       <div className="card-surface p-4">
         <p className="mono-tag text-[10px] opacity-60">HOW IT RESOLVES</p>
         <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
-          For every transaction the most specific active rule wins: promo → seller → category → seller type → country →
-          default. Changes apply to the very next transaction, no release required.
+          For every transaction the most specific active rule wins: promo → seller → category →
+          seller type → country → default. Changes apply to the very next transaction, no release
+          required.
         </p>
       </div>
 
       {err && (
-        <div className="rounded px-3 py-2 text-[12px]" style={{ background: "rgba(220,60,60,0.1)", border: "1px solid rgba(220,60,60,0.4)" }}>
+        <div
+          className="rounded px-3 py-2 text-[12px]"
+          style={{ background: "rgba(220,60,60,0.1)", border: "1px solid rgba(220,60,60,0.4)" }}
+        >
           {err}
         </div>
       )}
 
       {canWrite && !draft && (
-        <button className="btn-solid w-full" onClick={() => setDraft({ ...EMPTY })}>+ New commission rule</button>
+        <button className="btn-solid w-full" onClick={() => setDraft({ ...EMPTY })}>
+          + New commission rule
+        </button>
       )}
 
       {draft && (
         <div className="card-surface space-y-3 p-4">
-          <p className="mono-tag text-[10px]" style={{ color: "#00c853" }}>{draft.id ? "EDIT RULE" : "NEW RULE"}</p>
+          <p className="mono-tag text-[10px]" style={{ color: "#00c853" }}>
+            {draft.id ? "EDIT RULE" : "NEW RULE"}
+          </p>
           <Field label="Label">
-            <input className="zx-input" value={draft.label} onChange={(e) => setDraft({ ...draft, label: e.target.value })} placeholder="Parts category — 3%" />
+            <input
+              className="zx-input"
+              value={draft.label}
+              onChange={(e) => setDraft({ ...draft, label: e.target.value })}
+              placeholder="Parts category — 3%"
+            />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Applies to">
-              <select className="zx-input" value={draft.kind} onChange={(e) => setDraft({ ...draft, kind: e.target.value as any })}>
-                {KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
+              <select
+                className="zx-input"
+                value={draft.kind}
+                onChange={(e) => setDraft({ ...draft, kind: e.target.value as any })}
+              >
+                {KINDS.map((k) => (
+                  <option key={k} value={k}>
+                    {k}
+                  </option>
+                ))}
               </select>
             </Field>
             <Field label="Scope">
-              <select className="zx-input" value={draft.scope} onChange={(e) => setDraft({ ...draft, scope: e.target.value as any })}>
-                {SCOPES.map((s) => <option key={s} value={s}>{s}</option>)}
+              <select
+                className="zx-input"
+                value={draft.scope}
+                onChange={(e) => setDraft({ ...draft, scope: e.target.value as any })}
+              >
+                {SCOPES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </Field>
           </div>
           {draft.scope !== "default" && (
-            <Field label={draft.scope === "seller" ? "Seller ID" : draft.scope === "country" ? "Country code" : "Target value"}>
-              <input className="zx-input" value={draft.scope_value} onChange={(e) => setDraft({ ...draft, scope_value: e.target.value })} placeholder={draft.scope === "category" ? "parts" : draft.scope === "promo" ? "* for platform-wide" : ""} />
+            <Field
+              label={
+                draft.scope === "seller"
+                  ? "Seller ID"
+                  : draft.scope === "country"
+                    ? "Country code"
+                    : "Target value"
+              }
+            >
+              <input
+                className="zx-input"
+                value={draft.scope_value}
+                onChange={(e) => setDraft({ ...draft, scope_value: e.target.value })}
+                placeholder={
+                  draft.scope === "category"
+                    ? "parts"
+                    : draft.scope === "promo"
+                      ? "* for platform-wide"
+                      : ""
+                }
+              />
             </Field>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Percent (%)"><input className="zx-input" inputMode="decimal" value={draft.percent} onChange={(e) => setDraft({ ...draft, percent: e.target.value })} /></Field>
-            <Field label="Fixed fee ($)"><input className="zx-input" inputMode="decimal" value={draft.fixed} onChange={(e) => setDraft({ ...draft, fixed: e.target.value })} /></Field>
-            <Field label="Minimum fee ($)"><input className="zx-input" inputMode="decimal" value={draft.min} onChange={(e) => setDraft({ ...draft, min: e.target.value })} /></Field>
-            <Field label="Maximum fee ($)"><input className="zx-input" inputMode="decimal" value={draft.max} onChange={(e) => setDraft({ ...draft, max: e.target.value })} placeholder="none" /></Field>
-            <Field label="Priority"><input className="zx-input" inputMode="numeric" value={draft.priority} onChange={(e) => setDraft({ ...draft, priority: e.target.value })} /></Field>
+            <Field label="Percent (%)">
+              <input
+                className="zx-input"
+                inputMode="decimal"
+                value={draft.percent}
+                onChange={(e) => setDraft({ ...draft, percent: e.target.value })}
+              />
+            </Field>
+            <Field label="Fixed fee ($)">
+              <input
+                className="zx-input"
+                inputMode="decimal"
+                value={draft.fixed}
+                onChange={(e) => setDraft({ ...draft, fixed: e.target.value })}
+              />
+            </Field>
+            <Field label="Minimum fee ($)">
+              <input
+                className="zx-input"
+                inputMode="decimal"
+                value={draft.min}
+                onChange={(e) => setDraft({ ...draft, min: e.target.value })}
+              />
+            </Field>
+            <Field label="Maximum fee ($)">
+              <input
+                className="zx-input"
+                inputMode="decimal"
+                value={draft.max}
+                onChange={(e) => setDraft({ ...draft, max: e.target.value })}
+                placeholder="none"
+              />
+            </Field>
+            <Field label="Priority">
+              <input
+                className="zx-input"
+                inputMode="numeric"
+                value={draft.priority}
+                onChange={(e) => setDraft({ ...draft, priority: e.target.value })}
+              />
+            </Field>
             <Field label="Active">
-              <select className="zx-input" value={draft.is_active ? "1" : "0"} onChange={(e) => setDraft({ ...draft, is_active: e.target.value === "1" })}>
-                <option value="1">Active</option><option value="0">Paused</option>
+              <select
+                className="zx-input"
+                value={draft.is_active ? "1" : "0"}
+                onChange={(e) => setDraft({ ...draft, is_active: e.target.value === "1" })}
+              >
+                <option value="1">Active</option>
+                <option value="0">Paused</option>
               </select>
             </Field>
-            <Field label="Starts"><input type="date" className="zx-input" value={draft.starts_at} onChange={(e) => setDraft({ ...draft, starts_at: e.target.value })} /></Field>
-            <Field label="Ends"><input type="date" className="zx-input" value={draft.ends_at} onChange={(e) => setDraft({ ...draft, ends_at: e.target.value })} /></Field>
+            <Field label="Starts">
+              <input
+                type="date"
+                className="zx-input"
+                value={draft.starts_at}
+                onChange={(e) => setDraft({ ...draft, starts_at: e.target.value })}
+              />
+            </Field>
+            <Field label="Ends">
+              <input
+                type="date"
+                className="zx-input"
+                value={draft.ends_at}
+                onChange={(e) => setDraft({ ...draft, ends_at: e.target.value })}
+              />
+            </Field>
           </div>
 
           <div className="rounded p-3" style={{ background: "rgba(0,200,83,0.07)" }}>
             <div className="flex items-center gap-2">
               <span className="mono-tag text-[10px] opacity-60">PREVIEW ON $</span>
-              <input className="zx-input w-24" inputMode="decimal" value={preview} onChange={(e) => setPreview(e.target.value)} />
+              <input
+                className="zx-input w-24"
+                inputMode="decimal"
+                value={preview}
+                onChange={(e) => setPreview(e.target.value)}
+              />
             </div>
             {(() => {
               const s = computeSplit(previewGross, {
-                id: "preview", label: draft.label, kind: draft.kind, scope: draft.scope,
-                scope_value: draft.scope_value, percent_bps: Math.round((parseFloat(draft.percent || "0") || 0) * 100),
-                fixed_cents: cents(draft.fixed), min_fee_cents: cents(draft.min),
-                max_fee_cents: draft.max ? cents(draft.max) : null, currency: null, priority: 0,
-                starts_at: null, ends_at: null, is_active: true,
+                id: "preview",
+                label: draft.label,
+                kind: draft.kind,
+                scope: draft.scope,
+                scope_value: draft.scope_value,
+                percent_bps: Math.round((parseFloat(draft.percent || "0") || 0) * 100),
+                fixed_cents: cents(draft.fixed),
+                min_fee_cents: cents(draft.min),
+                max_fee_cents: draft.max ? cents(draft.max) : null,
+                currency: null,
+                priority: 0,
+                starts_at: null,
+                ends_at: null,
+                is_active: true,
               });
               return (
                 <p className="mt-2 text-[12px]">
-                  You keep <strong style={{ color: "#00c853" }}>{formatMoney(s.platform_fee_cents)}</strong> · seller receives{" "}
-                  <strong>{formatMoney(s.net_cents)}</strong> ({(s.fee_bps / 100).toFixed(2)}% effective)
+                  You keep{" "}
+                  <strong style={{ color: "#00c853" }}>{formatMoney(s.platform_fee_cents)}</strong>{" "}
+                  · seller receives <strong>{formatMoney(s.net_cents)}</strong> (
+                  {(s.fee_bps / 100).toFixed(2)}% effective)
                 </p>
               );
             })()}
           </div>
 
           <div className="flex gap-2">
-            <button className="btn-solid flex-1" disabled={busy} onClick={submit}>{busy ? "Saving…" : "Save rule"}</button>
-            <button className="btn-ghost flex-1" onClick={() => setDraft(null)}>Cancel</button>
+            <button className="btn-solid flex-1" disabled={busy} onClick={submit}>
+              {busy ? "Saving…" : "Save rule"}
+            </button>
+            <button className="btn-ghost flex-1" onClick={() => setDraft(null)}>
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -220,15 +354,24 @@ function CommissionsPage() {
             <div className="min-w-0">
               <p className="truncate text-sm">{r.label}</p>
               <p className="mono-tag mt-1 text-[10px] opacity-60">
-                {r.kind} · {r.scope}{r.scope_value ? `:${r.scope_value}` : ""} · {describeRule(r)}
+                {r.kind} · {r.scope}
+                {r.scope_value ? `:${r.scope_value}` : ""} · {describeRule(r)}
                 {!r.is_active && " · PAUSED"}
               </p>
             </div>
             {canWrite && (
               <div className="flex shrink-0 gap-1">
-                <button className="btn-ghost text-[10px]" onClick={() => setDraft(toDraft(r))}>Edit</button>
+                <button className="btn-ghost text-[10px]" onClick={() => setDraft(toDraft(r))}>
+                  Edit
+                </button>
                 {r.scope !== "default" && (
-                  <button className="btn-ghost text-[10px]" style={{ color: "var(--color-heat)" }} onClick={() => del(r.id)}>Del</button>
+                  <button
+                    className="btn-ghost text-[10px]"
+                    style={{ color: "var(--color-heat)" }}
+                    onClick={() => del(r.id)}
+                  >
+                    Del
+                  </button>
                 )}
               </div>
             )}

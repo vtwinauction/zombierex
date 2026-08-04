@@ -62,7 +62,12 @@ export function SaveToCollectionSheet({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end" role="dialog" aria-modal="true" aria-label="Save to collection">
+    <div
+      className="fixed inset-0 z-[80] flex items-end"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Save to collection"
+    >
       <button
         aria-label="Close"
         onClick={onClose}
@@ -71,14 +76,24 @@ export function SaveToCollectionSheet({
       />
       <div
         className="relative w-full max-h-[75svh] overflow-auto"
-        style={{ background: "var(--color-obsidian)", borderTop: "1px solid var(--color-hair-strong)" }}
+        style={{
+          background: "var(--color-obsidian)",
+          borderTop: "1px solid var(--color-hair-strong)",
+        }}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3"
-          style={{ background: "var(--color-obsidian)", borderBottom: "1px solid var(--color-hair-strong)" }}>
+        <div
+          className="sticky top-0 z-10 flex items-center justify-between px-4 py-3"
+          style={{
+            background: "var(--color-obsidian)",
+            borderBottom: "1px solid var(--color-hair-strong)",
+          }}
+        >
           <p className="mono-caps text-[11px] font-bold" style={{ color: "var(--color-neon)" }}>
             SAVE TO COLLECTION
           </p>
-          <button onClick={onClose} className="tap mono-caps text-[10px] font-bold text-white/70">DONE</button>
+          <button onClick={onClose} className="tap mono-caps text-[10px] font-bold text-white/70">
+            DONE
+          </button>
         </div>
 
         <div className="flex gap-2 p-4">
@@ -101,7 +116,9 @@ export function SaveToCollectionSheet({
 
         <div className="px-4 pb-8 space-y-2">
           {isLoading && (
-            <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 10 }}>LOADING…</p>
+            <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 10 }}>
+              LOADING…
+            </p>
           )}
           {!isLoading && collections.length === 0 && (
             <p className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 10 }}>

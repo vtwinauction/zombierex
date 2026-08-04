@@ -6,9 +6,17 @@ export const Route = createFileRoute("/_authenticated/menu")({
   head: () => ({
     meta: [
       { title: "Menu · ZOMBIEREX" },
-      { name: "description", content: "Everything you can do on ZOMBIEREX — create, ride, sell, explore and manage your garage." },
+      {
+        name: "description",
+        content:
+          "Everything you can do on ZOMBIEREX — create, ride, sell, explore and manage your garage.",
+      },
       { property: "og:title", content: "Menu · ZOMBIEREX" },
-      { property: "og:description", content: "Everything you can do on ZOMBIEREX — create, ride, sell, explore and manage your garage." },
+      {
+        property: "og:description",
+        content:
+          "Everything you can do on ZOMBIEREX — create, ride, sell, explore and manage your garage.",
+      },
     ],
   }),
   component: MenuHub,
@@ -65,7 +73,11 @@ const SECTIONS: { title: string; items: Item[] }[] = [
     title: "AI · REX",
     items: [
       { to: "/assistant", label: "Ask REX", hint: "AI companion · chat" },
-      { to: "/onboarding", label: "Personalize for me", hint: "AI picks crews · events · listings" },
+      {
+        to: "/onboarding",
+        label: "Personalize for me",
+        hint: "AI picks crews · events · listings",
+      },
       { to: "/judge", label: "AI Show Judge", hint: "Concours judging by algorithm" },
     ],
   },
@@ -105,7 +117,11 @@ const SECTIONS: { title: string; items: Item[] }[] = [
       { to: "/admin", label: "Admin console" },
       { to: "/admin/vendors", label: "Vendor verifications" },
       { to: "/admin/moderation", label: "Moderation queue", hint: "Reports · warnings · bans" },
-      { to: "/admin/health", label: "Platform Health", hint: "Live stats · feature flags · maintenance" },
+      {
+        to: "/admin/health",
+        label: "Platform Health",
+        hint: "Live stats · feature flags · maintenance",
+      },
       { to: "/admin/judge", label: "AI Judge admin", hint: "Events · awards · publish" },
     ],
   },
@@ -129,9 +145,17 @@ function MenuHub() {
   return (
     <div className="pb-32">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ MENU</p>
-        <h1 className="serif mt-2 text-4xl leading-[1.05] tracking-tight" style={{ color: "var(--color-ink)" }}>
-          Everything <span className="italic" style={{ color: "var(--color-neon)" }}>you can do</span>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ MENU
+        </p>
+        <h1
+          className="serif mt-2 text-4xl leading-[1.05] tracking-tight"
+          style={{ color: "var(--color-ink)" }}
+        >
+          Everything{" "}
+          <span className="italic" style={{ color: "var(--color-neon)" }}>
+            you can do
+          </span>
         </h1>
 
         <div
@@ -142,7 +166,9 @@ function MenuHub() {
             borderRadius: 12,
           }}
         >
-          <span aria-hidden className="text-[13px]" style={{ color: "var(--color-titanium)" }}>⌕</span>
+          <span aria-hidden className="text-[13px]" style={{ color: "var(--color-titanium)" }}>
+            ⌕
+          </span>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -187,7 +213,10 @@ function MenuHub() {
               </span>
               <span className="block pt-6 text-[14px] font-medium">{it.label}</span>
               {it.hint && (
-                <span className="mono-tag mt-1 block" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+                <span
+                  className="mono-tag mt-1 block"
+                  style={{ color: "var(--color-silver)", fontSize: 9 }}
+                >
                   {it.hint}
                 </span>
               )}
@@ -200,12 +229,18 @@ function MenuHub() {
         {sections.map((s) => (
           <section key={s.title}>
             <div className="mb-2.5 flex items-center gap-3">
-              <p className="mono-tag" style={{ color: "var(--color-silver)" }}>{s.title.toUpperCase()}</p>
+              <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                {s.title.toUpperCase()}
+              </p>
               <span className="h-px flex-1" style={{ background: "var(--color-hair)" }} />
             </div>
             <div
               className="overflow-hidden"
-              style={{ border: "1px solid var(--color-hair)", borderRadius: 14, background: "var(--color-graphite)" }}
+              style={{
+                border: "1px solid var(--color-hair)",
+                borderRadius: 14,
+                background: "var(--color-graphite)",
+              }}
             >
               {s.items.map((it, idx) => (
                 <Link
@@ -220,12 +255,21 @@ function MenuHub() {
                   <span className="min-w-0">
                     <span className="block truncate text-[13.5px]">{it.label}</span>
                     {it.hint && (
-                      <span className="mono-tag mt-0.5 block truncate" style={{ color: "var(--color-silver)", fontSize: 9 }}>
+                      <span
+                        className="mono-tag mt-0.5 block truncate"
+                        style={{ color: "var(--color-silver)", fontSize: 9 }}
+                      >
                         {it.hint}
                       </span>
                     )}
                   </span>
-                  <span aria-hidden className="ml-auto text-[13px]" style={{ color: "var(--color-titanium)" }}>›</span>
+                  <span
+                    aria-hidden
+                    className="ml-auto text-[13px]"
+                    style={{ color: "var(--color-titanium)" }}
+                  >
+                    ›
+                  </span>
                 </Link>
               ))}
             </div>
@@ -239,7 +283,9 @@ function MenuHub() {
         )}
 
         <section>
-          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>ACCOUNT</p>
+          <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+            ACCOUNT
+          </p>
           <button
             onClick={async () => {
               await supabase.auth.signOut();

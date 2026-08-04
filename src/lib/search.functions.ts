@@ -15,7 +15,8 @@ function serverPublic() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -37,12 +38,40 @@ export const searchAll = createServerFn({ method: "GET" })
     const kind = data.kind;
     const limit = data.limit;
 
-    const runProfiles = () => sb.from("profiles").select("id, handle, display_name, avatar_url, tier").or(`handle.ilike.${like},display_name.ilike.${like}`).limit(limit);
-    const runPosts = () => sb.from("posts").select("id, caption, thumbnail_url, media_url, kind").ilike("caption", like).limit(limit);
-    const runListings = () => sb.from("listings").select("id, title, price_cents, currency, hero_image_url").eq("status", "active").ilike("title", like).limit(limit);
-    const runClubs = () => sb.from("clubs").select("id, slug, name, banner_url").ilike("name", like).limit(limit);
-    const runEvents = () => sb.from("events").select("id, title, starts_at, cover_url, location").ilike("title", like).limit(limit);
-    const runHashtags = () => sb.from("hashtags").select("id, tag, usage_count").ilike("tag", like).order("usage_count", { ascending: false }).limit(limit);
+    const runProfiles = () =>
+      sb
+        .from("profiles")
+        .select("id, handle, display_name, avatar_url, tier")
+        .or(`handle.ilike.${like},display_name.ilike.${like}`)
+        .limit(limit);
+    const runPosts = () =>
+      sb
+        .from("posts")
+        .select("id, caption, thumbnail_url, media_url, kind")
+        .ilike("caption", like)
+        .limit(limit);
+    const runListings = () =>
+      sb
+        .from("listings")
+        .select("id, title, price_cents, currency, hero_image_url")
+        .eq("status", "active")
+        .ilike("title", like)
+        .limit(limit);
+    const runClubs = () =>
+      sb.from("clubs").select("id, slug, name, banner_url").ilike("name", like).limit(limit);
+    const runEvents = () =>
+      sb
+        .from("events")
+        .select("id, title, starts_at, cover_url, location")
+        .ilike("title", like)
+        .limit(limit);
+    const runHashtags = () =>
+      sb
+        .from("hashtags")
+        .select("id, tag, usage_count")
+        .ilike("tag", like)
+        .order("usage_count", { ascending: false })
+        .limit(limit);
 
     const needs = (k: typeof kind) => kind === "all" || kind === k;
 

@@ -3,7 +3,13 @@
  * Supports GPX 1.1 tracks and waypoints.
  */
 
-export type GpxPoint = { lat: number; lng: number; ele?: number; name?: string; recorded_at?: string };
+export type GpxPoint = {
+  lat: number;
+  lng: number;
+  ele?: number;
+  name?: string;
+  recorded_at?: string;
+};
 
 export function parseGpx(xml: string): { path: GpxPoint[]; waypoints: GpxPoint[]; name?: string } {
   const parser = new DOMParser();
@@ -18,7 +24,13 @@ export function parseGpx(xml: string): { path: GpxPoint[]; waypoints: GpxPoint[]
   };
 
   const path: GpxPoint[] = [];
-  const trackPoints = doc.evaluate("//trkpt", doc, resolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+  const trackPoints = doc.evaluate(
+    "//trkpt",
+    doc,
+    resolver,
+    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+    null,
+  );
   for (let i = 0; i < trackPoints.snapshotLength; i++) {
     const node = trackPoints.snapshotItem(i) as Element;
     const lat = parseFloat(node.getAttribute("lat") ?? "");
@@ -29,7 +41,13 @@ export function parseGpx(xml: string): { path: GpxPoint[]; waypoints: GpxPoint[]
   }
 
   const waypoints: GpxPoint[] = [];
-  const wptNodes = doc.evaluate("//wpt", doc, resolver, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+  const wptNodes = doc.evaluate(
+    "//wpt",
+    doc,
+    resolver,
+    XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+    null,
+  );
   for (let i = 0; i < wptNodes.snapshotLength; i++) {
     const node = wptNodes.snapshotItem(i) as Element;
     const lat = parseFloat(node.getAttribute("lat") ?? "");
@@ -40,18 +58,30 @@ export function parseGpx(xml: string): { path: GpxPoint[]; waypoints: GpxPoint[]
     waypoints.push({ lat, lng, ...(isNaN(ele) ? {} : { ele }), ...(name ? { name } : {}) });
   }
 
-  const name = doc.querySelector("trk > name")?.textContent ?? doc.querySelector("metadata > name")?.textContent ?? undefined;
+  const name =
+    doc.querySelector("trk > name")?.textContent ??
+    doc.querySelector("metadata > name")?.textContent ??
+    undefined;
   return { path, waypoints, name };
 }
 
-export function buildGpx(title: string, path: { lat: number; lng: number }[], waypoints?: { lat: number; lng: number; name?: string }[]): string {
+export function buildGpx(
+  title: string,
+  path: { lat: number; lng: number }[],
+  waypoints?: { lat: number; lng: number; name?: string }[],
+): string {
   const now = new Date().toISOString();
   const escape = (s?: string) =>
     s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
 
-  const trkpt = path.map((p) => `    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lng.toFixed(7)}"></trkpt>`).join("\n");
+  const trkpt = path
+    .map((p) => `    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lng.toFixed(7)}"></trkpt>`)
+    .join("\n");
   const wpts = (waypoints ?? [])
-    .map((w) => `  <wpt lat="${w.lat.toFixed(7)}" lon="${w.lng.toFixed(7)}">\n    <name>${escape(w.name)}</name>\n  </wpt>`)
+    .map(
+      (w) =>
+        `  <wpt lat="${w.lat.toFixed(7)}" lon="${w.lng.toFixed(7)}">\n    <name>${escape(w.name)}</name>\n  </wpt>`,
+    )
     .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -80,16 +110,25 @@ export function downloadGpx(filename: string, gpx: string) {
   URL.revokeObjectURL(url);
 }
 
-export function ridePathToGpx(title: string, path: { lat: number; lng: number; ele?: number; recorded_at?: string }[], startedAt?: string): string {
+export function ridePathToGpx(
+  title: string,
+  path: { lat: number; lng: number; ele?: number; recorded_at?: string }[],
+  startedAt?: string,
+): string {
   const now = new Date().toISOString();
   const escape = (s?: string) =>
     s ? s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
 
-  const trkpt = path.map((p) => {
-    const eleAttr = typeof p.ele === "number" && !isNaN(p.ele) ? `\n    <ele>${p.ele.toFixed(2)}</ele>` : "";
-    const timeTag = p.recorded_at ? `\n    <time>${new Date(p.recorded_at).toISOString()}</time>` : "";
-    return `    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lng.toFixed(7)}">${eleAttr}${timeTag}\n    </trkpt>`;
-  }).join("\n");
+  const trkpt = path
+    .map((p) => {
+      const eleAttr =
+        typeof p.ele === "number" && !isNaN(p.ele) ? `\n    <ele>${p.ele.toFixed(2)}</ele>` : "";
+      const timeTag = p.recorded_at
+        ? `\n    <time>${new Date(p.recorded_at).toISOString()}</time>`
+        : "";
+      return `    <trkpt lat="${p.lat.toFixed(7)}" lon="${p.lng.toFixed(7)}">${eleAttr}${timeTag}\n    </trkpt>`;
+    })
+    .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="ZOMBIEREX Atlas" xmlns="http://www.topografix.com/GPX/1/1">\n  <metadata>\n    <name>${escape(title)}</name>\n    <time>${startedAt ? new Date(startedAt).toISOString() : now}</time>\n  </metadata>\n  <trk>\n    <name>${escape(title)}</name>\n    <trkseg>\n${trkpt}\n    </trkseg>\n  </trk>\n</gpx>`;
 }

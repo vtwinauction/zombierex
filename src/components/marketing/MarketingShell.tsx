@@ -45,17 +45,22 @@ export function MarketingShell({ children }: { children: ReactNode }) {
 
           <nav className="mkt-nav-links" aria-label="Primary">
             {NAV.map((n) => (
-              <a key={n.href} href={n.href}>{n.label}</a>
+              <a key={n.href} href={n.href}>
+                {n.label}
+              </a>
             ))}
             <Link to="/guide">Guide</Link>
             <Link to="/download">Download</Link>
             <Link to="/legal">Legal</Link>
-
           </nav>
 
           <div className="mkt-nav-cta">
-            <Link to="/auth" className="mkt-btn mkt-btn-ghost">Sign in</Link>
-            <Link to="/download" className="mkt-btn mkt-btn-neon">Get the app</Link>
+            <Link to="/auth" className="mkt-btn mkt-btn-ghost">
+              Sign in
+            </Link>
+            <Link to="/download" className="mkt-btn mkt-btn-neon">
+              Get the app
+            </Link>
           </div>
 
           <button
@@ -64,21 +69,35 @@ export function MarketingShell({ children }: { children: ReactNode }) {
             aria-expanded={open}
             onClick={() => setOpen((v) => !v)}
           >
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </button>
         </div>
 
         {open && (
           <div className="mkt-mobile-menu">
             {NAV.map((n) => (
-              <a key={n.href} href={n.href} onClick={() => setOpen(false)}>{n.label}</a>
+              <a key={n.href} href={n.href} onClick={() => setOpen(false)}>
+                {n.label}
+              </a>
             ))}
-            <Link to="/guide" onClick={() => setOpen(false)}>Guide</Link>
-            <Link to="/download" onClick={() => setOpen(false)}>Download</Link>
+            <Link to="/guide" onClick={() => setOpen(false)}>
+              Guide
+            </Link>
+            <Link to="/download" onClick={() => setOpen(false)}>
+              Download
+            </Link>
 
-            <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
-            <Link to="/legal" onClick={() => setOpen(false)}>Legal Center</Link>
-            <Link to="/auth" onClick={() => setOpen(false)} className="mkt-btn mkt-btn-neon">Sign in</Link>
+            <Link to="/contact" onClick={() => setOpen(false)}>
+              Contact
+            </Link>
+            <Link to="/legal" onClick={() => setOpen(false)}>
+              Legal Center
+            </Link>
+            <Link to="/auth" onClick={() => setOpen(false)} className="mkt-btn mkt-btn-neon">
+              Sign in
+            </Link>
           </div>
         )}
       </header>
@@ -101,9 +120,7 @@ export function MarketingFooter() {
               <img src={brandLogo.url} alt="" width={28} height={28} loading="lazy" />
               <span>ZOMBIEREX</span>
             </div>
-            <p className="mkt-muted mkt-footer-blurb">
-              {siteConfig.subheadline}
-            </p>
+            <p className="mkt-muted mkt-footer-blurb">{siteConfig.subheadline}</p>
           </div>
 
           <div>
@@ -152,13 +169,20 @@ export function CookieConsent() {
   useEffect(() => {
     try {
       if (!localStorage.getItem(COOKIE_KEY)) setShow(true);
-    } catch { /* storage blocked — stay hidden */ }
+    } catch {
+      /* storage blocked — stay hidden */
+    }
   }, []);
 
   const save = (value: { analytics: boolean; marketing: boolean }) => {
     try {
-      localStorage.setItem(COOKIE_KEY, JSON.stringify({ ...value, essential: true, at: Date.now() }));
-    } catch { /* ignore */ }
+      localStorage.setItem(
+        COOKIE_KEY,
+        JSON.stringify({ ...value, essential: true, at: Date.now() }),
+      );
+    } catch {
+      /* ignore */
+    }
     setShow(false);
   };
 
@@ -169,19 +193,29 @@ export function CookieConsent() {
       <div>
         <strong>We use cookies</strong>
         <p className="mkt-muted">
-          Essential cookies keep ZOMBIEREX working. Optional analytics help us improve the app.
-          Read the <Link to="/legal/cookies">Cookie Policy</Link>.
+          Essential cookies keep ZOMBIEREX working. Optional analytics help us improve the app. Read
+          the <Link to="/legal/cookies">Cookie Policy</Link>.
         </p>
         {managing && (
           <div className="mkt-cookie-prefs">
-            <label><input type="checkbox" checked disabled /> Essential (always on)</label>
             <label>
-              <input type="checkbox" checked={prefs.analytics}
-                onChange={(e) => setPrefs((p) => ({ ...p, analytics: e.target.checked }))} /> Analytics
+              <input type="checkbox" checked disabled /> Essential (always on)
             </label>
             <label>
-              <input type="checkbox" checked={prefs.marketing}
-                onChange={(e) => setPrefs((p) => ({ ...p, marketing: e.target.checked }))} /> Marketing
+              <input
+                type="checkbox"
+                checked={prefs.analytics}
+                onChange={(e) => setPrefs((p) => ({ ...p, analytics: e.target.checked }))}
+              />{" "}
+              Analytics
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={prefs.marketing}
+                onChange={(e) => setPrefs((p) => ({ ...p, marketing: e.target.checked }))}
+              />{" "}
+              Marketing
             </label>
           </div>
         )}
@@ -190,10 +224,16 @@ export function CookieConsent() {
         <button className="mkt-btn mkt-btn-ghost" onClick={() => setManaging((v) => !v)}>
           {managing ? "Hide options" : "Manage"}
         </button>
-        <button className="mkt-btn mkt-btn-ghost" onClick={() => save({ analytics: false, marketing: false })}>
+        <button
+          className="mkt-btn mkt-btn-ghost"
+          onClick={() => save({ analytics: false, marketing: false })}
+        >
           Reject optional
         </button>
-        <button className="mkt-btn mkt-btn-neon" onClick={() => save(managing ? prefs : { analytics: true, marketing: false })}>
+        <button
+          className="mkt-btn mkt-btn-neon"
+          onClick={() => save(managing ? prefs : { analytics: true, marketing: false })}
+        >
           Accept
         </button>
       </div>

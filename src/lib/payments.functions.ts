@@ -65,7 +65,9 @@ export const getPayment = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("payments")
-      .select("id, status, amount_cents, currency, provider, provider_ref, subscription_id, created_at")
+      .select(
+        "id, status, amount_cents, currency, provider, provider_ref, subscription_id, created_at",
+      )
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
@@ -93,10 +95,12 @@ export const listMyPayments = createServerFn({ method: "GET" })
 export const confirmMockPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      payment_id: z.string().uuid(),
-      outcome: z.enum(["succeeded", "failed"]),
-    }).parse(raw),
+    z
+      .object({
+        payment_id: z.string().uuid(),
+        outcome: z.enum(["succeeded", "failed"]),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     // Fail closed: mock confirmation is disabled unless explicitly opted-in.
@@ -113,7 +117,8 @@ export const confirmMockPayment = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!payment || payment.user_id !== context.userId) throw new Error("Forbidden");
-    if (payment.provider !== "mock") throw new Error("Only mock payments can be confirmed this way");
+    if (payment.provider !== "mock")
+      throw new Error("Only mock payments can be confirmed this way");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin

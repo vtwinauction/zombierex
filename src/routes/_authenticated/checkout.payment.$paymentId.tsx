@@ -9,12 +9,15 @@ const paymentQuery = (id: string) =>
 
 export const Route = createFileRoute("/_authenticated/checkout/payment/$paymentId")({
   head: () => ({ meta: [{ title: "Checkout · ZOMBIEREX" }] }),
-  loader: ({ context, params }) => context.queryClient.ensureQueryData(paymentQuery(params.paymentId)),
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(paymentQuery(params.paymentId)),
   component: CheckoutPage,
   errorComponent: ({ error, reset }) => (
     <div className="p-6 text-foreground">
       <p className="text-sm text-red-500">Payment unavailable: {error.message}</p>
-      <button onClick={reset} className="mt-3 border border-border px-3 py-1 text-xs">Retry</button>
+      <button onClick={reset} className="mt-3 border border-border px-3 py-1 text-xs">
+        Retry
+      </button>
     </div>
   ),
   notFoundComponent: () => <div className="p-6 text-foreground">Payment not found.</div>,
@@ -49,27 +52,42 @@ function CheckoutPage() {
 
   return (
     <div className="px-5 pt-8 pb-24">
-      <p className="mono-tag" style={{ color: "var(--color-silver)" }}>CHECKOUT · MOCK</p>
+      <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
+        CHECKOUT · MOCK
+      </p>
       <h1 className="serif mt-2 text-4xl leading-tight" style={{ color: "var(--color-ink)" }}>
-        Confirm <span className="italic" style={{ color: "var(--color-neon)" }}>payment</span>
+        Confirm{" "}
+        <span className="italic" style={{ color: "var(--color-neon)" }}>
+          payment
+        </span>
       </h1>
       <p className="mt-2 text-[12px]" style={{ color: "var(--color-silver)" }}>
         Provider: <span className="mono-tag">{payment.provider}</span> · Status:{" "}
-        <span className="mono-tag" style={{ color: done ? "var(--color-neon)" : failed ? "#ff7c5b" : "var(--color-silver)" }}>
+        <span
+          className="mono-tag"
+          style={{ color: done ? "var(--color-neon)" : failed ? "#ff7c5b" : "var(--color-silver)" }}
+        >
           {payment.status.toUpperCase()}
         </span>
       </p>
 
       <div className="surface-1 lift-1 mt-6 p-5" style={{ borderRadius: 10 }}>
-        <p className="mono-tag" style={{ color: "var(--color-silver)" }}>AMOUNT</p>
+        <p className="mono-tag" style={{ color: "var(--color-silver)" }}>
+          AMOUNT
+        </p>
         <p className="serif mt-1 text-5xl italic" style={{ color: "var(--color-ink)" }}>
           ${(payment.amount_cents / 100).toFixed(2)}
         </p>
-        <p className="mt-1 text-[11px]" style={{ color: "var(--color-silver)" }}>{payment.currency}</p>
+        <p className="mt-1 text-[11px]" style={{ color: "var(--color-silver)" }}>
+          {payment.currency}
+        </p>
       </div>
 
       {err && (
-        <div className="mt-4 rounded px-3 py-2 text-[12px]" style={{ background: "rgba(220,60,60,0.1)", border: "1px solid rgba(220,60,60,0.4)" }}>
+        <div
+          className="mt-4 rounded px-3 py-2 text-[12px]"
+          style={{ background: "rgba(220,60,60,0.1)", border: "1px solid rgba(220,60,60,0.4)" }}
+        >
           {err}
         </div>
       )}
@@ -84,23 +102,24 @@ function CheckoutPage() {
           >
             {busy === "pay" ? "Processing…" : "Simulate successful payment"}
           </button>
-          <button
-            onClick={() => simulate("failed")}
-            disabled={!!busy}
-            className="btn-ghost w-full"
-          >
+          <button onClick={() => simulate("failed")} disabled={!!busy} className="btn-ghost w-full">
             {busy === "fail" ? "…" : "Simulate failure"}
           </button>
           <p className="mt-2 text-[11px]" style={{ color: "var(--color-silver)" }}>
-            A real Stripe or Paddle checkout will replace this page. The webhook and payment record are already wired.
+            A real Stripe or Paddle checkout will replace this page. The webhook and payment record
+            are already wired.
           </p>
         </div>
       )}
 
       {done && (
         <div className="mt-6">
-          <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ PAYMENT CONFIRMED</p>
-          <button onClick={() => nav({ to: "/vendor" })} className="btn-solid mt-3 w-full">Back to console</button>
+          <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+            ◆ PAYMENT CONFIRMED
+          </p>
+          <button onClick={() => nav({ to: "/vendor" })} className="btn-solid mt-3 w-full">
+            Back to console
+          </button>
         </div>
       )}
     </div>

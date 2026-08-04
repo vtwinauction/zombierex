@@ -42,7 +42,10 @@ export function useSearchHistory() {
   const push = useCallback((q: string) => {
     const trimmed = q.trim();
     if (trimmed.length < 2) return;
-    const next = [trimmed, ...read().filter((s) => s.toLowerCase() !== trimmed.toLowerCase())].slice(0, MAX);
+    const next = [
+      trimmed,
+      ...read().filter((s) => s.toLowerCase() !== trimmed.toLowerCase()),
+    ].slice(0, MAX);
     write(next);
   }, []);
 

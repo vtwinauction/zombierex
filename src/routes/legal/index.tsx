@@ -7,9 +7,16 @@ export const Route = createFileRoute("/legal/")({
   head: () => ({
     meta: [
       { title: "Legal Center — ZOMBIEREX Policies & Terms" },
-      { name: "description", content: "All ZOMBIEREX policies in one place: terms of service, privacy, cookies, community guidelines, marketplace rules, safety disclaimers and copyright." },
+      {
+        name: "description",
+        content:
+          "All ZOMBIEREX policies in one place: terms of service, privacy, cookies, community guidelines, marketplace rules, safety disclaimers and copyright.",
+      },
       { property: "og:title", content: "ZOMBIEREX Legal Center" },
-      { property: "og:description", content: "Terms, privacy, cookies, community guidelines, marketplace and safety policies." },
+      {
+        property: "og:description",
+        content: "Terms, privacy, cookies, community guidelines, marketplace and safety policies.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -21,38 +28,106 @@ const GROUPS = [
   {
     title: "Core agreements",
     items: [
-      { to: "/legal/terms", label: "Terms of Service", desc: "The agreement between you and ZOMBIEREX." },
-      { to: "/legal/eula", label: "End User Licence Agreement", desc: "Licence terms for the mobile applications." },
-      { to: "/legal/acceptable-use", label: "Acceptable Use Policy", desc: "What is and is not allowed on the platform." },
-      { to: "/legal/community-guidelines", label: "Community Guidelines", desc: "How the community is expected to behave." },
+      {
+        to: "/legal/terms",
+        label: "Terms of Service",
+        desc: "The agreement between you and ZOMBIEREX.",
+      },
+      {
+        to: "/legal/eula",
+        label: "End User Licence Agreement",
+        desc: "Licence terms for the mobile applications.",
+      },
+      {
+        to: "/legal/acceptable-use",
+        label: "Acceptable Use Policy",
+        desc: "What is and is not allowed on the platform.",
+      },
+      {
+        to: "/legal/community-guidelines",
+        label: "Community Guidelines",
+        desc: "How the community is expected to behave.",
+      },
     ],
   },
   {
     title: "Privacy & data",
     items: [
-      { to: "/legal/privacy", label: "Privacy Policy", desc: "What we collect, why, and your rights." },
-      { to: "/legal/cookies", label: "Cookie Policy", desc: "Cookies, storage and analytics identifiers." },
-      { to: "/legal/data-retention", label: "Data Retention & Deletion", desc: "How long we keep data and how to delete it." },
-      { to: "/legal/children-safety", label: "Children & Minors Safety", desc: "Age requirements and child safety standards." },
+      {
+        to: "/legal/privacy",
+        label: "Privacy Policy",
+        desc: "What we collect, why, and your rights.",
+      },
+      {
+        to: "/legal/cookies",
+        label: "Cookie Policy",
+        desc: "Cookies, storage and analytics identifiers.",
+      },
+      {
+        to: "/legal/data-retention",
+        label: "Data Retention & Deletion",
+        desc: "How long we keep data and how to delete it.",
+      },
+      {
+        to: "/legal/children-safety",
+        label: "Children & Minors Safety",
+        desc: "Age requirements and child safety standards.",
+      },
     ],
   },
   {
     title: "Commerce",
     items: [
-      { to: "/legal/marketplace-terms", label: "Marketplace Terms", desc: "Buying and selling vehicles, parts and gear." },
-      { to: "/legal/payments-refunds", label: "Payments, Fees & Refunds", desc: "Commission, settlements, refunds and chargebacks." },
-      { to: "/legal/creator-terms", label: "Creator & Monetisation Terms", desc: "Payouts, sponsorship and creator obligations." },
-      { to: "/legal/advertising", label: "Advertising Policy", desc: "Rules for promoted content and sponsorships." },
+      {
+        to: "/legal/marketplace-terms",
+        label: "Marketplace Terms",
+        desc: "Buying and selling vehicles, parts and gear.",
+      },
+      {
+        to: "/legal/payments-refunds",
+        label: "Payments, Fees & Refunds",
+        desc: "Commission, settlements, refunds and chargebacks.",
+      },
+      {
+        to: "/legal/creator-terms",
+        label: "Creator & Monetisation Terms",
+        desc: "Payouts, sponsorship and creator obligations.",
+      },
+      {
+        to: "/legal/advertising",
+        label: "Advertising Policy",
+        desc: "Rules for promoted content and sponsorships.",
+      },
     ],
   },
   {
     title: "Safety & compliance",
     items: [
-      { to: "/legal/safety-disclaimer", label: "Riding, Racing & Safety Disclaimer", desc: "Motorsport risk, GPS timing and road-legal use." },
-      { to: "/legal/ai-disclaimer", label: "AI Features Disclaimer", desc: "AI judging, moderation and assistant limitations." },
-      { to: "/legal/dmca", label: "Copyright & DMCA", desc: "Takedown notices and counter-notices." },
-      { to: "/legal/accessibility", label: "Accessibility Statement", desc: "Our accessibility commitments." },
-      { to: "/legal/compliance", label: "Compliance Overview", desc: "Regulatory and platform compliance posture." },
+      {
+        to: "/legal/safety-disclaimer",
+        label: "Riding, Racing & Safety Disclaimer",
+        desc: "Motorsport risk, GPS timing and road-legal use.",
+      },
+      {
+        to: "/legal/ai-disclaimer",
+        label: "AI Features Disclaimer",
+        desc: "AI judging, moderation and assistant limitations.",
+      },
+      {
+        to: "/legal/dmca",
+        label: "Copyright & DMCA",
+        desc: "Takedown notices and counter-notices.",
+      },
+      {
+        to: "/legal/accessibility",
+        label: "Accessibility Statement",
+        desc: "Our accessibility commitments.",
+      },
+      {
+        to: "/legal/compliance",
+        label: "Compliance Overview",
+        desc: "Regulatory and platform compliance posture.",
+      },
     ],
   },
 ] as const;
@@ -70,14 +145,25 @@ function LegalCenter() {
             <p className="mkt-eyebrow">Legal Center</p>
             <h2>Every policy, in plain sight.</h2>
             <p>
-              These documents govern your use of ZOMBIEREX worldwide. Questions?
-              Email <a href={`mailto:${siteConfig.contact.legal}`} style={{ color: "var(--neon)" }}>{siteConfig.contact.legal}</a>.
+              These documents govern your use of ZOMBIEREX worldwide. Questions? Email{" "}
+              <a href={`mailto:${siteConfig.contact.legal}`} style={{ color: "var(--neon)" }}>
+                {siteConfig.contact.legal}
+              </a>
+              .
             </p>
           </div>
 
           {GROUPS.map((g) => (
             <div key={g.title} style={{ marginBottom: 40 }}>
-              <h3 style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--txt-2)", marginBottom: 14 }}>
+              <h3
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "var(--txt-2)",
+                  marginBottom: 14,
+                }}
+              >
                 {g.title}
               </h3>
               <div className="mkt-grid">
@@ -93,7 +179,8 @@ function LegalCenter() {
           ))}
 
           <p className="mkt-muted" style={{ fontSize: 12.5 }}>
-            Last reviewed: {new Date().getFullYear()}. We notify users in-app before material changes take effect.
+            Last reviewed: {new Date().getFullYear()}. We notify users in-app before material
+            changes take effect.
           </p>
         </div>
       </section>

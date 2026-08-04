@@ -12,7 +12,6 @@ import { loadPlugin } from "./plugins";
 
 let registered = false;
 
-
 type PushMod = {
   PushNotifications: {
     checkPermissions: () => Promise<{ receive: string }>;
@@ -32,11 +31,19 @@ export async function registerPushNotifications(): Promise<string | null> {
     let perm = await PN.checkPermissions();
     if (perm.receive !== "granted") perm = await PN.requestPermissions();
     if (perm.receive !== "granted") return null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 
   return new Promise<string | null>((resolve) => {
     let settled = false;
-    const done = (token: string | null) => { if (!settled) { settled = true; registered = true; resolve(token); } };
+    const done = (token: string | null) => {
+      if (!settled) {
+        settled = true;
+        registered = true;
+        resolve(token);
+      }
+    };
 
     PN.addListener("registration", async (data: unknown) => {
       const token = (data as { value?: string })?.value ?? null;
@@ -45,14 +52,19 @@ export async function registerPushNotifications(): Promise<string | null> {
           const { data: session } = await supabase.auth.getUser();
           const userId = session.user?.id;
           if (userId) {
-            await supabase.from("device_tokens" as never).upsert({
-              user_id: userId,
-              token,
-              platform: platform(),
-              updated_at: new Date().toISOString(),
-            } as never, { onConflict: "token" } as never);
+            await supabase.from("device_tokens" as never).upsert(
+              {
+                user_id: userId,
+                token,
+                platform: platform(),
+                updated_at: new Date().toISOString(),
+              } as never,
+              { onConflict: "token" } as never,
+            );
           }
-        } catch { /* table may not exist yet */ }
+        } catch {
+          /* table may not exist yet */
+        }
       }
       done(token);
     }).catch(() => done(null));
@@ -61,11 +73,15 @@ export async function registerPushNotifications(): Promise<string | null> {
 
     PN.addListener("pushNotificationReceived", (n: unknown) => {
       window.dispatchEvent(new CustomEvent("zx:push", { detail: n }));
-    }).catch(() => { /* ignore */ });
+    }).catch(() => {
+      /* ignore */
+    });
 
     PN.addListener("pushNotificationActionPerformed", (n: unknown) => {
       window.dispatchEvent(new CustomEvent("zx:push-tap", { detail: n }));
-    }).catch(() => { /* ignore */ });
+    }).catch(() => {
+      /* ignore */
+    });
 
     PN.register().catch(() => done(null));
 

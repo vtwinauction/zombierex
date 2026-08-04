@@ -67,24 +67,66 @@ export const siteConfig = {
   ],
 
   communities: [
-    "Motorcycles", "Cars", "Supercars", "Muscle Cars", "Off-Road", "Drag Racing",
-    "Drifting", "Car Shows", "Monster Trucks", "Classic Cars", "Performance Tuning", "Motorsport",
+    "Motorcycles",
+    "Cars",
+    "Supercars",
+    "Muscle Cars",
+    "Off-Road",
+    "Drag Racing",
+    "Drifting",
+    "Car Shows",
+    "Monster Trucks",
+    "Classic Cars",
+    "Performance Tuning",
+    "Motorsport",
   ],
 
   features: [
-    { icon: "sparkles", title: "AI-Powered Feed", body: "A feed that learns what you build, ride and chase." },
-    { icon: "video", title: "Reels & Stories", body: "Vertical short-form video built for engine noise." },
-    { icon: "gauge", title: "Live GPS Drag Racing", body: "Verified 0–60, 60ft and quarter-mile timing." },
+    {
+      icon: "sparkles",
+      title: "AI-Powered Feed",
+      body: "A feed that learns what you build, ride and chase.",
+    },
+    {
+      icon: "video",
+      title: "Reels & Stories",
+      body: "Vertical short-form video built for engine noise.",
+    },
+    {
+      icon: "gauge",
+      title: "Live GPS Drag Racing",
+      body: "Verified 0–60, 60ft and quarter-mile timing.",
+    },
     { icon: "trophy", title: "Leaderboards", body: "Global and local performance records." },
-    { icon: "calendar", title: "Events Calendar", body: "Meets, rallies, track days and car shows." },
-    { icon: "scan", title: "AI Judging", body: "Vision-based scoring for show and build competitions." },
+    {
+      icon: "calendar",
+      title: "Events Calendar",
+      body: "Meets, rallies, track days and car shows.",
+    },
+    {
+      icon: "scan",
+      title: "AI Judging",
+      body: "Vision-based scoring for show and build competitions.",
+    },
     { icon: "award", title: "Trophy Tracking", body: "Every podium, permanently on your profile." },
-    { icon: "car", title: "Vehicle Profiles", body: "Full build sheets, mods and service history." },
+    {
+      icon: "car",
+      title: "Vehicle Profiles",
+      body: "Full build sheets, mods and service history.",
+    },
     { icon: "users", title: "Clubs & Communities", body: "Crews, chapters and local scenes." },
-    { icon: "map", title: "Route Planning", body: "Save roads, hotels, fuel stops and viewpoints." },
+    {
+      icon: "map",
+      title: "Route Planning",
+      body: "Save roads, hotels, fuel stops and viewpoints.",
+    },
     { icon: "navigation", title: "Live Maps", body: "Real-time group ride tracking and SOS." },
     { icon: "store", title: "Marketplace", body: "Buy and sell vehicles, parts and gear." },
-    { icon: "wrench", title: "Workshops & Dealers", body: "Find trusted shops, tuners and dealers." },
+    {
+      icon: "wrench",
+      title: "Workshops & Dealers",
+      body: "Find trusted shops, tuners and dealers.",
+    },
     { icon: "briefcase", title: "Business Pages", body: "Sponsors, performance shops and brands." },
     { icon: "message", title: "Messaging", body: "DMs, group chats and ride coordination." },
     { icon: "bell", title: "Notifications", body: "Never miss a challenge, drop or meet." },
@@ -93,33 +135,93 @@ export const siteConfig = {
   ],
 
   why: [
-    { title: "Built only for enthusiasts", body: "No noise. Every feature exists for people who ride and drive." },
-    { title: "Modern, intuitive interface", body: "Designed to premium automotive standards, fast on any phone." },
+    {
+      title: "Built only for enthusiasts",
+      body: "No noise. Every feature exists for people who ride and drive.",
+    },
+    {
+      title: "Modern, intuitive interface",
+      body: "Designed to premium automotive standards, fast on any phone.",
+    },
     { title: "Global community", body: "Scenes in 90+ countries, translated and localized." },
-    { title: "Fast and secure", body: "Encrypted in transit, strict access controls, active moderation." },
-    { title: "Continuous updates", body: "New features shipped constantly, driven by the community." },
-    { title: "Professional event ecosystem", body: "From local meets to judged competitions and payouts." },
-    { title: "Everything in one app", body: "Social, racing, marketplace, maps and business — unified." },
+    {
+      title: "Fast and secure",
+      body: "Encrypted in transit, strict access controls, active moderation.",
+    },
+    {
+      title: "Continuous updates",
+      body: "New features shipped constantly, driven by the community.",
+    },
+    {
+      title: "Professional event ecosystem",
+      body: "From local meets to judged competitions and payouts.",
+    },
+    {
+      title: "Everything in one app",
+      body: "Social, racing, marketplace, maps and business — unified.",
+    },
   ],
 
   testimonials: [
-    { name: "Hussain A.", handle: "@hussain", location: "Manama, Bahrain", rating: 5, avatar: avatar1,
-      quote: "Finally an app that understands garage life. The drag timing is scary accurate." },
-    { name: "Marco R.", handle: "@marco_rs", location: "Milan, Italy", rating: 5, avatar: avatar2,
-      quote: "I found three track days and a buyer for my wheels in the first week." },
-    { name: "Layla K.", handle: "@laylabuilds", location: "Dubai, UAE", rating: 5, avatar: avatar3,
-      quote: "The reels feed is addictive, and the community is actually respectful." },
+    {
+      name: "Hussain A.",
+      handle: "@hussain",
+      location: "Manama, Bahrain",
+      rating: 5,
+      avatar: avatar1,
+      quote: "Finally an app that understands garage life. The drag timing is scary accurate.",
+    },
+    {
+      name: "Marco R.",
+      handle: "@marco_rs",
+      location: "Milan, Italy",
+      rating: 5,
+      avatar: avatar2,
+      quote: "I found three track days and a buyer for my wheels in the first week.",
+    },
+    {
+      name: "Layla K.",
+      handle: "@laylabuilds",
+      location: "Dubai, UAE",
+      rating: 5,
+      avatar: avatar3,
+      quote: "The reels feed is addictive, and the community is actually respectful.",
+    },
   ],
 
   faqs: [
-    { q: "What is ZOMBIEREX?", a: "ZOMBIEREX is an all-in-one social platform for automotive and motorcycle culture — feeds, reels, stories, events, GPS drag racing, route planning, a marketplace and business pages." },
-    { q: "Is ZOMBIEREX free?", a: "Yes. Creating an account, posting, following and joining communities is free. Optional premium and business features may be introduced later and will always be clearly priced." },
-    { q: "How do I join events?", a: "Open the Events tab, pick a meet, ride, rally or competition and tap Join. Some events are hosted by clubs or businesses and may require approval or a ticket." },
-    { q: "Is GPS drag racing accurate?", a: "Runs are recorded with high-frequency GPS sampling and validated automatically. Accuracy depends on your device, satellite lock and conditions — results are for entertainment and community comparison, not official certification." },
-    { q: "Can businesses advertise?", a: "Yes. Workshops, dealers, performance shops and sponsors can create business pages, list products and run promoted placements." },
-    { q: "Which countries are supported?", a: "ZOMBIEREX is available worldwide wherever the app stores operate. The interface currently ships in English with Arabic support." },
-    { q: "How do I become a verified creator?", a: "Build a consistent posting history, then apply from Creator → Apply. Verification reviews authenticity, activity and community standing." },
-    { q: "How is my privacy handled?", a: "We collect only what the app needs to work, never sell personal data, and give you export and deletion tools. See the Privacy Policy in the Legal Center." },
+    {
+      q: "What is ZOMBIEREX?",
+      a: "ZOMBIEREX is an all-in-one social platform for automotive and motorcycle culture — feeds, reels, stories, events, GPS drag racing, route planning, a marketplace and business pages.",
+    },
+    {
+      q: "Is ZOMBIEREX free?",
+      a: "Yes. Creating an account, posting, following and joining communities is free. Optional premium and business features may be introduced later and will always be clearly priced.",
+    },
+    {
+      q: "How do I join events?",
+      a: "Open the Events tab, pick a meet, ride, rally or competition and tap Join. Some events are hosted by clubs or businesses and may require approval or a ticket.",
+    },
+    {
+      q: "Is GPS drag racing accurate?",
+      a: "Runs are recorded with high-frequency GPS sampling and validated automatically. Accuracy depends on your device, satellite lock and conditions — results are for entertainment and community comparison, not official certification.",
+    },
+    {
+      q: "Can businesses advertise?",
+      a: "Yes. Workshops, dealers, performance shops and sponsors can create business pages, list products and run promoted placements.",
+    },
+    {
+      q: "Which countries are supported?",
+      a: "ZOMBIEREX is available worldwide wherever the app stores operate. The interface currently ships in English with Arabic support.",
+    },
+    {
+      q: "How do I become a verified creator?",
+      a: "Build a consistent posting history, then apply from Creator → Apply. Verification reviews authenticity, activity and community standing.",
+    },
+    {
+      q: "How is my privacy handled?",
+      a: "We collect only what the app needs to work, never sell personal data, and give you export and deletion tools. See the Privacy Policy in the Legal Center.",
+    },
   ],
 
   contact: {

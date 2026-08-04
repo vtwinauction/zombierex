@@ -14,12 +14,14 @@ const listQuery = (status: StatusFilter) =>
   });
 
 export const Route = createFileRoute("/_authenticated/admin/vendors")({
-  head: () => ({ meta: [
-    { title: "Vendors · ZOMBIEREX Admin" },
-    { name: "description", content: "Approve, verify and manage vendor accounts." },
-    { property: "og:title", content: "Vendors · ZOMBIEREX Admin" },
-    { property: "og:description", content: "Approve, verify and manage vendor accounts." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Vendors · ZOMBIEREX Admin" },
+      { name: "description", content: "Approve, verify and manage vendor accounts." },
+      { property: "og:title", content: "Vendors · ZOMBIEREX Admin" },
+      { property: "og:description", content: "Approve, verify and manage vendor accounts." },
+    ],
+  }),
   loader: ({ context }) => context.queryClient.ensureQueryData(listQuery("pending")),
   component: AdminVendors,
 });

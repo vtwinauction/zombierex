@@ -31,7 +31,9 @@ export function createCrashDetector(opts: CrashOptions): CrashDetector {
   const handler = (ev: DeviceMotionEvent) => {
     const a = ev.accelerationIncludingGravity;
     if (!a) return;
-    const x = a.x ?? 0, y = a.y ?? 0, z = a.z ?? 0;
+    const x = a.x ?? 0,
+      y = a.y ?? 0,
+      z = a.z ?? 0;
     const mag = Math.sqrt(x * x + y * y + z * z);
     if (mag < threshold) return;
     const now = Date.now();
@@ -48,7 +50,10 @@ export function createCrashDetector(opts: CrashOptions): CrashDetector {
       running = false;
     },
     start: async () => {
-      if (typeof window === "undefined" || typeof (window as any).DeviceMotionEvent === "undefined") {
+      if (
+        typeof window === "undefined" ||
+        typeof (window as any).DeviceMotionEvent === "undefined"
+      ) {
         return "unsupported";
       }
       const anyDM: any = (window as any).DeviceMotionEvent;
@@ -56,7 +61,9 @@ export function createCrashDetector(opts: CrashOptions): CrashDetector {
         try {
           const state = await anyDM.requestPermission();
           if (state !== "granted") return "denied";
-        } catch { return "denied"; }
+        } catch {
+          return "denied";
+        }
       }
       window.addEventListener("devicemotion", handler, { passive: true });
       running = true;

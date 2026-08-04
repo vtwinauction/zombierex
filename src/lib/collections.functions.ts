@@ -17,17 +17,19 @@ export const listMyCollections = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return (data ?? []).map((c: any) => ({
       ...c,
-      item_count: Array.isArray(c.items) ? c.items[0]?.count ?? 0 : 0,
+      item_count: Array.isArray(c.items) ? (c.items[0]?.count ?? 0) : 0,
     }));
   });
 
 export const createCollection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      name: z.string().trim().min(1).max(120),
-      sort_order: z.number().int().default(0),
-    }).parse(raw),
+    z
+      .object({
+        name: z.string().trim().min(1).max(120),
+        sort_order: z.number().int().default(0),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
@@ -42,11 +44,13 @@ export const createCollection = createServerFn({ method: "POST" })
 export const updateCollection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
-    z.object({
-      id: z.string().uuid(),
-      name: z.string().trim().min(1).max(120).optional(),
-      sort_order: z.number().int().optional(),
-    }).parse(raw),
+    z
+      .object({
+        id: z.string().uuid(),
+        name: z.string().trim().min(1).max(120).optional(),
+        sort_order: z.number().int().optional(),
+      })
+      .parse(raw),
   )
   .handler(async ({ data, context }) => {
     const { id, ...updates } = data;
@@ -119,11 +123,11 @@ export const listSavedPostsInCollection = createServerFn({ method: "GET" })
     if (ids.length === 0) return [];
     const { data: posts, error: pErr } = await context.supabase
       .from("posts")
-      .select("id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url)")
+      .select(
+        "id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, created_at, author:profiles!posts_author_id_fkey(id, display_name, handle, avatar_url)",
+      )
       .in("id", ids);
     if (pErr) throw new Error(pErr.message);
     const order = new Map(ids.map((id, i) => [id, i]));
-    return (posts ?? []).sort(
-      (a: any, b: any) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
-    );
+    return (posts ?? []).sort((a: any, b: any) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
   });

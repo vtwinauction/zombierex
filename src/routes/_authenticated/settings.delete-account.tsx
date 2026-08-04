@@ -5,14 +5,19 @@ import { deleteMyAccount } from "@/lib/account.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/settings/delete-account")({
-  head: () => ({ meta: [
-    { title: "Delete account · ZOMBIEREX" },
-    { name: "description", content: "Permanently delete your ZOMBIEREX account and all associated data." },
-    { property: "og:title", content: "Delete account · ZOMBIEREX" },
-    { property: "og:description", content: "Permanently delete your ZOMBIEREX account." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Delete account · ZOMBIEREX" },
+      {
+        name: "description",
+        content: "Permanently delete your ZOMBIEREX account and all associated data.",
+      },
+      { property: "og:title", content: "Delete account · ZOMBIEREX" },
+      { property: "og:description", content: "Permanently delete your ZOMBIEREX account." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: DeleteAccountPage,
 });
 
@@ -42,7 +47,9 @@ function DeleteAccountPage() {
 
   return (
     <div className="mx-auto max-w-lg px-5 pt-6 pb-24">
-      <Link to="/settings" className="mono-tag" style={{ color: "var(--color-titanium)" }}>← Settings</Link>
+      <Link to="/settings" className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+        ← Settings
+      </Link>
 
       <h1 className="serif mt-3 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>
         Delete account
@@ -55,7 +62,9 @@ function DeleteAccountPage() {
         className="mt-6 rounded-lg p-4"
         style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)" }}
       >
-        <p className="mono-tag" style={{ color: "#ff8080" }}>WHAT GETS DELETED</p>
+        <p className="mono-tag" style={{ color: "#ff8080" }}>
+          WHAT GETS DELETED
+        </p>
         <ul className="mt-3 space-y-2 text-[13px]" style={{ color: "var(--color-ash)" }}>
           <li>• Your profile, handle, bio, avatar and cover photo</li>
           <li>• All your posts, reels, comments and reactions</li>
@@ -95,7 +104,11 @@ function DeleteAccountPage() {
           />
         </label>
 
-        {err && <p className="text-sm" style={{ color: "#ff8080" }}>{err}</p>}
+        {err && (
+          <p className="text-sm" style={{ color: "#ff8080" }}>
+            {err}
+          </p>
+        )}
 
         <button
           onClick={onDelete}

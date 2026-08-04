@@ -17,14 +17,20 @@ function DefaultError({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="grid min-h-svh place-items-center px-6">
       <div className="card-surface max-w-sm p-6 text-center">
-        <p className="mono-tag" style={{ color: "var(--color-heat, #ff4d4d)" }}>ERR · ROUTE</p>
+        <p className="mono-tag" style={{ color: "var(--color-heat, #ff4d4d)" }}>
+          ERR · ROUTE
+        </p>
         <h1 className="mt-2 text-xl">Something went wrong</h1>
         <p className="mt-1 text-sm" style={{ color: "var(--color-ink-3)" }}>
           {error?.message ?? "Unknown error"}
         </p>
         <div className="mt-4 flex justify-center gap-2">
-          <button onClick={reset} className="btn-solid">Retry</button>
-          <a href="/" className="btn-ghost">Home</a>
+          <button onClick={reset} className="btn-solid">
+            Retry
+          </button>
+          <a href="/" className="btn-ghost">
+            Home
+          </a>
         </div>
       </div>
     </div>

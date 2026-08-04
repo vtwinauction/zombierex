@@ -5,11 +5,11 @@
 const KEY = "zrex.fuel.prefs.v1";
 
 export type FuelPrefs = {
-  tankCapacityL: number;      // full-tank size (L)
-  economyKmPerL: number;      // average consumption (km per L)
-  currentPct: number;         // 0–100
-  warnKm: number;             // alert threshold in remaining km
-  preferredBrand: string;     // e.g. "Shell" — optional filter
+  tankCapacityL: number; // full-tank size (L)
+  economyKmPerL: number; // average consumption (km per L)
+  currentPct: number; // 0–100
+  warnKm: number; // alert threshold in remaining km
+  preferredBrand: string; // e.g. "Shell" — optional filter
 };
 
 const DEFAULTS: FuelPrefs = {

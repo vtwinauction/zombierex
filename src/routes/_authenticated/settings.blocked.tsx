@@ -18,7 +18,12 @@ export const Route = createFileRoute("/_authenticated/settings/blocked")({
 });
 
 type BlockRow = { id: string; blocked_id: string; reason: string | null; created_at: string };
-type ProfileLite = { id: string; handle: string | null; display_name: string | null; avatar_url: string | null };
+type ProfileLite = {
+  id: string;
+  handle: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+};
 
 function BlockedPage() {
   const qc = useQueryClient();
@@ -74,7 +79,9 @@ function BlockedPage() {
     >
       {blocksQ.isLoading && (
         <Card>
-          <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>Loading…</p>
+          <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
+            Loading…
+          </p>
         </Card>
       )}
 
@@ -106,15 +113,23 @@ function BlockedPage() {
                 <div className="flex items-center gap-3 min-w-0">
                   <div
                     className="w-9 h-9 rounded-full overflow-hidden shrink-0"
-                    style={{ background: "var(--color-hair)", border: "1px solid var(--color-hair-strong)" }}
+                    style={{
+                      background: "var(--color-hair)",
+                      border: "1px solid var(--color-hair-strong)",
+                    }}
                   >
                     {p?.avatar_url ? (
                       <img src={p.avatar_url} alt="" className="w-full h-full object-cover" />
                     ) : null}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[14px] truncate" style={{ color: "var(--color-ink)" }}>{name}</p>
-                    <p className="text-[11px] mono-tag truncate" style={{ color: "var(--color-silver)" }}>
+                    <p className="text-[14px] truncate" style={{ color: "var(--color-ink)" }}>
+                      {name}
+                    </p>
+                    <p
+                      className="text-[11px] mono-tag truncate"
+                      style={{ color: "var(--color-silver)" }}
+                    >
                       {handle}
                       {b.reason ? ` · ${b.reason}` : ""}
                     </p>
@@ -124,7 +139,10 @@ function BlockedPage() {
                   disabled={pending}
                   onClick={() => removeM.mutate(b.blocked_id)}
                   className="mono-tag tap px-3 py-1.5 rounded-full disabled:opacity-50"
-                  style={{ border: "1px solid var(--color-hair-strong)", color: "var(--color-ink)" }}
+                  style={{
+                    border: "1px solid var(--color-hair-strong)",
+                    color: "var(--color-ink)",
+                  }}
                 >
                   {pending ? "Unblocking…" : "Unblock"}
                 </button>

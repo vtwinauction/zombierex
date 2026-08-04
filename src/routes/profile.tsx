@@ -12,9 +12,15 @@ export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
       { title: "Digital Garage · ZOMBIEREX" },
-      { name: "description", content: "The rider's digital garage — live telemetry, machine, trophies and workshop log." },
+      {
+        name: "description",
+        content: "The rider's digital garage — live telemetry, machine, trophies and workshop log.",
+      },
       { property: "og:title", content: "Digital Garage · ZOMBIEREX" },
-      { property: "og:description", content: "The rider's digital garage — live telemetry, machine, trophies and workshop log." },
+      {
+        property: "og:description",
+        content: "The rider's digital garage — live telemetry, machine, trophies and workshop log.",
+      },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -23,16 +29,16 @@ export const Route = createFileRoute("/profile")({
 });
 
 const TABS = ["REELS", "GARAGE", "TROPHIES", "LOG"] as const;
-type Tab = typeof TABS[number];
+type Tab = (typeof TABS)[number];
 
 const RARITY: Record<string, { hue: string; label: string }> = {
-  common:    { hue: "#7c7c86", label: "COMMON" },
-  bronze:    { hue: "#c98a4b", label: "BRONZE" },
-  rare:      { hue: "#2e9bff", label: "RARE" },
-  silver:    { hue: "#b8bcc4", label: "SILVER" },
-  gold:      { hue: "#ffb547", label: "GOLD" },
+  common: { hue: "#7c7c86", label: "COMMON" },
+  bronze: { hue: "#c98a4b", label: "BRONZE" },
+  rare: { hue: "#2e9bff", label: "RARE" },
+  silver: { hue: "#b8bcc4", label: "SILVER" },
+  gold: { hue: "#ffb547", label: "GOLD" },
   legendary: { hue: "#ff9500", label: "LEGENDARY" },
-  platinum:  { hue: "#8be8ff", label: "PLATINUM" },
+  platinum: { hue: "#8be8ff", label: "PLATINUM" },
 };
 
 // DB level formula: level = 1 + floor(sqrt(xp/100)) → threshold for `lvl` = (lvl-1)^2 * 100
@@ -43,7 +49,8 @@ function estimateHp(spec: Record<string, unknown> | null | undefined, kind: stri
   const raw = s.hp ?? s.horsepower ?? s.power_hp;
   const hp = typeof raw === "string" ? parseFloat(raw) : raw;
   if (typeof hp === "number" && !isNaN(hp) && hp > 0) return Math.round(hp);
-  const cc = typeof s.displacement === "number" ? s.displacement : typeof s.cc === "number" ? s.cc : null;
+  const cc =
+    typeof s.displacement === "number" ? s.displacement : typeof s.cc === "number" ? s.cc : null;
   if (cc) return Math.round(cc * (kind === "car" ? 0.1 : 0.12));
   return kind === "car" ? 240 : 110;
 }
@@ -67,7 +74,16 @@ function ProfilePage() {
     retry: false,
     staleTime: 30_000,
   });
-  const myPosts = (myPostsQuery.data ?? []) as Array<{ id: string; kind: string; caption: string | null; media_url: string | null; thumbnail_url: string | null; likes_count: number; comments_count: number; created_at: string }>;
+  const myPosts = (myPostsQuery.data ?? []) as Array<{
+    id: string;
+    kind: string;
+    caption: string | null;
+    media_url: string | null;
+    thumbnail_url: string | null;
+    likes_count: number;
+    comments_count: number;
+    created_at: string;
+  }>;
 
   const live = metricsQuery.data;
   const p = live?.profile;
@@ -76,7 +92,7 @@ function ProfilePage() {
   const hasVehicle = !!v;
   const bike = {
     id: v?.id ?? "unassigned",
-    name: v ? (v.nickname || `${v.year ?? ""} ${v.make} ${v.model}`.trim()) : "No vehicle yet",
+    name: v ? v.nickname || `${v.year ?? ""} ${v.make} ${v.model}`.trim() : "No vehicle yet",
     year: v?.year ?? null,
     type: v ? (v.kind === "car" ? "Car" : "Motorcycle") : "—",
     cover: v?.hero_image_url || "",
@@ -101,7 +117,11 @@ function ProfilePage() {
   const totalAch = live?.totalAchievements ?? 0;
   const earnedCount = live?.earnedCount ?? 0;
   const achList = (live?.achievements ?? []).map((a) => ({
-    id: a.slug, title: a.title, detail: a.detail, rarity: a.tier, earned: a.earned,
+    id: a.slug,
+    title: a.title,
+    detail: a.detail,
+    rarity: a.tier,
+    earned: a.earned,
   }));
 
   const followers = p?.followers_count ?? 0;
@@ -126,7 +146,6 @@ function ProfilePage() {
 
   return (
     <div className="pb-24" style={{ background: "var(--color-paper-1)" }}>
-
       {/* ============ HERO — VEHICLE ============ */}
       <section className="px-4 pt-4">
         <div
@@ -158,7 +177,9 @@ function ProfilePage() {
           ) : (
             <div
               className="absolute inset-0"
-              style={{ background: "linear-gradient(160deg, var(--color-paper-2), var(--color-graphite))" }}
+              style={{
+                background: "linear-gradient(160deg, var(--color-paper-2), var(--color-graphite))",
+              }}
             />
           )}
 
@@ -166,8 +187,7 @@ function ProfilePage() {
           <div
             className="pointer-events-none absolute inset-0"
             style={{
-              background:
-                "linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)",
+              background: "linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.55) 100%)",
             }}
           />
           {/* neon accent hairline */}
@@ -181,7 +201,10 @@ function ProfilePage() {
           {/* Only ACTIVE status remains on the hero */}
           <div className="absolute inset-x-3 top-3 flex items-center">
             <StatusBadge tone="live">
-              <span className="signal-pulse block h-1.5 w-1.5 rounded-full" style={{ background: "var(--color-neon)", boxShadow: "0 0 8px var(--color-neon)" }} />
+              <span
+                className="signal-pulse block h-1.5 w-1.5 rounded-full"
+                style={{ background: "var(--color-neon)", boxShadow: "0 0 8px var(--color-neon)" }}
+              />
               ACTIVE
             </StatusBadge>
           </div>
@@ -190,22 +213,29 @@ function ProfilePage() {
         {/* Section: VEHICLE — designation + name */}
         <div className="mt-4 flex items-end justify-between gap-3">
           <div className="min-w-0">
-            <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9, letterSpacing: "0.24em" }}>
+            <p
+              className="mono-tag"
+              style={{ color: "var(--color-ink-3)", fontSize: 9, letterSpacing: "0.24em" }}
+            >
               VEHICLE · UNIT V·{bike.id.toUpperCase()}
             </p>
-            <h2 className="serif mt-1 truncate text-[26px] leading-[0.95]" style={{ color: "var(--color-ink-0)", letterSpacing: "-0.02em" }}>
+            <h2
+              className="serif mt-1 truncate text-[26px] leading-[0.95]"
+              style={{ color: "var(--color-ink-0)", letterSpacing: "-0.02em" }}
+            >
               {bike.name}
             </h2>
           </div>
           <RenameVehicleButton currentName={bike.name} />
         </div>
-
       </section>
 
       {/* ============ PROFILE — OPERATOR ============ */}
       <section className="mt-4 px-4">
         <div className="mb-2 flex items-center gap-2">
-          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>PROFILE</span>
+          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+            PROFILE
+          </span>
           <span className="etch flex-1" />
         </div>
         <div
@@ -218,17 +248,37 @@ function ProfilePage() {
               style={{ background: "var(--color-line)" }}
             >
               {p?.avatar_url ? (
-                <img src={p.avatar_url} alt="" className="h-16 w-16 rounded-full object-cover" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-1)" }} />
+                <img
+                  src={p.avatar_url}
+                  alt=""
+                  className="h-16 w-16 rounded-full object-cover"
+                  style={{
+                    border: "2px solid var(--color-paper-0)",
+                    background: "var(--color-paper-1)",
+                  }}
+                />
               ) : (
-                <div className="h-16 w-16 rounded-full" style={{ border: "2px solid var(--color-paper-0)", background: "var(--color-paper-2)" }} />
+                <div
+                  className="h-16 w-16 rounded-full"
+                  style={{
+                    border: "2px solid var(--color-paper-0)",
+                    background: "var(--color-paper-2)",
+                  }}
+                />
               )}
             </div>
 
             <div className="min-w-0">
-              <p className="truncate text-[16px] font-semibold" style={{ color: "var(--color-ink-0)", letterSpacing: "-0.01em" }}>
+              <p
+                className="truncate text-[16px] font-semibold"
+                style={{ color: "var(--color-ink-0)", letterSpacing: "-0.01em" }}
+              >
                 {displayName}
               </p>
-              <p className="mono-tag mt-1 truncate" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+              <p
+                className="mono-tag mt-1 truncate"
+                style={{ color: "var(--color-ink-3)", fontSize: 9 }}
+              >
                 {title} · ◎ {location}
               </p>
             </div>
@@ -242,7 +292,9 @@ function ProfilePage() {
                   boxShadow: "0 6px 18px -8px rgba(0,200,83,0.55)",
                 }}
               >
-                <span className="mono-tag" style={{ fontSize: 8, letterSpacing: "0.18em" }}>LVL</span>
+                <span className="mono-tag" style={{ fontSize: 8, letterSpacing: "0.18em" }}>
+                  LVL
+                </span>
                 <span className="mono-num text-[15px] font-bold leading-none">{level}</span>
               </div>
             </div>
@@ -255,7 +307,10 @@ function ProfilePage() {
           )}
 
           {/* Quick stats — 3 up, consistent */}
-          <div className="mt-4 grid grid-cols-3 overflow-hidden rounded-xl" style={{ border: "1px solid var(--color-line)" }}>
+          <div
+            className="mt-4 grid grid-cols-3 overflow-hidden rounded-xl"
+            style={{ border: "1px solid var(--color-line)" }}
+          >
             <StatCell k="POSTS" v={fmt(postsCount)} />
             <StatCell k="FOLLOWERS" v={fmt(followers)} border />
             <StatCell k="TROPHIES" v={`${earnedCount}/${totalAch}`} border />
@@ -264,12 +319,20 @@ function ProfilePage() {
           {/* XP bar */}
           <div className="mt-4 space-y-1.5">
             <div className="flex items-baseline justify-between">
-              <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>EXPERIENCE · NEXT TIER</span>
-              <span className="mono-num text-[11px] font-semibold" style={{ color: "var(--color-ink-0)" }}>
+              <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+                EXPERIENCE · NEXT TIER
+              </span>
+              <span
+                className="mono-num text-[11px] font-semibold"
+                style={{ color: "var(--color-ink-0)" }}
+              >
                 {xpDisplay.toLocaleString()} / {xpNextDisplay.toLocaleString()} XP
               </span>
             </div>
-            <div className="relative h-2 w-full overflow-hidden rounded-full" style={{ background: "var(--color-paper-2)" }}>
+            <div
+              className="relative h-2 w-full overflow-hidden rounded-full"
+              style={{ background: "var(--color-paper-2)" }}
+            >
               <div
                 className="absolute inset-y-0 left-0 rounded-full transition-[width] duration-[1400ms] ease-out"
                 style={{
@@ -282,16 +345,36 @@ function ProfilePage() {
           </div>
 
           {/* Actions — edge-to-edge, uniform height, icons + labels */}
-          <div className="mt-4 grid grid-cols-3 items-stretch overflow-hidden rounded-xl"
-            style={{ border: "1px solid var(--color-line)", background: "var(--color-paper-0)" }}>
-            <ActionBtn onClick={() => setContactOpen(true)} icon={<Phone className="h-4 w-4" />} label="Contact" accent />
-            <ShareSheet type="profile" id={profileShareId} title={displayName} subtitle={`@${p?.handle || "rider"}`}>
-              <div className="tap flex h-12 items-center justify-center gap-1.5 text-[12px] font-semibold transition-transform active:scale-[0.97]" style={{ color: "var(--color-ink-0)", borderLeft: "1px solid var(--color-line)" }}>
+          <div
+            className="mt-4 grid grid-cols-3 items-stretch overflow-hidden rounded-xl"
+            style={{ border: "1px solid var(--color-line)", background: "var(--color-paper-0)" }}
+          >
+            <ActionBtn
+              onClick={() => setContactOpen(true)}
+              icon={<Phone className="h-4 w-4" />}
+              label="Contact"
+              accent
+            />
+            <ShareSheet
+              type="profile"
+              id={profileShareId}
+              title={displayName}
+              subtitle={`@${p?.handle || "rider"}`}
+            >
+              <div
+                className="tap flex h-12 items-center justify-center gap-1.5 text-[12px] font-semibold transition-transform active:scale-[0.97]"
+                style={{ color: "var(--color-ink-0)", borderLeft: "1px solid var(--color-line)" }}
+              >
                 <Share2 className="h-4 w-4" />
                 <span>Share</span>
               </div>
             </ShareSheet>
-            <ActionBtn as={Link} to="/settings" icon={<SettingsIcon className="h-4 w-4" />} label="Settings" />
+            <ActionBtn
+              as={Link}
+              to="/settings"
+              icon={<SettingsIcon className="h-4 w-4" />}
+              label="Settings"
+            />
           </div>
         </div>
       </section>
@@ -299,9 +382,13 @@ function ProfilePage() {
       {/* ============ GAUGE CLUSTER ============ */}
       <section className="mt-4 px-4">
         <div className="mb-2 flex items-center gap-2">
-          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>LIVE TELEMETRY</span>
+          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+            LIVE TELEMETRY
+          </span>
           <span className="etch flex-1" />
-          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>UNIT V·{bike.id.toUpperCase()}</span>
+          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+            UNIT V·{bike.id.toUpperCase()}
+          </span>
         </div>
 
         <div
@@ -314,8 +401,14 @@ function ProfilePage() {
           }}
         >
           {/* corner ticks */}
-          <span className="pointer-events-none absolute left-2 top-2 h-3 w-3 border-l border-t" style={{ borderColor: "var(--color-neon)" }} />
-          <span className="pointer-events-none absolute right-2 top-2 h-3 w-3 border-r border-t" style={{ borderColor: "var(--color-neon)" }} />
+          <span
+            className="pointer-events-none absolute left-2 top-2 h-3 w-3 border-l border-t"
+            style={{ borderColor: "var(--color-neon)" }}
+          />
+          <span
+            className="pointer-events-none absolute right-2 top-2 h-3 w-3 border-r border-t"
+            style={{ borderColor: "var(--color-neon)" }}
+          />
 
           {/* Primary speedo */}
           <BigSpeedo topSpeed={topSpeed} />
@@ -343,11 +436,10 @@ function ProfilePage() {
 
           {/* Ledger row */}
           <div className="mt-3 grid grid-cols-4 gap-2">
-            <Ledger k="NET"     v={fmt(followers)} dot="#00e5ff" />
+            <Ledger k="NET" v={fmt(followers)} dot="#00e5ff" />
             <Ledger k="SORTIES" v={fmt(postsCount)} dot="var(--color-neon)" />
             <Ledger k="LISTINGS" v={fmt(listingsCount)} dot="#ff9500" />
-            <Ledger k="TROPHY"  v={`${earnedCount}/${totalAch}`} dot="#ff3d5a" />
-
+            <Ledger k="TROPHY" v={`${earnedCount}/${totalAch}`} dot="#ff3d5a" />
           </div>
         </div>
       </section>
@@ -355,9 +447,13 @@ function ProfilePage() {
       {/* ============ ACHIEVEMENT RIBBON ============ */}
       <section className="mt-5 px-4">
         <div className="mb-2 flex items-center gap-2">
-          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>BADGES</span>
+          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+            BADGES
+          </span>
           <span className="etch flex-1" />
-          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>{earnedCount} EARNED</span>
+          <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+            {earnedCount} EARNED
+          </span>
         </div>
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {achList.map((a) => {
@@ -371,12 +467,24 @@ function ProfilePage() {
                   background: on ? "var(--color-paper-0)" : "var(--color-paper-2)",
                   border: `1px solid ${on ? "var(--color-line)" : "var(--color-line)"}`,
                   opacity: on ? 1 : 0.5,
-                  boxShadow: on ? `0 0 0 1px ${meta.hue}22, 0 8px 22px -14px ${meta.hue}66` : "none",
+                  boxShadow: on
+                    ? `0 0 0 1px ${meta.hue}22, 0 8px 22px -14px ${meta.hue}66`
+                    : "none",
                 }}
               >
-                <span className="h-2 w-2 rounded-full" style={{ background: meta.hue, boxShadow: on ? `0 0 8px ${meta.hue}` : "none" }} />
-                <span className="text-[12px] font-semibold" style={{ color: "var(--color-ink-0)" }}>{a.title}</span>
-                <span className="mono-tag" style={{ color: meta.hue, fontSize: 8, letterSpacing: "0.18em" }}>{meta.label}</span>
+                <span
+                  className="h-2 w-2 rounded-full"
+                  style={{ background: meta.hue, boxShadow: on ? `0 0 8px ${meta.hue}` : "none" }}
+                />
+                <span className="text-[12px] font-semibold" style={{ color: "var(--color-ink-0)" }}>
+                  {a.title}
+                </span>
+                <span
+                  className="mono-tag"
+                  style={{ color: meta.hue, fontSize: 8, letterSpacing: "0.18em" }}
+                >
+                  {meta.label}
+                </span>
               </div>
             );
           })}
@@ -404,68 +512,127 @@ function ProfilePage() {
       <div className="px-4 pt-4" style={{ background: "var(--color-paper-1)" }}>
         {tab === "REELS" && (
           <div className="grid grid-cols-3 gap-1.5">
-            <Link to="/post/new" className="tap flex aspect-[3/4] items-center justify-center rounded-lg border border-dashed" style={{ borderColor: "var(--color-line-2)", background: "var(--color-paper-0)" }}>
+            <Link
+              to="/post/new"
+              className="tap flex aspect-[3/4] items-center justify-center rounded-lg border border-dashed"
+              style={{ borderColor: "var(--color-line-2)", background: "var(--color-paper-0)" }}
+            >
               <div className="text-center">
-                <div className="text-2xl font-thin" style={{ color: "var(--color-neon)" }}>+</div>
-                <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 8.5 }}>UPLOAD</span>
+                <div className="text-2xl font-thin" style={{ color: "var(--color-neon)" }}>
+                  +
+                </div>
+                <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 8.5 }}>
+                  UPLOAD
+                </span>
               </div>
             </Link>
             {myPosts.map((mp) => {
               const cover = mp.media_url || mp.thumbnail_url;
               return (
-                <Link key={mp.id} to="/post/$id/edit" params={{ id: mp.id }} className="relative aspect-[3/4] overflow-hidden rounded-lg" style={{ background: "var(--color-paper-2)" }}>
+                <Link
+                  key={mp.id}
+                  to="/post/$id/edit"
+                  params={{ id: mp.id }}
+                  className="relative aspect-[3/4] overflow-hidden rounded-lg"
+                  style={{ background: "var(--color-paper-2)" }}
+                >
                   {cover ? (
                     <img src={cover} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center p-2 text-center text-[11px]" style={{ color: "var(--color-ink-0)" }}>
+                    <div
+                      className="flex h-full w-full items-center justify-center p-2 text-center text-[11px]"
+                      style={{ color: "var(--color-ink-0)" }}
+                    >
                       {mp.caption?.slice(0, 80) || "Post"}
                     </div>
                   )}
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   <div className="absolute bottom-1.5 left-1.5 flex items-center gap-1">
-                    <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--color-neon)" }} />
-                    <span className="mono-num text-[10px] font-bold text-white">{mp.likes_count}</span>
+                    <span
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ background: "var(--color-neon)" }}
+                    />
+                    <span className="mono-num text-[10px] font-bold text-white">
+                      {mp.likes_count}
+                    </span>
                   </div>
                 </Link>
               );
             })}
             {myPosts.length === 0 && !myPostsQuery.isLoading && (
-              <div className="col-span-3 flex flex-col items-center justify-center rounded-xl py-10 text-center"
-                style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
-                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No posts yet</p>
-                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Upload your first ride to fill your grid.</p>
+              <div
+                className="col-span-3 flex flex-col items-center justify-center rounded-xl py-10 text-center"
+                style={{
+                  background: "var(--color-paper-0)",
+                  border: "1px dashed var(--color-line-2)",
+                }}
+              >
+                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>
+                  No posts yet
+                </p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                  Upload your first ride to fill your grid.
+                </p>
               </div>
             )}
           </div>
         )}
 
-
         {tab === "GARAGE" && (
           <div className="space-y-3">
             {hasVehicle && v ? (
-              <article className="overflow-hidden rounded-2xl" style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}>
-                <div className="relative h-44 w-full" style={{ background: "var(--color-paper-2)" }}>
+              <article
+                className="overflow-hidden rounded-2xl"
+                style={{
+                  background: "var(--color-paper-0)",
+                  border: "1px solid var(--color-line)",
+                }}
+              >
+                <div
+                  className="relative h-44 w-full"
+                  style={{ background: "var(--color-paper-2)" }}
+                >
                   {v.hero_image_url ? (
                     <img src={v.hero_image_url} alt="" className="h-full w-full object-cover" />
                   ) : null}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                   <div className="absolute bottom-2 left-3">
-                    <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>UNIT V·{v.id.slice(0, 8).toUpperCase()}</p>
-                    <p className="serif text-lg text-white" style={{ letterSpacing: "-0.02em" }}>{bike.name}</p>
+                    <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>
+                      UNIT V·{v.id.slice(0, 8).toUpperCase()}
+                    </p>
+                    <p className="serif text-lg text-white" style={{ letterSpacing: "-0.02em" }}>
+                      {bike.name}
+                    </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-px" style={{ background: "var(--color-line)" }}>
-                  <SubCell k="YEAR"  v={v.year ? String(v.year) : "—"} dot="#00e5ff" />
+                <div
+                  className="grid grid-cols-3 gap-px"
+                  style={{ background: "var(--color-line)" }}
+                >
+                  <SubCell k="YEAR" v={v.year ? String(v.year) : "—"} dot="#00e5ff" />
                   <SubCell k="POWER" v={String(bike.hp)} u="hp" dot="var(--color-neon)" />
-                  <SubCell k="TYPE"  v={bike.type} dot="#ff9500" />
+                  <SubCell k="TYPE" v={bike.type} dot="#ff9500" />
                 </div>
               </article>
             ) : (
-              <div className="rounded-2xl p-6 text-center" style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
-                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No vehicle yet</p>
-                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Add your machine from Edit profile to build your garage.</p>
-                <Link to="/profile/edit" className="tap mt-3 inline-block rounded-full px-4 py-2 text-[12px] font-bold"
-                  style={{ background: "var(--color-neon)", color: "#000" }}>
+              <div
+                className="rounded-2xl p-6 text-center"
+                style={{
+                  background: "var(--color-paper-0)",
+                  border: "1px dashed var(--color-line-2)",
+                }}
+              >
+                <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>
+                  No vehicle yet
+                </p>
+                <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                  Add your machine from Edit profile to build your garage.
+                </p>
+                <Link
+                  to="/profile/edit"
+                  className="tap mt-3 inline-block rounded-full px-4 py-2 text-[12px] font-bold"
+                  style={{ background: "var(--color-neon)", color: "#000" }}
+                >
                   Add vehicle
                 </Link>
               </div>
@@ -487,13 +654,30 @@ function ProfilePage() {
                     opacity: a.earned ? 1 : 0.5,
                   }}
                 >
-                  <div className="absolute inset-x-0 top-0 h-[3px]" style={{ background: meta.hue, opacity: a.earned ? 1 : 0.4 }} />
+                  <div
+                    className="absolute inset-x-0 top-0 h-[3px]"
+                    style={{ background: meta.hue, opacity: a.earned ? 1 : 0.4 }}
+                  />
                   <div className="flex items-center justify-between">
-                    <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>T·{String(i + 1).padStart(2, "0")}</span>
-                    <span className="mono-tag" style={{ color: meta.hue, fontSize: 8.5, letterSpacing: "0.18em" }}>{meta.label}</span>
+                    <span className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+                      T·{String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span
+                      className="mono-tag"
+                      style={{ color: meta.hue, fontSize: 8.5, letterSpacing: "0.18em" }}
+                    >
+                      {meta.label}
+                    </span>
                   </div>
-                  <p className="serif mt-3 text-[15px] leading-tight" style={{ color: "var(--color-ink-0)", letterSpacing: "-0.01em" }}>{a.title}</p>
-                  <p className="mt-1 text-[11px]" style={{ color: "var(--color-ink-3)" }}>{a.detail}</p>
+                  <p
+                    className="serif mt-3 text-[15px] leading-tight"
+                    style={{ color: "var(--color-ink-0)", letterSpacing: "-0.01em" }}
+                  >
+                    {a.title}
+                  </p>
+                  <p className="mt-1 text-[11px]" style={{ color: "var(--color-ink-3)" }}>
+                    {a.detail}
+                  </p>
                 </div>
               );
             })}
@@ -501,21 +685,34 @@ function ProfilePage() {
         )}
 
         {tab === "LOG" && (
-          <div className="rounded-2xl p-6 text-center" style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}>
-            <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>No workshop log yet</p>
-            <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>Service entries you record will appear here.</p>
+          <div
+            className="rounded-2xl p-6 text-center"
+            style={{ background: "var(--color-paper-0)", border: "1px dashed var(--color-line-2)" }}
+          >
+            <p className="serif text-[15px]" style={{ color: "var(--color-ink-0)" }}>
+              No workshop log yet
+            </p>
+            <p className="mt-1 text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+              Service entries you record will appear here.
+            </p>
           </div>
         )}
       </div>
 
-
-      {contactOpen && (
-        <ContactModal profile={p} onClose={() => setContactOpen(false)} />
-      )}
+      {contactOpen && <ContactModal profile={p} onClose={() => setContactOpen(false)} />}
       {toast && (
-        <div className="fixed inset-x-0 z-[60] flex justify-center" style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 90px)" }}>
-          <div className="rounded-full px-4 py-2 text-[12px] font-semibold"
-            style={{ background: "var(--color-ink-0)", color: "var(--color-paper-0)", boxShadow: "0 10px 30px -8px rgba(0,0,0,0.35)" }}>
+        <div
+          className="fixed inset-x-0 z-[60] flex justify-center"
+          style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 90px)" }}
+        >
+          <div
+            className="rounded-full px-4 py-2 text-[12px] font-semibold"
+            style={{
+              background: "var(--color-ink-0)",
+              color: "var(--color-paper-0)",
+              boxShadow: "0 10px 30px -8px rgba(0,0,0,0.35)",
+            }}
+          >
             {toast}
           </div>
         </div>
@@ -555,9 +752,19 @@ function ContactModal({ profile, onClose }: { profile: any; onClose: () => void 
       >
         <div className="flex items-center justify-between">
           <h3 className="serif text-xl" style={{ color: "var(--color-ink-0)" }}>
-            Contact {isBiz && <span className="mono-tag ml-2" style={{ color: "var(--color-neon-deep)", fontSize: 9 }}>BUSINESS</span>}
+            Contact{" "}
+            {isBiz && (
+              <span
+                className="mono-tag ml-2"
+                style={{ color: "var(--color-neon-deep)", fontSize: 9 }}
+              >
+                BUSINESS
+              </span>
+            )}
           </h3>
-          <button onClick={onClose} className="mono-tag" style={{ color: "var(--color-ink-3)" }}>CLOSE ✕</button>
+          <button onClick={onClose} className="mono-tag" style={{ color: "var(--color-ink-3)" }}>
+            CLOSE ✕
+          </button>
         </div>
 
         {!hasAny && (
@@ -568,15 +775,27 @@ function ContactModal({ profile, onClose }: { profile: any; onClose: () => void 
 
         <div className="mt-4 space-y-2">
           {phone && (
-            <a href={`tel:${phone}`} className="tap flex items-center justify-between rounded-xl px-3 py-3 text-[13px]" style={rowBase}>
+            <a
+              href={`tel:${phone}`}
+              className="tap flex items-center justify-between rounded-xl px-3 py-3 text-[13px]"
+              style={rowBase}
+            >
               <span>📞 {phone}</span>
-              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>CALL</span>
+              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>
+                CALL
+              </span>
             </a>
           )}
           {email && (
-            <a href={`mailto:${email}`} className="tap flex items-center justify-between rounded-xl px-3 py-3 text-[13px]" style={rowBase}>
+            <a
+              href={`mailto:${email}`}
+              className="tap flex items-center justify-between rounded-xl px-3 py-3 text-[13px]"
+              style={rowBase}
+            >
               <span>✉️ {email}</span>
-              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>EMAIL</span>
+              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>
+                EMAIL
+              </span>
             </a>
           )}
           {dm && (
@@ -587,7 +806,9 @@ function ContactModal({ profile, onClose }: { profile: any; onClose: () => void 
               onClick={onClose}
             >
               <span>💬 Direct message</span>
-              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>OPEN</span>
+              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>
+                OPEN
+              </span>
             </Link>
           )}
           {isBiz && address && (
@@ -599,7 +820,9 @@ function ContactModal({ profile, onClose }: { profile: any; onClose: () => void 
               style={rowBase}
             >
               <span>📍 {address}</span>
-              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>MAP</span>
+              <span className="mono-tag" style={{ color: "var(--color-neon-deep)", fontSize: 10 }}>
+                MAP
+              </span>
             </a>
           )}
         </div>
@@ -608,7 +831,11 @@ function ContactModal({ profile, onClose }: { profile: any; onClose: () => void 
           to="/profile/edit"
           onClick={onClose}
           className="tap mt-4 block rounded-xl py-3 text-center text-[13px] font-semibold"
-          style={{ background: "var(--color-neon)", color: "var(--color-ink-0)", border: "1px solid var(--color-neon-deep)" }}
+          style={{
+            background: "var(--color-neon)",
+            color: "var(--color-ink-0)",
+            border: "1px solid var(--color-neon-deep)",
+          }}
         >
           {hasAny ? "Edit contact info" : "Add contact info"}
         </Link>
@@ -625,11 +852,20 @@ function SubCell({ k, v, u, dot }: { k: string; v: string; u?: string; dot?: str
     <div className="p-2.5 text-center" style={{ background: "var(--color-paper-0)" }}>
       <div className="mb-1 flex items-center justify-center gap-1">
         {dot && <span className="h-1 w-1 rounded-full" style={{ background: dot }} />}
-        <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 8.5 }}>{k}</p>
+        <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 8.5 }}>
+          {k}
+        </p>
       </div>
-      <p className="serif text-lg leading-none" style={{ color: "var(--color-ink-0)", letterSpacing: "-0.01em" }}>
+      <p
+        className="serif text-lg leading-none"
+        style={{ color: "var(--color-ink-0)", letterSpacing: "-0.01em" }}
+      >
         {v}
-        {u && <span className="mono ml-1 text-[10px]" style={{ color: "var(--color-ink-3)" }}>{u}</span>}
+        {u && (
+          <span className="mono ml-1 text-[10px]" style={{ color: "var(--color-ink-3)" }}>
+            {u}
+          </span>
+        )}
       </p>
     </div>
   );
@@ -645,24 +881,59 @@ function Ledger({ k, v, u, dot }: { k: string; v: string; u?: string; dot: strin
       }}
     >
       <div className="flex items-center gap-1.5">
-        <span className="h-1.5 w-1.5 rounded-full" style={{ background: dot, boxShadow: `0 0 6px ${dot}` }} />
-        <p className="mono-tag" style={{ color: "rgba(255,255,255,0.55)", fontSize: 8.5 }}>{k}</p>
+        <span
+          className="h-1.5 w-1.5 rounded-full"
+          style={{ background: dot, boxShadow: `0 0 6px ${dot}` }}
+        />
+        <p className="mono-tag" style={{ color: "rgba(255,255,255,0.55)", fontSize: 8.5 }}>
+          {k}
+        </p>
       </div>
-      <p className="mono-num mt-1 text-[15px] font-bold leading-none tabular-nums" style={{ color: "#fff" }}>
+      <p
+        className="mono-num mt-1 text-[15px] font-bold leading-none tabular-nums"
+        style={{ color: "#fff" }}
+      >
         {v}
-        {u && <span className="mono ml-1 text-[9px] font-normal" style={{ color: "rgba(255,255,255,0.45)" }}>{u}</span>}
+        {u && (
+          <span
+            className="mono ml-1 text-[9px] font-normal"
+            style={{ color: "rgba(255,255,255,0.45)" }}
+          >
+            {u}
+          </span>
+        )}
       </p>
     </div>
   );
 }
 
-function StatusBadge({ children, tone = "light" }: { children: ReactNode; tone?: "light" | "dark" | "live" }) {
+function StatusBadge({
+  children,
+  tone = "light",
+}: {
+  children: ReactNode;
+  tone?: "light" | "dark" | "live";
+}) {
   const styles =
     tone === "dark"
-      ? { background: "rgba(0,0,0,0.55)", color: "#fff", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(8px)" }
+      ? {
+          background: "rgba(0,0,0,0.55)",
+          color: "#fff",
+          border: "1px solid rgba(255,255,255,0.14)",
+          backdropFilter: "blur(8px)",
+        }
       : tone === "live"
-      ? { background: "rgba(255,255,255,0.9)", color: "var(--color-ink-0)", border: "1px solid var(--color-line)", backdropFilter: "blur(8px)" }
-      : { background: "var(--color-paper-0)", color: "var(--color-ink-0)", border: "1px solid var(--color-line)" };
+        ? {
+            background: "rgba(255,255,255,0.9)",
+            color: "var(--color-ink-0)",
+            border: "1px solid var(--color-line)",
+            backdropFilter: "blur(8px)",
+          }
+        : {
+            background: "var(--color-paper-0)",
+            color: "var(--color-ink-0)",
+            border: "1px solid var(--color-line)",
+          };
   return (
     <span
       className="mono-tag inline-flex items-center gap-1.5 rounded-full px-2.5 py-1"
@@ -677,12 +948,23 @@ function StatCell({ k, v, border }: { k: string; v: string; border?: boolean }) 
   return (
     <div
       className="px-2 py-2.5 text-center"
-      style={{ background: "var(--color-paper-0)", borderLeft: border ? "1px solid var(--color-line)" : "none" }}
+      style={{
+        background: "var(--color-paper-0)",
+        borderLeft: border ? "1px solid var(--color-line)" : "none",
+      }}
     >
-      <p className="mono-num text-[15px] font-bold leading-none tabular-nums" style={{ color: "var(--color-ink-0)" }}>
+      <p
+        className="mono-num text-[15px] font-bold leading-none tabular-nums"
+        style={{ color: "var(--color-ink-0)" }}
+      >
         {v}
       </p>
-      <p className="mono-tag mt-1" style={{ color: "var(--color-ink-3)", fontSize: 9, letterSpacing: "0.18em" }}>{k}</p>
+      <p
+        className="mono-tag mt-1"
+        style={{ color: "var(--color-ink-3)", fontSize: 9, letterSpacing: "0.18em" }}
+      >
+        {k}
+      </p>
     </div>
   );
 }
@@ -700,9 +982,14 @@ function ActionBtn({ icon, label, primary, accent, onClick, as: As, to }: Action
   const style: CSSProperties = primary
     ? { background: "var(--color-ink-0)", color: "var(--color-paper-0)" }
     : accent
-    ? { background: "var(--color-neon)", color: "#000", borderLeft: "1px solid var(--color-line)" }
-    : { color: "var(--color-ink-0)", borderLeft: "1px solid var(--color-line)" };
-  const cls = "tap flex h-12 items-center justify-center gap-1.5 text-[12px] font-semibold transition-transform active:scale-[0.97]";
+      ? {
+          background: "var(--color-neon)",
+          color: "#000",
+          borderLeft: "1px solid var(--color-line)",
+        }
+      : { color: "var(--color-ink-0)", borderLeft: "1px solid var(--color-line)" };
+  const cls =
+    "tap flex h-12 items-center justify-center gap-1.5 text-[12px] font-semibold transition-transform active:scale-[0.97]";
   if (As && to) {
     return (
       <As to={to} className={cls} style={style}>
@@ -734,7 +1021,9 @@ function BigSpeedo({ topSpeed }: { topSpeed: number }) {
   const pct = Math.min(1, value / MAX);
   const angle = -90 + pct * 180;
 
-  const cx = 130, cy = 130, r = 108;
+  const cx = 130,
+    cy = 130,
+    r = 108;
   const arcLen = Math.PI * r;
 
   const ticks = useMemo(
@@ -744,39 +1033,52 @@ function BigSpeedo({ topSpeed }: { topSpeed: number }) {
         const major = i % 5 === 0;
         return { a, major, label: major ? String(Math.round((i / 30) * MAX)) : null };
       }),
-    []
+    [],
   );
 
   return (
     <div className="relative">
-      <svg viewBox="0 0 260 160" className="mx-auto block h-[140px] w-full max-w-[300px]" preserveAspectRatio="xMidYMid meet">
+      <svg
+        viewBox="0 0 260 160"
+        className="mx-auto block h-[140px] w-full max-w-[300px]"
+        preserveAspectRatio="xMidYMid meet"
+      >
         <defs>
           <linearGradient id="arcTrackBig" x1="0" x2="1" y1="0" y2="0">
             <stop offset="0" stopColor="rgba(255,255,255,0.06)" />
             <stop offset="1" stopColor="rgba(255,255,255,0.14)" />
           </linearGradient>
           <linearGradient id="arcFillBig" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0"    stopColor="#00e5ff" />
+            <stop offset="0" stopColor="#00e5ff" />
             <stop offset="0.35" stopColor="#00ff88" />
             <stop offset="0.65" stopColor="#c6ff3d" />
             <stop offset="0.85" stopColor="#ff9500" />
-            <stop offset="1"    stopColor="#ff3d5a" />
+            <stop offset="1" stopColor="#ff3d5a" />
           </linearGradient>
           <filter id="glowBig" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="2.6" result="b" />
-            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
           </filter>
         </defs>
 
         {/* Track */}
         <path
           d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-          fill="none" stroke="url(#arcTrackBig)" strokeWidth="14" strokeLinecap="round"
+          fill="none"
+          stroke="url(#arcTrackBig)"
+          strokeWidth="14"
+          strokeLinecap="round"
         />
         {/* Fill */}
         <path
           d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-          fill="none" stroke="url(#arcFillBig)" strokeWidth="14" strokeLinecap="round"
+          fill="none"
+          stroke="url(#arcFillBig)"
+          strokeWidth="14"
+          strokeLinecap="round"
           strokeDasharray={`${arcLen}`}
           strokeDashoffset={`${arcLen * (1 - pct)}`}
           style={{ transition: "stroke-dashoffset 1800ms cubic-bezier(.2,.7,.15,1)" }}
@@ -795,7 +1097,14 @@ function BigSpeedo({ topSpeed }: { topSpeed: number }) {
           const stroke = t.major ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.22)";
           return (
             <g key={i}>
-              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={t.major ? 1.5 : 1} />
+              <line
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke={stroke}
+                strokeWidth={t.major ? 1.5 : 1}
+              />
               {t.label && (
                 <text
                   x={cx + Math.cos(rad) * (r - 32)}
@@ -813,8 +1122,23 @@ function BigSpeedo({ topSpeed }: { topSpeed: number }) {
         })}
 
         {/* Needle */}
-        <g style={{ transform: `rotate(${angle}deg)`, transformOrigin: `${cx}px ${cy}px`, transition: "transform 1800ms cubic-bezier(.2,.7,.15,1)" }}>
-          <line x1={cx} y1={cy + 8} x2={cx} y2={cy - r + 12} stroke="#fff" strokeWidth="2.6" strokeLinecap="round" filter="url(#glowBig)" />
+        <g
+          style={{
+            transform: `rotate(${angle}deg)`,
+            transformOrigin: `${cx}px ${cy}px`,
+            transition: "transform 1800ms cubic-bezier(.2,.7,.15,1)",
+          }}
+        >
+          <line
+            x1={cx}
+            y1={cy + 8}
+            x2={cx}
+            y2={cy - r + 12}
+            stroke="#fff"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+            filter="url(#glowBig)"
+          />
           <circle cx={cx} cy={cy - r + 14} r="4" fill="#fff" />
         </g>
         {/* Hub */}
@@ -824,10 +1148,20 @@ function BigSpeedo({ topSpeed }: { topSpeed: number }) {
 
       {/* Digital readout centered under gauge */}
       <div className="-mt-8 flex flex-col items-center pb-1">
-        <p className="mono-num text-[38px] font-bold leading-none tabular-nums" style={{ color: "#fff", letterSpacing: "-0.02em", textShadow: "0 0 22px rgba(0,229,255,0.35)" }}>
+        <p
+          className="mono-num text-[38px] font-bold leading-none tabular-nums"
+          style={{
+            color: "#fff",
+            letterSpacing: "-0.02em",
+            textShadow: "0 0 22px rgba(0,229,255,0.35)",
+          }}
+        >
           {Math.round(value)}
         </p>
-        <p className="mono-tag mt-1" style={{ color: "rgba(255,255,255,0.55)", fontSize: 8.5, letterSpacing: "0.24em" }}>
+        <p
+          className="mono-tag mt-1"
+          style={{ color: "rgba(255,255,255,0.55)", fontSize: 8.5, letterSpacing: "0.24em" }}
+        >
           MPH · TOP SPEED
         </p>
       </div>
@@ -839,7 +1173,13 @@ function BigSpeedo({ topSpeed }: { topSpeed: number }) {
    MINI GAUGE — small colorful arc + digital readout
    ========================================================== */
 function MiniGauge({
-  label, unit, value, max, accent, trackStops, redzoneFrom,
+  label,
+  unit,
+  value,
+  max,
+  accent,
+  trackStops,
+  redzoneFrom,
 }: {
   label: string;
   unit: string;
@@ -856,7 +1196,9 @@ function MiniGauge({
   }, [value]);
 
   const pct = Math.min(1, v / max);
-  const cx = 60, cy = 58, r = 46;
+  const cx = 60,
+    cy = 58,
+    r = 46;
   const arcLen = Math.PI * r;
   const angle = -90 + pct * 180;
   const gradId = `mg-${label}`;
@@ -871,10 +1213,17 @@ function MiniGauge({
     >
       <div className="mb-1 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: accent, boxShadow: `0 0 6px ${accent}` }} />
-          <p className="mono-tag" style={{ color: "rgba(255,255,255,0.55)", fontSize: 8.5 }}>{label}</p>
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ background: accent, boxShadow: `0 0 6px ${accent}` }}
+          />
+          <p className="mono-tag" style={{ color: "rgba(255,255,255,0.55)", fontSize: 8.5 }}>
+            {label}
+          </p>
         </div>
-        <p className="mono-tag" style={{ color: "rgba(255,255,255,0.35)", fontSize: 8 }}>{unit}</p>
+        <p className="mono-tag" style={{ color: "rgba(255,255,255,0.35)", fontSize: 8 }}>
+          {unit}
+        </p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -887,43 +1236,73 @@ function MiniGauge({
             </linearGradient>
           </defs>
           {/* track */}
-          <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="7" strokeLinecap="round" />
+          <path
+            d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
+            fill="none"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="7"
+            strokeLinecap="round"
+          />
           {/* fill */}
           <path
             d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
-            fill="none" stroke={`url(#${gradId})`} strokeWidth="7" strokeLinecap="round"
+            fill="none"
+            stroke={`url(#${gradId})`}
+            strokeWidth="7"
+            strokeLinecap="round"
             strokeDasharray={`${arcLen}`}
             strokeDashoffset={`${arcLen * (1 - pct)}`}
             style={{ transition: "stroke-dashoffset 1400ms cubic-bezier(.2,.7,.15,1)" }}
           />
           {/* redzone marker */}
-          {redzoneFrom != null && (() => {
-            const rzAngle = -90 + (redzoneFrom / max) * 180;
-            const rad = (rzAngle * Math.PI) / 180;
-            return (
-              <line
-                x1={cx + Math.cos(rad) * (r - 8)}
-                y1={cy + Math.sin(rad) * (r - 8)}
-                x2={cx + Math.cos(rad) * (r + 4)}
-                y2={cy + Math.sin(rad) * (r + 4)}
-                stroke="#ff3d5a"
-                strokeWidth="1.4"
-              />
-            );
-          })()}
+          {redzoneFrom != null &&
+            (() => {
+              const rzAngle = -90 + (redzoneFrom / max) * 180;
+              const rad = (rzAngle * Math.PI) / 180;
+              return (
+                <line
+                  x1={cx + Math.cos(rad) * (r - 8)}
+                  y1={cy + Math.sin(rad) * (r - 8)}
+                  x2={cx + Math.cos(rad) * (r + 4)}
+                  y2={cy + Math.sin(rad) * (r + 4)}
+                  stroke="#ff3d5a"
+                  strokeWidth="1.4"
+                />
+              );
+            })()}
           {/* needle */}
-          <g style={{ transform: `rotate(${angle}deg)`, transformOrigin: `${cx}px ${cy}px`, transition: "transform 1400ms cubic-bezier(.2,.7,.15,1)" }}>
-            <line x1={cx} y1={cy + 4} x2={cx} y2={cy - r + 6} stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+          <g
+            style={{
+              transform: `rotate(${angle}deg)`,
+              transformOrigin: `${cx}px ${cy}px`,
+              transition: "transform 1400ms cubic-bezier(.2,.7,.15,1)",
+            }}
+          >
+            <line
+              x1={cx}
+              y1={cy + 4}
+              x2={cx}
+              y2={cy - r + 6}
+              stroke="#fff"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
           </g>
           <circle cx={cx} cy={cy} r="5" fill="#0a0a0a" stroke="rgba(255,255,255,0.25)" />
           <circle cx={cx} cy={cy} r="1.8" fill={accent} />
         </svg>
 
         <div className="flex flex-col items-end">
-          <p className="mono-num text-[22px] font-bold leading-none tabular-nums" style={{ color: "#fff", letterSpacing: "-0.02em" }}>
+          <p
+            className="mono-num text-[22px] font-bold leading-none tabular-nums"
+            style={{ color: "#fff", letterSpacing: "-0.02em" }}
+          >
             {Math.round(v)}
           </p>
-          <p className="mono-tag mt-0.5" style={{ color: accent, fontSize: 8, letterSpacing: "0.2em" }}>
+          <p
+            className="mono-tag mt-0.5"
+            style={{ color: accent, fontSize: 8, letterSpacing: "0.2em" }}
+          >
             {Math.round(pct * 100)}%
           </p>
         </div>
@@ -956,7 +1335,11 @@ function RenameVehicleButton({ currentName }: { currentName: string }) {
         type="button"
         aria-label="Rename vehicle"
         title="Rename vehicle"
-        onClick={() => { setValue(currentName); setError(null); setOpen(true); }}
+        onClick={() => {
+          setValue(currentName);
+          setError(null);
+          setOpen(true);
+        }}
         className="tap flex shrink-0 items-center justify-center rounded-md"
         style={{
           width: 32,
@@ -978,7 +1361,10 @@ function RenameVehicleButton({ currentName }: { currentName: string }) {
             className="w-full max-w-md rounded-2xl p-4"
             style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}
           >
-            <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9, letterSpacing: "0.24em" }}>
+            <p
+              className="mono-tag"
+              style={{ color: "var(--color-ink-3)", fontSize: 9, letterSpacing: "0.24em" }}
+            >
               RENAME VEHICLE
             </p>
             <input
@@ -994,25 +1380,41 @@ function RenameVehicleButton({ currentName }: { currentName: string }) {
                 border: "1px solid var(--color-line)",
               }}
             />
-            {error && <p className="mt-2 text-[12px]" style={{ color: "#ff3d5a" }}>{error}</p>}
+            {error && (
+              <p className="mt-2 text-[12px]" style={{ color: "#ff3d5a" }}>
+                {error}
+              </p>
+            )}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button
                 onClick={() => setOpen(false)}
                 disabled={m.isPending}
                 className="tap rounded-xl py-2.5 text-[13px] font-semibold"
-                style={{ background: "var(--color-paper-2)", color: "var(--color-ink-0)", border: "1px solid var(--color-line)" }}
+                style={{
+                  background: "var(--color-paper-2)",
+                  color: "var(--color-ink-0)",
+                  border: "1px solid var(--color-line)",
+                }}
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
                   const v = value.trim();
-                  if (!v) { setError("Name is required"); return; }
+                  if (!v) {
+                    setError("Name is required");
+                    return;
+                  }
                   m.mutate(v);
                 }}
                 disabled={m.isPending}
                 className="tap rounded-xl py-2.5 text-[13px] font-bold"
-                style={{ background: "#e5253d", color: "#000", border: "1px solid #b81a2e", opacity: 1 }}
+                style={{
+                  background: "#e5253d",
+                  color: "#000",
+                  border: "1px solid #b81a2e",
+                  opacity: 1,
+                }}
               >
                 {m.isPending ? "Saving…" : "Save"}
               </button>

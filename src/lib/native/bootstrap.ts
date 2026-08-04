@@ -11,7 +11,6 @@ import { loadPlugin } from "./plugins";
 
 let started = false;
 
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function bootstrapNative(router: Router<any, any>) {
   if (started) return;
@@ -22,18 +21,27 @@ export async function bootstrapNative(router: Router<any, any>) {
   try {
     const { installGeolocationBridge } = await import("./geolocation-bridge");
     await installGeolocationBridge();
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   // Register for push notifications (best-effort, non-blocking).
   try {
     const { registerPushNotifications } = await import("./push");
     void registerPushNotifications();
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 
   // Splash screen
-  const splash = await loadPlugin<{ SplashScreen: { hide: (o?: { fadeOutDuration?: number }) => Promise<void> } }>("@capacitor/splash-screen");
-  try { await splash?.SplashScreen.hide({ fadeOutDuration: 250 }); } catch { /* ignore */ }
-
+  const splash = await loadPlugin<{
+    SplashScreen: { hide: (o?: { fadeOutDuration?: number }) => Promise<void> };
+  }>("@capacitor/splash-screen");
+  try {
+    await splash?.SplashScreen.hide({ fadeOutDuration: 250 });
+  } catch {
+    /* ignore */
+  }
 
   // Status bar theming
   const sb = await loadPlugin<{
@@ -51,13 +59,18 @@ export async function bootstrapNative(router: Router<any, any>) {
         await sb.StatusBar.setBackgroundColor({ color: "#08090b" });
         await sb.StatusBar.setOverlaysWebView({ overlay: false });
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   // App lifecycle + Android back button + deep links
   const appMod = await loadPlugin<{
     App: {
-      addListener: (event: string, cb: (data: { isActive?: boolean; url?: string }) => void | Promise<void>) => Promise<unknown>;
+      addListener: (
+        event: string,
+        cb: (data: { isActive?: boolean; url?: string }) => void | Promise<void>,
+      ) => Promise<unknown>;
       exitApp: () => Promise<void>;
       getLaunchUrl?: () => Promise<{ url?: string } | null>;
     };
@@ -66,10 +79,22 @@ export async function bootstrapNative(router: Router<any, any>) {
     try {
       await appMod.App.addListener("backButton", async () => {
         if (window.history.length > 1) router.history.back();
-        else { try { await appMod.App.exitApp(); } catch { /* ignore */ } }
+        else {
+          try {
+            await appMod.App.exitApp();
+          } catch {
+            /* ignore */
+          }
+        }
       });
       await appMod.App.addListener("appStateChange", ({ isActive }) => {
-        if (!isActive) { try { window.speechSynthesis?.cancel(); } catch { /* ignore */ } }
+        if (!isActive) {
+          try {
+            window.speechSynthesis?.cancel();
+          } catch {
+            /* ignore */
+          }
+        }
         window.dispatchEvent(new CustomEvent("zx:appstate", { detail: { isActive } }));
       });
       // Universal / custom-scheme deep link handling — normalize to in-app path.
@@ -81,20 +106,29 @@ export async function bootstrapNative(router: Router<any, any>) {
           if (path && path !== window.location.pathname + window.location.search) {
             router.navigate({ to: path });
           }
-        } catch { /* ignore malformed */ }
+        } catch {
+          /* ignore malformed */
+        }
       };
       await appMod.App.addListener("appUrlOpen", (data) => handleUrl(data.url));
       try {
         const launch = await appMod.App.getLaunchUrl?.();
         handleUrl(launch?.url);
-      } catch { /* ignore */ }
-    } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   // Network status → CSS class + custom event for offline UI
   const net = await loadPlugin<{
     Network: {
-      addListener: (event: string, cb: (status: { connected: boolean; connectionType?: string }) => void) => Promise<unknown>;
+      addListener: (
+        event: string,
+        cb: (status: { connected: boolean; connectionType?: string }) => void,
+      ) => Promise<unknown>;
       getStatus: () => Promise<{ connected: boolean; connectionType?: string }>;
     };
   }>("@capacitor/network");
@@ -106,13 +140,19 @@ export async function bootstrapNative(router: Router<any, any>) {
       };
       applyStatus(await net.Network.getStatus());
       await net.Network.addListener("networkStatusChange", applyStatus);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
-
 
   // Keyboard height CSS var
   const kb = await loadPlugin<{
-    Keyboard: { addListener: (event: string, cb: (info: { keyboardHeight: number }) => void) => Promise<unknown> };
+    Keyboard: {
+      addListener: (
+        event: string,
+        cb: (info: { keyboardHeight: number }) => void,
+      ) => Promise<unknown>;
+    };
   }>("@capacitor/keyboard");
   if (kb) {
     try {
@@ -124,6 +164,8 @@ export async function bootstrapNative(router: Router<any, any>) {
         document.documentElement.style.setProperty("--kb-h", "0px");
         document.documentElement.classList.remove("kb-open");
       });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 }

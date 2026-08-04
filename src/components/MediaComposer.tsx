@@ -21,7 +21,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { blobFromCanvas, compressImage, uploadWithRetry, type UploadProgress, UPLOAD_LIMITS, checkUploadSize, probeVideoDuration, type UploadKind } from "@/lib/media-upload";
+import {
+  blobFromCanvas,
+  compressImage,
+  uploadWithRetry,
+  type UploadProgress,
+  UPLOAD_LIMITS,
+  checkUploadSize,
+  probeVideoDuration,
+  type UploadKind,
+} from "@/lib/media-upload";
 import { uploadVideoToStream } from "@/lib/video-upload";
 
 import { toast } from "sonner";
@@ -33,14 +42,13 @@ import { checkTextSafety } from "@/lib/moderation-text.functions";
 import { MusicLibrary, type SelectedTrack } from "@/components/MusicLibrary";
 import { formatDuration } from "@/lib/music-library";
 
-
 type EditorAdjust = {
   brightness: number; // 1 = neutral
   contrast: number;
   saturation: number;
-  exposure: number;   // extra brightness
+  exposure: number; // extra brightness
   highlights: number; // subtle contrast on top-end
-  shadows: number;    // subtle contrast on bottom-end
+  shadows: number; // subtle contrast on bottom-end
 };
 
 const FILTERS = [
@@ -88,26 +96,36 @@ type MediaItem = {
   trimEnd?: number;
   muted?: boolean;
   speed?: number;
-  coverAt?: number;      // seconds — frame to use as thumbnail_url
+  coverAt?: number; // seconds — frame to use as thumbnail_url
   coverBlobUrl?: string; // in-memory object URL of extracted cover
 };
 
 const defaultAdjust: EditorAdjust = {
-  brightness: 1, contrast: 1, saturation: 1, exposure: 0, highlights: 0, shadows: 0,
+  brightness: 1,
+  contrast: 1,
+  saturation: 1,
+  exposure: 0,
+  highlights: 0,
+  shadows: 0,
 };
 
 function newItem(file: File): MediaItem {
   const kind: MediaItem["kind"] = file.type.startsWith("video/") ? "video" : "image";
   return {
     id: `m_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    kind, file,
+    kind,
+    file,
     previewUrl: URL.createObjectURL(file),
-    rotation: 0, aspect: "orig", filter: "none",
+    rotation: 0,
+    aspect: "orig",
+    filter: "none",
     adjust: { ...defaultAdjust },
-    overlays: [], strokes: [],
+    overlays: [],
+    strokes: [],
     trimStart: kind === "video" ? 0 : undefined,
     trimEnd: kind === "video" ? undefined : undefined,
-    muted: false, speed: 1,
+    muted: false,
+    speed: 1,
     coverAt: kind === "video" ? 0 : undefined,
   };
 }
@@ -116,14 +134,17 @@ function newItem(file: File): MediaItem {
 
 export type PostType = "post" | "reel" | "story" | "telemetry";
 
-const POST_TYPE_META: Record<PostType, {
-  label: string;
-  tag: string;
-  desc: string;
-  accept: string;
-  maxItems: number;
-  requiresMedia: boolean;
-}> = {
+const POST_TYPE_META: Record<
+  PostType,
+  {
+    label: string;
+    tag: string;
+    desc: string;
+    accept: string;
+    maxItems: number;
+    requiresMedia: boolean;
+  }
+> = {
   post: {
     label: "Post",
     tag: "FEED · PERMANENT",
@@ -165,13 +186,19 @@ function loadLastPostType(): PostType {
   try {
     const v = window.localStorage.getItem(POST_TYPE_STORAGE_KEY);
     if (v === "post" || v === "reel" || v === "story" || v === "telemetry") return v;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return "post";
 }
 
 function persistLastPostType(t: PostType) {
   if (typeof window === "undefined") return;
-  try { window.localStorage.setItem(POST_TYPE_STORAGE_KEY, t); } catch { /* ignore */ }
+  try {
+    window.localStorage.setItem(POST_TYPE_STORAGE_KEY, t);
+  } catch {
+    /* ignore */
+  }
 }
 
 /** Extract a single frame from a video File at the given time as a JPEG Blob. */
@@ -179,8 +206,17 @@ async function extractVideoFrame(file: File, atSec: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const v = document.createElement("video");
-    v.preload = "auto"; v.muted = true; v.playsInline = true; v.src = url;
-    const cleanup = () => { try { URL.revokeObjectURL(url); } catch { /* noop */ } };
+    v.preload = "auto";
+    v.muted = true;
+    v.playsInline = true;
+    v.src = url;
+    const cleanup = () => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch {
+        /* noop */
+      }
+    };
     v.onloadedmetadata = () => {
       const t = Math.max(0, Math.min(atSec, (v.duration || 0) - 0.05));
       v.currentTime = t;
@@ -188,18 +224,28 @@ async function extractVideoFrame(file: File, atSec: number): Promise<Blob> {
     v.onseeked = () => {
       try {
         const c = document.createElement("canvas");
-        c.width = v.videoWidth; c.height = v.videoHeight;
+        c.width = v.videoWidth;
+        c.height = v.videoHeight;
         c.getContext("2d")!.drawImage(v, 0, 0);
-        c.toBlob((b) => {
-          cleanup();
-          b ? resolve(b) : reject(new Error("Cover frame export failed"));
-        }, "image/jpeg", 0.85);
-      } catch (e) { cleanup(); reject(e as Error); }
+        c.toBlob(
+          (b) => {
+            cleanup();
+            b ? resolve(b) : reject(new Error("Cover frame export failed"));
+          },
+          "image/jpeg",
+          0.85,
+        );
+      } catch (e) {
+        cleanup();
+        reject(e as Error);
+      }
     };
-    v.onerror = () => { cleanup(); reject(new Error("Video load failed")); };
+    v.onerror = () => {
+      cleanup();
+      reject(new Error("Video load failed"));
+    };
   });
 }
-
 
 function filterCss(m: MediaItem): string {
   const preset = FILTERS.find((f) => f.id === m.filter)?.css ?? "";
@@ -211,7 +257,9 @@ function filterCss(m: MediaItem): string {
     `contrast(${(a.contrast + a.highlights * 0.15).toFixed(3)})`,
     `saturate(${a.saturation.toFixed(3)})`,
     a.shadows ? `drop-shadow(0 0 0 rgba(0,0,0,${Math.min(0.4, a.shadows * 0.4)}))` : "",
-  ].filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 type Props = { onDone?: () => void };
@@ -220,7 +268,9 @@ export function MediaComposer({ onDone }: Props) {
   const [items, setItems] = useState<MediaItem[]>([]);
   const [active, setActive] = useState(0);
   const [caption, setCaption] = useState("");
-  const [tab, setTab] = useState<"filters" | "adjust" | "text" | "draw" | "music" | "video">("filters");
+  const [tab, setTab] = useState<"filters" | "adjust" | "text" | "draw" | "music" | "video">(
+    "filters",
+  );
   const [showPreview, setShowPreview] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [music, setMusic] = useState<SelectedTrack | null>(null);
@@ -247,45 +297,60 @@ export function MediaComposer({ onDone }: Props) {
 
   const typeMeta = POST_TYPE_META[postType];
 
-  const acceptsFile = useCallback((f: File): boolean => {
-    if (postType === "reel") return f.type.startsWith("video/");
-    if (postType === "story" || postType === "post") return f.type.startsWith("image/") || f.type.startsWith("video/");
-    return false;
-  }, [postType]);
+  const acceptsFile = useCallback(
+    (f: File): boolean => {
+      if (postType === "reel") return f.type.startsWith("video/");
+      if (postType === "story" || postType === "post")
+        return f.type.startsWith("image/") || f.type.startsWith("video/");
+      return false;
+    },
+    [postType],
+  );
 
-  const addFiles = useCallback(async (files: FileList | null) => {
-    if (!files || !files.length) return;
-    if (postType === "telemetry") return;
-    const allowed = Array.from(files).filter(acceptsFile);
-    if (!allowed.length) return;
-    const remaining = Math.max(0, typeMeta.maxItems - items.length);
-    const slice = allowed.slice(0, remaining);
-    const uploadKind: UploadKind =
-      postType === "reel" ? "reel" : postType === "story" ? "story" : "image";
-    const accepted: File[] = [];
-    for (const f of slice) {
-      const kindForFile: UploadKind =
-        f.type.startsWith("video/")
-          ? (postType === "reel" ? "reel" : postType === "story" ? "story" : "video")
-          : (postType === "story" ? "story" : "image");
-      const sizeErr = checkUploadSize(kindForFile, f);
-      if (sizeErr) { toast.error(sizeErr); continue; }
-      if (f.type.startsWith("video/") && (kindForFile === "reel" || kindForFile === "story")) {
-        const maxSec = UPLOAD_LIMITS[kindForFile].maxSeconds;
-        const dur = await probeVideoDuration(f);
-        if (dur && maxSec && dur > maxSec + 0.25) {
-          toast.error(`"${f.name}" is ${dur.toFixed(1)}s — max ${maxSec}s for ${kindForFile}s.`);
+  const addFiles = useCallback(
+    async (files: FileList | null) => {
+      if (!files || !files.length) return;
+      if (postType === "telemetry") return;
+      const allowed = Array.from(files).filter(acceptsFile);
+      if (!allowed.length) return;
+      const remaining = Math.max(0, typeMeta.maxItems - items.length);
+      const slice = allowed.slice(0, remaining);
+      const uploadKind: UploadKind =
+        postType === "reel" ? "reel" : postType === "story" ? "story" : "image";
+      const accepted: File[] = [];
+      for (const f of slice) {
+        const kindForFile: UploadKind = f.type.startsWith("video/")
+          ? postType === "reel"
+            ? "reel"
+            : postType === "story"
+              ? "story"
+              : "video"
+          : postType === "story"
+            ? "story"
+            : "image";
+        const sizeErr = checkUploadSize(kindForFile, f);
+        if (sizeErr) {
+          toast.error(sizeErr);
           continue;
         }
+        if (f.type.startsWith("video/") && (kindForFile === "reel" || kindForFile === "story")) {
+          const maxSec = UPLOAD_LIMITS[kindForFile].maxSeconds;
+          const dur = await probeVideoDuration(f);
+          if (dur && maxSec && dur > maxSec + 0.25) {
+            toast.error(`"${f.name}" is ${dur.toFixed(1)}s — max ${maxSec}s for ${kindForFile}s.`);
+            continue;
+          }
+        }
+        accepted.push(f);
       }
-      accepted.push(f);
-    }
-    if (!accepted.length) return;
-    const next = accepted.map(newItem);
-    setItems((prev) => [...prev, ...next]);
-    if (!items.length && next.length) setActive(0);
-    void uploadKind;
-  }, [items.length, postType, typeMeta.maxItems, acceptsFile]);
+      if (!accepted.length) return;
+      const next = accepted.map(newItem);
+      setItems((prev) => [...prev, ...next]);
+      if (!items.length && next.length) setActive(0);
+      void uploadKind;
+    },
+    [items.length, postType, typeMeta.maxItems, acceptsFile],
+  );
 
   // Consume camera capture handed off from the status-bar long-press
   useEffect(() => {
@@ -297,22 +362,33 @@ export function MediaComposer({ onDone }: Props) {
       (async () => {
         const res = await fetch(payload.url);
         const blob = await res.blob();
-        const file = new File([blob], payload.name || "capture", { type: payload.type || blob.type });
-        try { URL.revokeObjectURL(payload.url); } catch { /* noop */ }
+        const file = new File([blob], payload.name || "capture", {
+          type: payload.type || blob.type,
+        });
+        try {
+          URL.revokeObjectURL(payload.url);
+        } catch {
+          /* noop */
+        }
         const dt = new DataTransfer();
         dt.items.add(file);
         addFiles(dt.files);
-      })().catch(() => { /* noop */ });
-    } catch { /* noop */ }
+      })().catch(() => {
+        /* noop */
+      });
+    } catch {
+      /* noop */
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   const patchActive = (patch: Partial<MediaItem>) =>
     setItems((prev) => prev.map((it, i) => (i === active ? { ...it, ...patch } : it)));
 
   const patchAdjust = (patch: Partial<EditorAdjust>) =>
-    setItems((prev) => prev.map((it, i) => (i === active ? { ...it, adjust: { ...it.adjust, ...patch } } : it)));
+    setItems((prev) =>
+      prev.map((it, i) => (i === active ? { ...it, adjust: { ...it.adjust, ...patch } } : it)),
+    );
 
   const removeAt = (i: number) => {
     URL.revokeObjectURL(items[i].previewUrl);
@@ -339,7 +415,8 @@ export function MediaComposer({ onDone }: Props) {
     const iw = swap ? img.height : img.width;
     const ih = swap ? img.width : img.height;
     const ratio = ASPECTS.find((a) => a.id === m.aspect)?.ratio ?? null;
-    let outW = iw, outH = ih;
+    let outW = iw,
+      outH = ih;
     if (ratio) {
       const curr = iw / ih;
       if (curr > ratio) outW = Math.round(ih * ratio);
@@ -347,9 +424,11 @@ export function MediaComposer({ onDone }: Props) {
     }
     const maxDim = 1920;
     const s = Math.min(1, maxDim / Math.max(outW, outH));
-    outW = Math.round(outW * s); outH = Math.round(outH * s);
+    outW = Math.round(outW * s);
+    outH = Math.round(outH * s);
     const canvas = document.createElement("canvas");
-    canvas.width = outW; canvas.height = outH;
+    canvas.width = outW;
+    canvas.height = outH;
     const ctx = canvas.getContext("2d")!;
     ctx.save();
     (ctx as any).filter = filterCss(m) || "none";
@@ -364,11 +443,14 @@ export function MediaComposer({ onDone }: Props) {
     for (const st of m.strokes) {
       ctx.strokeStyle = st.color;
       ctx.lineWidth = st.size;
-      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
       ctx.beginPath();
       st.points.forEach((p, i) => {
-        const x = p.x * outW; const y = p.y * outH;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        const x = p.x * outW;
+        const y = p.y * outH;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       });
       ctx.stroke();
     }
@@ -396,7 +478,13 @@ export function MediaComposer({ onDone }: Props) {
       if (!items.length && !caption.trim()) throw new Error("Add media or a caption");
 
       setFailed([]);
-      const uploaded: Array<{ url: string; contentType: string; path: string; kind: MediaItem["kind"]; coverUrl?: string }> = [];
+      const uploaded: Array<{
+        url: string;
+        contentType: string;
+        path: string;
+        kind: MediaItem["kind"];
+        coverUrl?: string;
+      }> = [];
 
       for (const m of items) {
         try {
@@ -413,7 +501,9 @@ export function MediaComposer({ onDone }: Props) {
                 try {
                   const frame = await extractVideoFrame(m.file, m.coverAt ?? 0);
                   coverUrl = (await uploadWithRetry(frame, { userId, bucket: "posts" })).url;
-                } catch { /* fall back to media URL as thumb */ }
+                } catch {
+                  /* fall back to media URL as thumb */
+                }
               }
               uploaded.push({
                 url: streamed.url,
@@ -438,7 +528,9 @@ export function MediaComposer({ onDone }: Props) {
               const frame = await extractVideoFrame(m.file, m.coverAt ?? 0);
               const coverRes = await uploadWithRetry(frame, { userId, bucket: "posts" });
               coverUrl = coverRes.url;
-            } catch { /* fall back to media URL as thumb */ }
+            } catch {
+              /* fall back to media URL as thumb */
+            }
           }
           uploaded.push({ ...res, kind: m.kind, coverUrl });
         } catch (e) {
@@ -447,13 +539,16 @@ export function MediaComposer({ onDone }: Props) {
         }
       }
 
-
       const first = uploaded[0];
       // Route on the user's chosen post type, not the media inspection.
       const kind: "photo" | "video" | "telemetry" =
-        postType === "telemetry" ? "telemetry"
-        : postType === "reel" ? "video"
-        : first?.kind === "video" ? "video" : "photo";
+        postType === "telemetry"
+          ? "telemetry"
+          : postType === "reel"
+            ? "video"
+            : first?.kind === "video"
+              ? "video"
+              : "photo";
 
       // AI safety scan on the first image (fail-open on gateway error).
       if (first && first.kind === "image") {
@@ -486,9 +581,6 @@ export function MediaComposer({ onDone }: Props) {
           if (e instanceof Error && e.message.startsWith("Caption blocked")) throw e;
         }
       }
-
-
-
 
       // If scheduled → keep as draft, don't publish yet.
       if (scheduleAt) {
@@ -523,16 +615,26 @@ export function MediaComposer({ onDone }: Props) {
       // worker can apply trim/mute/speed/overlays/music to the raw upload.
       if (first?.kind === "video" && typeof window !== "undefined") {
         try {
-          const edits = items.filter((m) => m.kind === "video").map((m) => ({
-            trimStart: m.trimStart ?? 0, trimEnd: m.trimEnd, muted: !!m.muted,
-            speed: m.speed ?? 1, coverAt: m.coverAt ?? 0, filter: m.filter,
-            adjust: m.adjust, overlays: m.overlays, music: music,
-          }));
+          const edits = items
+            .filter((m) => m.kind === "video")
+            .map((m) => ({
+              trimStart: m.trimStart ?? 0,
+              trimEnd: m.trimEnd,
+              muted: !!m.muted,
+              speed: m.speed ?? 1,
+              coverAt: m.coverAt ?? 0,
+              filter: m.filter,
+              adjust: m.adjust,
+              overlays: m.overlays,
+              music: music,
+            }));
           const key = "zrex:pending_video_edits";
           const prev = JSON.parse(window.localStorage.getItem(key) || "[]");
           prev.push({ mediaUrl: first.url, at: Date.now(), edits });
           window.localStorage.setItem(key, JSON.stringify(prev.slice(-50)));
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
 
       await post({
@@ -572,7 +674,9 @@ export function MediaComposer({ onDone }: Props) {
             scheduledFor: scheduleAt ? new Date(scheduleAt).getTime() : null,
           });
           setSavedDraftId(draft.id);
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
     },
   });
@@ -589,24 +693,73 @@ export function MediaComposer({ onDone }: Props) {
   };
 
   return (
-    <div className="pb-40" style={{ background: "var(--color-obsidian, #0a0a0b)", minHeight: "100dvh" }}>
+    <div
+      className="pb-40"
+      style={{ background: "var(--color-obsidian, #0a0a0b)", minHeight: "100dvh" }}
+    >
       {/* Hidden native pickers — accept flags depend on the chosen post type */}
-      <input ref={pickGallery} type="file"
+      <input
+        ref={pickGallery}
+        type="file"
         accept={typeMeta.accept || "image/*,video/*"}
-        multiple={typeMeta.maxItems > 1} hidden
-        onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
-      <input ref={pickCamera} type="file" accept="image/*" capture="environment" hidden
-        onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
-      <input ref={pickVideo} type="file" accept="video/*" capture="environment" hidden
-        onChange={(e) => { addFiles(e.target.files); e.currentTarget.value = ""; }} />
+        multiple={typeMeta.maxItems > 1}
+        hidden
+        onChange={(e) => {
+          addFiles(e.target.files);
+          e.currentTarget.value = "";
+        }}
+      />
+      <input
+        ref={pickCamera}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        hidden
+        onChange={(e) => {
+          addFiles(e.target.files);
+          e.currentTarget.value = "";
+        }}
+      />
+      <input
+        ref={pickVideo}
+        type="file"
+        accept="video/*"
+        capture="environment"
+        hidden
+        onChange={(e) => {
+          addFiles(e.target.files);
+          e.currentTarget.value = "";
+        }}
+      />
 
       {/* Header */}
-      <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3"
-        style={{ background: "rgba(10,10,11,0.9)", backdropFilter: "blur(12px)", borderBottom: "1px solid var(--color-hair)" }}>
-        <button onClick={onDone} className="mono-tag tap px-2 py-1" style={{ color: "var(--color-titanium)" }}>← Close</button>
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ STUDIO · {typeMeta.label.toUpperCase()}</p>
-        <button onClick={() => setShowPreview(true)} disabled={!activeItem}
-          className="mono-tag tap px-2 py-1" style={{ color: activeItem ? "var(--color-ink)" : "var(--color-titanium)", opacity: activeItem ? 1 : 0.4 }}>
+      <header
+        className="sticky top-0 z-30 flex items-center justify-between px-4 py-3"
+        style={{
+          background: "rgba(10,10,11,0.9)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid var(--color-hair)",
+        }}
+      >
+        <button
+          onClick={onDone}
+          className="mono-tag tap px-2 py-1"
+          style={{ color: "var(--color-titanium)" }}
+        >
+          ← Close
+        </button>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ STUDIO · {typeMeta.label.toUpperCase()}
+        </p>
+        <button
+          onClick={() => setShowPreview(true)}
+          disabled={!activeItem}
+          className="mono-tag tap px-2 py-1"
+          style={{
+            color: activeItem ? "var(--color-ink)" : "var(--color-titanium)",
+            opacity: activeItem ? 1 : 0.4,
+          }}
+        >
           Preview
         </button>
       </header>
@@ -614,14 +767,19 @@ export function MediaComposer({ onDone }: Props) {
       {/* Step 1 — Post-type picker */}
       {!typeConfirmed && (
         <div className="px-5 pt-8">
-          <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>What are you posting?</h1>
-          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Choose a type. Each has its own editor and constraints.</p>
+          <h1 className="serif text-3xl italic" style={{ color: "var(--color-ink)" }}>
+            What are you posting?
+          </h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>
+            Choose a type. Each has its own editor and constraints.
+          </p>
           <div className="mt-6 grid grid-cols-1 gap-2">
             {(Object.keys(POST_TYPE_META) as PostType[]).map((t) => {
               const meta = POST_TYPE_META[t];
               const active = postType === t;
               return (
-                <button key={t}
+                <button
+                  key={t}
                   onClick={() => setPostType(t)}
                   className="tap rounded-lg px-4 py-4 text-left"
                   style={{
@@ -630,18 +788,37 @@ export function MediaComposer({ onDone }: Props) {
                   }}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[15px] font-semibold" style={{ color: active ? "var(--color-neon)" : "var(--color-ink)" }}>{meta.label}</span>
-                    <span className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 9 }}>{meta.tag}</span>
+                    <span
+                      className="text-[15px] font-semibold"
+                      style={{ color: active ? "var(--color-neon)" : "var(--color-ink)" }}
+                    >
+                      {meta.label}
+                    </span>
+                    <span
+                      className="mono-tag"
+                      style={{ color: "var(--color-titanium)", fontSize: 9 }}
+                    >
+                      {meta.tag}
+                    </span>
                   </div>
-                  <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>{meta.desc}</p>
+                  <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
+                    {meta.desc}
+                  </p>
                 </button>
               );
             })}
           </div>
           <button
-            onClick={() => { persistLastPostType(postType); setTypeConfirmed(true); }}
+            onClick={() => {
+              persistLastPostType(postType);
+              setTypeConfirmed(true);
+            }}
             className="tap mt-6 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
-            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em" }}
+            style={{
+              background: "var(--color-neon)",
+              color: "var(--color-obsidian)",
+              letterSpacing: "0.14em",
+            }}
           >
             Continue as {typeMeta.label}
           </button>
@@ -651,48 +828,86 @@ export function MediaComposer({ onDone }: Props) {
       {/* Step 2 — Media picker (empty state) or telemetry entry */}
       {typeConfirmed && !items.length && postType !== "telemetry" && (
         <div className="px-5 pt-8">
-          <button onClick={() => setTypeConfirmed(false)} className="mono-tag tap" style={{ color: "var(--color-titanium)" }}>
+          <button
+            onClick={() => setTypeConfirmed(false)}
+            className="mono-tag tap"
+            style={{ color: "var(--color-titanium)" }}
+          >
             ← Change type
           </button>
-          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>New {typeMeta.label}</h1>
-          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>{typeMeta.tag}</p>
+          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>
+            New {typeMeta.label}
+          </h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>
+            {typeMeta.tag}
+          </p>
           <div className="mt-6 grid grid-cols-1 gap-2">
             {postType !== "reel" && (
-              <PickerButton label="Photo & video library" onClick={() => pickGallery.current?.click()} accent />
+              <PickerButton
+                label="Photo & video library"
+                onClick={() => pickGallery.current?.click()}
+                accent
+              />
             )}
             {postType === "reel" && (
-              <PickerButton label="Choose a video" onClick={() => pickGallery.current?.click()} accent />
+              <PickerButton
+                label="Choose a video"
+                onClick={() => pickGallery.current?.click()}
+                accent
+              />
             )}
             {postType !== "reel" && (
-              <PickerButton label="Take a photo" onClick={async () => {
-                const { pickNativePhoto } = await import("@/lib/native/camera");
-                const f = await pickNativePhoto("photo");
-                if (f) { const dt = new DataTransfer(); dt.items.add(f); addFiles(dt.files); }
-                else { pickCamera.current?.click(); }
-              }} />
+              <PickerButton
+                label="Take a photo"
+                onClick={async () => {
+                  const { pickNativePhoto } = await import("@/lib/native/camera");
+                  const f = await pickNativePhoto("photo");
+                  if (f) {
+                    const dt = new DataTransfer();
+                    dt.items.add(f);
+                    addFiles(dt.files);
+                  } else {
+                    pickCamera.current?.click();
+                  }
+                }}
+              />
             )}
             <PickerButton label="Record a video" onClick={() => pickVideo.current?.click()} />
           </div>
 
           {postType === "post" && !typeMeta.requiresMedia && (
             <div className="mt-8">
-              <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>OR</p>
+              <p className="mono-tag mb-2" style={{ color: "var(--color-silver)" }}>
+                OR
+              </p>
               <textarea
-                value={caption} onChange={(e) => setCaption(e.target.value)}
-                rows={4} placeholder="Say something…"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                rows={4}
+                placeholder="Say something…"
                 className="w-full rounded-lg px-3 py-2 text-[13px]"
-                style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+                style={{
+                  background: "var(--color-graphite)",
+                  color: "var(--color-ink)",
+                  border: "1px solid var(--color-hair)",
+                }}
               />
               <button
                 onClick={() => publish.mutate()}
                 disabled={!caption.trim() || publish.isPending}
                 className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
-                style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
+                style={{
+                  background: "var(--color-neon)",
+                  color: "var(--color-obsidian)",
+                  opacity: publish.isPending || !caption.trim() ? 0.5 : 1,
+                }}
               >
                 {publish.isPending ? "Publishing…" : "Publish text only"}
               </button>
               {publish.error && (
-                <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>
+                <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>
+                  {(publish.error as Error).message}
+                </p>
               )}
             </div>
           )}
@@ -702,55 +917,95 @@ export function MediaComposer({ onDone }: Props) {
       {/* Telemetry — no media path, publish as data post */}
       {typeConfirmed && postType === "telemetry" && (
         <div className="px-5 pt-8">
-          <button onClick={() => setTypeConfirmed(false)} className="mono-tag tap" style={{ color: "var(--color-titanium)" }}>
+          <button
+            onClick={() => setTypeConfirmed(false)}
+            className="mono-tag tap"
+            style={{ color: "var(--color-titanium)" }}
+          >
             ← Change type
           </button>
-          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>Telemetry post</h1>
-          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>Add a caption. Your latest ride or drag session is attached automatically.</p>
+          <h1 className="serif mt-3 text-3xl italic" style={{ color: "var(--color-ink)" }}>
+            Telemetry post
+          </h1>
+          <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>
+            Add a caption. Your latest ride or drag session is attached automatically.
+          </p>
           <textarea
-            value={caption} onChange={(e) => setCaption(e.target.value)}
-            rows={4} placeholder="What was this run?"
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            rows={4}
+            placeholder="What was this run?"
             className="mt-4 w-full rounded-lg px-3 py-2 text-[13px]"
-            style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+            style={{
+              background: "var(--color-graphite)",
+              color: "var(--color-ink)",
+              border: "1px solid var(--color-hair)",
+            }}
           />
           <button
             onClick={() => publish.mutate()}
             disabled={!caption.trim() || publish.isPending}
             className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
-            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", opacity: publish.isPending || !caption.trim() ? 0.5 : 1 }}
+            style={{
+              background: "var(--color-neon)",
+              color: "var(--color-obsidian)",
+              opacity: publish.isPending || !caption.trim() ? 0.5 : 1,
+            }}
           >
             {publish.isPending ? "Publishing…" : "Publish telemetry"}
           </button>
           {publish.error && (
-            <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>
+            <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>
+              {(publish.error as Error).message}
+            </p>
           )}
         </div>
       )}
 
       {/* Type-switch warning modal */}
       {typeSwitchWarn && (
-        <div className="fixed inset-0 z-50 grid place-items-center p-6" style={{ background: "rgba(0,0,0,0.75)" }}>
-          <div className="w-full max-w-sm rounded-xl p-5"
-            style={{ background: "var(--color-obsidian, #0a0a0b)", border: "1px solid var(--color-hair-strong)" }}>
-            <p className="serif text-lg italic" style={{ color: "var(--color-ink)" }}>Switch to {POST_TYPE_META[typeSwitchWarn].label}?</p>
-            <p className="mono-tag mt-2" style={{ color: "var(--color-silver)", textTransform: "none" }}>
-              Your current media isn't compatible with {POST_TYPE_META[typeSwitchWarn].label}. Switching will clear it.
+        <div
+          className="fixed inset-0 z-50 grid place-items-center p-6"
+          style={{ background: "rgba(0,0,0,0.75)" }}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl p-5"
+            style={{
+              background: "var(--color-obsidian, #0a0a0b)",
+              border: "1px solid var(--color-hair-strong)",
+            }}
+          >
+            <p className="serif text-lg italic" style={{ color: "var(--color-ink)" }}>
+              Switch to {POST_TYPE_META[typeSwitchWarn].label}?
+            </p>
+            <p
+              className="mono-tag mt-2"
+              style={{ color: "var(--color-silver)", textTransform: "none" }}
+            >
+              Your current media isn't compatible with {POST_TYPE_META[typeSwitchWarn].label}.
+              Switching will clear it.
             </p>
             <div className="mt-4 flex gap-2">
-              <button onClick={() => setTypeSwitchWarn(null)}
+              <button
+                onClick={() => setTypeSwitchWarn(null)}
                 className="mono-tag tap flex-1 rounded-full py-2"
-                style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}>
+                style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}
+              >
                 Keep media
               </button>
               <button
                 onClick={() => {
                   items.forEach((i) => URL.revokeObjectURL(i.previewUrl));
-                  setItems([]); setActive(0);
-                  const t = typeSwitchWarn; setTypeSwitchWarn(null);
-                  setPostType(t); persistLastPostType(t);
+                  setItems([]);
+                  setActive(0);
+                  const t = typeSwitchWarn;
+                  setTypeSwitchWarn(null);
+                  setPostType(t);
+                  persistLastPostType(t);
                 }}
                 className="mono-tag tap flex-1 rounded-full py-2"
-                style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>
+                style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}
+              >
                 Clear & switch
               </button>
             </div>
@@ -758,38 +1013,75 @@ export function MediaComposer({ onDone }: Props) {
         </div>
       )}
 
-
-
       {/* Editor */}
       {items.length > 0 && activeItem && (
         <>
           {/* Thumbnails / reorder */}
-          <div className="flex items-center gap-2 overflow-x-auto px-3 py-3" style={{ borderBottom: "1px solid var(--color-hair)" }}>
+          <div
+            className="flex items-center gap-2 overflow-x-auto px-3 py-3"
+            style={{ borderBottom: "1px solid var(--color-hair)" }}
+          >
             {items.map((m, i) => (
-              <ThumbCell key={m.id} m={m} active={i === active} onClick={() => setActive(i)}
+              <ThumbCell
+                key={m.id}
+                m={m}
+                active={i === active}
+                onClick={() => setActive(i)}
                 onRemove={() => removeAt(i)}
-                onLeft={() => move(i, i - 1)} onRight={() => move(i, i + 1)}
-                progress={progress[m.id]} failed={failed.includes(m.id)} />
+                onLeft={() => move(i, i - 1)}
+                onRight={() => move(i, i + 1)}
+                progress={progress[m.id]}
+                failed={failed.includes(m.id)}
+              />
             ))}
             {items.length < 10 && (
-              <button onClick={() => pickGallery.current?.click()}
+              <button
+                onClick={() => pickGallery.current?.click()}
                 className="tap grid h-16 w-16 shrink-0 place-items-center"
-                style={{ border: "1px dashed var(--color-hair-strong)", color: "var(--color-titanium)", borderRadius: 8 }}
-              >+</button>
+                style={{
+                  border: "1px dashed var(--color-hair-strong)",
+                  color: "var(--color-titanium)",
+                  borderRadius: 8,
+                }}
+              >
+                +
+              </button>
             )}
           </div>
 
           {/* Preview stage */}
-          <div className="relative mx-3 mt-3 overflow-hidden" style={{ border: "1px solid var(--color-hair)", borderRadius: 8, background: "#000" }}>
-            <PreviewStage m={activeItem} onEditOverlay={(id, patch) => patchActive({ overlays: activeItem.overlays.map((o) => o.id === id ? { ...o, ...patch } : o) })}
-              onAddStrokePoint={tab === "draw" ? (p, stroke) => {
-                if (stroke === "new") patchActive({ strokes: [...activeItem.strokes, { color: "#c6ff3d", size: 4, points: [p] }] });
-                else {
-                  const copy = [...activeItem.strokes];
-                  copy[copy.length - 1] = { ...copy[copy.length - 1], points: [...copy[copy.length - 1].points, p] };
-                  patchActive({ strokes: copy });
-                }
-              } : null}
+          <div
+            className="relative mx-3 mt-3 overflow-hidden"
+            style={{ border: "1px solid var(--color-hair)", borderRadius: 8, background: "#000" }}
+          >
+            <PreviewStage
+              m={activeItem}
+              onEditOverlay={(id, patch) =>
+                patchActive({
+                  overlays: activeItem.overlays.map((o) => (o.id === id ? { ...o, ...patch } : o)),
+                })
+              }
+              onAddStrokePoint={
+                tab === "draw"
+                  ? (p, stroke) => {
+                      if (stroke === "new")
+                        patchActive({
+                          strokes: [
+                            ...activeItem.strokes,
+                            { color: "#c6ff3d", size: 4, points: [p] },
+                          ],
+                        });
+                      else {
+                        const copy = [...activeItem.strokes];
+                        copy[copy.length - 1] = {
+                          ...copy[copy.length - 1],
+                          points: [...copy[copy.length - 1].points, p],
+                        };
+                        patchActive({ strokes: copy });
+                      }
+                    }
+                  : null
+              }
             />
           </div>
 
@@ -797,10 +1089,27 @@ export function MediaComposer({ onDone }: Props) {
           {activeItem.kind === "image" && (
             <div className="mt-3 flex items-center gap-2 overflow-x-auto px-3">
               {ASPECTS.map((a) => (
-                <ChipBtn key={a.id} active={activeItem.aspect === a.id} onClick={() => patchActive({ aspect: a.id })}>{a.label}</ChipBtn>
+                <ChipBtn
+                  key={a.id}
+                  active={activeItem.aspect === a.id}
+                  onClick={() => patchActive({ aspect: a.id })}
+                >
+                  {a.label}
+                </ChipBtn>
               ))}
-              <button onClick={() => patchActive({ rotation: ((activeItem.rotation + 90) % 360) as MediaItem["rotation"] })}
-                className="mono-tag tap px-3 py-1.5" style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)", borderRadius: 999 }}>
+              <button
+                onClick={() =>
+                  patchActive({
+                    rotation: ((activeItem.rotation + 90) % 360) as MediaItem["rotation"],
+                  })
+                }
+                className="mono-tag tap px-3 py-1.5"
+                style={{
+                  color: "var(--color-ink)",
+                  border: "1px solid var(--color-hair-strong)",
+                  borderRadius: 999,
+                }}
+              >
                 Rotate 90°
               </button>
             </div>
@@ -812,9 +1121,17 @@ export function MediaComposer({ onDone }: Props) {
               ? (["filters", "adjust", "video"] as const)
               : (["filters", "adjust", "text", "draw", "music"] as const)
             ).map((t) => (
-              <button key={t} onClick={() => setTab(t)} className="tap flex-1 py-2 text-[11px] uppercase tracking-wider"
-                style={{ color: tab === t ? "var(--color-neon)" : "var(--color-silver)", borderBottom: tab === t ? "2px solid var(--color-neon)" : "2px solid transparent" }}
-              >{t}</button>
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className="tap flex-1 py-2 text-[11px] uppercase tracking-wider"
+                style={{
+                  color: tab === t ? "var(--color-neon)" : "var(--color-silver)",
+                  borderBottom: tab === t ? "2px solid var(--color-neon)" : "2px solid transparent",
+                }}
+              >
+                {t}
+              </button>
             ))}
           </div>
 
@@ -822,14 +1139,39 @@ export function MediaComposer({ onDone }: Props) {
             {tab === "filters" && (
               <div className="flex gap-2 overflow-x-auto">
                 {FILTERS.map((f) => (
-                  <button key={f.id} onClick={() => patchActive({ filter: f.id })}
-                    className="tap shrink-0 text-center" style={{ opacity: activeItem.filter === f.id ? 1 : 0.75 }}>
-                    <div className="h-16 w-16 overflow-hidden" style={{ border: activeItem.filter === f.id ? "2px solid var(--color-neon)" : "1px solid var(--color-hair-strong)", borderRadius: 6 }}>
+                  <button
+                    key={f.id}
+                    onClick={() => patchActive({ filter: f.id })}
+                    className="tap shrink-0 text-center"
+                    style={{ opacity: activeItem.filter === f.id ? 1 : 0.75 }}
+                  >
+                    <div
+                      className="h-16 w-16 overflow-hidden"
+                      style={{
+                        border:
+                          activeItem.filter === f.id
+                            ? "2px solid var(--color-neon)"
+                            : "1px solid var(--color-hair-strong)",
+                        borderRadius: 6,
+                      }}
+                    >
                       {activeItem.kind === "image" ? (
-                        <img src={activeItem.previewUrl} alt="" className="h-full w-full object-cover" style={{ filter: f.css }} />
-                      ) : <div className="h-full w-full bg-[var(--color-graphite)]" />}
+                        <img
+                          src={activeItem.previewUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                          style={{ filter: f.css }}
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-[var(--color-graphite)]" />
+                      )}
                     </div>
-                    <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", fontSize: 9 }}>{f.label}</p>
+                    <p
+                      className="mono-tag mt-1"
+                      style={{ color: "var(--color-silver)", fontSize: 9 }}
+                    >
+                      {f.label}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -837,18 +1179,60 @@ export function MediaComposer({ onDone }: Props) {
 
             {tab === "adjust" && (
               <div className="space-y-3">
-                <Slider label="Brightness" value={activeItem.adjust.brightness} min={0.4} max={1.6} step={0.02}
-                  onChange={(v) => patchAdjust({ brightness: v })} onReset={() => patchAdjust({ brightness: 1 })} />
-                <Slider label="Contrast" value={activeItem.adjust.contrast} min={0.5} max={1.7} step={0.02}
-                  onChange={(v) => patchAdjust({ contrast: v })} onReset={() => patchAdjust({ contrast: 1 })} />
-                <Slider label="Saturation" value={activeItem.adjust.saturation} min={0} max={2} step={0.02}
-                  onChange={(v) => patchAdjust({ saturation: v })} onReset={() => patchAdjust({ saturation: 1 })} />
-                <Slider label="Exposure" value={activeItem.adjust.exposure} min={-0.4} max={0.4} step={0.02}
-                  onChange={(v) => patchAdjust({ exposure: v })} onReset={() => patchAdjust({ exposure: 0 })} />
-                <Slider label="Highlights" value={activeItem.adjust.highlights} min={-0.5} max={0.5} step={0.02}
-                  onChange={(v) => patchAdjust({ highlights: v })} onReset={() => patchAdjust({ highlights: 0 })} />
-                <Slider label="Shadows" value={activeItem.adjust.shadows} min={-0.5} max={0.5} step={0.02}
-                  onChange={(v) => patchAdjust({ shadows: v })} onReset={() => patchAdjust({ shadows: 0 })} />
+                <Slider
+                  label="Brightness"
+                  value={activeItem.adjust.brightness}
+                  min={0.4}
+                  max={1.6}
+                  step={0.02}
+                  onChange={(v) => patchAdjust({ brightness: v })}
+                  onReset={() => patchAdjust({ brightness: 1 })}
+                />
+                <Slider
+                  label="Contrast"
+                  value={activeItem.adjust.contrast}
+                  min={0.5}
+                  max={1.7}
+                  step={0.02}
+                  onChange={(v) => patchAdjust({ contrast: v })}
+                  onReset={() => patchAdjust({ contrast: 1 })}
+                />
+                <Slider
+                  label="Saturation"
+                  value={activeItem.adjust.saturation}
+                  min={0}
+                  max={2}
+                  step={0.02}
+                  onChange={(v) => patchAdjust({ saturation: v })}
+                  onReset={() => patchAdjust({ saturation: 1 })}
+                />
+                <Slider
+                  label="Exposure"
+                  value={activeItem.adjust.exposure}
+                  min={-0.4}
+                  max={0.4}
+                  step={0.02}
+                  onChange={(v) => patchAdjust({ exposure: v })}
+                  onReset={() => patchAdjust({ exposure: 0 })}
+                />
+                <Slider
+                  label="Highlights"
+                  value={activeItem.adjust.highlights}
+                  min={-0.5}
+                  max={0.5}
+                  step={0.02}
+                  onChange={(v) => patchAdjust({ highlights: v })}
+                  onReset={() => patchAdjust({ highlights: 0 })}
+                />
+                <Slider
+                  label="Shadows"
+                  value={activeItem.adjust.shadows}
+                  min={-0.5}
+                  max={0.5}
+                  step={0.02}
+                  onChange={(v) => patchAdjust({ shadows: v })}
+                  onReset={() => patchAdjust({ shadows: 0 })}
+                />
               </div>
             )}
 
@@ -856,21 +1240,68 @@ export function MediaComposer({ onDone }: Props) {
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-1.5">
                   {["#ffffff", "#c6ff3d", "#ff5a5a", "#ffb800", "#4fc3ff", "#000000"].map((c) => (
-                    <button key={c} onClick={() => {
-                      const id = `t_${Date.now()}`;
-                      patchActive({ overlays: [...activeItem.overlays, { id, text: "Type here", x: 0.15, y: 0.4, size: 32, color: c }] });
-                    }} className="h-7 w-7 rounded-full" style={{ background: c, border: "1px solid rgba(255,255,255,0.2)" }} />
+                    <button
+                      key={c}
+                      onClick={() => {
+                        const id = `t_${Date.now()}`;
+                        patchActive({
+                          overlays: [
+                            ...activeItem.overlays,
+                            { id, text: "Type here", x: 0.15, y: 0.4, size: 32, color: c },
+                          ],
+                        });
+                      }}
+                      className="h-7 w-7 rounded-full"
+                      style={{ background: c, border: "1px solid rgba(255,255,255,0.2)" }}
+                    />
                   ))}
-                  <span className="mono-tag ml-2 self-center" style={{ color: "var(--color-silver)" }}>tap a color to add text</span>
+                  <span
+                    className="mono-tag ml-2 self-center"
+                    style={{ color: "var(--color-silver)" }}
+                  >
+                    tap a color to add text
+                  </span>
                 </div>
                 {activeItem.overlays.map((o) => (
                   <div key={o.id} className="flex items-center gap-2">
-                    <input value={o.text} onChange={(e) => patchActive({ overlays: activeItem.overlays.map((x) => x.id === o.id ? { ...x, text: e.target.value } : x) })}
-                      className="flex-1 rounded px-2 py-1 text-[12px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }} />
-                    <input type="range" min={12} max={80} value={o.size}
-                      onChange={(e) => patchActive({ overlays: activeItem.overlays.map((x) => x.id === o.id ? { ...x, size: Number(e.target.value) } : x) })} />
-                    <button onClick={() => patchActive({ overlays: activeItem.overlays.filter((x) => x.id !== o.id) })}
-                      className="mono-tag" style={{ color: "#ff8080" }}>✕</button>
+                    <input
+                      value={o.text}
+                      onChange={(e) =>
+                        patchActive({
+                          overlays: activeItem.overlays.map((x) =>
+                            x.id === o.id ? { ...x, text: e.target.value } : x,
+                          ),
+                        })
+                      }
+                      className="flex-1 rounded px-2 py-1 text-[12px]"
+                      style={{
+                        background: "var(--color-graphite)",
+                        color: "var(--color-ink)",
+                        border: "1px solid var(--color-hair)",
+                      }}
+                    />
+                    <input
+                      type="range"
+                      min={12}
+                      max={80}
+                      value={o.size}
+                      onChange={(e) =>
+                        patchActive({
+                          overlays: activeItem.overlays.map((x) =>
+                            x.id === o.id ? { ...x, size: Number(e.target.value) } : x,
+                          ),
+                        })
+                      }
+                    />
+                    <button
+                      onClick={() =>
+                        patchActive({ overlays: activeItem.overlays.filter((x) => x.id !== o.id) })
+                      }
+                      className="mono-tag"
+                      style={{ color: "#ff8080" }}
+                    >
+                      ✕
+                    </button>
                   </div>
                 ))}
               </div>
@@ -879,7 +1310,9 @@ export function MediaComposer({ onDone }: Props) {
             {tab === "draw" && (
               <div className="mono-tag" style={{ color: "var(--color-silver)" }}>
                 Draw on the image above with your finger.
-                <button onClick={() => patchActive({ strokes: [] })} className="ml-3 underline">Clear</button>
+                <button onClick={() => patchActive({ strokes: [] })} className="ml-3 underline">
+                  Clear
+                </button>
               </div>
             )}
 
@@ -888,7 +1321,10 @@ export function MediaComposer({ onDone }: Props) {
                 {music ? (
                   <div
                     className="flex items-center gap-3 rounded-lg p-2"
-                    style={{ background: "var(--color-graphite)", border: "1px solid var(--color-neon)" }}
+                    style={{
+                      background: "var(--color-graphite)",
+                      border: "1px solid var(--color-neon)",
+                    }}
                   >
                     <div
                       className="grid h-11 w-11 shrink-0 place-items-center rounded-md"
@@ -897,17 +1333,24 @@ export function MediaComposer({ onDone }: Props) {
                       ♪
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[13px] font-semibold" style={{ color: "var(--color-ink)" }}>
+                      <p
+                        className="truncate text-[13px] font-semibold"
+                        style={{ color: "var(--color-ink)" }}
+                      >
                         {music.title}
                       </p>
                       <p className="mono-tag truncate" style={{ color: "var(--color-silver)" }}>
-                        {music.artist} · starts at {formatDuration(music.startAt)} · vol {Math.round(music.volume * 100)}%
+                        {music.artist} · starts at {formatDuration(music.startAt)} · vol{" "}
+                        {Math.round(music.volume * 100)}%
                       </p>
                     </div>
                     <button
                       onClick={() => setShowMusic(true)}
                       className="mono-tag tap px-2 py-1 rounded-full"
-                      style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}
+                      style={{
+                        color: "var(--color-ink)",
+                        border: "1px solid var(--color-hair-strong)",
+                      }}
                     >
                       Change
                     </button>
@@ -930,9 +1373,12 @@ export function MediaComposer({ onDone }: Props) {
                       border: "1px dashed var(--color-hair-strong)",
                     }}
                   >
-                    <span className="mono-tag" style={{ color: "var(--color-neon)" }}>♪ ADD MUSIC</span>
+                    <span className="mono-tag" style={{ color: "var(--color-neon)" }}>
+                      ♪ ADD MUSIC
+                    </span>
                     <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
-                      Browse hype, drift, night-ride and cinematic tracks. Preview, trim the start, set volume.
+                      Browse hype, drift, night-ride and cinematic tracks. Preview, trim the start,
+                      set volume.
                     </p>
                   </button>
                 )}
@@ -946,55 +1392,114 @@ export function MediaComposer({ onDone }: Props) {
 
           {/* Caption + publish bar */}
           <div className="mt-6 px-3">
-            <textarea value={caption} onChange={(e) => setCaption(e.target.value)}
-              rows={3} maxLength={2200} placeholder="Write a caption…"
+            <textarea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              rows={3}
+              maxLength={2200}
+              placeholder="Write a caption…"
               className="w-full rounded-lg px-3 py-2 text-[13px]"
-              style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)" }} />
+              style={{
+                background: "var(--color-graphite)",
+                color: "var(--color-ink)",
+                border: "1px solid var(--color-hair)",
+              }}
+            />
 
             <div className="mt-3 flex items-center justify-between gap-2">
-              <label className="mono-tag flex items-center gap-2" style={{ color: "var(--color-silver)" }}>
+              <label
+                className="mono-tag flex items-center gap-2"
+                style={{ color: "var(--color-silver)" }}
+              >
                 Schedule
-                <input type="datetime-local" value={scheduleAt} onChange={(e) => setScheduleAt(e.target.value)}
+                <input
+                  type="datetime-local"
+                  value={scheduleAt}
+                  onChange={(e) => setScheduleAt(e.target.value)}
                   disabled={postType === "story"}
-                  className="rounded px-2 py-1 text-[11px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair)", opacity: postType === "story" ? 0.4 : 1 }} />
+                  className="rounded px-2 py-1 text-[11px]"
+                  style={{
+                    background: "var(--color-graphite)",
+                    color: "var(--color-ink)",
+                    border: "1px solid var(--color-hair)",
+                    opacity: postType === "story" ? 0.4 : 1,
+                  }}
+                />
               </label>
-              <button onClick={draftSave} disabled={postType === "story"}
+              <button
+                onClick={draftSave}
+                disabled={postType === "story"}
                 className="mono-tag tap px-3 py-1.5"
-                style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)", borderRadius: 999, opacity: postType === "story" ? 0.4 : 1 }}>
+                style={{
+                  color: "var(--color-ink)",
+                  border: "1px solid var(--color-hair-strong)",
+                  borderRadius: 999,
+                  opacity: postType === "story" ? 0.4 : 1,
+                }}
+              >
                 {savedDraftId ? "Draft saved ✓" : "Save draft"}
               </button>
             </div>
 
             <button
-              onClick={() => { setTypeConfirmed(false); }}
+              onClick={() => {
+                setTypeConfirmed(false);
+              }}
               className="mono-tag tap mt-3 w-full rounded-lg px-3 py-2 text-left"
-              style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", color: "var(--color-silver)", textTransform: "none" }}
+              style={{
+                background: "var(--color-graphite)",
+                border: "1px solid var(--color-hair)",
+                color: "var(--color-silver)",
+                textTransform: "none",
+              }}
             >
-              Publishing as <span style={{ color: "var(--color-neon)" }}>◆ {typeMeta.label.toUpperCase()}</span> · {typeMeta.tag} — <span style={{ textDecoration: "underline" }}>change</span>
+              Publishing as{" "}
+              <span style={{ color: "var(--color-neon)" }}>◆ {typeMeta.label.toUpperCase()}</span> ·{" "}
+              {typeMeta.tag} — <span style={{ textDecoration: "underline" }}>change</span>
             </button>
 
-            {publish.error && <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>{(publish.error as Error).message}</p>}
+            {publish.error && (
+              <p className="mt-2 text-[12px]" style={{ color: "#ff8080" }}>
+                {(publish.error as Error).message}
+              </p>
+            )}
 
-            <button onClick={() => publish.mutate()} disabled={publish.isPending || (typeMeta.requiresMedia && !items.length)}
+            <button
+              onClick={() => publish.mutate()}
+              disabled={publish.isPending || (typeMeta.requiresMedia && !items.length)}
               className="tap mt-3 w-full rounded-full py-3 text-[12px] font-bold uppercase tracking-wider"
-              style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.14em", opacity: publish.isPending ? 0.5 : 1 }}
+              style={{
+                background: "var(--color-neon)",
+                color: "var(--color-obsidian)",
+                letterSpacing: "0.14em",
+                opacity: publish.isPending ? 0.5 : 1,
+              }}
             >
               {publish.isPending
                 ? "Uploading…"
-                : postType === "story" ? "Share to Story"
-                : postType === "reel" ? "Publish Reel"
-                : scheduleAt ? "Save & schedule"
-                : "Publish"}
+                : postType === "story"
+                  ? "Share to Story"
+                  : postType === "reel"
+                    ? "Publish Reel"
+                    : scheduleAt
+                      ? "Save & schedule"
+                      : "Publish"}
             </button>
-
           </div>
         </>
       )}
 
       {/* Preview modal */}
       {showPreview && activeItem && (
-        <div className="fixed inset-0 z-50 grid place-items-center p-4" style={{ background: "rgba(0,0,0,0.9)" }} onClick={() => setShowPreview(false)}>
-          <div className="max-h-full max-w-full overflow-hidden" style={{ border: "1px solid var(--color-hair-strong)" }}>
+        <div
+          className="fixed inset-0 z-50 grid place-items-center p-4"
+          style={{ background: "rgba(0,0,0,0.9)" }}
+          onClick={() => setShowPreview(false)}
+        >
+          <div
+            className="max-h-full max-w-full overflow-hidden"
+            style={{ border: "1px solid var(--color-hair-strong)" }}
+          >
             <PreviewStage m={activeItem} onEditOverlay={() => {}} onAddStrokePoint={null} />
           </div>
         </div>
@@ -1004,7 +1509,10 @@ export function MediaComposer({ onDone }: Props) {
         open={showMusic}
         initial={music}
         onClose={() => setShowMusic(false)}
-        onConfirm={(t) => { setMusic(t); setShowMusic(false); }}
+        onConfirm={(t) => {
+          setMusic(t);
+          setShowMusic(false);
+        }}
       />
     </div>
   );
@@ -1012,60 +1520,154 @@ export function MediaComposer({ onDone }: Props) {
 
 /* ---------- sub components ---------- */
 
-function PickerButton({ label, onClick, accent }: { label: string; onClick: () => void; accent?: boolean }) {
+function PickerButton({
+  label,
+  onClick,
+  accent,
+}: {
+  label: string;
+  onClick: () => void;
+  accent?: boolean;
+}) {
   return (
-    <button onClick={onClick} className="tap w-full rounded-lg px-4 py-4 text-left text-[13px]"
+    <button
+      onClick={onClick}
+      className="tap w-full rounded-lg px-4 py-4 text-left text-[13px]"
       style={{
         background: accent ? "var(--color-neon)" : "var(--color-graphite)",
         color: accent ? "var(--color-obsidian)" : "var(--color-ink)",
         border: "1px solid var(--color-hair-strong)",
-      }}>
+      }}
+    >
       {label}
     </button>
   );
 }
 
-function ChipBtn({ children, active, onClick }: { children: React.ReactNode; active?: boolean; onClick: () => void }) {
+function ChipBtn({
+  children,
+  active,
+  onClick,
+}: {
+  children: React.ReactNode;
+  active?: boolean;
+  onClick: () => void;
+}) {
   return (
-    <button onClick={onClick} className="mono-tag tap px-3 py-1.5"
+    <button
+      onClick={onClick}
+      className="mono-tag tap px-3 py-1.5"
       style={{
         color: active ? "var(--color-obsidian)" : "var(--color-ink)",
         background: active ? "var(--color-neon)" : "transparent",
-        border: "1px solid var(--color-hair-strong)", borderRadius: 999,
-      }}>{children}</button>
+        border: "1px solid var(--color-hair-strong)",
+        borderRadius: 999,
+      }}
+    >
+      {children}
+    </button>
   );
 }
 
-function ThumbCell({ m, active, onClick, onRemove, onLeft, onRight, progress, failed }: {
-  m: MediaItem; active: boolean; onClick: () => void; onRemove: () => void; onLeft: () => void; onRight: () => void;
-  progress?: UploadProgress; failed: boolean;
+function ThumbCell({
+  m,
+  active,
+  onClick,
+  onRemove,
+  onLeft,
+  onRight,
+  progress,
+  failed,
+}: {
+  m: MediaItem;
+  active: boolean;
+  onClick: () => void;
+  onRemove: () => void;
+  onLeft: () => void;
+  onRight: () => void;
+  progress?: UploadProgress;
+  failed: boolean;
 }) {
   return (
     <div className="relative shrink-0">
-      <button onClick={onClick} className="tap block h-16 w-16 overflow-hidden"
-        style={{ border: active ? "2px solid var(--color-neon)" : "1px solid var(--color-hair-strong)", borderRadius: 8 }}>
+      <button
+        onClick={onClick}
+        className="tap block h-16 w-16 overflow-hidden"
+        style={{
+          border: active ? "2px solid var(--color-neon)" : "1px solid var(--color-hair-strong)",
+          borderRadius: 8,
+        }}
+      >
         {m.kind === "image" ? (
-          <img src={m.previewUrl} alt="" className="h-full w-full object-cover" style={{ filter: filterCss(m) }} />
+          <img
+            src={m.previewUrl}
+            alt=""
+            className="h-full w-full object-cover"
+            style={{ filter: filterCss(m) }}
+          />
         ) : (
           <video src={m.previewUrl} className="h-full w-full object-cover" muted playsInline />
         )}
       </button>
       {progress && (
         <div className="absolute inset-x-0 bottom-0 h-1" style={{ background: "rgba(0,0,0,0.4)" }}>
-          <div className="h-full" style={{ width: `${Math.round(progress.pct * 100)}%`, background: "var(--color-neon)" }} />
+          <div
+            className="h-full"
+            style={{ width: `${Math.round(progress.pct * 100)}%`, background: "var(--color-neon)" }}
+          />
         </div>
       )}
-      {failed && <p className="mono-tag absolute inset-x-0 top-0 text-center" style={{ color: "#ff8080", fontSize: 8 }}>failed</p>}
+      {failed && (
+        <p
+          className="mono-tag absolute inset-x-0 top-0 text-center"
+          style={{ color: "#ff8080", fontSize: 8 }}
+        >
+          failed
+        </p>
+      )}
       <div className="absolute -top-1.5 -right-1.5 flex gap-0.5">
-        <button onClick={onLeft} title="Move left" className="mono-tag h-4 w-4 rounded-full text-[8px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}>‹</button>
-        <button onClick={onRight} title="Move right" className="mono-tag h-4 w-4 rounded-full text-[8px]" style={{ background: "var(--color-graphite)", color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)" }}>›</button>
-        <button onClick={onRemove} title="Remove" className="mono-tag h-4 w-4 rounded-full text-[8px]" style={{ background: "#ff5a5a", color: "#fff" }}>✕</button>
+        <button
+          onClick={onLeft}
+          title="Move left"
+          className="mono-tag h-4 w-4 rounded-full text-[8px]"
+          style={{
+            background: "var(--color-graphite)",
+            color: "var(--color-ink)",
+            border: "1px solid var(--color-hair-strong)",
+          }}
+        >
+          ‹
+        </button>
+        <button
+          onClick={onRight}
+          title="Move right"
+          className="mono-tag h-4 w-4 rounded-full text-[8px]"
+          style={{
+            background: "var(--color-graphite)",
+            color: "var(--color-ink)",
+            border: "1px solid var(--color-hair-strong)",
+          }}
+        >
+          ›
+        </button>
+        <button
+          onClick={onRemove}
+          title="Remove"
+          className="mono-tag h-4 w-4 rounded-full text-[8px]"
+          style={{ background: "#ff5a5a", color: "#fff" }}
+        >
+          ✕
+        </button>
       </div>
     </div>
   );
 }
 
-function PreviewStage({ m, onEditOverlay, onAddStrokePoint }: {
+function PreviewStage({
+  m,
+  onEditOverlay,
+  onAddStrokePoint,
+}: {
   m: MediaItem;
   onEditOverlay: (id: string, patch: Partial<Overlay>) => void;
   onAddStrokePoint: null | ((p: { x: number; y: number }, stroke: "new" | "cont") => void);
@@ -1073,7 +1675,9 @@ function PreviewStage({ m, onEditOverlay, onAddStrokePoint }: {
   const wrap = useRef<HTMLDivElement>(null);
   const drawing = useRef(false);
   const aspect = ASPECTS.find((a) => a.id === m.aspect)?.ratio ?? null;
-  const style: React.CSSProperties = aspect ? { aspectRatio: String(aspect) } : { aspectRatio: "1 / 1" };
+  const style: React.CSSProperties = aspect
+    ? { aspectRatio: String(aspect) }
+    : { aspectRatio: "1 / 1" };
 
   const toRel = (clientX: number, clientY: number) => {
     const r = wrap.current!.getBoundingClientRect();
@@ -1090,43 +1694,92 @@ function PreviewStage({ m, onEditOverlay, onAddStrokePoint }: {
     if (!drawing.current || !onAddStrokePoint) return;
     onAddStrokePoint(toRel(e.clientX, e.clientY), "cont");
   };
-  const endDrawing = () => { drawing.current = false; };
+  const endDrawing = () => {
+    drawing.current = false;
+  };
 
   return (
-    <div ref={wrap} className="relative w-full select-none" style={{ ...style, touchAction: onAddStrokePoint ? "none" : undefined }}
-      onPointerDown={startDrawing} onPointerMove={moveDrawing} onPointerUp={endDrawing} onPointerCancel={endDrawing}>
+    <div
+      ref={wrap}
+      className="relative w-full select-none"
+      style={{ ...style, touchAction: onAddStrokePoint ? "none" : undefined }}
+      onPointerDown={startDrawing}
+      onPointerMove={moveDrawing}
+      onPointerUp={endDrawing}
+      onPointerCancel={endDrawing}
+    >
       {m.kind === "image" ? (
-        <img src={m.previewUrl} alt="" className="absolute inset-0 h-full w-full object-cover"
-          style={{ filter: filterCss(m), transform: `rotate(${m.rotation}deg)` }} draggable={false} />
+        <img
+          src={m.previewUrl}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ filter: filterCss(m), transform: `rotate(${m.rotation}deg)` }}
+          draggable={false}
+        />
       ) : (
-        <video src={m.previewUrl} className="absolute inset-0 h-full w-full object-cover"
+        <video
+          src={m.previewUrl}
+          className="absolute inset-0 h-full w-full object-cover"
           style={{ filter: filterCss(m) }}
-          controls muted={m.muted} playsInline
-          onLoadedMetadata={(e) => { (e.currentTarget as HTMLVideoElement).playbackRate = m.speed ?? 1; }} />
+          controls
+          muted={m.muted}
+          playsInline
+          onLoadedMetadata={(e) => {
+            (e.currentTarget as HTMLVideoElement).playbackRate = m.speed ?? 1;
+          }}
+        />
       )}
       {/* strokes */}
-      <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <svg
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
         {m.strokes.map((s, i) => (
-          <polyline key={i} points={s.points.map((p) => `${p.x * 100},${p.y * 100}`).join(" ")}
-            stroke={s.color} strokeWidth={s.size * 0.3} fill="none" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" />
+          <polyline
+            key={i}
+            points={s.points.map((p) => `${p.x * 100},${p.y * 100}`).join(" ")}
+            stroke={s.color}
+            strokeWidth={s.size * 0.3}
+            fill="none"
+            vectorEffect="non-scaling-stroke"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         ))}
       </svg>
       {/* overlays */}
       {m.overlays.map((o) => (
-        <DraggableOverlay key={o.id} o={o} onChange={(patch) => onEditOverlay(o.id, patch)} bounds={wrap} />
+        <DraggableOverlay
+          key={o.id}
+          o={o}
+          onChange={(patch) => onEditOverlay(o.id, patch)}
+          bounds={wrap}
+        />
       ))}
     </div>
   );
 }
 
-function DraggableOverlay({ o, onChange, bounds }: { o: Overlay; onChange: (p: Partial<Overlay>) => void; bounds: React.RefObject<HTMLDivElement | null> }) {
+function DraggableOverlay({
+  o,
+  onChange,
+  bounds,
+}: {
+  o: Overlay;
+  onChange: (p: Partial<Overlay>) => void;
+  bounds: React.RefObject<HTMLDivElement | null>;
+}) {
   const state = useRef<{ dx: number; dy: number } | null>(null);
   return (
     <div
       onPointerDown={(e) => {
         (e.target as Element).setPointerCapture?.(e.pointerId);
         const r = bounds.current!.getBoundingClientRect();
-        state.current = { dx: e.clientX - (r.left + o.x * r.width), dy: e.clientY - (r.top + o.y * r.height) };
+        state.current = {
+          dx: e.clientX - (r.left + o.x * r.width),
+          dy: e.clientY - (r.top + o.y * r.height),
+        };
       }}
       onPointerMove={(e) => {
         if (!state.current) return;
@@ -1135,31 +1788,62 @@ function DraggableOverlay({ o, onChange, bounds }: { o: Overlay; onChange: (p: P
         const y = (e.clientY - state.current.dy - r.top) / r.height;
         onChange({ x: Math.max(0, Math.min(0.95, x)), y: Math.max(0, Math.min(0.95, y)) });
       }}
-      onPointerUp={() => { state.current = null; }}
+      onPointerUp={() => {
+        state.current = null;
+      }}
       className="absolute cursor-move select-none touch-none"
       style={{
-        left: `${o.x * 100}%`, top: `${o.y * 100}%`,
-        color: o.color, fontSize: o.size, fontWeight: 700,
+        left: `${o.x * 100}%`,
+        top: `${o.y * 100}%`,
+        color: o.color,
+        fontSize: o.size,
+        fontWeight: 700,
         fontFamily: "'Space Grotesk', system-ui, sans-serif",
         textShadow: "0 2px 6px rgba(0,0,0,0.55)",
         letterSpacing: "0.01em",
       }}
-    >{o.text}</div>
+    >
+      {o.text}
+    </div>
   );
 }
 
-function Slider({ label, value, min, max, step, onChange, onReset }: {
-  label: string; value: number; min: number; max: number; step: number;
-  onChange: (v: number) => void; onReset: () => void;
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  onChange,
+  onReset,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (v: number) => void;
+  onReset: () => void;
 }) {
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <span className="mono-tag" style={{ color: "var(--color-silver)" }}>{label}</span>
-        <button onClick={onReset} className="mono-tag" style={{ color: "var(--color-titanium)" }}>reset · {value.toFixed(2)}</button>
+        <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
+          {label}
+        </span>
+        <button onClick={onReset} className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+          reset · {value.toFixed(2)}
+        </button>
       </div>
-      <input type="range" min={min} max={max} step={step} value={value}
-        onChange={(e) => onChange(Number(e.target.value))} className="w-full accent-[var(--color-neon)]" />
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full accent-[var(--color-neon)]"
+      />
     </div>
   );
 }
@@ -1170,50 +1854,99 @@ function VideoControls({ m, onPatch }: { m: MediaItem; onPatch: (p: Partial<Medi
   const coverAt = m.coverAt ?? 0;
   return (
     <div className="space-y-3">
-      <video ref={vidRef} src={m.previewUrl} className="w-full rounded"
+      <video
+        ref={vidRef}
+        src={m.previewUrl}
+        className="w-full rounded"
         onLoadedMetadata={(e) => setDur((e.currentTarget as HTMLVideoElement).duration || 0)}
-        controls playsInline />
+        controls
+        playsInline
+      />
 
       {/* Cover-frame picker — this one actually works. */}
       {dur > 0 && (
         <div>
           <div className="mb-1 flex items-center justify-between">
-            <span className="mono-tag" style={{ color: "var(--color-silver)" }}>Cover frame</span>
-            <span className="mono-tag" style={{ color: "var(--color-neon)" }}>{coverAt.toFixed(1)}s</span>
+            <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
+              Cover frame
+            </span>
+            <span className="mono-tag" style={{ color: "var(--color-neon)" }}>
+              {coverAt.toFixed(1)}s
+            </span>
           </div>
-          <input type="range" min={0} max={dur} step={0.1} value={coverAt}
+          <input
+            type="range"
+            min={0}
+            max={dur}
+            step={0.1}
+            value={coverAt}
             onChange={(e) => {
               const t = Number(e.target.value);
               onPatch({ coverAt: t });
-              if (vidRef.current) { try { vidRef.current.currentTime = t; } catch { /* noop */ } }
+              if (vidRef.current) {
+                try {
+                  vidRef.current.currentTime = t;
+                } catch {
+                  /* noop */
+                }
+              }
             }}
-            className="w-full accent-[var(--color-neon)]" />
-          <p className="mono-tag mt-1" style={{ color: "var(--color-titanium)", fontSize: 10, textTransform: "none" }}>
+            className="w-full accent-[var(--color-neon)]"
+          />
+          <p
+            className="mono-tag mt-1"
+            style={{ color: "var(--color-titanium)", fontSize: 10, textTransform: "none" }}
+          >
             Scrub to pick the thumbnail shown in the feed and on your profile.
           </p>
         </div>
       )}
 
       {/* Everything below is honest about not doing anything yet. */}
-      <div className="rounded-lg p-3" style={{ background: "var(--color-graphite)", border: "1px dashed var(--color-hair-strong)" }}>
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ COMING SOON</p>
-        <p className="mono-tag mt-1" style={{ color: "var(--color-silver)", textTransform: "none", fontSize: 11 }}>
-          Trim, mute, playback speed, overlays and music-mix for video need a server-side render pass.
-          We&rsquo;re building it. Your upload publishes raw for now.
+      <div
+        className="rounded-lg p-3"
+        style={{
+          background: "var(--color-graphite)",
+          border: "1px dashed var(--color-hair-strong)",
+        }}
+      >
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ COMING SOON
         </p>
-        <div className="mt-3 space-y-2 opacity-50 pointer-events-none select-none" aria-disabled="true">
-          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
-            <span>Trim</span><span>—</span>
+        <p
+          className="mono-tag mt-1"
+          style={{ color: "var(--color-silver)", textTransform: "none", fontSize: 11 }}
+        >
+          Trim, mute, playback speed, overlays and music-mix for video need a server-side render
+          pass. We&rsquo;re building it. Your upload publishes raw for now.
+        </p>
+        <div
+          className="mt-3 space-y-2 opacity-50 pointer-events-none select-none"
+          aria-disabled="true"
+        >
+          <div
+            className="mono-tag flex items-center justify-between"
+            style={{ color: "var(--color-titanium)" }}
+          >
+            <span>Trim</span>
+            <span>—</span>
           </div>
-          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
-            <span>Playback speed</span><span>1.00×</span>
+          <div
+            className="mono-tag flex items-center justify-between"
+            style={{ color: "var(--color-titanium)" }}
+          >
+            <span>Playback speed</span>
+            <span>1.00×</span>
           </div>
-          <div className="mono-tag flex items-center justify-between" style={{ color: "var(--color-titanium)" }}>
-            <span>Mute audio</span><span>off</span>
+          <div
+            className="mono-tag flex items-center justify-between"
+            style={{ color: "var(--color-titanium)" }}
+          >
+            <span>Mute audio</span>
+            <span>off</span>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

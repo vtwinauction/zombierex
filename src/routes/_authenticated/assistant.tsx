@@ -80,9 +80,14 @@ function AssistantPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col pb-32">
       <header className="px-5 pt-8">
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>◆ REX · AI COMPANION</p>
+        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
+          ◆ REX · AI COMPANION
+        </p>
         <h1 className="serif mt-2 text-3xl leading-tight" style={{ color: "var(--color-ink)" }}>
-          Ask me <span className="italic" style={{ color: "var(--color-neon)" }}>anything</span>
+          Ask me{" "}
+          <span className="italic" style={{ color: "var(--color-neon)" }}>
+            anything
+          </span>
         </h1>
         <p className="mt-2 text-[12px]" style={{ color: "var(--color-silver)" }}>
           Discover crews, events, listings, or learn the platform. Replies stay on this device.
@@ -153,7 +158,12 @@ function AssistantPage() {
         {error && (
           <div
             className="px-4 py-3 text-[12px]"
-            style={{ background: "rgba(255,80,80,0.08)", border: "1px solid rgba(255,80,80,0.4)", borderRadius: 10, color: "#ff8080" }}
+            style={{
+              background: "rgba(255,80,80,0.08)",
+              border: "1px solid rgba(255,80,80,0.4)",
+              borderRadius: 10,
+              color: "#ff8080",
+            }}
           >
             {error}
           </div>
@@ -168,14 +178,21 @@ function AssistantPage() {
       >
         <div
           className="flex items-end gap-2 p-2"
-          style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair)", borderRadius: 14 }}
+          style={{
+            background: "var(--color-graphite)",
+            border: "1px solid var(--color-hair)",
+            borderRadius: 14,
+          }}
         >
           <textarea
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); }
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                send(input);
+              }
             }}
             placeholder="Ask REX…"
             rows={1}

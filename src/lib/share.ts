@@ -5,7 +5,11 @@
 
 export type ShareableType = "profile" | "post" | "listing" | "event" | "reel" | "creator";
 
-export function shareUrl(type: ShareableType, id: string, origin = typeof window !== "undefined" ? window.location.origin : "https://zombierex.com"): string {
+export function shareUrl(
+  type: ShareableType,
+  id: string,
+  origin = typeof window !== "undefined" ? window.location.origin : "https://zombierex.com",
+): string {
   const map: Record<ShareableType, string> = {
     profile: `${origin}/u/${id}`,
     creator: `${origin}/creator/${id}`,

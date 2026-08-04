@@ -27,7 +27,13 @@ export const planRoute = createServerFn({ method: "POST" })
     const LOVABLE_KEY = process.env.LOVABLE_API_KEY;
     const GMAPS_KEY = process.env.GOOGLE_MAPS_API_KEY;
     if (!LOVABLE_KEY || !GMAPS_KEY) {
-      return { error: "Navigation service unavailable", steps: [], polyline: "", distance_m: 0, duration_s: 0 };
+      return {
+        error: "Navigation service unavailable",
+        steps: [],
+        polyline: "",
+        distance_m: 0,
+        duration_s: 0,
+      };
     }
     const avoid: string[] = [];
     if (data.avoid_highways) avoid.push("HIGHWAYS");
@@ -47,24 +53,35 @@ export const planRoute = createServerFn({ method: "POST" })
       computeAlternativeRoutes: false,
     };
     try {
-      const res = await fetch("https://connector-gateway.lovable.dev/google_maps/routes/directions/v2:computeRoutes", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_KEY}`,
-          "X-Connection-Api-Key": GMAPS_KEY,
-          "Content-Type": "application/json",
-          "X-Goog-FieldMask": "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.steps.navigationInstruction,routes.legs.steps.distanceMeters,routes.legs.steps.startLocation,routes.legs.steps.endLocation",
+      const res = await fetch(
+        "https://connector-gateway.lovable.dev/google_maps/routes/directions/v2:computeRoutes",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_KEY}`,
+            "X-Connection-Api-Key": GMAPS_KEY,
+            "Content-Type": "application/json",
+            "X-Goog-FieldMask":
+              "routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.steps.navigationInstruction,routes.legs.steps.distanceMeters,routes.legs.steps.startLocation,routes.legs.steps.endLocation",
+          },
+          body: JSON.stringify(body),
         },
-        body: JSON.stringify(body),
-      });
+      );
       if (!res.ok) {
         const txt = await res.text();
         console.error("[planRoute] gateway", res.status, txt);
-        return { error: `Directions failed (${res.status})`, steps: [], polyline: "", distance_m: 0, duration_s: 0 };
+        return {
+          error: `Directions failed (${res.status})`,
+          steps: [],
+          polyline: "",
+          distance_m: 0,
+          duration_s: 0,
+        };
       }
       const json: any = await res.json();
       const r = json.routes?.[0];
-      if (!r) return { error: "No route found", steps: [], polyline: "", distance_m: 0, duration_s: 0 };
+      if (!r)
+        return { error: "No route found", steps: [], polyline: "", distance_m: 0, duration_s: 0 };
       const steps = (r.legs?.[0]?.steps ?? []).map((s: any) => ({
         instruction: s.navigationInstruction?.instructions ?? "",
         maneuver: s.navigationInstruction?.maneuver ?? "",
@@ -81,6 +98,12 @@ export const planRoute = createServerFn({ method: "POST" })
       };
     } catch (e: any) {
       console.error("[planRoute] err", e);
-      return { error: e.message ?? "Navigation error", steps: [], polyline: "", distance_m: 0, duration_s: 0 };
+      return {
+        error: e.message ?? "Navigation error",
+        steps: [],
+        polyline: "",
+        distance_m: 0,
+        duration_s: 0,
+      };
     }
   });

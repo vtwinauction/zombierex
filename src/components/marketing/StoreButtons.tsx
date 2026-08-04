@@ -18,10 +18,23 @@ function AppleMark({ size = 22 }: { size?: number }) {
 function GooglePlayMark({ size = 21 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 512 512" aria-hidden="true">
-      <path fill="#00c853" d="M47 21.4C41.2 27.6 38 36.5 38 48v416c0 11.5 3.2 20.4 9 26.6l2.2 2.1 233-233v-5.5l-233-233L47 21.4z" />
-      <path fill="#d7dbe0" d="M360 359.2l-77.8-77.9v-5.5l77.9-77.9 1.7 1L454 251c26.4 15 26.4 39.5 0 54.6l-92.2 52.4-1.8 1.2z" />
-      <path fill="#9aa2ab" d="M361.8 358l-79.6-79.6L47 490.6c8.7 9.2 23.1 10.4 39.3 1.2L361.8 358z" />
-      <path fill="#f2f4f6" d="M361.8 156.8L86.3 20.2C70.1 11 55.7 12.2 47 21.4l235.2 235.2 79.6-79.8z" opacity=".85" />
+      <path
+        fill="#00c853"
+        d="M47 21.4C41.2 27.6 38 36.5 38 48v416c0 11.5 3.2 20.4 9 26.6l2.2 2.1 233-233v-5.5l-233-233L47 21.4z"
+      />
+      <path
+        fill="#d7dbe0"
+        d="M360 359.2l-77.8-77.9v-5.5l77.9-77.9 1.7 1L454 251c26.4 15 26.4 39.5 0 54.6l-92.2 52.4-1.8 1.2z"
+      />
+      <path
+        fill="#9aa2ab"
+        d="M361.8 358l-79.6-79.6L47 490.6c8.7 9.2 23.1 10.4 39.3 1.2L361.8 358z"
+      />
+      <path
+        fill="#f2f4f6"
+        d="M361.8 156.8L86.3 20.2C70.1 11 55.7 12.2 47 21.4l235.2 235.2 79.6-79.8z"
+        opacity=".85"
+      />
     </svg>
   );
 }
@@ -50,23 +63,41 @@ export function StoreButtons({ compact = false }: { compact?: boolean }) {
 }
 
 function StoreLink({
-  href, icon, top, bottom, compact,
-}: { href: string | null; icon: React.ReactNode; top: string; bottom: string; compact: boolean }) {
+  href,
+  icon,
+  top,
+  bottom,
+  compact,
+}: {
+  href: string | null;
+  icon: React.ReactNode;
+  top: string;
+  bottom: string;
+  compact: boolean;
+}) {
   const label = href ? top : "Coming soon";
   const inner = (
     <>
       <span className="zx-store-icon">{icon}</span>
       <span className="zx-store-text">
         <span className="zx-store-top">{label}</span>
-        <span className="zx-store-bottom" style={{ fontSize: compact ? 14 : 16.5 }}>{bottom}</span>
+        <span className="zx-store-bottom" style={{ fontSize: compact ? 14 : 16.5 }}>
+          {bottom}
+        </span>
       </span>
     </>
   );
   if (!href) {
-    return <span className="zx-store" aria-disabled="true">{inner}</span>;
+    return (
+      <span className="zx-store" aria-disabled="true">
+        {inner}
+      </span>
+    );
   }
   return (
-    <a className="zx-store" href={href} target="_blank" rel="noreferrer noopener">{inner}</a>
+    <a className="zx-store" href={href} target="_blank" rel="noreferrer noopener">
+      {inner}
+    </a>
   );
 }
 
@@ -127,20 +158,29 @@ export function DownloadQr({ size = 168 }: { size?: number }) {
         /* QR is decorative — silently skip if generation fails */
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [size]);
 
   return (
     <div
       style={{
-        width: size, height: size, borderRadius: 16, padding: 10,
-        background: "#fff", display: "grid", placeItems: "center",
+        width: size,
+        height: size,
+        borderRadius: 16,
+        padding: 10,
+        background: "#fff",
+        display: "grid",
+        placeItems: "center",
       }}
       aria-label="QR code to download ZOMBIEREX"
     >
-      {src
-        ? <img src={src} width={size - 20} height={size - 20} alt="Scan to download ZOMBIEREX" />
-        : <QrCode size={40} color="#07080a" />}
+      {src ? (
+        <img src={src} width={size - 20} height={size - 20} alt="Scan to download ZOMBIEREX" />
+      ) : (
+        <QrCode size={40} color="#07080a" />
+      )}
     </div>
   );
 }

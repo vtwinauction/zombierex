@@ -13,9 +13,21 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type ModuleKey =
-  | "ai" | "judge" | "marketplace" | "garage" | "notifications" | "posting"
-  | "registration" | "search" | "uploads" | "live" | "drag_racing"
-  | "atlas" | "events" | "groups" | "messaging";
+  | "ai"
+  | "judge"
+  | "marketplace"
+  | "garage"
+  | "notifications"
+  | "posting"
+  | "registration"
+  | "search"
+  | "uploads"
+  | "live"
+  | "drag_racing"
+  | "atlas"
+  | "events"
+  | "groups"
+  | "messaging";
 
 export type PlatformStatus = {
   flags: Record<string, boolean>;
@@ -34,7 +46,11 @@ export async function fetchPlatformStatus(): Promise<PlatformStatus> {
   const [v2, legacy, maint, modules] = await Promise.all([
     supabase.from("feature_flags_v2").select("key, enabled"),
     supabase.from("feature_flags").select("key, enabled"),
-    supabase.from("maintenance_state").select("global_enabled, message, scheduled_until").eq("id", 1).maybeSingle(),
+    supabase
+      .from("maintenance_state")
+      .select("global_enabled, message, scheduled_until")
+      .eq("id", 1)
+      .maybeSingle(),
     supabase.from("module_maintenance").select("module_key, enabled, message"),
   ]);
 

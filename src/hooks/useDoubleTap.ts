@@ -20,25 +20,31 @@ export function useDoubleTap({
   const [burstAt, setBurstAt] = useState<{ x: number; y: number; k: number } | null>(null);
   const kRef = useRef(0);
 
-  const onClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    const now = Date.now();
-    const target = e.currentTarget.getBoundingClientRect();
-    const pt = { x: e.clientX - target.left, y: e.clientY - target.top };
-    if (now - last.current < delay) {
-      last.current = 0;
-      if (timer.current) { window.clearTimeout(timer.current); timer.current = null; }
-      kRef.current += 1;
-      setBurstAt({ ...pt, k: kRef.current });
-      onDoubleTap?.(pt);
-      return;
-    }
-    last.current = now;
-    if (timer.current) window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => {
-      timer.current = null;
-      onSingleTap?.();
-    }, delay);
-  }, [delay, onDoubleTap, onSingleTap]);
+  const onClick = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      const now = Date.now();
+      const target = e.currentTarget.getBoundingClientRect();
+      const pt = { x: e.clientX - target.left, y: e.clientY - target.top };
+      if (now - last.current < delay) {
+        last.current = 0;
+        if (timer.current) {
+          window.clearTimeout(timer.current);
+          timer.current = null;
+        }
+        kRef.current += 1;
+        setBurstAt({ ...pt, k: kRef.current });
+        onDoubleTap?.(pt);
+        return;
+      }
+      last.current = now;
+      if (timer.current) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        timer.current = null;
+        onSingleTap?.();
+      }, delay);
+    },
+    [delay, onDoubleTap, onSingleTap],
+  );
 
   return { onClick, burstAt };
 }

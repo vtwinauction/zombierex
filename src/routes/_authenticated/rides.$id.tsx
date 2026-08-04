@@ -23,7 +23,9 @@ export const Route = createFileRoute("/_authenticated/rides/$id")({
   errorComponent: ({ error, reset }) => (
     <div className="p-6 text-foreground">
       <p className="text-sm text-red-500">Failed to load ride: {error.message}</p>
-      <button onClick={reset} className="mt-3 border border-border px-3 py-1 text-xs">Retry</button>
+      <button onClick={reset} className="mt-3 border border-border px-3 py-1 text-xs">
+        Retry
+      </button>
     </div>
   ),
   notFoundComponent: () => <div className="p-6 text-foreground">Ride not found.</div>,
@@ -42,17 +44,28 @@ function RideDetail() {
   const [visibility, setVisibility] = useState<string>(r.visibility);
   const [saving, setSaving] = useState(false);
 
-  const path = Array.isArray(r.path) ? (r.path as any[]).map((p) => ({ lat: p.lat, lng: p.lng })) : [];
+  const path = Array.isArray(r.path)
+    ? (r.path as any[]).map((p) => ({ lat: p.lat, lng: p.lng }))
+    : [];
 
   async function save() {
     setSaving(true);
-    await upd({ data: { id, title: title || null, notes: notes || null, visibility: visibility as any } });
+    await upd({
+      data: { id, title: title || null, notes: notes || null, visibility: visibility as any },
+    });
     await refetch();
     setSaving(false);
   }
 
   async function remove() {
-    if (!(await confirmDialog({ title: "Delete this ride?", destructive: true, confirmLabel: "Delete" }))) return;
+    if (
+      !(await confirmDialog({
+        title: "Delete this ride?",
+        destructive: true,
+        confirmLabel: "Delete",
+      }))
+    )
+      return;
     await del({ data: { id } });
     nav({ to: "/rides" });
   }
@@ -79,19 +92,62 @@ function RideDetail() {
           <Big label="ELEV M" v={String(r.elev_gain_m)} />
           <Big label="POINTS" v={String((r.path as any[])?.length ?? 0)} />
         </div>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ride title" className="w-full bg-graphite p-3 text-sm" style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }} />
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes about this ride" rows={4} className="w-full bg-graphite p-3 text-sm" style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }} />
-        <select value={visibility} onChange={(e) => setVisibility(e.target.value)} className="w-full bg-graphite p-3 text-sm" style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}>
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Ride title"
+          className="w-full bg-graphite p-3 text-sm"
+          style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+        />
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Notes about this ride"
+          rows={4}
+          className="w-full bg-graphite p-3 text-sm"
+          style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+        />
+        <select
+          value={visibility}
+          onChange={(e) => setVisibility(e.target.value)}
+          className="w-full bg-graphite p-3 text-sm"
+          style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+        >
           <option value="private">PRIVATE (only you)</option>
           <option value="unlisted">UNLISTED (link only)</option>
           <option value="public">PUBLIC</option>
         </select>
         <div className="grid grid-cols-3 gap-2">
-          <button onClick={save} disabled={saving} className="tap py-3 mono-caps text-xs font-black disabled:opacity-50" style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}>{saving ? "SAVING…" : "SAVE"}</button>
-          <button onClick={exportGpx} className="tap py-3 mono-caps text-xs font-bold" style={{ border: "1px solid var(--color-hair-strong)", color: "var(--color-ink)" }}>EXPORT GPX</button>
-          <button onClick={remove} className="tap py-3 mono-caps text-xs font-bold" style={{ border: "1px solid rgba(255,80,80,0.5)", color: "#ff6b6b" }}>DELETE</button>
+          <button
+            onClick={save}
+            disabled={saving}
+            className="tap py-3 mono-caps text-xs font-black disabled:opacity-50"
+            style={{ background: "var(--color-neon)", color: "var(--color-obsidian)" }}
+          >
+            {saving ? "SAVING…" : "SAVE"}
+          </button>
+          <button
+            onClick={exportGpx}
+            className="tap py-3 mono-caps text-xs font-bold"
+            style={{ border: "1px solid var(--color-hair-strong)", color: "var(--color-ink)" }}
+          >
+            EXPORT GPX
+          </button>
+          <button
+            onClick={remove}
+            className="tap py-3 mono-caps text-xs font-bold"
+            style={{ border: "1px solid rgba(255,80,80,0.5)", color: "#ff6b6b" }}
+          >
+            DELETE
+          </button>
         </div>
-        <Link to="/rides" className="tap block w-full py-3 text-center mono-caps text-[10px] font-bold" style={{ color: "var(--color-silver)" }}>← ALL RIDES</Link>
+        <Link
+          to="/rides"
+          className="tap block w-full py-3 text-center mono-caps text-[10px] font-bold"
+          style={{ color: "var(--color-silver)" }}
+        >
+          ← ALL RIDES
+        </Link>
       </div>
     </div>
   );
@@ -99,9 +155,16 @@ function RideDetail() {
 
 function Big({ label, v }: { label: string; v: string }) {
   return (
-    <div className="border p-2 text-center" style={{ borderColor: "var(--color-hair)", background: "var(--color-graphite)" }}>
-      <p className="mono-num text-lg font-black" style={{ color: "var(--color-ink)" }}>{v}</p>
-      <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 8 }}>{label}</p>
+    <div
+      className="border p-2 text-center"
+      style={{ borderColor: "var(--color-hair)", background: "var(--color-graphite)" }}
+    >
+      <p className="mono-num text-lg font-black" style={{ color: "var(--color-ink)" }}>
+        {v}
+      </p>
+      <p className="mono-tag" style={{ color: "var(--color-silver)", fontSize: 8 }}>
+        {label}
+      </p>
     </div>
   );
 }

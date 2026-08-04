@@ -8,18 +8,22 @@ const vendorQuery = (id: string) =>
   queryOptions({ queryKey: ["admin-vendor", id], queryFn: () => adminGetVendor({ data: { id } }) });
 
 export const Route = createFileRoute("/_authenticated/admin/vendors/$id")({
-  head: () => ({ meta: [
-    { title: "Vendor Detail · ZOMBIEREX Admin" },
-    { name: "description", content: "Review vendor profile, plans, and verification." },
-    { property: "og:title", content: "Vendor Detail · ZOMBIEREX Admin" },
-    { property: "og:description", content: "Review vendor profile, plans, and verification." },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Vendor Detail · ZOMBIEREX Admin" },
+      { name: "description", content: "Review vendor profile, plans, and verification." },
+      { property: "og:title", content: "Vendor Detail · ZOMBIEREX Admin" },
+      { property: "og:description", content: "Review vendor profile, plans, and verification." },
+    ],
+  }),
   loader: ({ context, params }) => context.queryClient.ensureQueryData(vendorQuery(params.id)),
   component: AdminVendorDetail,
   errorComponent: ({ error, reset }) => (
     <div className="p-6 text-foreground">
       <p className="text-sm text-red-500">Failed to load vendor: {error.message}</p>
-      <button onClick={reset} className="mt-3 border border-border px-3 py-1 text-xs">Retry</button>
+      <button onClick={reset} className="mt-3 border border-border px-3 py-1 text-xs">
+        Retry
+      </button>
     </div>
   ),
   notFoundComponent: () => <div className="p-6 text-foreground">Vendor not found.</div>,
@@ -66,7 +70,10 @@ function AdminVendorDetail() {
         {v.business_type.replace(/_/g, " ")} · {v.slug}
       </p>
 
-      <div className="surface-1 lift-1 mt-4 p-4 space-y-2 text-[12px]" style={{ borderRadius: 8, color: "var(--color-silver)" }}>
+      <div
+        className="surface-1 lift-1 mt-4 p-4 space-y-2 text-[12px]"
+        style={{ borderRadius: 8, color: "var(--color-silver)" }}
+      >
         <Row k="Legal name" v={v.legal_name} />
         <Row k="Owner" v={v.owner_name} />
         <Row k="Email" v={v.email} />
@@ -74,18 +81,31 @@ function AdminVendorDetail() {
         <Row k="Website" v={v.website} />
         <Row k="Trade license" v={v.trade_license_no} />
         <Row k="Tax number" v={v.tax_number} />
-        <Row k="Address" v={[v.address_line1, v.city, v.region, v.country, v.postal_code].filter(Boolean).join(", ") || null} />
+        <Row
+          k="Address"
+          v={
+            [v.address_line1, v.city, v.region, v.country, v.postal_code]
+              .filter(Boolean)
+              .join(", ") || null
+          }
+        />
         <Row k="Service areas" v={(v.service_areas ?? []).join(", ") || null} />
       </div>
 
       {v.description && (
         <>
-          <p className="mono-tag mt-4" style={{ color: "var(--color-silver)" }}>DESCRIPTION</p>
-          <p className="mt-2 text-[13px]" style={{ color: "var(--color-ink)" }}>{v.description}</p>
+          <p className="mono-tag mt-4" style={{ color: "var(--color-silver)" }}>
+            DESCRIPTION
+          </p>
+          <p className="mt-2 text-[13px]" style={{ color: "var(--color-ink)" }}>
+            {v.description}
+          </p>
         </>
       )}
 
-      <p className="mono-tag mt-6" style={{ color: "var(--color-silver)" }}>DECISION NOTES</p>
+      <p className="mono-tag mt-6" style={{ color: "var(--color-silver)" }}>
+        DECISION NOTES
+      </p>
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
@@ -101,7 +121,10 @@ function AdminVendorDetail() {
       />
 
       {err && (
-        <div className="mt-3 rounded px-3 py-2 text-[12px]" style={{ background: "rgba(220,60,60,0.1)", border: "1px solid rgba(220,60,60,0.4)" }}>
+        <div
+          className="mt-3 rounded px-3 py-2 text-[12px]"
+          style={{ background: "rgba(220,60,60,0.1)", border: "1px solid rgba(220,60,60,0.4)" }}
+        >
           {err}
         </div>
       )}
@@ -111,7 +134,12 @@ function AdminVendorDetail() {
           onClick={() => act("approved", "approve")}
           disabled={!!busy}
           className="tap py-3 text-[12px] font-semibold uppercase tracking-wider"
-          style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", borderRadius: 6, opacity: busy ? 0.6 : 1 }}
+          style={{
+            background: "var(--color-neon)",
+            color: "var(--color-obsidian)",
+            borderRadius: 6,
+            opacity: busy ? 0.6 : 1,
+          }}
         >
           {busy === "approve" ? "…" : "Approve"}
         </button>
@@ -119,7 +147,12 @@ function AdminVendorDetail() {
           onClick={() => act("info_requested", "info")}
           disabled={!!busy}
           className="tap py-3 text-[12px] font-semibold uppercase tracking-wider"
-          style={{ background: "transparent", color: "var(--color-ink)", border: "1px solid var(--color-hair-strong)", borderRadius: 6 }}
+          style={{
+            background: "transparent",
+            color: "var(--color-ink)",
+            border: "1px solid var(--color-hair-strong)",
+            borderRadius: 6,
+          }}
         >
           {busy === "info" ? "…" : "Request info"}
         </button>
@@ -127,7 +160,12 @@ function AdminVendorDetail() {
           onClick={() => act("rejected", "reject")}
           disabled={!!busy}
           className="tap py-3 text-[12px] font-semibold uppercase tracking-wider"
-          style={{ background: "transparent", color: "#ff7c5b", border: "1px solid rgba(255,124,91,0.5)", borderRadius: 6 }}
+          style={{
+            background: "transparent",
+            color: "#ff7c5b",
+            border: "1px solid rgba(255,124,91,0.5)",
+            borderRadius: 6,
+          }}
         >
           {busy === "reject" ? "…" : "Reject"}
         </button>

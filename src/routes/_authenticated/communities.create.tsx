@@ -10,7 +10,12 @@ export const Route = createFileRoute("/_authenticated/communities/create")({
 });
 
 function slugify(s: string) {
-  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 60);
 }
 
 function CreateCommunityPage() {
@@ -53,24 +58,34 @@ function CreateCommunityPage() {
 
   return (
     <div className="pb-24">
-
       <div className="px-4 pt-6">
-        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>New signal</p>
-        <h1 className="serif text-[32px] italic leading-none" style={{ color: "var(--color-ink)" }}>Start a community</h1>
+        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+          New signal
+        </p>
+        <h1 className="serif text-[32px] italic leading-none" style={{ color: "var(--color-ink)" }}>
+          Start a community
+        </h1>
         <p className="mt-2 text-[13px]" style={{ color: "var(--color-titanium)" }}>
           Bring together riders and drivers who share your passion. You'll be the owner.
         </p>
       </div>
 
       <form
-        onSubmit={(e) => { e.preventDefault(); mut.mutate(); }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          mut.mutate();
+        }}
         className="mt-6 space-y-4 px-4"
       >
         <Field label="Name">
           <input
-            required minLength={3} maxLength={80}
+            required
+            minLength={3}
+            maxLength={80}
             value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value, slug: form.slug || slugify(e.target.value) })}
+            onChange={(e) =>
+              setForm({ ...form, name: e.target.value, slug: form.slug || slugify(e.target.value) })
+            }
             className={inputClass}
             placeholder="Night Circuit LA"
           />
@@ -93,7 +108,9 @@ function CreateCommunityPage() {
             className={inputClass}
           >
             {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c.replace(/_/g, " ")}</option>
+              <option key={c} value={c}>
+                {c.replace(/_/g, " ")}
+              </option>
             ))}
           </select>
         </Field>
@@ -132,15 +149,29 @@ function CreateCommunityPage() {
 
         <Field label="Privacy">
           <div className="flex gap-2">
-            <ToggleChip active={!form.is_private} onClick={() => setForm({ ...form, is_private: false })}>Public</ToggleChip>
-            <ToggleChip active={form.is_private} onClick={() => setForm({ ...form, is_private: true })}>Private</ToggleChip>
+            <ToggleChip
+              active={!form.is_private}
+              onClick={() => setForm({ ...form, is_private: false })}
+            >
+              Public
+            </ToggleChip>
+            <ToggleChip
+              active={form.is_private}
+              onClick={() => setForm({ ...form, is_private: true })}
+            >
+              Private
+            </ToggleChip>
           </div>
         </Field>
 
         <Field label="Join policy">
           <div className="flex gap-2">
-            {(["open","request","invite"] as const).map((p) => (
-              <ToggleChip key={p} active={form.join_policy === p} onClick={() => setForm({ ...form, join_policy: p })}>
+            {(["open", "request", "invite"] as const).map((p) => (
+              <ToggleChip
+                key={p}
+                active={form.join_policy === p}
+                onClick={() => setForm({ ...form, join_policy: p })}
+              >
                 {p}
               </ToggleChip>
             ))}
@@ -148,8 +179,13 @@ function CreateCommunityPage() {
         </Field>
 
         {error && (
-          <p className="rounded-md p-2 text-[12px]"
-            style={{ background: "color-mix(in oklab, red 15%, transparent)", color: "#ffb3b3", border: "1px solid rgba(255,80,80,0.4)" }}
+          <p
+            className="rounded-md p-2 text-[12px]"
+            style={{
+              background: "color-mix(in oklab, red 15%, transparent)",
+              color: "#ffb3b3",
+              border: "1px solid rgba(255,80,80,0.4)",
+            }}
           >
             {error}
           </p>
@@ -159,7 +195,11 @@ function CreateCommunityPage() {
           type="submit"
           disabled={!canSubmit}
           className="tap w-full rounded-full py-3 text-[13px] font-bold uppercase tracking-wider disabled:opacity-40"
-          style={{ background: "var(--color-neon)", color: "var(--color-obsidian)", letterSpacing: "0.16em" }}
+          style={{
+            background: "var(--color-neon)",
+            color: "var(--color-obsidian)",
+            letterSpacing: "0.16em",
+          }}
         >
           {mut.isPending ? "Launching…" : "Launch community"}
         </button>
@@ -168,18 +208,36 @@ function CreateCommunityPage() {
   );
 }
 
-const inputClass =
-  "w-full rounded-lg px-3 py-2.5 text-[13px] focus:outline-none";
+const inputClass = "w-full rounded-lg px-3 py-2.5 text-[13px] focus:outline-none";
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <div className="mb-1.5 flex items-baseline justify-between">
-        <span className="mono-tag" style={{ color: "var(--color-ink)", fontSize: 10 }}>{label}</span>
-        {hint && <span className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 9 }}>{hint}</span>}
+        <span className="mono-tag" style={{ color: "var(--color-ink)", fontSize: 10 }}>
+          {label}
+        </span>
+        {hint && (
+          <span className="mono-tag" style={{ color: "var(--color-titanium)", fontSize: 9 }}>
+            {hint}
+          </span>
+        )}
       </div>
       <div
-        style={{ background: "var(--color-graphite)", border: "1px solid var(--color-hair-strong)", borderRadius: 8, color: "var(--color-ink)" }}
+        style={{
+          background: "var(--color-graphite)",
+          border: "1px solid var(--color-hair-strong)",
+          borderRadius: 8,
+          color: "var(--color-ink)",
+        }}
       >
         {children}
       </div>
@@ -187,7 +245,15 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   );
 }
 
-function ToggleChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function ToggleChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       type="button"

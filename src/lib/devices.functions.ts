@@ -66,5 +66,10 @@ export const sendTestPush = createServerFn({ method: "POST" })
     if (stale.length) {
       await context.supabase.from("device_tokens").delete().in("token", stale);
     }
-    return { ok: sent > 0, sent, stale: stale.length, reason: sent > 0 ? "sent" as const : "all_failed" as const };
+    return {
+      ok: sent > 0,
+      sent,
+      stale: stale.length,
+      reason: sent > 0 ? ("sent" as const) : ("all_failed" as const),
+    };
   });

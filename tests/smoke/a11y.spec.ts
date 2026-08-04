@@ -28,7 +28,17 @@ for (const path of ROUTES) {
 }
 
 test.describe("mobile viewport (iPhone 13)", () => {
-  test.use({ ...devices["iPhone 13"] });
+  // Only override emulation options — spreading the full device descriptor sets
+  // `defaultBrowserType`, which Playwright forbids inside a describe group.
+  const iphone = devices["iPhone 13"];
+  test.use({
+    viewport: iphone.viewport,
+    userAgent: iphone.userAgent,
+    deviceScaleFactor: iphone.deviceScaleFactor,
+    isMobile: iphone.isMobile,
+    hasTouch: iphone.hasTouch,
+  });
+
 
   test("no horizontal overflow on home", async ({ page }) => {
     await page.goto("http://localhost:8080/", { waitUntil: "domcontentloaded" });
@@ -36,8 +46,12 @@ test.describe("mobile viewport (iPhone 13)", () => {
     expect(overflow, "horizontal overflow px").toBeLessThanOrEqual(2);
   });
 
-  test("bottom navigation is reachable on mobile", async ({ page }) => {
+  test("primary navigation is reachable on mobile", async ({ page }) => {
     await page.goto("http://localhost:8080/", { waitUntil: "domcontentloaded" });
-    await expect(page.locator("nav").first()).toBeVisible({ timeout: 10_000 });
+    // "/" is the marketing site: the link bar collapses into a menu button at
+    // mobile widths, so either affordance counts as reachable navigation.
+    const nav = page.locator("nav:visible, button[aria-label*='menu' i], button[aria-controls*='menu' i]").first();
+    await expect(nav).toBeVisible({ timeout: 10_000 });
   });
+
 });

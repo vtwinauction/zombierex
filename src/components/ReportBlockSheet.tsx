@@ -5,18 +5,38 @@ import { submitReport, blockUser, muteUser } from "@/lib/moderation.functions";
 import { haptic } from "@/lib/native";
 
 export type ReportTargetKind =
-  | "post" | "reel" | "story" | "comment" | "message"
-  | "profile" | "community" | "event" | "listing";
+  | "post"
+  | "reel"
+  | "story"
+  | "comment"
+  | "message"
+  | "profile"
+  | "community"
+  | "event"
+  | "listing";
 
 type Reason =
-  | "spam" | "scam" | "harassment" | "hate" | "violence" | "nudity"
-  | "self_harm" | "impersonation" | "copyright" | "misinformation" | "other";
+  | "spam"
+  | "scam"
+  | "harassment"
+  | "hate"
+  | "violence"
+  | "nudity"
+  | "self_harm"
+  | "impersonation"
+  | "copyright"
+  | "misinformation"
+  | "other";
 
 const REASONS: Array<{ key: Reason; label: string; hint: string }> = [
   { key: "spam", label: "Spam or misleading", hint: "Repetitive, deceptive, or bot-like content" },
   { key: "harassment", label: "Harassment or bullying", hint: "Targeted attacks or threats" },
   { key: "hate", label: "Hate speech", hint: "Attacks based on identity" },
-  { key: "violence", label: "Violence or dangerous acts", hint: "Wheelies through traffic, public-road racing" },
+  {
+    key: "violence",
+    label: "Violence or dangerous acts",
+    hint: "Wheelies through traffic, public-road racing",
+  },
   { key: "nudity", label: "Nudity or sexual content", hint: "Adult content posted publicly" },
   { key: "self_harm", label: "Self-harm or suicide", hint: "Content that promotes harm to self" },
   { key: "scam", label: "Scam or fraud", hint: "Marketplace fraud, phishing" },
@@ -53,7 +73,12 @@ export function ReportBlockSheet({
   const mute = useServerFn(muteUser);
 
   useEffect(() => {
-    if (!open) { setTab("menu"); setReason(null); setDetails(""); setBusy(null); }
+    if (!open) {
+      setTab("menu");
+      setReason(null);
+      setDetails("");
+      setBusy(null);
+    }
   }, [open]);
 
   if (!open) return null;
@@ -68,37 +93,58 @@ export function ReportBlockSheet({
     }
     setBusy("report");
     try {
-      await send({ data: { target_kind: targetKind, target_id: targetId!, reason, details: details || undefined } });
+      await send({
+        data: {
+          target_kind: targetKind,
+          target_id: targetId!,
+          reason,
+          details: details || undefined,
+        },
+      });
       void haptic("light");
       toast.success("Report received. Thanks for helping keep ZOMBIEREX safe.");
       onClose();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Couldn't submit report");
-    } finally { setBusy(null); }
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function onBlock() {
-    if (!isUuid(authorId)) { toast.error("No user to block"); return; }
+    if (!isUuid(authorId)) {
+      toast.error("No user to block");
+      return;
+    }
     setBusy("block");
     try {
       await block({ data: { user_id: authorId! } });
       void haptic("medium");
       toast.success(authorHandle ? `Blocked ${authorHandle}` : "User blocked");
       onClose();
-    } catch (e) { toast.error(e instanceof Error ? e.message : "Couldn't block"); }
-    finally { setBusy(null); }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Couldn't block");
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function onMute() {
-    if (!isUuid(authorId)) { toast.error("No user to mute"); return; }
+    if (!isUuid(authorId)) {
+      toast.error("No user to mute");
+      return;
+    }
     setBusy("mute");
     try {
       await mute({ data: { user_id: authorId! } });
       void haptic("light");
       toast.success(authorHandle ? `Muted ${authorHandle}` : "User muted");
       onClose();
-    } catch (e) { toast.error(e instanceof Error ? e.message : "Couldn't mute"); }
-    finally { setBusy(null); }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Couldn't mute");
+    } finally {
+      setBusy(null);
+    }
   }
 
   return (
@@ -118,11 +164,17 @@ export function ReportBlockSheet({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="mx-auto mt-2 h-1 w-10 rounded-full" style={{ background: "var(--color-hair-strong)" }} />
+        <div
+          className="mx-auto mt-2 h-1 w-10 rounded-full"
+          style={{ background: "var(--color-hair-strong)" }}
+        />
 
         {tab === "menu" && (
           <div className="p-4">
-            <p className="mono-tag mb-3" style={{ color: "var(--color-silver)", fontSize: 10, letterSpacing: "0.16em" }}>
+            <p
+              className="mono-tag mb-3"
+              style={{ color: "var(--color-silver)", fontSize: 10, letterSpacing: "0.16em" }}
+            >
               MODERATE {authorHandle ? `· ${authorHandle}` : ""}
             </p>
             <Action
@@ -163,7 +215,9 @@ export function ReportBlockSheet({
             >
               ← BACK
             </button>
-            <p className="serif text-[18px] italic" style={{ color: "var(--color-ink)" }}>Why are you reporting this?</p>
+            <p className="serif text-[18px] italic" style={{ color: "var(--color-ink)" }}>
+              Why are you reporting this?
+            </p>
             <p className="mt-1 text-[12px]" style={{ color: "var(--color-silver)" }}>
               Reports are confidential. Our team reviews within 24 hours.
             </p>
@@ -179,14 +233,20 @@ export function ReportBlockSheet({
                     background: reason === r.key ? "rgba(0,200,83,0.08)" : "transparent",
                   }}
                 >
-                  <p className="text-[13px]" style={{ color: "var(--color-ink)" }}>{r.label}</p>
-                  <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>{r.hint}</p>
+                  <p className="text-[13px]" style={{ color: "var(--color-ink)" }}>
+                    {r.label}
+                  </p>
+                  <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>
+                    {r.hint}
+                  </p>
                 </button>
               ))}
             </div>
 
             <label className="mt-3 block">
-              <span className="mono-tag text-xs" style={{ color: "var(--color-silver)" }}>DETAILS (OPTIONAL)</span>
+              <span className="mono-tag text-xs" style={{ color: "var(--color-silver)" }}>
+                DETAILS (OPTIONAL)
+              </span>
               <textarea
                 value={details}
                 onChange={(e) => setDetails(e.target.value.slice(0, 2000))}
@@ -218,15 +278,19 @@ export function ReportBlockSheet({
 }
 
 function Action({
-  label, hint, onClick, tone, disabled,
+  label,
+  hint,
+  onClick,
+  tone,
+  disabled,
 }: {
-  label: string; hint: string; onClick: () => void;
-  tone?: "warn" | "danger"; disabled?: boolean;
+  label: string;
+  hint: string;
+  onClick: () => void;
+  tone?: "warn" | "danger";
+  disabled?: boolean;
 }) {
-  const color =
-    tone === "danger" ? "#ff5050" :
-    tone === "warn"   ? "#ffb84d" :
-    "var(--color-ink)";
+  const color = tone === "danger" ? "#ff5050" : tone === "warn" ? "#ffb84d" : "var(--color-ink)";
   return (
     <button
       onClick={onClick}
@@ -237,8 +301,12 @@ function Action({
         background: "var(--color-graphite, #111214)",
       }}
     >
-      <p className="text-[14px] font-medium" style={{ color }}>{label}</p>
-      <p className="mt-0.5 text-[12px]" style={{ color: "var(--color-silver)" }}>{hint}</p>
+      <p className="text-[14px] font-medium" style={{ color }}>
+        {label}
+      </p>
+      <p className="mt-0.5 text-[12px]" style={{ color: "var(--color-silver)" }}>
+        {hint}
+      </p>
     </button>
   );
 }

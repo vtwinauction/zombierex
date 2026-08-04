@@ -50,7 +50,11 @@ export async function uploadVideoToStream(
     if (opts.signal) opts.signal.addEventListener("abort", () => xhr.abort());
     xhr.upload.onprogress = (e) => {
       if (!e.lengthComputable) return;
-      opts.onProgress?.({ loaded: e.loaded, total: e.total, pct: e.total ? e.loaded / e.total : 0 });
+      opts.onProgress?.({
+        loaded: e.loaded,
+        total: e.total,
+        pct: e.total ? e.loaded / e.total : 0,
+      });
     };
     xhr.onerror = () => reject(new Error("Network error during video upload"));
     xhr.onabort = () => reject(new Error("Upload cancelled"));

@@ -19,9 +19,17 @@ export const Route = createFileRoute("/_authenticated/settings/notifications")({
 });
 
 type PrefKey =
-  | "likes" | "comments" | "follows" | "mentions" | "messages"
-  | "marketplace" | "bookings" | "orders" | "vendor_updates"
-  | "subscriptions" | "events";
+  | "likes"
+  | "comments"
+  | "follows"
+  | "mentions"
+  | "messages"
+  | "marketplace"
+  | "bookings"
+  | "orders"
+  | "vendor_updates"
+  | "subscriptions"
+  | "events";
 
 const CATS: Array<{ id: PrefKey; label: string; hint: string }> = [
   { id: "likes", label: "Likes", hint: "Someone likes your post or reel" },
@@ -40,10 +48,19 @@ const CATS: Array<{ id: PrefKey; label: string; hint: string }> = [
 type Prefs = Record<PrefKey, boolean> & { push_enabled: boolean; email_enabled: boolean };
 
 const DEF: Prefs = {
-  likes: true, comments: true, follows: true, mentions: true, messages: true,
-  marketplace: true, bookings: true, orders: true, vendor_updates: true,
-  subscriptions: true, events: true,
-  push_enabled: true, email_enabled: true,
+  likes: true,
+  comments: true,
+  follows: true,
+  mentions: true,
+  messages: true,
+  marketplace: true,
+  bookings: true,
+  orders: true,
+  vendor_updates: true,
+  subscriptions: true,
+  events: true,
+  push_enabled: true,
+  email_enabled: true,
 };
 
 function NotifPrefsPage() {
@@ -91,7 +108,10 @@ function NotifPrefsPage() {
   const testM = useMutation({
     mutationFn: async () => testPush({}),
     onSuccess: (r: any) => {
-      if (r?.reason === "no_devices") toast.info("No devices registered yet — open the ZOMBIEREX app on your phone once to register.");
+      if (r?.reason === "no_devices")
+        toast.info(
+          "No devices registered yet — open the ZOMBIEREX app on your phone once to register.",
+        );
       else if (r?.reason === "fcm_not_configured") toast.error("Push service isn't configured.");
       else if (r?.reason === "all_failed") toast.error("All devices failed to deliver.");
       else toast.success(`Test push sent to ${r?.sent ?? 0} device(s)`);
@@ -125,7 +145,9 @@ function NotifPrefsPage() {
     >
       {prefsQ.isLoading && (
         <Card>
-          <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>Loading…</p>
+          <p className="text-[13px]" style={{ color: "var(--color-silver)" }}>
+            Loading…
+          </p>
         </Card>
       )}
 
@@ -134,8 +156,12 @@ function NotifPrefsPage() {
           <Card>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>Push notifications</p>
-                <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>On-device alerts across ZOMBIEREX.</p>
+                <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>
+                  Push notifications
+                </p>
+                <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>
+                  On-device alerts across ZOMBIEREX.
+                </p>
               </div>
               <Toggle checked={p.push_enabled} onChange={(v) => set("push_enabled", v)} />
             </div>
@@ -144,21 +170,31 @@ function NotifPrefsPage() {
           <Card>
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>Email notifications</p>
-                <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>Summaries and critical account emails.</p>
+                <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>
+                  Email notifications
+                </p>
+                <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>
+                  Summaries and critical account emails.
+                </p>
               </div>
               <Toggle checked={p.email_enabled} onChange={(v) => set("email_enabled", v)} />
             </div>
           </Card>
 
-          <p className="mono-tag mt-4 mb-2 px-1" style={{ color: "var(--color-silver)" }}>ACTIVITY TYPES</p>
+          <p className="mono-tag mt-4 mb-2 px-1" style={{ color: "var(--color-silver)" }}>
+            ACTIVITY TYPES
+          </p>
           <div className="space-y-2">
             {CATS.map((c) => (
               <Card key={c.id}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>{c.label}</p>
-                    <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>{c.hint}</p>
+                    <p className="text-[14px]" style={{ color: "var(--color-ink)" }}>
+                      {c.label}
+                    </p>
+                    <p className="mt-0.5 text-[11px]" style={{ color: "var(--color-silver)" }}>
+                      {c.hint}
+                    </p>
                   </div>
                   <Toggle checked={!!p[c.id]} onChange={(v) => set(c.id, v)} />
                 </div>
@@ -166,10 +202,14 @@ function NotifPrefsPage() {
             ))}
           </div>
 
-          <p className="mono-tag mt-6 mb-2 px-1" style={{ color: "var(--color-silver)" }}>CONNECTED DEVICES</p>
+          <p className="mono-tag mt-6 mb-2 px-1" style={{ color: "var(--color-silver)" }}>
+            CONNECTED DEVICES
+          </p>
           <Card>
             {devicesQ.isLoading ? (
-              <p className="text-[12px]" style={{ color: "var(--color-silver)" }}>Loading devices…</p>
+              <p className="text-[12px]" style={{ color: "var(--color-silver)" }}>
+                Loading devices…
+              </p>
             ) : (devicesQ.data?.length ?? 0) === 0 ? (
               <p className="text-[12px]" style={{ color: "var(--color-silver)" }}>
                 No devices registered. Open the ZOMBIEREX app on your phone to enable push.
@@ -179,7 +219,10 @@ function NotifPrefsPage() {
                 {devicesQ.data!.map((d: any) => (
                   <li key={d.id} className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-[13px] uppercase tracking-wide" style={{ color: "var(--color-ink)" }}>
+                      <p
+                        className="text-[13px] uppercase tracking-wide"
+                        style={{ color: "var(--color-ink)" }}
+                      >
                         {d.platform}
                       </p>
                       <p className="mono-tag text-[10px]" style={{ color: "var(--color-silver)" }}>
@@ -202,7 +245,11 @@ function NotifPrefsPage() {
                 onClick={() => testM.mutate()}
                 disabled={testM.isPending}
                 className="tap text-[12px] uppercase tracking-wide px-3 py-2 rounded"
-                style={{ background: "var(--color-neon)", color: "#000", opacity: testM.isPending ? 0.6 : 1 }}
+                style={{
+                  background: "var(--color-neon)",
+                  color: "#000",
+                  opacity: testM.isPending ? 0.6 : 1,
+                }}
               >
                 {testM.isPending ? "Sending…" : "Send test push"}
               </button>
@@ -223,10 +270,24 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       onClick={() => onChange(!checked)}
       className="tap h-5 w-9 rounded-full transition-colors shrink-0"
-      style={{ background: checked ? "var(--color-neon)" : "var(--color-hair-strong)", position: "relative" }}
+      style={{
+        background: checked ? "var(--color-neon)" : "var(--color-hair-strong)",
+        position: "relative",
+      }}
       aria-pressed={checked}
     >
-      <span style={{ position: "absolute", top: 2, left: checked ? 18 : 2, height: 16, width: 16, borderRadius: 999, background: "#fff", transition: "left .16s ease" }} />
+      <span
+        style={{
+          position: "absolute",
+          top: 2,
+          left: checked ? 18 : 2,
+          height: 16,
+          width: 16,
+          borderRadius: 999,
+          background: "#fff",
+          transition: "left .16s ease",
+        }}
+      />
     </button>
   );
 }
