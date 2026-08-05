@@ -21,20 +21,20 @@ export function MarketingShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
 
-  useEffect(() => {
+  // Layout effect: commits before paint, so app chrome never flashes over
+  // the website, and never runs during render (which would loop the store).
+  useIsomorphicLayoutEffect(() => {
     setMarketingMode(true);
+    return () => setMarketingMode(false);
+  }, []);
+
+  useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      setMarketingMode(false);
-      window.removeEventListener("scroll", onScroll);
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Mark the website synchronously during render. RootEntry can swap this
-  // surface for the signed-in feed, whose cleanup restores normal app mode.
-  setMarketingMode(true);
 
   return (
     <div className="mkt">
