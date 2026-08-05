@@ -8,15 +8,10 @@ let active = false;
 const listeners = new Set<() => void>();
 
 export function setMarketingMode(next: boolean) {
-  const changed = active !== next;
+  if (active === next) return;
   active = next;
-  // A marketing component can identify itself during render so the shell
-  // never flashes app chrome. Notify subscribers in the next microtask to
-  // avoid updating the root while a child render is still in progress.
-  // Notify even when the value is unchanged: the render-time notification
-  // can run before the root subscription is committed, while the effect-time
-  // call happens after it and must be allowed to resynchronise the shell.
-  if (!changed && listeners.size === 0) return;
+  // Notify in a microtask so a caller inside an effect never updates the
+  // root while React is still committing.
   queueMicrotask(() => listeners.forEach((l) => l()));
 }
 
