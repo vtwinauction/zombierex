@@ -1,5 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { siteConfig } from "@/config/site";
 import { setMarketingMode } from "@/lib/marketing-mode";
