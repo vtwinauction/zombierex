@@ -7,11 +7,11 @@ import type { ReactNode } from "react";
 import { usePlatformStatus } from "@/hooks/usePlatform";
 import { useOwner } from "@/hooks/useOwner";
 
-export function MaintenanceGate({ children }: { children: ReactNode }) {
+export function MaintenanceGate({ children, bypass }: { children: ReactNode; bypass?: boolean }) {
   const { data } = usePlatformStatus();
   const { isOwner } = useOwner();
 
-  if (!data?.global.enabled || isOwner) return <>{children}</>;
+  if (bypass || !data?.global.enabled || isOwner) return <>{children}</>;
 
   return (
     <div className="flex min-h-[100svh] flex-col items-center justify-center px-8 text-center">

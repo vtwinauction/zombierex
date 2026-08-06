@@ -329,15 +329,14 @@ function RootComponent() {
           {!isImmersive && <OfflineBanner />}
           {!isImmersive && <OwnerBroadcastBanner />}
           {!isImmersive && <GlobalStatusBar />}
-          {websiteMounted ? (
-            <Outlet />
-          ) : (
-            <PullToRefresh onRefresh={globalRefresh} disabled={isImmersive}>
-              <MaintenanceGate>
-                <Outlet />
-              </MaintenanceGate>
-            </PullToRefresh>
-          )}
+          {/* Keep one stable wrapper chain around <Outlet />. Swapping the
+              parents when marketing mode toggles remounts the page, which
+              re-toggles the mode — an infinite remount loop. */}
+          <PullToRefresh onRefresh={globalRefresh} disabled={isImmersive || websiteMounted}>
+            <MaintenanceGate bypass={websiteMounted}>
+              <Outlet />
+            </MaintenanceGate>
+          </PullToRefresh>
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
         {shellReady && !marketing && (
