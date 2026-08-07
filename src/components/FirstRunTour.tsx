@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { haptic } from "@/lib/native";
-import { useMarketingMode } from "@/lib/marketing-mode";
 
 /**
  * Lightweight first-run coach tour. Shows a 4-step overlay introducing the
@@ -41,11 +40,8 @@ const STEPS: Array<{
 export function FirstRunTour() {
   const [open, setOpen] = useState(false);
   const [i, setI] = useState(0);
-  // Never interrupt a public marketing page with the in-app coach tour.
-  const marketing = useMarketingMode();
-
   useEffect(() => {
-    if (typeof window === "undefined" || marketing) return;
+    if (typeof window === "undefined") return;
     try {
       if (!localStorage.getItem(STORAGE_KEY)) {
         // Delay a beat so it doesn't fight initial hydration.
@@ -55,7 +51,7 @@ export function FirstRunTour() {
     } catch {
       /* ignore */
     }
-  }, [marketing]);
+  }, []);
 
   function finish() {
     try {
@@ -73,7 +69,7 @@ export function FirstRunTour() {
     setI(i + 1);
   }
 
-  if (!open || marketing) return null;
+  if (!open) return null;
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
 

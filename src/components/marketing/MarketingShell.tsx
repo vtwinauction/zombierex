@@ -1,11 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
-
-const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
+import { useEffect, useState, type ReactNode } from "react";
 
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { siteConfig } from "@/config/site";
-import { setMarketingMode } from "@/lib/marketing-mode";
 
 /**
  * Dark, premium chrome for every public marketing page.
@@ -23,13 +20,6 @@ const NAV = [
 export function MarketingShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
-
-  // Layout effect: commits before paint, so app chrome never flashes over
-  // the website, and never runs during render (which would loop the store).
-  useIsomorphicLayoutEffect(() => {
-    setMarketingMode(true);
-    return () => setMarketingMode(false);
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
