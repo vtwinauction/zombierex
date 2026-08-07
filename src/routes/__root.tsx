@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { installCrashReporter, reportCrash } from "../lib/crash-reporter";
 import { BottomNav } from "@/components/BottomNav";
-import { useMarketingMode, isMarketingPath } from "@/lib/marketing-mode";
+import { isMarketingPath } from "@/lib/marketing-mode";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
@@ -157,8 +157,15 @@ function RootComponent() {
   const scrollDir = useScrollDirection(12);
   const [isTop, setIsTop] = useState(true);
   const [shellReady, setShellReady] = useState(false);
+  const [homeSessionResolved, setHomeSessionResolved] = useState(false);
+  const [homeHasSession, setHomeHasSession] = useState(false);
   const pathname = router.state.location.pathname;
-  const marketing = useMarketingMode() || isMarketingPath(pathname);
+  // MarketingShell is a child of this layout. Subscribing here to the mode
+  // that child sets creates a parent/child feedback loop whenever the outlet
+  // remounts. Public marketing paths are known from the URL; only `/` needs
+  // auth state to decide between the website and the member feed.
+  const marketing =
+    isMarketingPath(pathname) || (pathname === "/" && (!homeSessionResolved || !homeHasSession));
   // The root route initially renders the public website while its cached
   // session is resolved. Keep app-wide network gates and touch wrappers out
   // of that render path; MarketingShell opts back into app mode if RootEntry
@@ -170,6 +177,24 @@ function RootComponent() {
     pathname.startsWith("/drag/race") ||
     pathname === "/reels" ||
     pathname.startsWith("/reels/");
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      setHomeHasSession(!!data.session);
+      setHomeSessionResolved(true);
+    });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
+      setHomeHasSession(!!session);
+      setHomeSessionResolved(true);
+    });
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setIsTop(window.scrollY < 40);
@@ -265,8 +290,17 @@ function RootComponent() {
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      // Invalidating the router on SIGNED_IN remounts the home route. Its new
+      // auth subscription immediately receives SIGNED_IN again, creating an
+      // unbounded remount/invalidation loop. The home route reacts to auth
+      // directly, so sign-in and profile updates only need fresh query data.
+      // A sign-out still invalidates route guards/loaders that may redirect.
+      if (event === "SIGNED_OUT") {
+        void router.invalidate();
+        queryClient.clear();
+        return;
+      }
+      void queryClient.invalidateQueries();
     });
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);

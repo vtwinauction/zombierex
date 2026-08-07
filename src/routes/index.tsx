@@ -22,7 +22,7 @@ import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
-import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
+import { listAuthedFeed } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
@@ -163,27 +163,12 @@ function HomePage() {
     queryFn: () => listAds({ data: { placement: "feed", limit: 3 } }),
     staleTime: 5 * 60_000,
   });
-  const fetchFeed = useServerFn(listFeed);
   const fetchAuthedFeed = useServerFn(listAuthedFeed);
-  const [signedIn, setSignedIn] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    supabase.auth.getUser().then(({ data }) => {
-      if (alive) setSignedIn(!!data.user);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
-    return () => {
-      alive = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
   const liveFeed = useInfiniteQuery({
-    queryKey: ["feed", "live", signedIn ? "authed" : "anon"],
+    queryKey: ["feed", "live", "authed"],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
-      signedIn
-        ? fetchAuthedFeed({ data: { limit: 20, cursor: pageParam } })
-        : fetchFeed({ data: { limit: 20, cursor: pageParam } }),
+      fetchAuthedFeed({ data: { limit: 20, cursor: pageParam } }),
     getNextPageParam: (last: any) => last?.nextCursor ?? undefined,
     staleTime: 30_000,
   });

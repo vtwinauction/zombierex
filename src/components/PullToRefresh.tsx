@@ -117,8 +117,6 @@ export function PullToRefresh({
   // Only apply the transform while a pull is actually in progress.
   const active = pull > 0 || refreshing;
 
-  if (disabled) return <>{children}</>;
-
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
       <div
