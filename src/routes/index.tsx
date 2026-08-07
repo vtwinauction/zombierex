@@ -22,7 +22,7 @@ import { SponsoredCard } from "@/components/SponsoredCard";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { listSponsoredCreatives } from "@/lib/ads.functions";
-import { listFeed, listAuthedFeed } from "@/lib/feed.functions";
+import { listAuthedFeed } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { ReportBlockSheet, type ReportTargetKind } from "@/components/ReportBlockSheet";
@@ -163,7 +163,6 @@ function HomePage() {
     queryFn: () => listAds({ data: { placement: "feed", limit: 3 } }),
     staleTime: 5 * 60_000,
   });
-  const fetchFeed = useServerFn(listFeed);
   const fetchAuthedFeed = useServerFn(listAuthedFeed);
   const liveFeed = useInfiniteQuery({
     queryKey: ["feed", "live", "authed"],
