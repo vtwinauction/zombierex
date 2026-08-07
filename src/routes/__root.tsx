@@ -265,8 +265,17 @@ function RootComponent() {
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
-      router.invalidate();
-      if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
+      // Invalidating the router on SIGNED_IN remounts the home route. Its new
+      // auth subscription immediately receives SIGNED_IN again, creating an
+      // unbounded remount/invalidation loop. The home route reacts to auth
+      // directly, so sign-in and profile updates only need fresh query data.
+      // A sign-out still invalidates route guards/loaders that may redirect.
+      if (event === "SIGNED_OUT") {
+        void router.invalidate();
+        queryClient.clear();
+        return;
+      }
+      void queryClient.invalidateQueries();
     });
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);

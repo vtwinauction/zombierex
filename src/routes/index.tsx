@@ -165,25 +165,11 @@ function HomePage() {
   });
   const fetchFeed = useServerFn(listFeed);
   const fetchAuthedFeed = useServerFn(listAuthedFeed);
-  const [signedIn, setSignedIn] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    supabase.auth.getUser().then(({ data }) => {
-      if (alive) setSignedIn(!!data.user);
-    });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s?.user));
-    return () => {
-      alive = false;
-      sub.subscription.unsubscribe();
-    };
-  }, []);
   const liveFeed = useInfiniteQuery({
-    queryKey: ["feed", "live", signedIn ? "authed" : "anon"],
+    queryKey: ["feed", "live", "authed"],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
-      signedIn
-        ? fetchAuthedFeed({ data: { limit: 20, cursor: pageParam } })
-        : fetchFeed({ data: { limit: 20, cursor: pageParam } }),
+      fetchAuthedFeed({ data: { limit: 20, cursor: pageParam } }),
     getNextPageParam: (last: any) => last?.nextCursor ?? undefined,
     staleTime: 30_000,
   });
