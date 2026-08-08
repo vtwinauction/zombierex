@@ -68,7 +68,7 @@ const GROUPS: Group[] = [
       {
         label: "Feed",
         body: "Your home timeline of posts from riders you follow, plus recommended builds. Double-tap to like, swipe down to refresh.",
-        to: "/feed",
+        to: "/",
       },
       {
         label: "Reels",
