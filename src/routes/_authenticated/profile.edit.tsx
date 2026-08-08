@@ -47,8 +47,15 @@ function EditProfilePage() {
   const coverInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? ""));
+    let alive = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (alive) setUserId(data.user?.id ?? "");
+    });
+    return () => {
+      alive = false;
+    };
   }, []);
+
 
   useEffect(() => {
     const p = q.data as any;
