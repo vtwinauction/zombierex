@@ -146,9 +146,18 @@ function resolve(pathname: string): { index: string; section: string } {
  * Renders the global masthead (cart, search, +, notifications, menu) on
  * every non-immersive page. Immersive routes (reels, cockpit, race) are
  * excluded upstream in __root.
+ *
+ * The label is resolved only after hydration: auth-gated routes redirect on
+ * the client, so the client's first pathname can differ from the one the
+ * server rendered. Resolving post-mount keeps the first paint deterministic.
  */
 export function GlobalStatusBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { index, section } = resolve(pathname);
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const { index, section } = hydrated
+    ? resolve(pathname)
+    : { index: "00", section: "ZOMBIEREX" };
   return <StatusBar index={index} section={section} />;
 }
+
