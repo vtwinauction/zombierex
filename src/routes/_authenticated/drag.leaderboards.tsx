@@ -20,7 +20,12 @@ export const Route = createFileRoute("/_authenticated/drag/leaderboards")({
       { name: "description", content: "Fastest verified drag runs on ZOMBIEREX — bikes and cars." },
     ],
   }),
-  validateSearch: (s) => Search.parse(s),
+  // Never hard-error on a bad/legacy query string — fall back to defaults.
+  validateSearch: (s) => {
+    const parsed = Search.safeParse(s);
+    return parsed.success ? parsed.data : Search.parse({});
+  },
+
   loaderDeps: ({ search }) => search,
   loader: ({ deps, context }) =>
     context.queryClient.ensureQueryData(
