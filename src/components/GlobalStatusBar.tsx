@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { StatusBar } from "@/components/StatusBar";
 
