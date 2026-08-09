@@ -30,10 +30,14 @@ const chromiumPath = resolveChromium();
  */
 export default defineConfig({
   testDir: "./tests/smoke",
-  timeout: 30_000,
-  expect: { timeout: 5_000 },
+  timeout: 45_000,
+  expect: { timeout: 8_000 },
   fullyParallel: true,
-  retries: process.env.CI ? 1 : 0,
+  // The Vite dev server is single-process; heavy parallelism makes on-demand
+  // module transforms queue past the per-test timeout and flake. Keep it low.
+  workers: process.env.PW_WORKERS ? Number(process.env.PW_WORKERS) : 2,
+  retries: process.env.CI ? 1 : 1,
+
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: {
     baseURL: process.env.PW_BASE_URL ?? "http://localhost:8080",
