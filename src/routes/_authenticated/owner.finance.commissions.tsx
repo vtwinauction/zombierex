@@ -11,6 +11,17 @@ import {
 import { computeSplit, describeRule, formatMoney, type FeeRule } from "@/lib/commission";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/commissions")({
+  head: () => ({
+    meta: [
+      { title: "Commission Rules — ZOMBIEREX Owner" },
+      { name: "description", content: "Configure marketplace commission tiers and fee rules." },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Commission Rules — ZOMBIEREX Owner" },
+      { property: "og:description", content: "Configure marketplace commission tiers and fee rules." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: CommissionsPage,
 });
 

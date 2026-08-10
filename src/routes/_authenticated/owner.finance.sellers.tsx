@@ -10,6 +10,17 @@ import {
 import { formatMoney } from "@/lib/commission";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/sellers")({
+  head: () => ({
+    meta: [
+      { title: "Seller Earnings — ZOMBIEREX Owner" },
+      { name: "description", content: "Seller revenue, fees withheld and payout status." },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Seller Earnings — ZOMBIEREX Owner" },
+      { property: "og:description", content: "Seller revenue, fees withheld and payout status." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: SellersPage,
 });
 
