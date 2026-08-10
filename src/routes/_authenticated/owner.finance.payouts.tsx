@@ -11,6 +11,17 @@ import {
 import { formatMoney } from "@/lib/commission";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/payouts")({
+  head: () => ({
+    meta: [
+      { title: "Seller Payouts — ZOMBIEREX Owner" },
+      { name: "description", content: "Review, approve and track seller payout batches." },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Seller Payouts — ZOMBIEREX Owner" },
+      { property: "og:description", content: "Review, approve and track seller payout batches." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: PayoutsPage,
 });
 
