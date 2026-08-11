@@ -62,7 +62,7 @@ export const createEvent = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase
       .from("events")
       .insert(payload)
-      .select()
+      .select("id, host_id, title, status")
       .single();
     if (error) throw new Error(error.message);
     return row;
@@ -77,7 +77,7 @@ export const updateEvent = createServerFn({ method: "POST" })
       .update(data.patch)
       .eq("id", data.id)
       .eq("host_id", context.userId)
-      .select()
+      .select("id, host_id, title, status")
       .single();
     if (error) throw new Error(error.message);
     return row;
@@ -162,13 +162,29 @@ export const getEvent = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
-    const { data: event, error } = await context.supabase
+    const { data: eventRow, error } = await context.supabase
       .from("events")
-      .select("*")
+      .select(
+        "id, host_id, club_id, title, description, cover_url, location, starts_at, ends_at, rsvp_count, created_at, updated_at, event_type, guest_limit, gps_lat, gps_lng, category, visibility, status, max_attendees, address, timezone, hashtags, rules, cover_video_url, is_featured, comments_count, photos_count, cancelled_at",
+      )
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    if (!event) return null;
+    if (!eventRow) return null;
+
+    // Host contact details are protected — only the host/staff can read them.
+    let contact: { contact_email: string | null; contact_phone: string | null } = {
+      contact_email: null,
+      contact_phone: null,
+    };
+    if (eventRow.host_id === context.userId) {
+      const { data: c } = await context.supabase.rpc("get_event_contact", { _event_id: data.id });
+      const row = Array.isArray(c) ? c[0] : c;
+      if (row) contact = row;
+    }
+    const event = { ...eventRow, ...contact };
+
+
 
     const sb = context.supabase;
     const eq = { event_id: data.id } as const;

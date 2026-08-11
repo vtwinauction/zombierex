@@ -4290,15 +4290,51 @@ export type Database = {
           },
         ]
       }
+      profile_contacts: {
+        Row: {
+          business_address: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          business_address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          business_address?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_contacts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_contacts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           allow_messages: string
           avatar_url: string | null
           bio: string | null
-          business_address: string | null
           contact_dm_enabled: boolean
-          contact_email: string | null
-          contact_phone: string | null
           cover_url: string | null
           created_at: string
           deleted_at: string | null
@@ -4337,10 +4373,7 @@ export type Database = {
           allow_messages?: string
           avatar_url?: string | null
           bio?: string | null
-          business_address?: string | null
           contact_dm_enabled?: boolean
-          contact_email?: string | null
-          contact_phone?: string | null
           cover_url?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -4379,10 +4412,7 @@ export type Database = {
           allow_messages?: string
           avatar_url?: string | null
           bio?: string | null
-          business_address?: string | null
           contact_dm_enabled?: boolean
-          contact_email?: string | null
-          contact_phone?: string | null
           cover_url?: string | null
           created_at?: string
           deleted_at?: string | null
@@ -6561,6 +6591,13 @@ export type Database = {
       get_creator_collab_email: {
         Args: { _creator_user_id: string }
         Returns: string
+      }
+      get_event_contact: {
+        Args: { _event_id: string }
+        Returns: {
+          contact_email: string
+          contact_phone: string
+        }[]
       }
       get_my_creator_profile: {
         Args: never
