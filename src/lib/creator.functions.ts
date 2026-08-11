@@ -61,7 +61,8 @@ export const applyAsCreator = createServerFn({ method: "POST" })
     const { data: row, error } = await context.supabase
       .from("creator_profiles")
       .upsert(payload, { onConflict: "user_id" })
-      .select()
+      .select("id, user_id, status, category")
+
       .single();
     if (error) throw new Error(error.message);
     return row;
@@ -93,7 +94,10 @@ export const updateMyCreatorProfile = createServerFn({ method: "POST" })
       .from("creator_profiles")
       .update(patch)
       .eq("user_id", context.userId)
-      .select()
+      .select(
+        "id, user_id, category, tagline, portfolio_url, featured_post_ids, social_links, accepts_collabs, status, is_verified, is_featured, subscribers_count, tips_total_cents, approved_at, created_at, updated_at",
+      )
+
       .single();
     if (error) throw new Error(error.message);
     return row;
@@ -331,7 +335,10 @@ export const getCreatorDashboard = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data: cp } = await context.supabase
       .from("creator_profiles")
-      .select("*")
+      .select(
+        "id, user_id, category, tagline, portfolio_url, featured_post_ids, social_links, accepts_collabs, status, is_verified, is_featured, subscribers_count, tips_total_cents, approved_at, created_at, updated_at",
+      )
+
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!cp) return null;

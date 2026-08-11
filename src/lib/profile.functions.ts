@@ -15,26 +15,40 @@ const HandleSchema = z
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("profiles")
-      .select(
-        "id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, contact_phone, contact_email, contact_dm_enabled, is_business, business_address, is_private, allow_messages",
-      )
-      .eq("id", context.userId)
-      .maybeSingle();
+    const [{ data, error }, { data: contact }] = await Promise.all([
+      context.supabase
+        .from("profiles")
+        .select(
+          "id, handle, display_name, bio, avatar_url, cover_url, tier, is_verified, followers_count, following_count, posts_count, location, website, contact_dm_enabled, is_business, is_private, allow_messages",
+        )
+        .eq("id", context.userId)
+        .maybeSingle(),
+      context.supabase
+        .from("profile_contacts")
+        .select("contact_phone, contact_email, business_address")
+        .eq("profile_id", context.userId)
+        .maybeSingle(),
+    ]);
     if (error) throw new Error(error.message);
-    return data;
+    if (!data) return null;
+    return {
+      ...data,
+      contact_phone: contact?.contact_phone ?? null,
+      contact_email: contact?.contact_email ?? null,
+      business_address: contact?.business_address ?? null,
+    };
   });
+
 
 export const getMyProfileMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const uid = context.userId;
-    const [profileRes, vehicleRes, uaRes, achRes] = await Promise.all([
+    const [profileRes, vehicleRes, uaRes, achRes, contactRes] = await Promise.all([
       context.supabase
         .from("profiles")
         .select(
-          "id, handle, display_name, bio, website, avatar_url, cover_url, location, tier, is_verified, is_premium, followers_count, following_count, posts_count, listings_count, xp_total, level, streak_days, contact_phone, contact_email, contact_dm_enabled, is_business, business_address",
+          "id, handle, display_name, bio, website, avatar_url, cover_url, location, tier, is_verified, is_premium, followers_count, following_count, posts_count, listings_count, xp_total, level, streak_days, contact_dm_enabled, is_business",
         )
         .eq("id", uid)
         .maybeSingle(),
@@ -52,11 +66,24 @@ export const getMyProfileMetrics = createServerFn({ method: "GET" })
         .select("achievement_slug, progress, target, unlocked_at")
         .eq("user_id", uid),
       context.supabase.from("achievements").select("slug, title, description, tier, category"),
+      context.supabase
+        .from("profile_contacts")
+        .select("contact_phone, contact_email, business_address")
+        .eq("profile_id", uid)
+        .maybeSingle(),
     ]);
 
     if (profileRes.error) throw new Error(profileRes.error.message);
 
-    const profile = profileRes.data;
+    const profile = profileRes.data
+      ? {
+          ...profileRes.data,
+          contact_phone: contactRes.data?.contact_phone ?? null,
+          contact_email: contactRes.data?.contact_email ?? null,
+          business_address: contactRes.data?.business_address ?? null,
+        }
+      : null;
+
     const vehicle = vehicleRes.data ?? null;
     const userAch = uaRes.data ?? [];
     const allAch = achRes.data ?? [];
@@ -103,13 +130,12 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
-    const payload: Record<string, unknown> = { ...data };
+    const { contact_phone, contact_email, business_address, ...rest } = data;
+    const payload: Record<string, unknown> = { ...rest };
     if (data.website === "") payload.website = null;
     if (data.avatar_url === "") payload.avatar_url = null;
     if (data.cover_url === "") payload.cover_url = null;
-    if (data.contact_phone === "") payload.contact_phone = null;
-    if (data.contact_email === "") payload.contact_email = null;
-    if (data.business_address === "") payload.business_address = null;
+
     const { data: row, error } = await context.supabase
       .from("profiles")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,8 +149,32 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       }
       throw new Error(error.message);
     }
-    return row;
+
+    // Contact PII lives in its own table (not publicly readable).
+    if (
+      contact_phone !== undefined ||
+      contact_email !== undefined ||
+      business_address !== undefined
+    ) {
+      const contact: Record<string, unknown> = { profile_id: context.userId };
+      if (contact_phone !== undefined) contact.contact_phone = contact_phone || null;
+      if (contact_email !== undefined) contact.contact_email = contact_email || null;
+      if (business_address !== undefined) contact.business_address = business_address || null;
+      const { error: cErr } = await context.supabase
+        .from("profile_contacts")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .upsert(contact as any, { onConflict: "profile_id" });
+      if (cErr) throw new Error(cErr.message);
+    }
+
+    return {
+      ...row,
+      contact_phone: contact_phone === undefined ? undefined : contact_phone || null,
+      contact_email: contact_email === undefined ? undefined : contact_email || null,
+      business_address: business_address === undefined ? undefined : business_address || null,
+    };
   });
+
 
 export const getMyRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
