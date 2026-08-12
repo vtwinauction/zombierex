@@ -57,7 +57,10 @@ type TelRow = {
   distance_m: number;
   speed_kmh: number;
   accuracy_m: number | null;
+  lat?: number;
+  lng?: number;
 };
+
 
 const LANE_A = "#00c853";
 const LANE_B = "#f6d84f";
