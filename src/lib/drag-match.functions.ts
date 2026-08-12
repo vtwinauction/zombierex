@@ -253,6 +253,18 @@ export const markMatchReady = createServerFn({ method: "POST" })
     return { ok: true, green_at: patch.green_at ?? null };
   });
 
+/** Haversine distance in metres. */
+function haversineM(aLat: number, aLng: number, bLat: number, bLng: number) {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(bLat - aLat);
+  const dLng = toRad(bLng - aLng);
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
+}
+
 export const pushMatchTelemetry = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) =>
@@ -266,8 +278,9 @@ export const pushMatchTelemetry = createServerFn({ method: "POST" })
               distance_m: z.number().min(0).max(1200),
               speed_kmh: z.number().min(0).max(500),
               accuracy_m: z.number().min(0).max(500).optional().nullable(),
-              lat: z.number().min(-90).max(90).optional().nullable(),
-              lng: z.number().min(-180).max(180).optional().nullable(),
+              // GPS is mandatory: the server recomputes distance/speed from it.
+              lat: z.number().min(-90).max(90),
+              lng: z.number().min(-180).max(180),
             }),
           )
           .min(1)
@@ -289,20 +302,55 @@ export const pushMatchTelemetry = createServerFn({ method: "POST" })
     if (m.status === "countdown") {
       await supabase.from("drag_matches").update({ status: "live" }).eq("id", m.id);
     }
-    const rows = data.samples.map((s) => ({
-      match_id: data.match_id,
-      rider_id: userId,
-      t_ms: s.t_ms,
-      distance_m: s.distance_m,
-      speed_kmh: s.speed_kmh,
-      accuracy_m: s.accuracy_m ?? null,
-      lat: s.lat ?? null,
-      lng: s.lng ?? null,
-    }));
+
+    // Anchor on the rider's existing samples so a batch cannot restart the run.
+    const { data: prev } = await supabase
+      .from("drag_match_telemetry")
+      .select("t_ms, distance_m, lat, lng")
+      .eq("match_id", data.match_id)
+      .eq("rider_id", userId)
+      .order("t_ms", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const samples = [...data.samples].sort((a, b) => a.t_ms - b.t_ms);
+    let cumulative = prev ? Number(prev.distance_m) : 0;
+    let lastLat = prev?.lat != null ? Number(prev.lat) : null;
+    let lastLng = prev?.lng != null ? Number(prev.lng) : null;
+    let lastT = prev ? Number(prev.t_ms) : samples[0].t_ms;
+
+    const rows = samples.map((s) => {
+      let step = 0;
+      if (lastLat != null && lastLng != null) {
+        step = haversineM(lastLat, lastLng, s.lat, s.lng);
+      }
+      const dtS = Math.max((s.t_ms - lastT) / 1000, 0);
+      // Reject physically impossible jumps (> 500 km/h between fixes).
+      if (dtS > 0 && step / dtS > 139) {
+        throw new Error("Telemetry rejected: implausible GPS jump");
+      }
+      cumulative += step;
+      const derivedSpeed = dtS > 0 ? (step / dtS) * 3.6 : 0;
+      lastLat = s.lat;
+      lastLng = s.lng;
+      lastT = s.t_ms;
+      return {
+        match_id: data.match_id,
+        rider_id: userId,
+        t_ms: s.t_ms,
+        // Server-derived values only — client-reported figures are discarded.
+        distance_m: Number(cumulative.toFixed(2)),
+        speed_kmh: Number(Math.min(derivedSpeed, 500).toFixed(2)),
+        accuracy_m: s.accuracy_m ?? null,
+        lat: s.lat,
+        lng: s.lng,
+      };
+    });
     const { error } = await supabase.from("drag_match_telemetry").insert(rows);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 export const finalizeMatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
