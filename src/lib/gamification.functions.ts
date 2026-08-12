@@ -9,57 +9,40 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-// -------- helpers --------
-const XP_TABLE: Record<string, number> = {
-  post_created: 25,
-  reel_created: 60,
-  story_created: 15,
-  comment_created: 5,
-  reaction_received: 2,
-  event_join: 30,
-  event_hosted: 100,
-  community_join: 20,
-  community_post: 20,
-  challenge_completed: 0, // reward comes from challenge row
-  checkin: 10,
-  invite_sent: 15,
-  invite_activated: 150,
-  marketplace_listed: 30,
-  marketplace_sold: 200,
-};
+import {
+  XP_TABLE,
+  insertXpEvent,
+  upsertUserChallenge,
+  completeUserChallenge,
+} from "@/lib/xp.server";
 
 // -------- XP + streak --------
+// The amount is always derived server-side from XP_TABLE; clients cannot pick
+// a kind that is not in the table, nor supply their own amount.
 export const awardXp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) =>
     z
       .object({
         kind: z.string().min(2).max(48),
-        amount: z.number().int().min(1).max(1000).optional(),
         ref_kind: z.string().max(32).optional(),
         ref_id: z.string().uuid().optional(),
-        metadata: z.record(z.string(), z.any()).optional(),
       })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
-    const amount = data.amount ?? XP_TABLE[data.kind] ?? 5;
-    const { data: row, error } = await context.supabase
-      .from("xp_events")
-      .insert({
-        user_id: context.userId,
-        kind: data.kind,
-        amount,
-        ref_kind: data.ref_kind ?? null,
-        ref_id: data.ref_id ?? null,
-        metadata: data.metadata ?? {},
-      })
-      .select()
-      .single();
-    if (error) throw new Error(error.message);
-    return row;
+    const amount = XP_TABLE[data.kind];
+    if (amount == null) throw new Error("Unknown XP action");
+    if (amount <= 0) throw new Error("This XP award is granted automatically");
+    return insertXpEvent({
+      user_id: context.userId,
+      kind: data.kind,
+      amount,
+      ref_kind: data.ref_kind ?? null,
+      ref_id: data.ref_id ?? null,
+    });
   });
+
 
 export const dailyCheckIn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -84,7 +67,7 @@ export const dailyCheckIn = createServerFn({ method: "POST" })
       .update({ streak_days: streak, last_checkin_at: now.toISOString() })
       .eq("id", context.userId);
 
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: context.userId,
       kind: "checkin",
       amount: 10 + Math.min(streak, 30),
@@ -98,16 +81,14 @@ export const dailyCheckIn = createServerFn({ method: "POST" })
       .eq("slug", "daily_checkin")
       .maybeSingle();
     if (challenge) {
-      await context.supabase.from("user_challenges").upsert(
-        {
-          user_id: context.userId,
-          challenge_id: challenge.id,
-          progress: 1,
-          completed_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,challenge_id" },
-      );
+      await upsertUserChallenge({
+        user_id: context.userId,
+        challenge_id: challenge.id,
+        progress: 1,
+        completed_at: new Date().toISOString(),
+      });
     }
+
 
     return { alreadyCheckedIn: false, streak, xp: 10 + Math.min(streak, 30) };
   });
@@ -250,12 +231,9 @@ export const claimChallenge = createServerFn({ method: "POST" })
     }
     if (prog.completed_at) return { alreadyClaimed: true };
 
-    await context.supabase
-      .from("user_challenges")
-      .update({ completed_at: new Date().toISOString() })
-      .eq("id", prog.id);
+    await completeUserChallenge(prog.id, context.userId);
 
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: context.userId,
       kind: "challenge_completed",
       amount: challenge.xp_reward,
@@ -263,6 +241,7 @@ export const claimChallenge = createServerFn({ method: "POST" })
       ref_id: challenge.id,
       metadata: { slug: challenge.slug },
     });
+
 
     if (challenge.badge_slug) {
       await context.supabase.from("user_achievements").upsert(
@@ -339,7 +318,7 @@ export const claimReferral = createServerFn({ method: "POST" })
     if (error && !error.message.includes("duplicate")) throw new Error(error.message);
 
     // reward referrer
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: referrer.id,
       kind: "invite_activated",
       amount: XP_TABLE.invite_activated,
@@ -347,12 +326,13 @@ export const claimReferral = createServerFn({ method: "POST" })
       metadata: { referred: context.userId },
     });
     // welcome bonus for new user
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: context.userId,
       kind: "invite_sent",
       amount: 50,
       metadata: { via: code },
     });
+
 
     return { ok: true, referrer_id: referrer.id };
   });

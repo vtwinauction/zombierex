@@ -136,9 +136,17 @@ async function assertPathVisibleToUser(
     return !!data;
   }
   if (bucket === "vehicles") {
-    const { data } = await supabase.from("vehicles").select("id").limit(1).maybeSingle();
+    // Must match the specific vehicle photo, not merely "some visible vehicle".
+    const { data } = await supabase
+      .from("vehicles")
+      .select("id")
+      .ilike("hero_image_url", `%${path}%`)
+      .is("deleted_at", null)
+      .limit(1)
+      .maybeSingle();
     return !!data;
   }
+
   if (bucket === "marketplace") {
     const { data } = await supabase
       .from("listing_photos")
