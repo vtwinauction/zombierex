@@ -175,6 +175,8 @@ function MatchPage() {
           distance_m: distRef.current,
           speed_kmh: spd,
           accuracy_m: pos.coords.accuracy ?? null,
+          lat: pt.lat,
+          lng: pt.lng,
         });
 
         // Flush every 250ms
@@ -185,15 +187,19 @@ function MatchPage() {
           pushFn({
             data: {
               match_id: id,
+              // The server recomputes distance/speed from these GPS fixes.
               samples: samples.map((s) => ({
                 t_ms: s.t_ms,
                 distance_m: Number(s.distance_m.toFixed(2)),
                 speed_kmh: Number(s.speed_kmh.toFixed(2)),
                 accuracy_m: s.accuracy_m ?? null,
+                lat: s.lat,
+                lng: s.lng,
               })),
             },
           }).catch(() => null);
         }
+
 
         if (distRef.current >= target) {
           finalFn({ data: { id } })
