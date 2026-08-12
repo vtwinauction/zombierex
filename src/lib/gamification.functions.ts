@@ -231,12 +231,9 @@ export const claimChallenge = createServerFn({ method: "POST" })
     }
     if (prog.completed_at) return { alreadyClaimed: true };
 
-    await context.supabase
-      .from("user_challenges")
-      .update({ completed_at: new Date().toISOString() })
-      .eq("id", prog.id);
+    await completeUserChallenge(prog.id, context.userId);
 
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: context.userId,
       kind: "challenge_completed",
       amount: challenge.xp_reward,
@@ -244,6 +241,7 @@ export const claimChallenge = createServerFn({ method: "POST" })
       ref_id: challenge.id,
       metadata: { slug: challenge.slug },
     });
+
 
     if (challenge.badge_slug) {
       await context.supabase.from("user_achievements").upsert(
