@@ -318,7 +318,7 @@ export const claimReferral = createServerFn({ method: "POST" })
     if (error && !error.message.includes("duplicate")) throw new Error(error.message);
 
     // reward referrer
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: referrer.id,
       kind: "invite_activated",
       amount: XP_TABLE.invite_activated,
@@ -326,12 +326,13 @@ export const claimReferral = createServerFn({ method: "POST" })
       metadata: { referred: context.userId },
     });
     // welcome bonus for new user
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: context.userId,
       kind: "invite_sent",
       amount: 50,
       metadata: { via: code },
     });
+
 
     return { ok: true, referrer_id: referrer.id };
   });
