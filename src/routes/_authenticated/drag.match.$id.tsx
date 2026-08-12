@@ -191,14 +191,17 @@ function MatchPage() {
             data: {
               match_id: id,
               // The server recomputes distance/speed from these GPS fixes.
-              samples: samples.map((s) => ({
-                t_ms: s.t_ms,
-                distance_m: Number(s.distance_m.toFixed(2)),
-                speed_kmh: Number(s.speed_kmh.toFixed(2)),
-                accuracy_m: s.accuracy_m ?? null,
-                lat: s.lat,
-                lng: s.lng,
-              })),
+              samples: samples
+                .filter((s) => s.lat != null && s.lng != null)
+                .map((s) => ({
+                  t_ms: s.t_ms,
+                  distance_m: Number(s.distance_m.toFixed(2)),
+                  speed_kmh: Number(s.speed_kmh.toFixed(2)),
+                  accuracy_m: s.accuracy_m ?? null,
+                  lat: s.lat as number,
+                  lng: s.lng as number,
+                })),
+
             },
           }).catch(() => null);
         }
