@@ -67,7 +67,7 @@ export const dailyCheckIn = createServerFn({ method: "POST" })
       .update({ streak_days: streak, last_checkin_at: now.toISOString() })
       .eq("id", context.userId);
 
-    await context.supabase.from("xp_events").insert({
+    await insertXpEvent({
       user_id: context.userId,
       kind: "checkin",
       amount: 10 + Math.min(streak, 30),
@@ -81,16 +81,14 @@ export const dailyCheckIn = createServerFn({ method: "POST" })
       .eq("slug", "daily_checkin")
       .maybeSingle();
     if (challenge) {
-      await context.supabase.from("user_challenges").upsert(
-        {
-          user_id: context.userId,
-          challenge_id: challenge.id,
-          progress: 1,
-          completed_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,challenge_id" },
-      );
+      await upsertUserChallenge({
+        user_id: context.userId,
+        challenge_id: challenge.id,
+        progress: 1,
+        completed_at: new Date().toISOString(),
+      });
     }
+
 
     return { alreadyCheckedIn: false, streak, xp: 10 + Math.min(streak, 30) };
   });
