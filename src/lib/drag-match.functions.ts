@@ -422,10 +422,11 @@ export const finalizeMatch = createServerFn({ method: "POST" })
       .eq("id", m.id);
     if (uErr) throw new Error(uErr.message);
 
-    // XP payout — best effort
+    // XP payout — best effort, written with the trusted server-side writer
     if (winner_id && m.stake_xp > 0) {
       try {
-        await supabase.from("xp_events").insert({
+        const { insertXpEvent } = await import("@/lib/xp.server");
+        await insertXpEvent({
           user_id: winner_id,
           amount: m.stake_xp,
           kind: "drag_match_win",
@@ -435,5 +436,6 @@ export const finalizeMatch = createServerFn({ method: "POST" })
         /* noop */
       }
     }
+
     return { ok: true, winner_id, margin_s };
   });
