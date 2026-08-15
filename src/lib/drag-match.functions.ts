@@ -355,8 +355,6 @@ export const pushMatchTelemetry = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, skipped };
   });
-    return { ok: true };
-  });
 
 
 export const finalizeMatch = createServerFn({ method: "POST" })
