@@ -319,7 +319,16 @@ export const pushMatchTelemetry = createServerFn({ method: "POST" })
     let lastLng = prev?.lng != null ? Number(prev.lng) : null;
     let lastT = prev ? Number(prev.t_ms) : samples[0].t_ms;
 
-    const rows: Array<Record<string, unknown>> = [];
+    const rows: {
+      match_id: string;
+      rider_id: string;
+      t_ms: number;
+      distance_m: number;
+      speed_kmh: number;
+      accuracy_m: number | null;
+      lat: number;
+      lng: number;
+    }[] = [];
     let skipped = 0;
     for (const s of samples) {
       let step = 0;
