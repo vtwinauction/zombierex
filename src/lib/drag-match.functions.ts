@@ -319,22 +319,35 @@ export const pushMatchTelemetry = createServerFn({ method: "POST" })
     let lastLng = prev?.lng != null ? Number(prev.lng) : null;
     let lastT = prev ? Number(prev.t_ms) : samples[0].t_ms;
 
-    const rows = samples.map((s) => {
+    const rows: {
+      match_id: string;
+      rider_id: string;
+      t_ms: number;
+      distance_m: number;
+      speed_kmh: number;
+      accuracy_m: number | null;
+      lat: number;
+      lng: number;
+    }[] = [];
+    let skipped = 0;
+    for (const s of samples) {
       let step = 0;
       if (lastLat != null && lastLng != null) {
         step = haversineM(lastLat, lastLng, s.lat, s.lng);
       }
       const dtS = Math.max((s.t_ms - lastT) / 1000, 0);
-      // Reject physically impossible jumps (> 500 km/h between fixes).
+      // Drop only the implausible fix (> 500 km/h between fixes); keep the rest
+      // of the batch and keep the previous anchor so the run stays continuous.
       if (dtS > 0 && step / dtS > 139) {
-        throw new Error("Telemetry rejected: implausible GPS jump");
+        skipped++;
+        continue;
       }
       cumulative += step;
       const derivedSpeed = dtS > 0 ? (step / dtS) * 3.6 : 0;
       lastLat = s.lat;
       lastLng = s.lng;
       lastT = s.t_ms;
-      return {
+      rows.push({
         match_id: data.match_id,
         rider_id: userId,
         t_ms: s.t_ms,
@@ -344,11 +357,12 @@ export const pushMatchTelemetry = createServerFn({ method: "POST" })
         accuracy_m: s.accuracy_m ?? null,
         lat: s.lat,
         lng: s.lng,
-      };
-    });
+      });
+    }
+    if (rows.length === 0) return { ok: true, skipped };
     const { error } = await supabase.from("drag_match_telemetry").insert(rows);
     if (error) throw new Error(error.message);
-    return { ok: true };
+    return { ok: true, skipped };
   });
 
 
