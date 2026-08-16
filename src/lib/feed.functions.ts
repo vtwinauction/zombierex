@@ -97,7 +97,7 @@ export const listAuthedFeed = createServerFn({ method: "GET" })
     if (excluded.size > 0) q = q.not("author_id", "in", `(${Array.from(excluded).join(",")})`);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const filtered = (rows ?? [])
       .filter((row: any) => {
         const caption = String(row.caption ?? "").toLowerCase();
@@ -111,7 +111,7 @@ export const listAuthedFeed = createServerFn({ method: "GET" })
       .slice(0, data.limit);
     return {
       items: filtered,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       nextCursor:
         filtered.length === data.limit ? (filtered[filtered.length - 1] as any).created_at : null,
     };

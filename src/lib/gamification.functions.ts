@@ -43,7 +43,6 @@ export const awardXp = createServerFn({ method: "POST" })
     });
   });
 
-
 export const dailyCheckIn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -88,7 +87,6 @@ export const dailyCheckIn = createServerFn({ method: "POST" })
         completed_at: new Date().toISOString(),
       });
     }
-
 
     return { alreadyCheckedIn: false, streak, xp: 10 + Math.min(streak, 30) };
   });
@@ -242,7 +240,6 @@ export const claimChallenge = createServerFn({ method: "POST" })
       metadata: { slug: challenge.slug },
     });
 
-
     if (challenge.badge_slug) {
       await context.supabase.from("user_achievements").upsert(
         {
@@ -333,7 +330,6 @@ export const claimReferral = createServerFn({ method: "POST" })
       metadata: { via: code },
     });
 
-
     return { ok: true, referrer_id: referrer.id };
   });
 
@@ -409,7 +405,7 @@ export const listMyReferrals = createServerFn({ method: "GET" })
       .limit(100);
 
     const ids = (refs ?? []).map((r) => r.referred_user_id);
-    let profiles: Record<
+    const profiles: Record<
       string,
       { display_name: string | null; avatar_url: string | null; handle: string | null }
     > = {};

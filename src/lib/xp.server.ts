@@ -62,17 +62,15 @@ export async function upsertUserChallenge(row: {
   completed_at?: string | null;
 }) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { error } = await supabaseAdmin
-    .from("user_challenges")
-    .upsert(
-      {
-        user_id: row.user_id,
-        challenge_id: row.challenge_id,
-        progress: row.progress,
-        completed_at: row.completed_at ?? null,
-      },
-      { onConflict: "user_id,challenge_id" },
-    );
+  const { error } = await supabaseAdmin.from("user_challenges").upsert(
+    {
+      user_id: row.user_id,
+      challenge_id: row.challenge_id,
+      progress: row.progress,
+      completed_at: row.completed_at ?? null,
+    },
+    { onConflict: "user_id,challenge_id" },
+  );
   if (error) throw new Error(error.message);
 }
 

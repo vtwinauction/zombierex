@@ -112,7 +112,7 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
             if (full) {
               // Seller + category come from the order when this payment settles one.
               let sellerId: string | null = null;
-              let category: string | null = null;
+              const category: string | null = null;
               if ((full as any).order_id) {
                 const { data: order } = await supabaseAdmin
                   .from("orders")

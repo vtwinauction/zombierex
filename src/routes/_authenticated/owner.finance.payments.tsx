@@ -8,10 +8,16 @@ export const Route = createFileRoute("/_authenticated/owner/finance/payments")({
   head: () => ({
     meta: [
       { title: "Payment Gateways — ZOMBIEREX Owner" },
-      { name: "description", content: "Manage payment gateway configuration and settlement settings." },
+      {
+        name: "description",
+        content: "Manage payment gateway configuration and settlement settings.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Payment Gateways — ZOMBIEREX Owner" },
-      { property: "og:description", content: "Manage payment gateway configuration and settlement settings." },
+      {
+        property: "og:description",
+        content: "Manage payment gateway configuration and settlement settings.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

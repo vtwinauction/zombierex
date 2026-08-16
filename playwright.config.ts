@@ -22,7 +22,6 @@ function resolveChromium(): string | undefined {
 
 const chromiumPath = resolveChromium();
 
-
 /**
  * ZOMBIEREX smoke suite config.
  * Assumes the dev server is already running on http://localhost:8080
@@ -47,7 +46,5 @@ export default defineConfig({
     ...(chromiumPath ? { launchOptions: { executablePath: chromiumPath } } : {}),
   },
 
-  projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-  ],
+  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

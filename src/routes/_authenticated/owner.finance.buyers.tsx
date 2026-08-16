@@ -9,10 +9,16 @@ export const Route = createFileRoute("/_authenticated/owner/finance/buyers")({
   head: () => ({
     meta: [
       { title: "Buyer Insights — ZOMBIEREX Owner" },
-      { name: "description", content: "Buyer spend, order volume and refund behaviour across the marketplace." },
+      {
+        name: "description",
+        content: "Buyer spend, order volume and refund behaviour across the marketplace.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Buyer Insights — ZOMBIEREX Owner" },
-      { property: "og:description", content: "Buyer spend, order volume and refund behaviour across the marketplace." },
+      {
+        property: "og:description",
+        content: "Buyer spend, order volume and refund behaviour across the marketplace.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

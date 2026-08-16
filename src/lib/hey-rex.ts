@@ -116,7 +116,7 @@ function normalize(t: string) {
 }
 
 function stripWake(t: string) {
-  let s = normalize(t);
+  const s = normalize(t);
   for (const w of WAKE_WORDS) {
     if (s.startsWith(w)) return s.slice(w.length).trim();
   }

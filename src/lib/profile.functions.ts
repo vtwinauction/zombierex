@@ -39,7 +39,6 @@ export const getMyProfile = createServerFn({ method: "GET" })
     };
   });
 
-
 export const getMyProfileMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -174,7 +173,6 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       business_address: business_address === undefined ? undefined : business_address || null,
     };
   });
-
 
 export const getMyRoles = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

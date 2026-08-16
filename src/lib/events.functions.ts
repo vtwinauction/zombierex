@@ -184,8 +184,6 @@ export const getEvent = createServerFn({ method: "GET" })
     }
     const event = { ...eventRow, ...contact };
 
-
-
     const sb = context.supabase;
     const eq = { event_id: data.id } as const;
     const [
