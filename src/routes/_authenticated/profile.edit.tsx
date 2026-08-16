@@ -56,7 +56,6 @@ function EditProfilePage() {
     };
   }, []);
 
-
   useEffect(() => {
     const p = q.data as any;
     if (!p) return;

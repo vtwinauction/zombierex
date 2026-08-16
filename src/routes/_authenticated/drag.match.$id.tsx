@@ -61,7 +61,6 @@ type TelRow = {
   lng?: number;
 };
 
-
 const LANE_A = "#00c853";
 const LANE_B = "#f6d84f";
 
@@ -201,11 +200,9 @@ function MatchPage() {
                   lat: s.lat as number,
                   lng: s.lng as number,
                 })),
-
             },
           }).catch(() => null);
         }
-
 
         if (distRef.current >= target) {
           finalFn({ data: { id } })

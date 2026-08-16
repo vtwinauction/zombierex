@@ -19,7 +19,10 @@ export const Route = createFileRoute("/_authenticated/owner/finance/transactions
       { name: "description", content: "Full ledger of marketplace transactions and fee splits." },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Transactions — ZOMBIEREX Owner" },
-      { property: "og:description", content: "Full ledger of marketplace transactions and fee splits." },
+      {
+        property: "og:description",
+        content: "Full ledger of marketplace transactions and fee splits.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

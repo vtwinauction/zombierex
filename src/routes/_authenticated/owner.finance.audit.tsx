@@ -7,10 +7,16 @@ export const Route = createFileRoute("/_authenticated/owner/finance/audit")({
   head: () => ({
     meta: [
       { title: "Finance Audit Log — ZOMBIEREX Owner" },
-      { name: "description", content: "Immutable audit trail of financial rule changes and admin actions." },
+      {
+        name: "description",
+        content: "Immutable audit trail of financial rule changes and admin actions.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Finance Audit Log — ZOMBIEREX Owner" },
-      { property: "og:description", content: "Immutable audit trail of financial rule changes and admin actions." },
+      {
+        property: "og:description",
+        content: "Immutable audit trail of financial rule changes and admin actions.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -19,10 +19,16 @@ export const Route = createFileRoute("/_authenticated/owner/finance/")({
   head: () => ({
     meta: [
       { title: "Finance Overview — ZOMBIEREX Owner" },
-      { name: "description", content: "Revenue, commissions and ledger overview for the ZOMBIEREX platform." },
+      {
+        name: "description",
+        content: "Revenue, commissions and ledger overview for the ZOMBIEREX platform.",
+      },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Finance Overview — ZOMBIEREX Owner" },
-      { property: "og:description", content: "Revenue, commissions and ledger overview for the ZOMBIEREX platform." },
+      {
+        property: "og:description",
+        content: "Revenue, commissions and ledger overview for the ZOMBIEREX platform.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/owner/finance/commissions"
       { name: "description", content: "Configure marketplace commission tiers and fee rules." },
       { name: "robots", content: "noindex, nofollow" },
       { property: "og:title", content: "Commission Rules — ZOMBIEREX Owner" },
-      { property: "og:description", content: "Configure marketplace commission tiers and fee rules." },
+      {
+        property: "og:description",
+        content: "Configure marketplace commission tiers and fee rules.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

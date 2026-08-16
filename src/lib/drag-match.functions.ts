@@ -365,7 +365,6 @@ export const pushMatchTelemetry = createServerFn({ method: "POST" })
     return { ok: true, skipped };
   });
 
-
 export const finalizeMatch = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) => z.object({ id: z.string().uuid() }).parse(d))

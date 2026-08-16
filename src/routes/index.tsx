@@ -167,8 +167,7 @@ function HomePage() {
   const liveFeed = useInfiniteQuery({
     queryKey: ["feed", "live", "authed"],
     initialPageParam: undefined as string | undefined,
-    queryFn: ({ pageParam }) =>
-      fetchAuthedFeed({ data: { limit: 20, cursor: pageParam } }),
+    queryFn: ({ pageParam }) => fetchAuthedFeed({ data: { limit: 20, cursor: pageParam } }),
     getNextPageParam: (last: any) => last?.nextCursor ?? undefined,
     staleTime: 30_000,
   });

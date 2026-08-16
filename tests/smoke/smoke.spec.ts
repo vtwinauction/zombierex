@@ -52,7 +52,9 @@ test("home shell has main navigation", async ({ page }) => {
 
 test("auth page exposes sign-in affordance", async ({ page }) => {
   await page.goto("http://localhost:8080/auth");
-  const signInAffordance = page.getByRole("button", { name: /sign in|log in|continue|google/i }).first();
+  const signInAffordance = page
+    .getByRole("button", { name: /sign in|log in|continue|google/i })
+    .first();
   await expect(signInAffordance).toBeVisible({ timeout: 10_000 });
 });
 

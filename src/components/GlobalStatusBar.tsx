@@ -156,9 +156,6 @@ export function GlobalStatusBar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
-  const { index, section } = hydrated
-    ? resolve(pathname)
-    : { index: "00", section: "ZOMBIEREX" };
+  const { index, section } = hydrated ? resolve(pathname) : { index: "00", section: "ZOMBIEREX" };
   return <StatusBar index={index} section={section} />;
 }
-

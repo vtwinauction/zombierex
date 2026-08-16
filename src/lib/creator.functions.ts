@@ -673,7 +673,7 @@ export const getMyPayoutsLedger = createServerFn({ method: "GET" })
         ...(subs ?? []).map((s) => s.subscriber_id),
       ]),
     );
-    let profiles: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
+    const profiles: Record<string, { display_name: string | null; avatar_url: string | null }> = {};
     if (supporterIds.length > 0) {
       const { data: rows } = await context.supabase
         .from("profiles")

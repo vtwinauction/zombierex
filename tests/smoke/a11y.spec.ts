@@ -39,10 +39,11 @@ test.describe("mobile viewport (iPhone 13)", () => {
     hasTouch: iphone.hasTouch,
   });
 
-
   test("no horizontal overflow on home", async ({ page }) => {
     await page.goto("http://localhost:8080/", { waitUntil: "domcontentloaded" });
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
     expect(overflow, "horizontal overflow px").toBeLessThanOrEqual(2);
   });
 
@@ -50,8 +51,9 @@ test.describe("mobile viewport (iPhone 13)", () => {
     await page.goto("http://localhost:8080/", { waitUntil: "domcontentloaded" });
     // "/" is the marketing site: the link bar collapses into a menu button at
     // mobile widths, so either affordance counts as reachable navigation.
-    const nav = page.locator("nav:visible, button[aria-label*='menu' i], button[aria-controls*='menu' i]").first();
+    const nav = page
+      .locator("nav:visible, button[aria-label*='menu' i], button[aria-controls*='menu' i]")
+      .first();
     await expect(nav).toBeVisible({ timeout: 10_000 });
   });
-
 });

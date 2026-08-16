@@ -28,7 +28,6 @@ export function MarketingShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-
   return (
     <div className="mkt">
       <MarketingStyles />

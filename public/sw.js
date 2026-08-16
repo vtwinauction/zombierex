@@ -8,7 +8,10 @@ const MAX_API = 100;
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
-    caches.open(SHELL_CACHE).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()),
+    caches
+      .open(SHELL_CACHE)
+      .then((c) => c.addAll(CORE))
+      .then(() => self.skipWaiting()),
   );
 });
 
@@ -18,7 +21,9 @@ self.addEventListener("activate", (e) => {
       .keys()
       .then((keys) =>
         Promise.all(
-          keys.filter((k) => ![SHELL_CACHE, MEDIA_CACHE, API_CACHE].includes(k)).map((k) => caches.delete(k)),
+          keys
+            .filter((k) => ![SHELL_CACHE, MEDIA_CACHE, API_CACHE].includes(k))
+            .map((k) => caches.delete(k)),
         ),
       )
       .then(() => self.clients.claim()),
@@ -30,9 +35,7 @@ self.addEventListener("message", (event) => {
     self.skipWaiting();
   }
   if (event.data === "PURGE_CACHES" || event.data?.type === "PURGE_CACHES") {
-    event.waitUntil(
-      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))),
-    );
+    event.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k)))));
   }
 });
 
@@ -61,7 +64,11 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   // Never cache server functions, auth endpoints, or webhooks
-  if (url.pathname.startsWith("/_serverFn") || url.pathname.startsWith("/auth/") || url.pathname.startsWith("/api/public/hooks/")) {
+  if (
+    url.pathname.startsWith("/_serverFn") ||
+    url.pathname.startsWith("/auth/") ||
+    url.pathname.startsWith("/api/public/hooks/")
+  ) {
     return;
   }
 
@@ -71,7 +78,10 @@ self.addEventListener("fetch", (event) => {
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(SHELL_CACHE).then((c) => c.put(req, copy)).catch(() => {});
+          caches
+            .open(SHELL_CACHE)
+            .then((c) => c.put(req, copy))
+            .catch(() => {});
           return res;
         })
         .catch(() => caches.match(req).then((r) => r || caches.match("/"))),
@@ -87,7 +97,10 @@ self.addEventListener("fetch", (event) => {
         const network = fetch(req)
           .then((res) => {
             if (res.ok) {
-              cache.put(req, res.clone()).then(() => trimCache(MEDIA_CACHE, MAX_MEDIA)).catch(() => {});
+              cache
+                .put(req, res.clone())
+                .then(() => trimCache(MEDIA_CACHE, MAX_MEDIA))
+                .catch(() => {});
             }
             return res;
           })
@@ -106,7 +119,10 @@ self.addEventListener("fetch", (event) => {
         const network = fetch(req)
           .then((res) => {
             if (res.ok) {
-              cache.put(req, res.clone()).then(() => trimCache(API_CACHE, MAX_API)).catch(() => {});
+              cache
+                .put(req, res.clone())
+                .then(() => trimCache(API_CACHE, MAX_API))
+                .catch(() => {});
             }
             return res;
           })
@@ -124,7 +140,10 @@ self.addEventListener("fetch", (event) => {
       return fetch(req).then((res) => {
         if (res.ok) {
           const copy = res.clone();
-          caches.open(SHELL_CACHE).then((c) => c.put(req, copy)).catch(() => {});
+          caches
+            .open(SHELL_CACHE)
+            .then((c) => c.put(req, copy))
+            .catch(() => {});
         }
         return res;
       });

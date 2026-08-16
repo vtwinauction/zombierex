@@ -6691,6 +6691,10 @@ export type Database = {
         Returns: boolean
       }
       is_owner: { Args: { _user: string }; Returns: boolean }
+      marketplace_object_is_public: {
+        Args: { _object_name: string }
+        Returns: boolean
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       user_has_event_invite: {

@@ -90,10 +90,11 @@ export function StatusBar({ index, section }: { index: string; section: string }
         borderBottom: "1px solid var(--color-line)",
       }}
     >
-      <div className="grid grid-cols-[1fr_auto] items-center gap-3 px-4 py-3">
-        <Link to="/" className="tap flex flex-col leading-none">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 overflow-hidden px-4 py-3">
+        <Link to="/" className="tap flex min-w-0 flex-col leading-none">
+
           <span
-            className="serif text-[20px]"
+            className="serif truncate text-[20px]"
             style={{
               color: "var(--color-ink-0)",
               letterSpacing: "-0.03em",
@@ -104,7 +105,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
             ZOMBIEREX
           </span>
           <span
-            className="mono-tag mt-1.5"
+            className="mono-tag mt-1.5 truncate"
             style={{
               fontSize: 9,
               letterSpacing: "0.28em",
@@ -116,7 +117,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
           </span>
         </Link>
 
-        <div className="flex items-center gap-0.5">
+        <div className="flex shrink-0 items-center gap-0.5">
           <BluetoothCell />
           <ActionCell to="/post/new" label="New post">
             <Plus size={19} strokeWidth={2} />
@@ -156,7 +157,7 @@ function ActionCell({
     <Link
       to={to}
       aria-label={label}
-      className="tap relative grid h-9 w-9 place-items-center"
+      className="tap relative grid h-9 w-8 place-items-center sm:w-9"
       style={{ color: "var(--color-ink-0)", borderRadius: 10 }}
     >
       {children}
@@ -237,7 +238,7 @@ function BluetoothCell() {
             ? "Camera linked"
             : "Pair action camera"
       }
-      className="tap relative grid h-9 w-9 place-items-center"
+      className="tap relative grid h-9 w-8 place-items-center sm:w-9"
       style={{
         color: linked ? "var(--color-neon, #7cff3f)" : "var(--color-ink-0)",
         borderRadius: 10,
