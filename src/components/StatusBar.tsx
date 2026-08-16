@@ -90,8 +90,9 @@ export function StatusBar({ index, section }: { index: string; section: string }
         borderBottom: "1px solid var(--color-line)",
       }}
     >
-      <div className="grid grid-cols-[1fr_auto] items-center gap-3 px-4 py-3">
-        <Link to="/" className="tap flex flex-col leading-none">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 overflow-hidden px-4 py-3">
+        <Link to="/" className="tap flex min-w-0 flex-col leading-none">
+
           <span
             className="serif text-[20px]"
             style={{
