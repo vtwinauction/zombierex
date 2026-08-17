@@ -39,7 +39,7 @@ export function CartIconLink() {
     <Link
       to="/cart"
       aria-label={count > 0 ? `Cart, ${count} item${count === 1 ? "" : "s"}` : "Cart"}
-      className="tap relative grid h-9 w-9 place-items-center"
+      className="tap relative grid h-9 w-8 place-items-center sm:w-9"
       style={{ color: "var(--color-ink-0)", borderRadius: 10 }}
     >
       <ShoppingCart size={17} strokeWidth={1.8} />
