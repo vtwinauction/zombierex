@@ -799,8 +799,9 @@ function LandingStyles() {
   position: absolute; left: 2%; bottom: 6%; z-index: 4;
   display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 14px; border-radius: 12px; font-size: 12px; font-weight: 600;
-  background: rgba(255,255,255,0.94); border: 1px solid var(--line);
-  box-shadow: 0 20px 40px -26px rgba(0,0,0,0.45);
+  background: rgba(14,19,22,0.92); color: var(--txt); backdrop-filter: blur(14px);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 20px 40px -22px rgba(0,0,0,0.85);
 }
 .mkt-hero-badge svg { color: var(--neon); }
 
