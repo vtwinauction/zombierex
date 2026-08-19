@@ -3,14 +3,25 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
+// Crash payloads are best-effort telemetry: clamp oversized strings instead of
+// rejecting them, otherwise the reporter itself throws inside an error path.
+const clamped = (max: number) =>
+  z
+    .string()
+    .transform((s) => s.slice(0, max))
+    .optional();
+
 const CrashSchema = z.object({
-  message: z.string().min(1).max(2000),
-  stack: z.string().max(20_000).optional(),
-  route: z.string().max(500).optional(),
-  userAgent: z.string().max(500).optional(),
-  platform: z.string().max(50).optional(),
-  appVersion: z.string().max(50).optional(),
-  mechanism: z.string().max(50).optional(),
+  message: z
+    .string()
+    .min(1)
+    .transform((s) => s.slice(0, 2000)),
+  stack: clamped(20_000),
+  route: clamped(500),
+  userAgent: clamped(500),
+  platform: clamped(50),
+  appVersion: clamped(50),
+  mechanism: clamped(50),
   userId: z.string().uuid().optional(),
   context: z.record(z.string(), z.unknown()).optional(),
 });
