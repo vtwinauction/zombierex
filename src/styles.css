@@ -226,25 +226,25 @@
   border-bottom: 1px solid var(--color-line);
 }
 
-/* Elevation */
+/* Elevation — dark hull needs depth from black, not grey */
 @utility lift-1 {
   box-shadow:
-    0 1px 2px rgba(15, 15, 15, 0.04),
-    0 8px 24px -14px rgba(15, 15, 15, 0.1);
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 26px -16px rgba(0, 0, 0, 0.9);
 }
 @utility lift-2 {
   box-shadow:
-    0 1px 2px rgba(15, 15, 15, 0.06),
-    0 18px 40px -18px rgba(15, 15, 15, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 60px -24px rgba(0, 0, 0, 0.95);
 }
 @utility lift-signal {
   box-shadow:
-    0 0 0 1px rgba(0, 200, 83, 0.35),
-    0 18px 40px -18px rgba(0, 200, 83, 0.45);
+    0 0 0 1px rgba(0, 224, 112, 0.4),
+    0 18px 44px -20px rgba(0, 224, 112, 0.5);
 }
 
 @utility etch {
-  background-image: repeating-linear-gradient(90deg, var(--color-line) 0 6px, transparent 6px 10px);
+  background-image: repeating-linear-gradient(90deg, var(--color-line-2) 0 6px, transparent 6px 10px);
   height: 1px;
 }
 
@@ -253,16 +253,15 @@
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: radial-gradient(circle at 35% 30%, #fff, #d4d4d4 40%, #6b6b6b 100%);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+  background: radial-gradient(circle at 35% 30%, #ffffff, #9aa5a3 40%, #2a3335 100%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
 }
 
 @utility surface-brushed {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f2f2f2 100%),
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.02) 0 1px, transparent 1px 3px);
-  background-blend-mode: multiply;
-  border: 1px solid var(--color-line);
+    linear-gradient(180deg, #1b2226 0%, #0d1215 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px);
+  border: 1px solid var(--color-line-2);
   color: var(--color-ink-0);
 }
 
