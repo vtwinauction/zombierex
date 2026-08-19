@@ -292,7 +292,7 @@ function AuthPage() {
                     onChange={(e) => setDob(e.target.value)}
                     max={new Date().toISOString().slice(0, 10)}
                     className="zx-input mt-1"
-                    style={{ colorScheme: "dark" }}
+                    style={{ colorScheme: "light" }}
                   />
                   <span className="mt-1 block text-[11px]" style={{ color: "var(--color-ash)" }}>
                     You must be at least 13 to sign up.
@@ -345,8 +345,8 @@ function AuthPage() {
                 className="rounded-md px-3 py-2 text-sm"
                 style={{
                   color: "var(--color-heat)",
-                  background: "rgba(255,59,70,0.08)",
-                  border: "1px solid rgba(255,59,70,0.3)",
+                  background: "rgba(225,29,42,0.06)",
+                  border: "1px solid rgba(225,29,42,0.28)",
                 }}
                 role="alert"
               >
