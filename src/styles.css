@@ -489,8 +489,8 @@
   letter-spacing: 0.16em;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--color-paper-0);
-  background: linear-gradient(180deg, #3a3a3a 0%, #0a0a0a 100%);
+  color: #f2f6f4;
+  background: linear-gradient(180deg, #313b3e 0%, #0b0f11 100%);
   border: 1px solid #000;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
