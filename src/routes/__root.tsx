@@ -376,7 +376,7 @@ function RootComponent() {
           </PullToRefresh>
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
-        {shellReady && !marketing && (
+        {shellReady && !marketing && !isCommand && (
           <Suspense fallback={null}>
             <PushNotificationBridge />
             <PushPrimer />
