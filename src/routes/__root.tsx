@@ -171,8 +171,11 @@ function RootComponent() {
   // of that render path; MarketingShell opts back into app mode if RootEntry
   // resolves to the signed-in feed.
   const websiteMounted = marketing;
+  // Hidden admin surface: no member chrome, no tour, no nav.
+  const isCommand = pathname === "/command" || pathname.startsWith("/owner/command");
   const isImmersive =
     marketing ||
+    isCommand ||
     pathname.startsWith("/atlas/cockpit") ||
     pathname.startsWith("/drag/race") ||
     pathname === "/reels" ||
@@ -373,7 +376,7 @@ function RootComponent() {
           </PullToRefresh>
         </main>
         {!isImmersive && <BottomNav hidden={navHidden} />}
-        {shellReady && !marketing && (
+        {shellReady && !marketing && !isCommand && (
           <Suspense fallback={null}>
             <PushNotificationBridge />
             <PushPrimer />
