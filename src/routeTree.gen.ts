@@ -110,6 +110,7 @@ import { Route as AuthenticatedProfileEditRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPostsMineRouteImport } from './routes/_authenticated/posts.mine'
 import { Route as AuthenticatedPostNewRouteImport } from './routes/_authenticated/post.new'
 import { Route as AuthenticatedOwnerFinanceRouteImport } from './routes/_authenticated/owner.finance'
+import { Route as AuthenticatedOwnerCommandRouteImport } from './routes/_authenticated/owner.command'
 import { Route as AuthenticatedOwnerAnalyticsRouteImport } from './routes/_authenticated/owner.analytics'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace_.new'
@@ -148,6 +149,7 @@ import { Route as AuthenticatedAdminJudgeRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminHealthRouteImport } from './routes/_authenticated/admin.health'
 import { Route as AuthenticatedAdminCrashesRouteImport } from './routes/_authenticated/admin.crashes'
 import { Route as AuthenticatedOwnerFinanceIndexRouteImport } from './routes/_authenticated/owner.finance.index'
+import { Route as AuthenticatedOwnerCommandIndexRouteImport } from './routes/_authenticated/owner.command.index'
 import { Route as AuthenticatedAtlasGroupIndexRouteImport } from './routes/_authenticated/atlas.group.index'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -167,6 +169,9 @@ import { Route as AuthenticatedOwnerFinancePaymentsRouteImport } from './routes/
 import { Route as AuthenticatedOwnerFinanceCommissionsRouteImport } from './routes/_authenticated/owner.finance.commissions'
 import { Route as AuthenticatedOwnerFinanceBuyersRouteImport } from './routes/_authenticated/owner.finance.buyers'
 import { Route as AuthenticatedOwnerFinanceAuditRouteImport } from './routes/_authenticated/owner.finance.audit'
+import { Route as AuthenticatedOwnerCommandUsersRouteImport } from './routes/_authenticated/owner.command.users'
+import { Route as AuthenticatedOwnerCommandSearchRouteImport } from './routes/_authenticated/owner.command.search'
+import { Route as AuthenticatedOwnerCommandBusinessesRouteImport } from './routes/_authenticated/owner.command.businesses'
 import { Route as AuthenticatedJudgeSubmitEventSlugRouteImport } from './routes/_authenticated/judge.submit.$eventSlug'
 import { Route as AuthenticatedEventsIdEditRouteImport } from './routes/_authenticated/events_.$id.edit'
 import { Route as AuthenticatedDragMatchIdRouteImport } from './routes/_authenticated/drag.match.$id'
@@ -175,6 +180,7 @@ import { Route as AuthenticatedCheckoutPaymentPaymentIdRouteImport } from './rou
 import { Route as AuthenticatedCheckoutOrderIdRouteImport } from './routes/_authenticated/checkout.order.$id'
 import { Route as AuthenticatedAtlasGroupIdRouteImport } from './routes/_authenticated/atlas.group.$id'
 import { Route as AuthenticatedAdminVendorsIdRouteImport } from './routes/_authenticated/admin.vendors.$id'
+import { Route as AuthenticatedOwnerCommandUsersIdRouteImport } from './routes/_authenticated/owner.command.users.$id'
 import { Route as AuthenticatedCommunitiesSlugPostNewRouteImport } from './routes/_authenticated/communities.$slug.post.new'
 import { Route as AuthenticatedCommunitiesSlugEventsNewRouteImport } from './routes/_authenticated/communities.$slug.events.new'
 import { Route as AuthenticatedCommunitiesSlugChallengesNewRouteImport } from './routes/_authenticated/communities.$slug.challenges.new'
@@ -713,6 +719,12 @@ const AuthenticatedOwnerFinanceRoute =
     path: '/finance',
     getParentRoute: () => AuthenticatedOwnerRoute,
   } as any)
+const AuthenticatedOwnerCommandRoute =
+  AuthenticatedOwnerCommandRouteImport.update({
+    id: '/command',
+    path: '/command',
+    getParentRoute: () => AuthenticatedOwnerRoute,
+  } as any)
 const AuthenticatedOwnerAnalyticsRoute =
   AuthenticatedOwnerAnalyticsRouteImport.update({
     id: '/analytics',
@@ -924,6 +936,12 @@ const AuthenticatedOwnerFinanceIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedOwnerFinanceRoute,
   } as any)
+const AuthenticatedOwnerCommandIndexRoute =
+  AuthenticatedOwnerCommandIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedOwnerCommandRoute,
+  } as any)
 const AuthenticatedAtlasGroupIndexRoute =
   AuthenticatedAtlasGroupIndexRouteImport.update({
     id: '/atlas/group/',
@@ -1034,6 +1052,24 @@ const AuthenticatedOwnerFinanceAuditRoute =
     path: '/audit',
     getParentRoute: () => AuthenticatedOwnerFinanceRoute,
   } as any)
+const AuthenticatedOwnerCommandUsersRoute =
+  AuthenticatedOwnerCommandUsersRouteImport.update({
+    id: '/users',
+    path: '/users',
+    getParentRoute: () => AuthenticatedOwnerCommandRoute,
+  } as any)
+const AuthenticatedOwnerCommandSearchRoute =
+  AuthenticatedOwnerCommandSearchRouteImport.update({
+    id: '/search',
+    path: '/search',
+    getParentRoute: () => AuthenticatedOwnerCommandRoute,
+  } as any)
+const AuthenticatedOwnerCommandBusinessesRoute =
+  AuthenticatedOwnerCommandBusinessesRouteImport.update({
+    id: '/businesses',
+    path: '/businesses',
+    getParentRoute: () => AuthenticatedOwnerCommandRoute,
+  } as any)
 const AuthenticatedJudgeSubmitEventSlugRoute =
   AuthenticatedJudgeSubmitEventSlugRouteImport.update({
     id: '/judge/submit/$eventSlug',
@@ -1081,6 +1117,12 @@ const AuthenticatedAdminVendorsIdRoute =
     id: '/$id',
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminVendorsRoute,
+  } as any)
+const AuthenticatedOwnerCommandUsersIdRoute =
+  AuthenticatedOwnerCommandUsersIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedOwnerCommandUsersRoute,
   } as any)
 const AuthenticatedCommunitiesSlugPostNewRoute =
   AuthenticatedCommunitiesSlugPostNewRouteImport.update({
@@ -1199,6 +1241,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/owner/command': typeof AuthenticatedOwnerCommandRouteWithChildren
   '/owner/finance': typeof AuthenticatedOwnerFinanceRouteWithChildren
   '/post/new': typeof AuthenticatedPostNewRoute
   '/posts/mine': typeof AuthenticatedPostsMineRoute
@@ -1247,6 +1290,9 @@ export interface FileRoutesByFullPath {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/command/businesses': typeof AuthenticatedOwnerCommandBusinessesRoute
+  '/owner/command/search': typeof AuthenticatedOwnerCommandSearchRoute
+  '/owner/command/users': typeof AuthenticatedOwnerCommandUsersRouteWithChildren
   '/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
   '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
@@ -1266,10 +1312,12 @@ export interface FileRoutesByFullPath {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/atlas/group/': typeof AuthenticatedAtlasGroupIndexRoute
+  '/owner/command/': typeof AuthenticatedOwnerCommandIndexRoute
   '/owner/finance/': typeof AuthenticatedOwnerFinanceIndexRoute
   '/communities/$slug/challenges/new': typeof AuthenticatedCommunitiesSlugChallengesNewRoute
   '/communities/$slug/events/new': typeof AuthenticatedCommunitiesSlugEventsNewRoute
   '/communities/$slug/post/new': typeof AuthenticatedCommunitiesSlugPostNewRoute
+  '/owner/command/users/$id': typeof AuthenticatedOwnerCommandUsersIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1413,6 +1461,9 @@ export interface FileRoutesByTo {
   '/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/events/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/owner/command/businesses': typeof AuthenticatedOwnerCommandBusinessesRoute
+  '/owner/command/search': typeof AuthenticatedOwnerCommandSearchRoute
+  '/owner/command/users': typeof AuthenticatedOwnerCommandUsersRouteWithChildren
   '/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
   '/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
@@ -1432,10 +1483,12 @@ export interface FileRoutesByTo {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/atlas/group': typeof AuthenticatedAtlasGroupIndexRoute
+  '/owner/command': typeof AuthenticatedOwnerCommandIndexRoute
   '/owner/finance': typeof AuthenticatedOwnerFinanceIndexRoute
   '/communities/$slug/challenges/new': typeof AuthenticatedCommunitiesSlugChallengesNewRoute
   '/communities/$slug/events/new': typeof AuthenticatedCommunitiesSlugEventsNewRoute
   '/communities/$slug/post/new': typeof AuthenticatedCommunitiesSlugPostNewRoute
+  '/owner/command/users/$id': typeof AuthenticatedOwnerCommandUsersIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1537,6 +1590,7 @@ export interface FileRoutesById {
   '/_authenticated/marketplace_/new': typeof AuthenticatedMarketplaceNewRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/owner/analytics': typeof AuthenticatedOwnerAnalyticsRoute
+  '/_authenticated/owner/command': typeof AuthenticatedOwnerCommandRouteWithChildren
   '/_authenticated/owner/finance': typeof AuthenticatedOwnerFinanceRouteWithChildren
   '/_authenticated/post/new': typeof AuthenticatedPostNewRoute
   '/_authenticated/posts/mine': typeof AuthenticatedPostsMineRoute
@@ -1585,6 +1639,9 @@ export interface FileRoutesById {
   '/_authenticated/drag/match/$id': typeof AuthenticatedDragMatchIdRoute
   '/_authenticated/events_/$id/edit': typeof AuthenticatedEventsIdEditRoute
   '/_authenticated/judge/submit/$eventSlug': typeof AuthenticatedJudgeSubmitEventSlugRoute
+  '/_authenticated/owner/command/businesses': typeof AuthenticatedOwnerCommandBusinessesRoute
+  '/_authenticated/owner/command/search': typeof AuthenticatedOwnerCommandSearchRoute
+  '/_authenticated/owner/command/users': typeof AuthenticatedOwnerCommandUsersRouteWithChildren
   '/_authenticated/owner/finance/audit': typeof AuthenticatedOwnerFinanceAuditRoute
   '/_authenticated/owner/finance/buyers': typeof AuthenticatedOwnerFinanceBuyersRoute
   '/_authenticated/owner/finance/commissions': typeof AuthenticatedOwnerFinanceCommissionsRoute
@@ -1604,10 +1661,12 @@ export interface FileRoutesById {
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/_authenticated/atlas/group/': typeof AuthenticatedAtlasGroupIndexRoute
+  '/_authenticated/owner/command/': typeof AuthenticatedOwnerCommandIndexRoute
   '/_authenticated/owner/finance/': typeof AuthenticatedOwnerFinanceIndexRoute
   '/_authenticated/communities/$slug/challenges/new': typeof AuthenticatedCommunitiesSlugChallengesNewRoute
   '/_authenticated/communities/$slug/events/new': typeof AuthenticatedCommunitiesSlugEventsNewRoute
   '/_authenticated/communities/$slug/post/new': typeof AuthenticatedCommunitiesSlugPostNewRoute
+  '/_authenticated/owner/command/users/$id': typeof AuthenticatedOwnerCommandUsersIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1709,6 +1768,7 @@ export interface FileRouteTypes {
     | '/marketplace/new'
     | '/messages/$id'
     | '/owner/analytics'
+    | '/owner/command'
     | '/owner/finance'
     | '/post/new'
     | '/posts/mine'
@@ -1757,6 +1817,9 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/command/businesses'
+    | '/owner/command/search'
+    | '/owner/command/users'
     | '/owner/finance/audit'
     | '/owner/finance/buyers'
     | '/owner/finance/commissions'
@@ -1776,10 +1839,12 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/atlas/group/'
+    | '/owner/command/'
     | '/owner/finance/'
     | '/communities/$slug/challenges/new'
     | '/communities/$slug/events/new'
     | '/communities/$slug/post/new'
+    | '/owner/command/users/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1923,6 +1988,9 @@ export interface FileRouteTypes {
     | '/drag/match/$id'
     | '/events/$id/edit'
     | '/judge/submit/$eventSlug'
+    | '/owner/command/businesses'
+    | '/owner/command/search'
+    | '/owner/command/users'
     | '/owner/finance/audit'
     | '/owner/finance/buyers'
     | '/owner/finance/commissions'
@@ -1942,10 +2010,12 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/atlas/group'
+    | '/owner/command'
     | '/owner/finance'
     | '/communities/$slug/challenges/new'
     | '/communities/$slug/events/new'
     | '/communities/$slug/post/new'
+    | '/owner/command/users/$id'
   id:
     | '__root__'
     | '/'
@@ -2046,6 +2116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/marketplace_/new'
     | '/_authenticated/messages/$id'
     | '/_authenticated/owner/analytics'
+    | '/_authenticated/owner/command'
     | '/_authenticated/owner/finance'
     | '/_authenticated/post/new'
     | '/_authenticated/posts/mine'
@@ -2094,6 +2165,9 @@ export interface FileRouteTypes {
     | '/_authenticated/drag/match/$id'
     | '/_authenticated/events_/$id/edit'
     | '/_authenticated/judge/submit/$eventSlug'
+    | '/_authenticated/owner/command/businesses'
+    | '/_authenticated/owner/command/search'
+    | '/_authenticated/owner/command/users'
     | '/_authenticated/owner/finance/audit'
     | '/_authenticated/owner/finance/buyers'
     | '/_authenticated/owner/finance/commissions'
@@ -2113,10 +2187,12 @@ export interface FileRouteTypes {
     | '/lovable/email/auth/webhook'
     | '/lovable/email/transactional/preview'
     | '/_authenticated/atlas/group/'
+    | '/_authenticated/owner/command/'
     | '/_authenticated/owner/finance/'
     | '/_authenticated/communities/$slug/challenges/new'
     | '/_authenticated/communities/$slug/events/new'
     | '/_authenticated/communities/$slug/post/new'
+    | '/_authenticated/owner/command/users/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2890,6 +2966,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerFinanceRouteImport
       parentRoute: typeof AuthenticatedOwnerRoute
     }
+    '/_authenticated/owner/command': {
+      id: '/_authenticated/owner/command'
+      path: '/command'
+      fullPath: '/owner/command'
+      preLoaderRoute: typeof AuthenticatedOwnerCommandRouteImport
+      parentRoute: typeof AuthenticatedOwnerRoute
+    }
     '/_authenticated/owner/analytics': {
       id: '/_authenticated/owner/analytics'
       path: '/analytics'
@@ -3156,6 +3239,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerFinanceIndexRouteImport
       parentRoute: typeof AuthenticatedOwnerFinanceRoute
     }
+    '/_authenticated/owner/command/': {
+      id: '/_authenticated/owner/command/'
+      path: '/'
+      fullPath: '/owner/command/'
+      preLoaderRoute: typeof AuthenticatedOwnerCommandIndexRouteImport
+      parentRoute: typeof AuthenticatedOwnerCommandRoute
+    }
     '/_authenticated/atlas/group/': {
       id: '/_authenticated/atlas/group/'
       path: '/atlas/group'
@@ -3289,6 +3379,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerFinanceAuditRouteImport
       parentRoute: typeof AuthenticatedOwnerFinanceRoute
     }
+    '/_authenticated/owner/command/users': {
+      id: '/_authenticated/owner/command/users'
+      path: '/users'
+      fullPath: '/owner/command/users'
+      preLoaderRoute: typeof AuthenticatedOwnerCommandUsersRouteImport
+      parentRoute: typeof AuthenticatedOwnerCommandRoute
+    }
+    '/_authenticated/owner/command/search': {
+      id: '/_authenticated/owner/command/search'
+      path: '/search'
+      fullPath: '/owner/command/search'
+      preLoaderRoute: typeof AuthenticatedOwnerCommandSearchRouteImport
+      parentRoute: typeof AuthenticatedOwnerCommandRoute
+    }
+    '/_authenticated/owner/command/businesses': {
+      id: '/_authenticated/owner/command/businesses'
+      path: '/businesses'
+      fullPath: '/owner/command/businesses'
+      preLoaderRoute: typeof AuthenticatedOwnerCommandBusinessesRouteImport
+      parentRoute: typeof AuthenticatedOwnerCommandRoute
+    }
     '/_authenticated/judge/submit/$eventSlug': {
       id: '/_authenticated/judge/submit/$eventSlug'
       path: '/judge/submit/$eventSlug'
@@ -3344,6 +3455,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/vendors/$id'
       preLoaderRoute: typeof AuthenticatedAdminVendorsIdRouteImport
       parentRoute: typeof AuthenticatedAdminVendorsRoute
+    }
+    '/_authenticated/owner/command/users/$id': {
+      id: '/_authenticated/owner/command/users/$id'
+      path: '/$id'
+      fullPath: '/owner/command/users/$id'
+      preLoaderRoute: typeof AuthenticatedOwnerCommandUsersIdRouteImport
+      parentRoute: typeof AuthenticatedOwnerCommandUsersRoute
     }
     '/_authenticated/communities/$slug/post/new': {
       id: '/_authenticated/communities/$slug/post/new'
@@ -3417,6 +3535,43 @@ const AuthenticatedMessagesRouteWithChildren =
     AuthenticatedMessagesRouteChildren,
   )
 
+interface AuthenticatedOwnerCommandUsersRouteChildren {
+  AuthenticatedOwnerCommandUsersIdRoute: typeof AuthenticatedOwnerCommandUsersIdRoute
+}
+
+const AuthenticatedOwnerCommandUsersRouteChildren: AuthenticatedOwnerCommandUsersRouteChildren =
+  {
+    AuthenticatedOwnerCommandUsersIdRoute:
+      AuthenticatedOwnerCommandUsersIdRoute,
+  }
+
+const AuthenticatedOwnerCommandUsersRouteWithChildren =
+  AuthenticatedOwnerCommandUsersRoute._addFileChildren(
+    AuthenticatedOwnerCommandUsersRouteChildren,
+  )
+
+interface AuthenticatedOwnerCommandRouteChildren {
+  AuthenticatedOwnerCommandBusinessesRoute: typeof AuthenticatedOwnerCommandBusinessesRoute
+  AuthenticatedOwnerCommandSearchRoute: typeof AuthenticatedOwnerCommandSearchRoute
+  AuthenticatedOwnerCommandUsersRoute: typeof AuthenticatedOwnerCommandUsersRouteWithChildren
+  AuthenticatedOwnerCommandIndexRoute: typeof AuthenticatedOwnerCommandIndexRoute
+}
+
+const AuthenticatedOwnerCommandRouteChildren: AuthenticatedOwnerCommandRouteChildren =
+  {
+    AuthenticatedOwnerCommandBusinessesRoute:
+      AuthenticatedOwnerCommandBusinessesRoute,
+    AuthenticatedOwnerCommandSearchRoute: AuthenticatedOwnerCommandSearchRoute,
+    AuthenticatedOwnerCommandUsersRoute:
+      AuthenticatedOwnerCommandUsersRouteWithChildren,
+    AuthenticatedOwnerCommandIndexRoute: AuthenticatedOwnerCommandIndexRoute,
+  }
+
+const AuthenticatedOwnerCommandRouteWithChildren =
+  AuthenticatedOwnerCommandRoute._addFileChildren(
+    AuthenticatedOwnerCommandRouteChildren,
+  )
+
 interface AuthenticatedOwnerFinanceRouteChildren {
   AuthenticatedOwnerFinanceAuditRoute: typeof AuthenticatedOwnerFinanceAuditRoute
   AuthenticatedOwnerFinanceBuyersRoute: typeof AuthenticatedOwnerFinanceBuyersRoute
@@ -3452,11 +3607,13 @@ const AuthenticatedOwnerFinanceRouteWithChildren =
 
 interface AuthenticatedOwnerRouteChildren {
   AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
+  AuthenticatedOwnerCommandRoute: typeof AuthenticatedOwnerCommandRouteWithChildren
   AuthenticatedOwnerFinanceRoute: typeof AuthenticatedOwnerFinanceRouteWithChildren
 }
 
 const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
   AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
+  AuthenticatedOwnerCommandRoute: AuthenticatedOwnerCommandRouteWithChildren,
   AuthenticatedOwnerFinanceRoute: AuthenticatedOwnerFinanceRouteWithChildren,
 }
 
