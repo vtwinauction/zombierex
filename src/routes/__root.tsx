@@ -157,20 +157,12 @@ function RootComponent() {
   const scrollDir = useScrollDirection(12);
   const [isTop, setIsTop] = useState(true);
   const [shellReady, setShellReady] = useState(false);
-  const [homeSessionResolved, setHomeSessionResolved] = useState(false);
-  const [homeHasSession, setHomeHasSession] = useState(false);
   const pathname = router.state.location.pathname;
-  // MarketingShell is a child of this layout. Subscribing here to the mode
-  // that child sets creates a parent/child feedback loop whenever the outlet
-  // remounts. Public marketing paths are known from the URL; only `/` needs
-  // auth state to decide between the website and the member feed.
-  const marketing =
-    isMarketingPath(pathname) || (pathname === "/" && (!homeSessionResolved || !homeHasSession));
-  // The root route initially renders the public website while its cached
-  // session is resolved. Keep app-wide network gates and touch wrappers out
-  // of that render path; MarketingShell opts back into app mode if RootEntry
-  // resolves to the signed-in feed.
-  const websiteMounted = marketing;
+  // Public marketing surfaces are known from the URL only. The signed-in
+  // check is intentionally deferred to the index route (RootEntry) so the root
+  // shell renders identically on the server and the first client paint — no
+  // hydration mismatch from auth state that only exists in the browser.
+  const marketing = isMarketingPath(pathname);
   // Hidden admin surface: no member chrome, no tour, no nav.
   const isCommand = pathname === "/command" || pathname.startsWith("/owner/command");
   const isImmersive =
@@ -180,6 +172,7 @@ function RootComponent() {
     pathname.startsWith("/drag/race") ||
     pathname === "/reels" ||
     pathname.startsWith("/reels/");
+
 
   useEffect(() => {
     let active = true;
