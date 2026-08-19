@@ -42,7 +42,7 @@
   --color-gunmetal: var(--color-paper-3); /* controls */
   --color-titanium: var(--color-ink-3); /* muted */
   --color-silver: var(--color-ink-2); /* secondary */
-  --color-bone: var(--color-ink-0);
+  --color-bone: var(--color-paper-1);
   --color-paper: var(--color-paper-1);
   --color-ink: var(--color-ink-0); /* primary text */
   --color-hair: var(--color-line);
