@@ -33,7 +33,7 @@ import {
   listAuditLog,
 } from "@/lib/owner.functions";
 
-export const Route = createFileRoute("/_authenticated/owner")({
+export const Route = createFileRoute("/_authenticated/owner/")({
   head: () => ({
     meta: [
       { title: "Owner Control Center · ZOMBIEREX" },
