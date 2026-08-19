@@ -26,7 +26,17 @@ import {
   Mail,
   MapPin,
   Check,
+  Send,
+  Hand,
+  Heart,
+  ZoomIn,
+  RefreshCw,
+  Vibrate,
+  Fingerprint,
+  Smartphone,
+  MousePointerClick as PointerClick,
 } from "lucide-react";
+import { toast } from "sonner";
 import { siteConfig } from "@/config/site";
 import { MarketingShell } from "./MarketingShell";
 import { slugify } from "@/config/feature-guides";
@@ -188,7 +198,9 @@ export function Landing() {
       <Testimonials />
       <DownloadCta />
       <Faq />
+      <TouchBlock />
       <ContactBlock />
+
     </MarketingShell>
   );
 }
@@ -554,42 +566,173 @@ function Faq() {
   );
 }
 
-function ContactBlock() {
+const GESTURES = [
+  { icon: PointerClick, title: "Tap", body: "Ignite a reel, open a listing, or fire a reaction instantly." },
+  { icon: Hand, title: "Swipe", body: "Flick vertically through reels, horizontally through stories." },
+  { icon: Heart, title: "Double-tap", body: "Drop a claw-mark like straight on the media surface." },
+  { icon: ZoomIn, title: "Pinch", body: "Zoom telemetry maps and inspect build photos in detail." },
+  { icon: RefreshCw, title: "Pull to refresh", body: "Drag down anywhere to resync feed, atlas, and garage." },
+  { icon: Vibrate, title: "Haptics", body: "Every confirmed action answers back with a machined pulse." },
+  { icon: Fingerprint, title: "Biometric unlock", body: "Face or fingerprint gate on your private garage." },
+  { icon: Smartphone, title: "One-hand reach", body: "Floating pill nav sits inside your thumb arc." },
+];
+
+function TouchBlock() {
   return (
-    <section id="contact" className="mkt-section">
+    <section id="touch" className="mkt-section">
       <div className="mkt-wrap">
-        <SectionHead index="08" eyebrow="Contact" title="Talk to us." />
-        <div className="mkt-grid">
-          <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.support}`}>
-            <Mail size={16} />
-            <h3>Support</h3>
-            <p className="mkt-muted">{siteConfig.contact.support}</p>
-          </a>
-          <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.business}`}>
-            <Briefcase size={16} />
-            <h3>Business &amp; partnerships</h3>
-            <p className="mkt-muted">{siteConfig.contact.business}</p>
-          </a>
-          <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.legal}`}>
-            <ShieldCheck size={16} />
-            <h3>Legal</h3>
-            <p className="mkt-muted">{siteConfig.contact.legal}</p>
-          </a>
-          <div className="mkt-card mkt-contact">
-            <MapPin size={16} />
-            <h3>Headquarters</h3>
-            <p className="mkt-muted">{siteConfig.contact.location}</p>
-          </div>
-        </div>
-        <div style={{ marginTop: 20 }}>
-          <Link to="/contact" className="mkt-btn mkt-btn-ghost">
-            Open contact form
-          </Link>
+        <SectionHead
+          index="08"
+          eyebrow="Touch"
+          title="Built for thumbs, gloves and speed."
+          body="Every interaction is tuned for a phone in motion — large targets, native gestures, instant feedback."
+        />
+        <div className="mkt-touch">
+          {GESTURES.map((g, i) => {
+            const Icon = g.icon;
+            return (
+              <Reveal key={g.title} delay={i * 50}>
+                <div className="mkt-card mkt-touch-card">
+                  <span className="mkt-touch-ico">
+                    <Icon size={18} />
+                  </span>
+                  <h3>{g.title}</h3>
+                  <p className="mkt-muted">{g.body}</p>
+                </div>
+              </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>
   );
 }
+
+const TOPICS = [
+  "Support",
+  "Business & partnerships",
+  "Advertising",
+  "Press",
+  "Legal",
+  "Other",
+] as const;
+
+function ContactBlock() {
+  const [topic, setTopic] = useState<string>(TOPICS[0]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+
+  const routeTo =
+    topic === "Business & partnerships" || topic === "Advertising"
+      ? siteConfig.contact.business
+      : topic === "Press"
+        ? siteConfig.contact.press
+        : topic === "Legal"
+          ? siteConfig.contact.legal
+          : siteConfig.contact.support;
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = name.trim().slice(0, 100);
+    const em = email.trim().slice(0, 255);
+    const msg = message.trim().slice(0, 2000);
+    if (!n || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em) || msg.length < 10) {
+      toast.error("Add your name, a valid email and a message of at least 10 characters.");
+      return;
+    }
+    const subject = encodeURIComponent(`[${topic}] ${n}`);
+    const body = encodeURIComponent(`${msg}\n\n— ${n} (${em})`);
+    window.location.href = `mailto:${routeTo}?subject=${subject}&body=${body}`;
+    toast.success("Opening your email app…");
+  };
+
+  return (
+    <section id="contact" className="mkt-section">
+      <div className="mkt-wrap">
+        <SectionHead index="09" eyebrow="Contact" title="Talk to us." />
+        <div className="mkt-split">
+          <form className="mkt-card mkt-form" onSubmit={submit}>
+            <label className="mkt-field">
+              <span>Topic</span>
+              <select value={topic} onChange={(e) => setTopic(e.target.value)}>
+                {TOPICS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="mkt-field">
+              <span>Name</span>
+              <input
+                value={name}
+                maxLength={100}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                autoComplete="name"
+              />
+            </label>
+            <label className="mkt-field">
+              <span>Email</span>
+              <input
+                type="email"
+                value={email}
+                maxLength={255}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+            </label>
+            <label className="mkt-field">
+              <span>Message</span>
+              <textarea
+                rows={5}
+                value={message}
+                maxLength={2000}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="How can we help?"
+              />
+            </label>
+            <button type="submit" className="mkt-btn mkt-btn-neon" style={{ justifySelf: "start" }}>
+              <Send size={15} /> Send message
+            </button>
+            <p className="mkt-muted" style={{ fontSize: 11.5 }}>
+              Sends via your email app to <strong>{routeTo}</strong>.
+            </p>
+          </form>
+
+          <div style={{ display: "grid", gap: 12, alignContent: "start" }}>
+            <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.support}`}>
+              <Mail size={16} />
+              <h3>Support</h3>
+              <p className="mkt-muted">{siteConfig.contact.support}</p>
+            </a>
+            <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.business}`}>
+              <Briefcase size={16} />
+              <h3>Business &amp; partnerships</h3>
+              <p className="mkt-muted">{siteConfig.contact.business}</p>
+            </a>
+            <a className="mkt-card mkt-contact" href={`mailto:${siteConfig.contact.legal}`}>
+              <ShieldCheck size={16} />
+              <h3>Legal</h3>
+              <p className="mkt-muted">{siteConfig.contact.legal}</p>
+            </a>
+            <div className="mkt-card mkt-contact">
+              <MapPin size={16} />
+              <h3>Headquarters</h3>
+              <p className="mkt-muted">{siteConfig.contact.location}</p>
+            </div>
+            <Link to="/contact" className="mkt-textlink">
+              Full contact page <ArrowRight size={14} />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 function LandingStyles() {
   return (
@@ -794,6 +937,34 @@ function LandingStyles() {
 .mkt-contact svg { color: var(--neon); }
 .mkt-contact h3 { font-size: 14px; margin: 12px 0 5px; }
 .mkt-contact p { font-size: 13px; }
+
+/* ---------- TOUCH ---------- */
+.mkt-touch { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.mkt-touch-card { padding: 20px; height: 100%; transition: transform .18s ease, border-color .18s ease; }
+.mkt-touch-card:hover { transform: translateY(-3px); border-color: var(--neon); }
+.mkt-touch-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 1px solid var(--line); color: var(--neon);
+  background: rgba(0,224,94,0.08);
+}
+.mkt-touch-card h3 { font-size: 14px; margin: 13px 0 6px; }
+.mkt-touch-card p { font-size: 13px; line-height: 1.6; }
+
+/* ---------- CONTACT FORM ---------- */
+.mkt-form { display: grid; gap: 14px; padding: 24px; }
+.mkt-field { display: grid; gap: 7px; }
+.mkt-field > span { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--txt-2); }
+.mkt-field input, .mkt-field textarea, .mkt-field select {
+  width: 100%; padding: 12px 13px; border-radius: 11px;
+  background: #ffffff; border: 1px solid var(--line);
+  color: var(--txt); font-size: 14px; outline: none; min-height: 44px;
+}
+.mkt-field select option { background: #ffffff; color: #0a0a0a; }
+.mkt-field input:focus, .mkt-field textarea:focus, .mkt-field select:focus { border-color: var(--neon); box-shadow: 0 0 0 3px rgba(0,224,94,0.14); }
+.mkt-field textarea { resize: vertical; }
+
+
 
 @media (prefers-reduced-motion: reduce) {
   .mkt-marquee-track { animation: none; }
