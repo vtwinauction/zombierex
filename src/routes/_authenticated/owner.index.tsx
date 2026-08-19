@@ -629,7 +629,11 @@ function UsersTab() {
       </div>
 
       <div className="space-y-1">
-        {(q.data?.rows ?? []).map((u: any) => (
+        {(q.data?.rows ?? []).map((u: any) => {
+          const handle = u.handle || u.username;
+          const isSelf = !!me.userId && me.userId === u.id;
+          const busy = suspMut.isPending || verMut.isPending || roleMut.isPending;
+          return (
           <div
             key={u.id}
             className="rounded-md border px-3 py-2 text-sm"
@@ -638,7 +642,7 @@ function UsersTab() {
             <div className="flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <p className="truncate font-medium">
-                  {u.display_name || u.username || u.id.slice(0, 8)}
+                  {u.display_name || handle || u.id.slice(0, 8)}
                   {u.is_verified && (
                     <span className="ml-1" style={{ color: "#00c853" }}>
                       ◆
@@ -647,26 +651,38 @@ function UsersTab() {
                   {u.is_premium && <span className="ml-1 text-[10px] opacity-70">PREMIUM</span>}
                 </p>
                 <p className="text-[11px] opacity-60">
-                  @{u.username || "—"} · lvl {u.level ?? 1} · {u.xp_total ?? 0} XP
+                  @{handle || "—"} · lvl {u.level ?? 1} · {u.xp_total ?? 0} XP
                 </p>
               </div>
-              {u.is_suspended && (
-                <span
-                  className="rounded-full px-2 py-0.5 text-[10px]"
-                  style={{ background: "rgba(220,38,38,0.15)", color: "#dc2626" }}
-                >
-                  SUSPENDED
-                </span>
-              )}
+              <div className="flex shrink-0 gap-1">
+                {isSelf && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px]"
+                    style={{ background: "rgba(0,200,83,0.15)", color: "#00c853" }}
+                  >
+                    YOU
+                  </span>
+                )}
+                {u.is_suspended && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px]"
+                    style={{ background: "rgba(220,38,38,0.15)", color: "#dc2626" }}
+                  >
+                    SUSPENDED
+                  </span>
+                )}
+              </div>
             </div>
             <div className="mt-2 flex flex-wrap gap-1">
               <button
+                disabled={isSelf || busy}
+                title={isSelf ? "You cannot suspend your own account" : undefined}
                 onClick={async () => {
                   let reason: string | undefined;
                   if (!u.is_suspended) {
                     const r = await promptDialog({
                       title: "Suspend user",
-                      description: `Provide a reason for suspending @${u.username ?? u.id.slice(0, 8)}. This is recorded in the audit log.`,
+                      description: `Provide a reason for suspending @${handle ?? u.id.slice(0, 8)}. This is recorded in the audit log.`,
                       placeholder: "Reason (e.g. repeated harassment)",
                       confirmLabel: "Suspend",
                       destructive: true,
@@ -687,17 +703,19 @@ function UsersTab() {
                   }
                   suspMut.mutate({ userId: u.id, suspend: !u.is_suspended, reason });
                 }}
-                className="btn-ghost text-[11px]"
+                className="btn-ghost text-[11px] disabled:opacity-40"
               >
                 {u.is_suspended ? "Unsuspend" : "Suspend"}
               </button>
               <button
+                disabled={busy}
                 onClick={() => verMut.mutate({ userId: u.id, verified: !u.is_verified })}
-                className="btn-ghost text-[11px]"
+                className="btn-ghost text-[11px] disabled:opacity-40"
               >
                 {u.is_verified ? "Unverify" : "Verify"}
               </button>
               <button
+                disabled={busy}
                 onClick={async () => {
                   const input = await promptDialog({
                     title: "Set roles",
@@ -713,11 +731,19 @@ function UsersTab() {
                     .filter(Boolean);
                   roleMut.mutate({ userId: u.id, roles: list });
                 }}
-                className="btn-ghost text-[11px]"
+                className="btn-ghost text-[11px] disabled:opacity-40"
               >
                 Set roles
               </button>
+              <Link
+                to="/owner/command/users/$id"
+                params={{ id: u.id }}
+                className="btn-ghost text-[11px]"
+              >
+                Full profile →
+              </Link>
             </div>
+
           </div>
         ))}
         {q.isLoading && <p className="text-sm opacity-60">Loading…</p>}
