@@ -147,29 +147,37 @@ function AuthPage() {
         : "We'll transmit a reset link to your inbox.";
 
   return (
-    <div className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12">
-      {/* cinematic hangar plate */}
+    <div
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12"
+      style={{ background: "var(--color-paper-1)" }}
+    >
+      {/* cinematic hangar plate, washed into the light hull */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${hangarBg})`, opacity: 0.85 }}
+        className="pointer-events-none absolute inset-x-0 top-0 h-[62%] bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${hangarBg})`,
+          opacity: 0.3,
+          maskImage: "linear-gradient(180deg, #000 0%, rgba(0,0,0,0.55) 55%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(180deg, #000 0%, rgba(0,0,0,0.55) 55%, transparent 100%)",
+        }}
       />
-      <div aria-hidden className="media-scrim pointer-events-none absolute inset-0" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(70% 50% at 50% 6%, color-mix(in oklab, var(--color-neon) 16%, transparent), transparent 70%)",
+            "radial-gradient(72% 46% at 50% 0%, color-mix(in oklab, var(--color-neon) 12%, transparent), transparent 72%)",
         }}
       />
       {/* engineering grid */}
       <div
         aria-hidden
-        className="hud-grid-fine pointer-events-none absolute inset-0 opacity-40"
+        className="hud-grid-fine pointer-events-none absolute inset-0 opacity-70"
         style={{
-          maskImage: "radial-gradient(78% 62% at 50% 42%, #000, transparent 88%)",
-          WebkitMaskImage: "radial-gradient(78% 62% at 50% 42%, #000, transparent 88%)",
+          maskImage: "radial-gradient(78% 62% at 50% 38%, #000, transparent 88%)",
+          WebkitMaskImage: "radial-gradient(78% 62% at 50% 38%, #000, transparent 88%)",
         }}
       />
 
@@ -186,11 +194,15 @@ function AuthPage() {
       <div className="relative w-full max-w-md space-y-5">
         <div className="boot-line flex flex-col items-center text-center">
           <BrandMark size={104} treatment="scan" />
-          <h1 className="display-xl mt-5 text-[34px] uppercase tracking-[0.14em]">
+          <h1
+            className="display-xl mt-5 text-[34px] uppercase tracking-[0.14em]"
+            style={{ color: "var(--color-ink-0)" }}
+          >
             ZOMBIE<span style={{ color: "var(--color-neon)" }}>REX</span>
           </h1>
           <p className="mono-tag mt-2 tracking-[0.38em]">{heading}</p>
         </div>
+
 
         <div className="panel-tech bracketed notch space-y-5 p-5 backdrop-blur-xl">
           <div className="flex items-center justify-between border-b pb-3">
@@ -283,7 +295,7 @@ function AuthPage() {
                     onChange={(e) => setDob(e.target.value)}
                     max={new Date().toISOString().slice(0, 10)}
                     className="zx-input mt-1"
-                    style={{ colorScheme: "dark" }}
+                    style={{ colorScheme: "light" }}
                   />
                   <span className="mt-1 block text-[11px]" style={{ color: "var(--color-ash)" }}>
                     You must be at least 13 to sign up.
@@ -336,8 +348,8 @@ function AuthPage() {
                 className="rounded-md px-3 py-2 text-sm"
                 style={{
                   color: "var(--color-heat)",
-                  background: "rgba(255,59,70,0.08)",
-                  border: "1px solid rgba(255,59,70,0.3)",
+                  background: "rgba(225,29,42,0.06)",
+                  border: "1px solid rgba(225,29,42,0.28)",
                 }}
                 role="alert"
               >

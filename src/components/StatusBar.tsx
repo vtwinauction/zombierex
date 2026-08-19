@@ -170,7 +170,7 @@ function ActionCell({
             fontWeight: 800,
             background: "var(--color-neon, #00c853)",
             color: "#0a0f08",
-            boxShadow: "0 0 0 2px var(--color-paper-1)",
+            boxShadow: "0 0 0 2px #fff",
             lineHeight: 1,
           }}
         >
@@ -259,7 +259,7 @@ function BluetoothCell() {
       {linked && (
         <span
           className="absolute right-1.5 top-1.5 h-[7px] w-[7px] rounded-full"
-          style={{ background: "var(--color-neon, #7cff3f)", boxShadow: "0 0 0 2px var(--color-paper-1)" }}
+          style={{ background: "var(--color-neon, #7cff3f)", boxShadow: "0 0 0 2px #fff" }}
         />
       )}
     </button>

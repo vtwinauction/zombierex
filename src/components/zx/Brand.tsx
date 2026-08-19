@@ -25,7 +25,7 @@ export function BrandMark({
       height={size}
       className="relative z-10 h-full w-full object-contain"
       style={{
-        filter: "drop-shadow(0 0 16px color-mix(in oklab, var(--color-neon) 40%, transparent))",
+        filter: "drop-shadow(0 6px 14px color-mix(in oklab, var(--color-neon) 26%, transparent))",
       }}
     />
   );
@@ -57,7 +57,8 @@ export function BrandMark({
         aria-hidden
         className={`notch absolute inset-0 ${treatment === "scan" ? "scanline" : ""}`}
         style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.35))",
+          background:
+            "linear-gradient(180deg, var(--color-paper-0), var(--color-paper-2))",
           border: "1px solid var(--color-line-2)",
         }}
       />
