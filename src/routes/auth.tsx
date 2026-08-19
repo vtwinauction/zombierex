@@ -147,29 +147,37 @@ function AuthPage() {
         : "We'll transmit a reset link to your inbox.";
 
   return (
-    <div className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12">
-      {/* cinematic hangar plate */}
+    <div
+      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12"
+      style={{ background: "var(--color-paper-1)" }}
+    >
+      {/* cinematic hangar plate, washed into the light hull */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${hangarBg})`, opacity: 0.85 }}
+        className="pointer-events-none absolute inset-x-0 top-0 h-[62%] bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${hangarBg})`,
+          opacity: 0.22,
+          maskImage: "linear-gradient(180deg, #000 0%, rgba(0,0,0,0.55) 55%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(180deg, #000 0%, rgba(0,0,0,0.55) 55%, transparent 100%)",
+        }}
       />
-      <div aria-hidden className="media-scrim pointer-events-none absolute inset-0" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(70% 50% at 50% 6%, color-mix(in oklab, var(--color-neon) 16%, transparent), transparent 70%)",
+            "radial-gradient(72% 46% at 50% 0%, color-mix(in oklab, var(--color-neon) 12%, transparent), transparent 72%)",
         }}
       />
       {/* engineering grid */}
       <div
         aria-hidden
-        className="hud-grid-fine pointer-events-none absolute inset-0 opacity-40"
+        className="hud-grid-fine pointer-events-none absolute inset-0 opacity-70"
         style={{
-          maskImage: "radial-gradient(78% 62% at 50% 42%, #000, transparent 88%)",
-          WebkitMaskImage: "radial-gradient(78% 62% at 50% 42%, #000, transparent 88%)",
+          maskImage: "radial-gradient(78% 62% at 50% 38%, #000, transparent 88%)",
+          WebkitMaskImage: "radial-gradient(78% 62% at 50% 38%, #000, transparent 88%)",
         }}
       />
 
@@ -191,6 +199,7 @@ function AuthPage() {
           </h1>
           <p className="mono-tag mt-2 tracking-[0.38em]">{heading}</p>
         </div>
+
 
         <div className="panel-tech bracketed notch space-y-5 p-5 backdrop-blur-xl">
           <div className="flex items-center justify-between border-b pb-3">
