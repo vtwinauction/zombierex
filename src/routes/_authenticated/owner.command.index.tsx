@@ -38,12 +38,126 @@ function Overview() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
-          ◆ LIVE PLATFORM STATUS
-        </p>
-        <h1 className="text-2xl font-semibold">Command overview</h1>
-      </div>
+      <CockpitHeader
+        title="Command overview"
+        subtitle="Live telemetry from every paddock system — users, commerce and revenue."
+      />
+
+      {/* Instrument cluster */}
+      <Panel tag="INSTRUMENT CLUSTER" title="Primary flight display">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <Gauge
+            label="Active riders / 30d"
+            value={d.users.active30d}
+            max={Math.max(1, d.users.total)}
+            display={num(d.users.active30d)}
+            unit="users"
+          />
+          <Gauge
+            label="Revenue today"
+            value={d.revenue.todayGross}
+            max={Math.max(1, d.revenue.monthGross)}
+            display={money(d.revenue.todayGross)}
+            unit="vs month"
+          />
+          <Gauge
+            label="Orders today"
+            value={d.commerce.ordersToday}
+            max={Math.max(1, d.commerce.ordersMonth)}
+            display={num(d.commerce.ordersToday)}
+            unit="orders"
+          />
+          <Gauge
+            label="Containment · alerts"
+            value={
+              d.attention.reportsOpen +
+              d.attention.supportOpen +
+              d.attention.adRequestsPending +
+              d.attention.businessesPending
+            }
+            max={50}
+            redline={0.4}
+            display={num(
+              d.attention.reportsOpen +
+                d.attention.supportOpen +
+                d.attention.adRequestsPending +
+                d.attention.businessesPending,
+            )}
+            unit="open"
+          />
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <BarMeter
+            label="Subscribed businesses"
+            value={d.businesses.subscribed}
+            max={Math.max(1, d.businesses.total)}
+            display={`${num(d.businesses.subscribed)} / ${num(d.businesses.total)}`}
+          />
+          <BarMeter
+            label="Net vs gross today"
+            value={d.revenue.todayNet}
+            max={Math.max(1, d.revenue.todayGross)}
+            display={money(d.revenue.todayNet)}
+            tone="amber"
+          />
+          <BarMeter
+            label="Failed payments"
+            value={d.payments.failed}
+            max={Math.max(1, d.payments.failed + d.payments.pending + 1)}
+            display={num(d.payments.failed)}
+            tone="heat"
+          />
+          <BarMeter
+            label="Refunds this month"
+            value={d.revenue.refundsMonth}
+            max={Math.max(1, d.revenue.monthGross)}
+            display={money(d.revenue.refundsMonth)}
+            tone="heat"
+          />
+        </div>
+      </Panel>
+
+      {/* Revenue mix chart */}
+      <Panel
+        tag="TELEMETRY"
+        title="Revenue streams · this month"
+        right={
+          <Link to="/owner/command/finance" className="btn-ghost text-xs">
+            Finance →
+          </Link>
+        }
+      >
+        <BarChart
+          format={(n) => money(n)}
+          series={[
+            { label: "Ads", value: d.revenue.adsMonth },
+            { label: "Subs", value: d.revenue.subsMonth },
+            { label: "Commission", value: d.revenue.commissionMonth },
+            { label: "Service fees", value: d.revenue.serviceFeesMonth },
+            { label: "Refunds", value: d.revenue.refundsMonth },
+          ]}
+        />
+      </Panel>
+
+      {/* Annunciator panel */}
+      <Panel tag="ANNUNCIATOR" title="Warning lamps">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <Lamp label="Open reports" active={d.attention.reportsOpen > 0} tone="heat">
+            {num(d.attention.reportsOpen)}
+          </Lamp>
+          <Lamp label="Support cases" active={d.attention.supportOpen > 0}>
+            {num(d.attention.supportOpen)}
+          </Lamp>
+          <Lamp label="Ad requests" active={d.attention.adRequestsPending > 0}>
+            {num(d.attention.adRequestsPending)}
+          </Lamp>
+          <Lamp label="Businesses pending" active={d.attention.businessesPending > 0}>
+            {num(d.attention.businessesPending)}
+          </Lamp>
+        </div>
+      </Panel>
+
 
       <Panel tag="PEOPLE" title="Users">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
