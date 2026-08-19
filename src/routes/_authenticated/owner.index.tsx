@@ -745,7 +745,9 @@ function UsersTab() {
             </div>
 
           </div>
-        ))}
+          );
+        })}
+
         {q.isLoading && <p className="text-sm opacity-60">Loading…</p>}
       </div>
     </div>
