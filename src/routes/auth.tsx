@@ -157,7 +157,7 @@ function AuthPage() {
         className="pointer-events-none absolute inset-x-0 top-0 h-[62%] bg-cover bg-center"
         style={{
           backgroundImage: `url(${hangarBg})`,
-          opacity: 0.22,
+          opacity: 0.3,
           maskImage: "linear-gradient(180deg, #000 0%, rgba(0,0,0,0.55) 55%, transparent 100%)",
           WebkitMaskImage:
             "linear-gradient(180deg, #000 0%, rgba(0,0,0,0.55) 55%, transparent 100%)",
@@ -194,7 +194,10 @@ function AuthPage() {
       <div className="relative w-full max-w-md space-y-5">
         <div className="boot-line flex flex-col items-center text-center">
           <BrandMark size={104} treatment="scan" />
-          <h1 className="display-xl mt-5 text-[34px] uppercase tracking-[0.14em]">
+          <h1
+            className="display-xl mt-5 text-[34px] uppercase tracking-[0.14em]"
+            style={{ color: "var(--color-ink-0)" }}
+          >
             ZOMBIE<span style={{ color: "var(--color-neon)" }}>REX</span>
           </h1>
           <p className="mono-tag mt-2 tracking-[0.38em]">{heading}</p>
