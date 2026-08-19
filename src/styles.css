@@ -199,19 +199,19 @@
 }
 
 @utility glass {
-  background: color-mix(in oklab, #ffffff 78%, transparent);
-  backdrop-filter: blur(22px) saturate(160%);
+  background: color-mix(in oklab, #07090b 72%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
   border-bottom: 1px solid var(--color-line);
 }
 @utility glass-light {
-  background: color-mix(in oklab, #ffffff 82%, transparent);
-  backdrop-filter: blur(22px) saturate(160%);
+  background: color-mix(in oklab, #151b1f 74%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid var(--color-line);
   color: var(--color-ink-0);
 }
 @utility glass-dark {
-  background: color-mix(in oklab, #0a0a0a 65%, transparent);
-  backdrop-filter: blur(22px) saturate(160%);
+  background: color-mix(in oklab, #04060a 68%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #fff;
 }
