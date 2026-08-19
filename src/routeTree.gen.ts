@@ -21,6 +21,7 @@ import { Route as EventsRouteImport } from './routes/events'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as CreatorsRouteImport } from './routes/creators'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CommandRouteImport } from './routes/command'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -250,6 +251,11 @@ const CreatorsRoute = CreatorsRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandRoute = CommandRouteImport.update({
+  id: '/command',
+  path: '/command',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -1196,6 +1202,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/command': typeof CommandRoute
   '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
@@ -1379,6 +1386,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/command': typeof CommandRoute
   '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
@@ -1559,6 +1567,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/atlas': typeof AtlasRouteWithChildren
   '/auth': typeof AuthRoute
+  '/command': typeof CommandRoute
   '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
@@ -1744,6 +1753,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atlas'
     | '/auth'
+    | '/command'
     | '/contact'
     | '/creators'
     | '/download'
@@ -1927,6 +1937,7 @@ export interface FileRouteTypes {
     | '/'
     | '/atlas'
     | '/auth'
+    | '/command'
     | '/contact'
     | '/creators'
     | '/download'
@@ -2106,6 +2117,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/atlas'
     | '/auth'
+    | '/command'
     | '/contact'
     | '/creators'
     | '/download'
@@ -2291,6 +2303,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AtlasRoute: typeof AtlasRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CommandRoute: typeof CommandRoute
   ContactRoute: typeof ContactRoute
   CreatorsRoute: typeof CreatorsRoute
   DownloadRoute: typeof DownloadRoute
@@ -2432,6 +2445,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/command': {
+      id: '/command'
+      path: '/command'
+      fullPath: '/command'
+      preLoaderRoute: typeof CommandRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -4033,6 +4053,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AtlasRoute: AtlasRouteWithChildren,
   AuthRoute: AuthRoute,
+  CommandRoute: CommandRoute,
   ContactRoute: ContactRoute,
   CreatorsRoute: CreatorsRoute,
   DownloadRoute: DownloadRoute,
