@@ -559,9 +559,11 @@ function UsersTab() {
   const susp = useServerFn(setUserSuspension);
   const verify = useServerFn(setUserVerified);
   const roles = useServerFn(setUserRoles);
+  const me = useOwner();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [only, setOnly] = useState<"" | "suspended" | "verified">("");
+
 
   const q = useQuery({
     queryKey: ["owner", "users", search, only],
