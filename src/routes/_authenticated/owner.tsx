@@ -5,6 +5,13 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { confirmDialog, promptDialog } from "@/lib/confirm";
 import {
+  BarChart,
+  BarMeter,
+  CockpitHeader,
+  Gauge,
+  Lamp,
+} from "@/components/command/instruments";
+import {
   checkOwner,
   getOwnerMetrics,
   listOwnerFlags,
