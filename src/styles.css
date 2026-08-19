@@ -498,12 +498,12 @@
 @utility badge-neon {
   background: linear-gradient(
     180deg,
-    #4dff8a 0%,
+    #5cffb0 0%,
     var(--color-neon) 55%,
     var(--color-neon-deep) 100%
   );
   border-color: var(--color-neon-deep);
-  color: var(--color-ink-0);
+  color: #04120a;
 }
 @utility badge-carbon {
   background: linear-gradient(180deg, #2a2d33 0%, #0e0f11 100%);
