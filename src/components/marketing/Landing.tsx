@@ -127,10 +127,15 @@ function StatValue({ value, suffix }: { value: number; suffix: string }) {
           io.disconnect();
         }
       },
-      { threshold: 0.3 },
+      { threshold: 0.2 },
     );
     io.observe(el);
-    return () => io.disconnect();
+    const t = window.setTimeout(() => setOn(true), 900);
+    return () => {
+      io.disconnect();
+      window.clearTimeout(t);
+    };
+
   }, []);
   const n = useCountUp(value, on);
   return (
