@@ -348,11 +348,21 @@ export const setUserSuspension = createServerFn({ method: "POST" })
         suspend: z.boolean(),
         reason: z.string().max(500).optional(),
       })
+      .superRefine((v, ctx) => {
+        if (v.suspend && (v.reason ?? "").trim().length < 5) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["reason"],
+            message: "A reason of at least 5 characters is required to suspend an account",
+          });
+        }
+      })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
     await assertOwner(context.supabase, context.userId);
     if (data.userId === context.userId) throw new Error("Cannot suspend yourself");
+    const reason = data.reason?.trim() || null;
     const { data: before } = await context.supabase
       .from("profiles")
       .select("*")
@@ -360,7 +370,7 @@ export const setUserSuspension = createServerFn({ method: "POST" })
       .maybeSingle();
     const patch = {
       is_suspended: data.suspend,
-      suspended_reason: data.suspend ? (data.reason ?? null) : null,
+      suspended_reason: data.suspend ? reason : null,
       suspended_at: data.suspend ? new Date().toISOString() : null,
       suspended_by: data.suspend ? context.userId : null,
     };
@@ -377,8 +387,21 @@ export const setUserSuspension = createServerFn({ method: "POST" })
       data.suspend ? "user.suspend" : "user.unsuspend",
       "profile",
       data.userId,
-      before,
-      after,
+      {
+        is_suspended: (before as any)?.is_suspended ?? null,
+        suspended_reason: (before as any)?.suspended_reason ?? null,
+        suspended_at: (before as any)?.suspended_at ?? null,
+        suspended_by: (before as any)?.suspended_by ?? null,
+      },
+      {
+        is_suspended: after.is_suspended,
+        suspended_reason: after.suspended_reason,
+        suspended_at: after.suspended_at,
+        suspended_by: after.suspended_by,
+        reason,
+        actor_id: context.userId,
+        at: new Date().toISOString(),
+      },
     );
     return after;
   });

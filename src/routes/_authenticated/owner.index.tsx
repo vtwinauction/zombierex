@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { confirmDialog, promptDialog } from "@/lib/confirm";
 import { useOwner } from "@/hooks/useOwner";
+import { getMyClearance } from "@/lib/command.functions";
 
 import {
   BarChart,
@@ -126,36 +127,8 @@ function OwnerConsole() {
         <TabBar tab={tab} onChange={setTab} />
       </div>
 
-      <div className="px-5 pt-4">
-        <p className="mono-tag mb-2" style={{ color: "#c07a12" }}>
-          ◆ MISSION CONTROL MODULES
-        </p>
-        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-          {[
-            { to: "/owner/command", label: "Overview" },
-            { to: "/owner/command/users", label: "Users" },
-            { to: "/owner/command/businesses", label: "Businesses" },
-            { to: "/owner/command/crm", label: "CRM" },
-            { to: "/owner/command/erp", label: "ERP · Inventory" },
-            { to: "/owner/command/finance", label: "Finance" },
-            { to: "/owner/command/ads", label: "Advertising" },
-            { to: "/owner/command/moderation", label: "Moderation" },
-            { to: "/owner/command/content", label: "CMS" },
-            { to: "/owner/command/system", label: "System" },
-            { to: "/owner/command/search", label: "Global search" },
-            { to: "/owner/finance", label: "Revenue ledger" },
-          ].map((m) => (
-            <Link
-              key={m.to}
-              to={m.to}
-              className="rounded-md border px-3 py-2 text-[12px] font-medium"
-              style={{ borderColor: "var(--color-hair-strong)" }}
-            >
-              {m.label}
-            </Link>
-          ))}
-        </div>
-      </div>
+      <ModuleLauncher />
+
 
       <div className="p-5 pb-24">
 
@@ -175,6 +148,58 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen" style={{ background: "var(--color-canvas)" }}>
       {children}
+    </div>
+  );
+}
+
+const MODULES: { to: string; label: string; scope: string }[] = [
+  { to: "/owner/command", label: "Overview", scope: "overview" },
+  { to: "/owner/command/users", label: "Users", scope: "users" },
+  { to: "/owner/command/businesses", label: "Businesses", scope: "businesses" },
+  { to: "/owner/command/crm", label: "CRM", scope: "crm" },
+  { to: "/owner/command/erp", label: "ERP · Inventory", scope: "erp" },
+  { to: "/owner/command/finance", label: "Finance", scope: "finance" },
+  { to: "/owner/command/ads", label: "Advertising", scope: "ads" },
+  { to: "/owner/command/moderation", label: "Moderation", scope: "moderation" },
+  { to: "/owner/command/content", label: "CMS", scope: "content" },
+  { to: "/owner/command/system", label: "System", scope: "system" },
+  { to: "/owner/command/search", label: "Global search", scope: "users" },
+  { to: "/owner/finance", label: "Revenue ledger", scope: "finance" },
+];
+
+/** Only renders the modules the signed-in administrator is actually cleared for. */
+function ModuleLauncher() {
+  const fn = useServerFn(getMyClearance);
+  const q = useQuery({
+    queryKey: ["command", "clearance"],
+    queryFn: () => fn({ data: undefined as never }),
+    retry: false,
+    staleTime: 60_000,
+  });
+
+  const scopes: string[] = q.data?.scopes ?? [];
+  const can = (s: string) => scopes.includes("*") || scopes.includes(s);
+  const items = MODULES.filter((m) => can(m.scope));
+
+  if (q.isLoading || items.length === 0) return null;
+
+  return (
+    <div className="px-5 pt-4">
+      <p className="mono-tag mb-2" style={{ color: "#c07a12" }}>
+        ◆ MISSION CONTROL MODULES · {q.data?.isOwner ? "SUPER ADMIN" : (q.data?.label ?? "ADMIN")}
+      </p>
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+        {items.map((m) => (
+          <Link
+            key={m.to}
+            to={m.to}
+            className="rounded-md border px-3 py-2 text-[12px] font-medium"
+            style={{ borderColor: "var(--color-hair-strong)" }}
+          >
+            {m.label}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
