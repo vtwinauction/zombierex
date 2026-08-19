@@ -88,27 +88,42 @@ function OwnerConsole() {
 
   return (
     <Shell>
-      <div className="border-b" style={{ borderColor: "var(--color-hair)" }}>
-        <div className="flex items-center justify-between px-5 py-3">
-          <div>
-            <p className="mono-tag" style={{ color: "#00c853" }}>
-              ROOT · OWNER CONSOLE
+      <div
+        className="sticky top-0 z-30 border-b backdrop-blur"
+        style={{
+          borderColor: "var(--color-hair)",
+          background: "color-mix(in oklab, var(--color-canvas) 88%, transparent)",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            height: 2,
+            background:
+              "linear-gradient(90deg, #c07a12, rgba(192,122,18,0.15) 45%, rgba(0,200,83,0.6))",
+          }}
+        />
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-5">
+          <div className="min-w-0">
+            <p className="mono-tag truncate" style={{ color: "#c07a12" }}>
+              ROOT · SITE B · OWNER CONSOLE
             </p>
-            <h1 className="display-xl text-xl">Command Center</h1>
+            <h1 className="display-xl truncate text-lg sm:text-xl">Command Center</h1>
           </div>
           <span
-            className="rounded-full px-2 py-0.5 text-[10px] tracking-widest"
+            className="mono-tag shrink-0 rounded-full px-2.5 py-1 text-[10px] tracking-widest"
             style={{
-              background: "rgba(0,200,83,0.15)",
-              color: "#00c853",
+              background: "rgba(0,200,83,0.12)",
+              color: "#00a344",
               border: "1px solid rgba(0,200,83,0.4)",
             }}
           >
-            LIVE
+            ● LIVE
           </span>
         </div>
         <TabBar tab={tab} onChange={setTab} />
       </div>
+
 
       <div className="p-5 pb-24">
         {tab === "overview" && <OverviewTab />}
