@@ -30,7 +30,7 @@ export function BottomNav({ hidden = false }: { hidden?: boolean }) {
       className="fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
       style={{
         transform: hidden ? "translateY(100%)" : "translateY(0)",
-        background: "color-mix(in oklab, #ffffff 94%, transparent)",
+        background: "color-mix(in oklab, #07090b 88%, transparent)",
         backdropFilter: "blur(22px) saturate(170%)",
         borderTop: "1px solid var(--color-line)",
         paddingBottom: "env(safe-area-inset-bottom)",

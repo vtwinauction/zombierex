@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import brandLogo from "@/assets/zombierex-logo.png.asset.json";
-import jungleBg from "@/assets/auth-jungle-bg.jpg";
+import { BrandMark, MissionLabel } from "@/components/zx/Brand";
+import hangarBg from "@/assets/hangar-access.jpg";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -137,86 +137,73 @@ function AuthPage() {
     }
   }
 
+  const heading =
+    mode === "signin" ? "System access" : mode === "signup" ? "New rider clearance" : "Access recovery";
+  const sub =
+    mode === "signin"
+      ? "Authenticate to enter the ZombieRex network."
+      : mode === "signup"
+        ? "Provision your rider identity. Takes 20 seconds."
+        : "We'll transmit a reset link to your inbox.";
+
   return (
     <div className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12">
-      {/* jungle × automotive photographic base */}
+      {/* cinematic hangar plate */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${jungleBg})`, opacity: 0.75 }}
+        style={{ backgroundImage: `url(${hangarBg})`, opacity: 0.85 }}
       />
-      {/* darkening vignette so the card stays legible */}
+      <div aria-hidden className="media-scrim pointer-events-none absolute inset-0" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(85% 60% at 50% 45%, rgba(0,0,0,0.35), rgba(0,0,0,0.88) 100%), linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.45) 35%, rgba(0,0,0,0.92))",
+            "radial-gradient(70% 50% at 50% 6%, color-mix(in oklab, var(--color-neon) 16%, transparent), transparent 70%)",
         }}
       />
-      {/* toxic bloom */}
+      {/* engineering grid */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="hud-grid-fine pointer-events-none absolute inset-0 opacity-40"
         style={{
-          background:
-            "radial-gradient(60% 45% at 50% 0%, color-mix(in oklab, var(--color-neon) 22%, transparent), transparent 70%)",
-        }}
-      />
-      {/* CNC hairline grid */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.28]"
-        style={{
-          backgroundImage:
-            "linear-gradient(var(--color-hairline) 1px, transparent 1px), linear-gradient(90deg, var(--color-hairline) 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
-          maskImage: "radial-gradient(70% 60% at 50% 40%, #000, transparent 85%)",
-          WebkitMaskImage: "radial-gradient(70% 60% at 50% 40%, #000, transparent 85%)",
+          maskImage: "radial-gradient(78% 62% at 50% 42%, #000, transparent 88%)",
+          WebkitMaskImage: "radial-gradient(78% 62% at 50% 42%, #000, transparent 88%)",
         }}
       />
 
-      <div className="relative w-full max-w-sm space-y-6">
-        <div className="flex flex-col items-center text-center">
-          <img
-            src={brandLogo.url}
-            alt="ZOMBIEREX"
-            className="h-20 w-20 rounded-2xl object-contain"
-            style={{
-              filter:
-                "drop-shadow(0 0 22px color-mix(in oklab, var(--color-neon) 45%, transparent))",
-            }}
-          />
-          <p
-            className="mono-tag mt-4 text-xs tracking-[0.4em]"
-            style={{ color: "var(--color-neon)" }}
-          >
-            ZOMBIEREX
-          </p>
-          <h1 className="mt-2 display-xl text-2xl">
-            {mode === "signin"
-              ? "Sign in"
-              : mode === "signup"
-                ? "Create your account"
-                : "Reset access"}
+      {/* corner mission markers */}
+      <div className="pointer-events-none absolute inset-4 hidden sm:block">
+        <span className="mono-tag absolute left-0 top-0">ZX · ACCESS TERMINAL</span>
+        <span className="mono-tag absolute right-0 top-0">LAT 26.2°N / LON 50.6°E</span>
+        <span className="mono-tag absolute bottom-0 left-0">BUILD v1.0 · SECURE CHANNEL</span>
+        <span className="mono-tag absolute bottom-0 right-0" style={{ color: "var(--color-neon)" }}>
+          ◆ ONLINE
+        </span>
+      </div>
+
+      <div className="relative w-full max-w-md space-y-5">
+        <div className="boot-line flex flex-col items-center text-center">
+          <BrandMark size={104} treatment="scan" />
+          <h1 className="display-xl mt-5 text-[34px] uppercase tracking-[0.14em]">
+            ZOMBIE<span style={{ color: "var(--color-neon)" }}>REX</span>
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "var(--color-ash)" }}>
-            {mode === "signin"
-              ? "Welcome back to the garage."
-              : mode === "signup"
-                ? "Free. Takes 20 seconds."
-                : "We'll email you a reset link."}
-          </p>
+          <p className="mono-tag mt-2 tracking-[0.38em]">{heading}</p>
         </div>
 
-        <div
-          className="space-y-5 rounded-2xl border p-5 backdrop-blur-xl"
-          style={{
-            borderColor: "var(--color-hairline)",
-            background: "color-mix(in oklab, var(--color-graphite, #111) 55%, transparent)",
-            boxShadow: "0 24px 60px -30px rgba(0,0,0,0.9)",
-          }}
-        >
+        <div className="panel-tech bracketed notch space-y-5 p-5 backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b pb-3">
+            <MissionLabel>
+              {mode === "signin" ? "AUTH · 01" : mode === "signup" ? "ENROL · 02" : "RECOVER · 03"}
+            </MissionLabel>
+            <span className="mono-tag">{sub.length > 0 ? "SECURE" : ""}</span>
+          </div>
+
+          <p className="text-[13px]" style={{ color: "var(--color-ash)" }}>
+            {sub}
+          </p>
+
           {mode !== "forgot" && (
             <div className="space-y-2">
               <button
@@ -236,11 +223,9 @@ function AuthPage() {
                 Continue with Apple
               </button>
               <div className="flex items-center gap-3 py-2">
-                <span className="h-px flex-1" style={{ background: "var(--color-hairline)" }} />
-                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
-                  OR
-                </span>
-                <span className="h-px flex-1" style={{ background: "var(--color-hairline)" }} />
+                <span className="etch flex-1" />
+                <span className="mono-tag">OR</span>
+                <span className="etch flex-1" />
               </div>
             </div>
           )}
@@ -248,40 +233,32 @@ function AuthPage() {
           <form onSubmit={onSubmit} className="space-y-3">
             {mode === "signup" && (
               <label className="block">
-                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
-                  DISPLAY NAME
-                </span>
+                <span className="mono-tag">CALLSIGN</span>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   maxLength={80}
-                  className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-                  style={{ borderColor: "var(--color-hairline)" }}
+                  className="zx-input mt-1"
                   placeholder="Rex Rider"
                 />
               </label>
             )}
             <label className="block">
-              <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
-                EMAIL
-              </span>
+              <span className="mono-tag">EMAIL</span>
               <input
                 type="email"
                 required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-                style={{ borderColor: "var(--color-hairline)" }}
+                className="zx-input mt-1"
                 placeholder="you@ride.com"
               />
             </label>
             {mode !== "forgot" && (
               <label className="block">
-                <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
-                  PASSWORD
-                </span>
+                <span className="mono-tag">PASSKEY</span>
                 <input
                   type="password"
                   required
@@ -289,8 +266,7 @@ function AuthPage() {
                   autoComplete={mode === "signup" ? "new-password" : "current-password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-                  style={{ borderColor: "var(--color-hairline)" }}
+                  className="zx-input mt-1"
                   placeholder="At least 8 characters"
                 />
               </label>
@@ -299,21 +275,15 @@ function AuthPage() {
             {mode === "signup" && (
               <>
                 <label className="block">
-                  <span className="mono-tag text-xs" style={{ color: "var(--color-ash)" }}>
-                    DATE OF BIRTH
-                  </span>
+                  <span className="mono-tag">DATE OF BIRTH</span>
                   <input
                     type="date"
                     required
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
                     max={new Date().toISOString().slice(0, 10)}
-                    className="mt-1 w-full rounded-md border bg-transparent px-3 py-2 text-sm"
-                    style={{
-                      borderColor: "var(--color-hairline)",
-                      color: "var(--color-ink)",
-                      colorScheme: "dark",
-                    }}
+                    className="zx-input mt-1"
+                    style={{ colorScheme: "dark" }}
                   />
                   <span className="mt-1 block text-[11px]" style={{ color: "var(--color-ash)" }}>
                     You must be at least 13 to sign up.
@@ -362,24 +332,32 @@ function AuthPage() {
             )}
 
             {err && (
-              <p className="text-sm" style={{ color: "var(--color-heat)" }}>
-                {err}
+              <p
+                className="rounded-md px-3 py-2 text-sm"
+                style={{
+                  color: "var(--color-heat)",
+                  background: "rgba(255,59,70,0.08)",
+                  border: "1px solid rgba(255,59,70,0.3)",
+                }}
+                role="alert"
+              >
+                ⚠ {err}
               </p>
             )}
             {msg && (
               <p className="text-sm" style={{ color: "var(--color-neon)" }}>
-                {msg}
+                ✓ {msg}
               </p>
             )}
 
-            <button type="submit" disabled={busy} className="btn-solid w-full justify-center">
+            <button type="submit" disabled={busy} className="btn-neon w-full justify-center">
               {busy
-                ? "…"
+                ? "AUTHENTICATING…"
                 : mode === "signin"
-                  ? "Sign in"
+                  ? "ACCESS PLATFORM"
                   : mode === "signup"
-                    ? "Create account"
-                    : "Send reset link"}
+                    ? "PROVISION ACCOUNT"
+                    : "SEND RESET LINK"}
             </button>
           </form>
 
@@ -387,27 +365,44 @@ function AuthPage() {
             {mode === "signin" ? (
               <>
                 <button onClick={() => setMode("forgot")} className="underline underline-offset-2">
-                  Forgot?
+                  Forgot passkey?
                 </button>
                 <button onClick={() => setMode("signup")} className="underline underline-offset-2">
-                  Create account
+                  Request clearance
                 </button>
               </>
             ) : (
               <button onClick={() => setMode("signin")} className="underline underline-offset-2">
-                Back to sign in
+                ← Back to sign in
               </button>
             )}
           </div>
         </div>
 
+        {/* system telemetry strip */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            ["SYSTEM", "ONLINE"],
+            ["NETWORK", "CONNECTED"],
+            ["SECURITY", "ACTIVE"],
+          ].map(([k, v]) => (
+            <div key={k} className="panel-tech px-2 py-2 text-center">
+              <p className="mono-tag" style={{ fontSize: 8.5 }}>
+                {k}
+              </p>
+              <p
+                className="readout mt-0.5 text-[10px] font-bold tracking-[0.14em]"
+                style={{ color: "var(--color-neon)" }}
+              >
+                {v}
+              </p>
+            </div>
+          ))}
+        </div>
+
         <div className="text-center">
-          <Link
-            to="/"
-            className="mono-tag text-xs underline underline-offset-2"
-            style={{ color: "var(--color-ash)" }}
-          >
-            ← Back to home
+          <Link to="/" className="mono-tag underline underline-offset-2">
+            ← RETURN TO BASE
           </Link>
         </div>
       </div>

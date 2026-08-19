@@ -1,44 +1,53 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ZOMBIEREX · TITANIUM EDITORIAL
-   Light premium surfaces, graphite ink, one toxic-green accent.
-   Space Grotesk display · DM Sans body · JetBrains Mono numerals.
+   ZOMBIEREX · MISSION BLACK
+   Aerospace-grade dark hull, machined metal panels, one
+   surgical green signal. NASA mission-control meets motorsport.
+   Space Grotesk display · DM Sans body · JetBrains Mono readouts.
+
+   NOTE: the token NAMES are inherited from the previous light
+   system and are used across ~200 files. They are intentionally
+   preserved — only their VALUES are inverted, so the entire
+   platform adopts the dark identity coherently.
+   `paper-*` = surfaces (dark), `ink-*` = text (light).
    ============================================================ */
 
 @theme {
-  /* ---- Titanium Editorial palette ---- */
-  --color-paper-0: #ffffff; /* pure surface */
-  --color-paper-1: #fafafa; /* page bg */
-  --color-paper-2: #f4f4f5; /* muted surface */
-  --color-paper-3: #ececec; /* raised chip */
+  /* ---- Mission Black surfaces (dark → darker) ---- */
+  --color-paper-0: #0e1316; /* card / panel */
+  --color-paper-1: #07090b; /* page hull */
+  --color-paper-2: #151b1f; /* muted surface */
+  --color-paper-3: #1d2529; /* raised chip / control */
 
-  --color-line: #e6e6e6; /* hairline */
-  --color-line-2: #d4d4d4; /* hairline strong */
+  --color-line: rgba(255, 255, 255, 0.09); /* hairline */
+  --color-line-2: rgba(255, 255, 255, 0.17); /* hairline strong */
 
-  --color-ink-0: #0a0a0a; /* primary text / dark surface */
-  --color-ink-1: #1a1a1a;
-  --color-ink-2: #3a3a3a; /* secondary text */
-  --color-ink-3: #6b6b6b; /* muted text */
-  --color-ink-4: #9a9a9a; /* micro text */
+  --color-ink-0: #eef4f2; /* primary text */
+  --color-ink-1: #d3dcda;
+  --color-ink-2: #a7b3b1; /* secondary text */
+  --color-ink-3: #7c8a88; /* muted text */
+  --color-ink-4: #566462; /* micro text */
 
-  --color-neon: #00c853; /* signal green (legible on white) */
-  --color-neon-deep: #00a844;
-  --color-ember: #e11d2a; /* danger only */
+  --color-neon: #00e070; /* signal green */
+  --color-neon-deep: #00a856;
+  --color-neon-soft: rgba(0, 224, 112, 0.14);
+  --color-ember: #ff3b46; /* danger / heat */
+  --color-amber: #ffb020; /* caution */
 
   /* ---- Legacy aliases (many components still reference these) ---- */
-  --color-obsidian: var(--color-ink-0); /* dark ink; used as dark surfaces & text */
-  --color-slate: var(--color-paper-2); /* elevated light surface */
-  --color-graphite: var(--color-paper-0); /* cards → white */
+  --color-obsidian: var(--color-paper-1); /* deep hull surface */
+  --color-slate: var(--color-paper-2); /* elevated surface */
+  --color-graphite: var(--color-paper-0); /* cards */
   --color-gunmetal: var(--color-paper-3); /* controls */
   --color-titanium: var(--color-ink-3); /* muted */
   --color-silver: var(--color-ink-2); /* secondary */
   --color-bone: var(--color-paper-1);
   --color-paper: var(--color-paper-1);
-  --color-ink: var(--color-ink-0); /* primary text (was light, now dark) */
+  --color-ink: var(--color-ink-0); /* primary text */
   --color-hair: var(--color-line);
   --color-hair-strong: var(--color-line-2);
-  --color-hair-soft: #efefef;
+  --color-hair-soft: rgba(255, 255, 255, 0.06);
   --color-signal: var(--color-neon);
   --color-signal-deep: var(--color-neon-deep);
   --color-heat: var(--color-ember);
@@ -47,8 +56,8 @@
   --color-ash: var(--color-ink-3);
   --color-white: #ffffff;
   --color-matte: var(--color-paper-1);
-  --color-platinum: var(--color-paper-0);
-  --color-neon-deep-glow: rgba(0, 200, 83, 0.35);
+  --color-platinum: var(--color-ink-0);
+  --color-neon-deep-glow: rgba(0, 224, 112, 0.35);
 
   /* ---- shadcn semantic tokens ---- */
   --color-bg: var(--color-paper-1);
@@ -58,32 +67,32 @@
   --color-muted: var(--color-paper-2);
   --color-muted-foreground: var(--color-ink-3);
   --color-border: var(--color-line);
-  --color-primary: var(--color-ink-0);
-  --color-primary-foreground: var(--color-paper-0);
+  --color-primary: var(--color-neon);
+  --color-primary-foreground: #04120a;
   --color-accent: var(--color-neon);
-  --color-accent-foreground: var(--color-ink-0);
+  --color-accent-foreground: #04120a;
   --color-destructive: var(--color-ember);
   --color-destructive-foreground: #ffffff;
   --color-card: var(--color-paper-0);
   --color-card-foreground: var(--color-ink-0);
-  --color-input: var(--color-line);
-  --color-ring: var(--color-ink-0);
+  --color-input: var(--color-line-2);
+  --color-ring: var(--color-neon);
   --color-popover: var(--color-paper-0);
   --color-popover-foreground: var(--color-ink-0);
   --color-secondary: var(--color-paper-2);
   --color-secondary-foreground: var(--color-ink-0);
   --color-sidebar: var(--color-paper-0);
   --color-sidebar-foreground: var(--color-ink-0);
-  --color-sidebar-primary: var(--color-ink-0);
-  --color-sidebar-primary-foreground: var(--color-paper-0);
+  --color-sidebar-primary: var(--color-neon);
+  --color-sidebar-primary-foreground: #04120a;
   --color-sidebar-accent: var(--color-paper-2);
   --color-sidebar-accent-foreground: var(--color-ink-0);
   --color-sidebar-border: var(--color-line);
-  --color-sidebar-ring: var(--color-ink-0);
+  --color-sidebar-ring: var(--color-neon);
   --color-chart-1: var(--color-neon);
-  --color-chart-2: var(--color-ink-2);
-  --color-chart-3: var(--color-ink-3);
-  --color-chart-4: var(--color-ink-4);
+  --color-chart-2: #4ad9ff;
+  --color-chart-3: var(--color-ink-2);
+  --color-chart-4: var(--color-amber);
   --color-chart-5: var(--color-ember);
 
   /* ---- Typography ---- */
@@ -101,7 +110,11 @@
   }
   html,
   body {
-    background: var(--color-paper-1);
+    background-color: var(--color-paper-1);
+    background-image:
+      radial-gradient(900px 600px at 82% -8%, rgba(0, 224, 112, 0.09), transparent 62%),
+      radial-gradient(700px 500px at 4% 4%, rgba(90, 130, 160, 0.08), transparent 60%);
+    background-attachment: fixed;
     color: var(--color-ink-0);
   }
   body {
@@ -136,8 +149,8 @@
     scrollbar-width: none;
   }
   ::selection {
-    background: var(--color-ink-0);
-    color: var(--color-paper-0);
+    background: var(--color-neon);
+    color: #04120a;
   }
 }
 
@@ -186,19 +199,19 @@
 }
 
 @utility glass {
-  background: color-mix(in oklab, #ffffff 78%, transparent);
-  backdrop-filter: blur(22px) saturate(160%);
+  background: color-mix(in oklab, #07090b 72%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
   border-bottom: 1px solid var(--color-line);
 }
 @utility glass-light {
-  background: color-mix(in oklab, #ffffff 82%, transparent);
-  backdrop-filter: blur(22px) saturate(160%);
+  background: color-mix(in oklab, #151b1f 74%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid var(--color-line);
   color: var(--color-ink-0);
 }
 @utility glass-dark {
-  background: color-mix(in oklab, #0a0a0a 65%, transparent);
-  backdrop-filter: blur(22px) saturate(160%);
+  background: color-mix(in oklab, #04060a 68%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #fff;
 }
@@ -213,25 +226,25 @@
   border-bottom: 1px solid var(--color-line);
 }
 
-/* Elevation */
+/* Elevation — dark hull needs depth from black, not grey */
 @utility lift-1 {
   box-shadow:
-    0 1px 2px rgba(15, 15, 15, 0.04),
-    0 8px 24px -14px rgba(15, 15, 15, 0.1);
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 26px -16px rgba(0, 0, 0, 0.9);
 }
 @utility lift-2 {
   box-shadow:
-    0 1px 2px rgba(15, 15, 15, 0.06),
-    0 18px 40px -18px rgba(15, 15, 15, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 60px -24px rgba(0, 0, 0, 0.95);
 }
 @utility lift-signal {
   box-shadow:
-    0 0 0 1px rgba(0, 200, 83, 0.35),
-    0 18px 40px -18px rgba(0, 200, 83, 0.45);
+    0 0 0 1px rgba(0, 224, 112, 0.4),
+    0 18px 44px -20px rgba(0, 224, 112, 0.5);
 }
 
 @utility etch {
-  background-image: repeating-linear-gradient(90deg, var(--color-line) 0 6px, transparent 6px 10px);
+  background-image: repeating-linear-gradient(90deg, var(--color-line-2) 0 6px, transparent 6px 10px);
   height: 1px;
 }
 
@@ -240,16 +253,15 @@
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: radial-gradient(circle at 35% 30%, #fff, #d4d4d4 40%, #6b6b6b 100%);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15);
+  background: radial-gradient(circle at 35% 30%, #ffffff, #9aa5a3 40%, #2a3335 100%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
 }
 
 @utility surface-brushed {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f2f2f2 100%),
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.02) 0 1px, transparent 1px 3px);
-  background-blend-mode: multiply;
-  border: 1px solid var(--color-line);
+    linear-gradient(180deg, #1b2226 0%, #0d1215 100%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px);
+  border: 1px solid var(--color-line-2);
   color: var(--color-ink-0);
 }
 
@@ -330,8 +342,8 @@
   align-items: center;
   gap: 6px;
   padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--color-paper-0);
+  border-radius: 6px;
+  background: var(--color-paper-2);
   border: 1px solid var(--color-line);
   font-family: var(--font-mono);
   font-size: 10px;
@@ -340,13 +352,13 @@
   color: var(--color-ink-2);
 }
 @utility chip-active {
-  background: var(--color-ink-0);
-  color: var(--color-paper-0);
-  border-color: var(--color-ink-0);
+  background: var(--color-neon-soft);
+  color: var(--color-neon);
+  border-color: rgba(0, 224, 112, 0.45);
 }
 @utility chip-neon {
   background: var(--color-neon);
-  color: var(--color-ink-0);
+  color: #04120a;
   border-color: var(--color-neon-deep);
 }
 
@@ -356,20 +368,22 @@
   justify-content: center;
   gap: 8px;
   padding: 13px 20px;
-  background: var(--color-ink-0);
-  color: var(--color-paper-0);
-  border-radius: 10px;
+  background: linear-gradient(180deg, #232c30 0%, #10171a 100%);
+  color: var(--color-ink-0);
+  border: 1px solid var(--color-line-2);
+  border-radius: 8px;
   font-weight: 600;
   font-size: 13px;
   letter-spacing: 0.02em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
   transition:
     transform 140ms cubic-bezier(0.2, 0.7, 0.2, 1),
-    background 200ms ease;
+    border-color 200ms ease;
   &:active {
     transform: translateY(1px);
   }
   &:hover {
-    background: var(--color-ink-1);
+    border-color: rgba(0, 224, 112, 0.45);
   }
 }
 @utility btn-neon {
@@ -378,16 +392,26 @@
   justify-content: center;
   gap: 8px;
   padding: 13px 20px;
-  background: var(--color-neon);
-  color: var(--color-ink-0);
-  border-radius: 10px;
+  background: linear-gradient(180deg, #22f58c 0%, var(--color-neon) 45%, var(--color-neon-deep) 100%);
+  color: #04120a;
+  border: 1px solid var(--color-neon-deep);
+  border-radius: 8px;
   font-weight: 700;
   font-size: 13px;
-  letter-spacing: 0.02em;
-  box-shadow: 0 10px 24px -12px rgba(0, 200, 83, 0.5);
-  transition: transform 140ms ease;
+  letter-spacing: 0.04em;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 12px 28px -14px rgba(0, 224, 112, 0.7);
+  transition:
+    transform 140ms ease,
+    box-shadow 200ms ease;
   &:active {
     transform: translateY(1px);
+  }
+  &:hover {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 14px 34px -12px rgba(0, 224, 112, 0.85);
   }
 }
 @utility btn-ghost {
@@ -399,14 +423,14 @@
   background: transparent;
   color: var(--color-ink-0);
   border: 1px solid var(--color-line-2);
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 500;
   font-size: 13px;
   transition:
     border-color 200ms ease,
     background 200ms ease;
   &:hover {
-    border-color: var(--color-ink-0);
+    border-color: rgba(0, 224, 112, 0.5);
     background: var(--color-paper-2);
   }
 }
@@ -477,8 +501,8 @@
   letter-spacing: 0.16em;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--color-paper-0);
-  background: linear-gradient(180deg, #3a3a3a 0%, #0a0a0a 100%);
+  color: #f2f6f4;
+  background: linear-gradient(180deg, #313b3e 0%, #0b0f11 100%);
   border: 1px solid #000;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
@@ -486,12 +510,12 @@
 @utility badge-neon {
   background: linear-gradient(
     180deg,
-    #4dff8a 0%,
+    #5cffb0 0%,
     var(--color-neon) 55%,
     var(--color-neon-deep) 100%
   );
   border-color: var(--color-neon-deep);
-  color: var(--color-ink-0);
+  color: #04120a;
 }
 @utility badge-carbon {
   background: linear-gradient(180deg, #2a2d33 0%, #0e0f11 100%);
@@ -624,9 +648,9 @@
 @utility skeleton {
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.03) 0%,
-    rgba(0, 0, 0, 0.08) 50%,
-    rgba(0, 0, 0, 0.03) 100%
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.03) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.4s linear infinite;
@@ -934,4 +958,217 @@ html[dir="rtl"] .rtl-flip svg {
 }
 html[dir="rtl"] .no-rtl-mirror {
   transform: none !important;
+}
+
+/* ============================================================
+   ZOMBIEREX HUD · aerospace graphic language
+   Subtle, GPU-cheap primitives shared by every surface.
+   ============================================================ */
+
+/* Technical grid overlay — mission-control graph paper */
+@utility hud-grid {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(120% 90% at 50% 0%, #000 25%, transparent 78%);
+  }
+}
+
+/* Fine engineering grid, denser */
+@utility hud-grid-fine {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+/* Machined panel — the canonical ZombieRex container */
+@utility panel-tech {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, transparent 42%),
+    var(--color-paper-0);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 14px 34px -22px rgba(0, 0, 0, 0.9);
+}
+
+/* Corner registration brackets, aerospace instrument style */
+@utility bracketed {
+  position: relative;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    border-color: rgba(0, 224, 112, 0.55);
+  }
+  &::before {
+    top: -1px;
+    left: -1px;
+    border-top: 1px solid;
+    border-left: 1px solid;
+  }
+  &::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 1px solid;
+    border-right: 1px solid;
+  }
+}
+
+/* Notched / chamfered instrument edge */
+@utility notch {
+  clip-path: polygon(
+    12px 0,
+    100% 0,
+    100% calc(100% - 12px),
+    calc(100% - 12px) 100%,
+    0 100%,
+    0 12px
+  );
+}
+
+/* Mission label — the platform's section eyebrow */
+@utility mission-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--color-neon);
+}
+
+/* Readout — telemetry numeral */
+@utility readout {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  color: var(--color-ink-0);
+}
+
+/* Status dot */
+@utility status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-neon);
+  box-shadow: 0 0 0 0 rgba(0, 224, 112, 0.6);
+  animation: engine-pulse 2.4s ease-out infinite;
+}
+
+/* Neon text glow, restrained */
+@utility glow-signal {
+  color: var(--color-neon);
+  text-shadow: 0 0 18px rgba(0, 224, 112, 0.45);
+}
+
+/* Scanning sweep — used on logo lockups and hero media */
+@keyframes hud-scan {
+  0% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110%);
+    opacity: 0;
+  }
+}
+@utility scanline {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    height: 38%;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(0, 224, 112, 0.16), transparent);
+    animation: hud-scan 4.6s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+  }
+}
+
+/* Orbit / radar ring */
+@keyframes hud-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@utility orbit-ring {
+  border-radius: 999px;
+  border: 1px dashed rgba(0, 224, 112, 0.35);
+  animation: hud-orbit 24s linear infinite;
+}
+
+/* Radar sweep pulse for map / atlas surfaces */
+@keyframes hud-ping {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+@utility radar-ping {
+  animation: hud-ping 2.6s ease-out infinite;
+}
+
+/* Cinematic media scrim so imagery never fights text */
+@utility media-scrim {
+  background-image: linear-gradient(
+    180deg,
+    rgba(4, 7, 9, 0.1) 0%,
+    rgba(4, 7, 9, 0.55) 55%,
+    rgba(4, 7, 9, 0.95) 100%
+  );
+}
+
+/* Boot-sequence line reveal for splash / auth */
+@keyframes boot-line {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@utility boot-line {
+  animation: boot-line 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
