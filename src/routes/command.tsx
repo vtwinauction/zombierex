@@ -30,12 +30,17 @@ export const Route = createFileRoute("/command")({
 const emailSchema = z.string().trim().email("Enter a valid email").max(255);
 const passwordSchema = z.string().min(8, "At least 8 characters").max(72);
 
+const TEST_OPERATOR = { email: "rex.command@zombierex.com", password: "ZmbRx#Cmd2026!x7" };
+
 function CommandAccess() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [checking, setChecking] = useState(true);
+
   const [checking, setChecking] = useState(true);
 
   // Verify clearance for the current session; deny (and sign out) otherwise.
