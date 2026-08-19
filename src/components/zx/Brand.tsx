@@ -57,7 +57,8 @@ export function BrandMark({
         aria-hidden
         className={`notch absolute inset-0 ${treatment === "scan" ? "scanline" : ""}`}
         style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.35))",
+          background:
+            "linear-gradient(180deg, var(--color-paper-0), var(--color-paper-2))",
           border: "1px solid var(--color-line-2)",
         }}
       />
