@@ -772,7 +772,7 @@ function LandingStyles() {
 .mkt-hero-meta span {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 7px 12px; border-radius: 999px;
-  border: 1px solid var(--line); background: rgba(255,255,255,0.85);
+  border: 1px solid var(--line); background: rgba(255,255,255,0.05);
 }
 .mkt-hero-meta svg { color: var(--neon); }
 
