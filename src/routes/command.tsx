@@ -41,8 +41,6 @@ function CommandAccess() {
   const [err, setErr] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
 
-  const [checking, setChecking] = useState(true);
-
   // Verify clearance for the current session; deny (and sign out) otherwise.
   async function gate(afterSignIn: boolean) {
     try {
