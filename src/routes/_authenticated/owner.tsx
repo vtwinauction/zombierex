@@ -131,35 +131,96 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
+const OWNER_TABS: [Tab, string][] = [
+  ["overview", "Overview"],
+  ["flags", "Features"],
+  ["maintenance", "Maintenance"],
+  ["users", "Users"],
+  ["content", "Content"],
+  ["broadcasts", "Broadcasts"],
+  ["audit", "Audit"],
+];
+
 function TabBar({ tab, onChange }: { tab: Tab; onChange: (t: Tab) => void }) {
-  const tabs: [Tab, string][] = [
-    ["overview", "Overview"],
-    ["flags", "Features"],
-    ["maintenance", "Maintenance"],
-    ["users", "Users"],
-    ["content", "Content"],
-    ["broadcasts", "Broadcasts"],
-    ["audit", "Audit"],
-  ];
+  const AMBER = "#c07a12";
   return (
-    <div className="flex gap-1 overflow-x-auto px-3 pb-2 text-[12px]">
-      {tabs.map(([k, label]) => (
-        <button
-          key={k}
-          onClick={() => onChange(k)}
-          className="whitespace-nowrap rounded-md px-3 py-1.5"
+    <div className="px-3 pb-3">
+      {/* Mobile: dropdown selector */}
+      <div className="relative sm:hidden">
+        <select
+          aria-label="Console section"
+          value={tab}
+          onChange={(e) => onChange(e.target.value as Tab)}
+          className="mono-tag w-full appearance-none px-3 py-2.5 pr-9 text-[12px] tracking-widest"
           style={{
-            background: tab === k ? "var(--color-ink)" : "transparent",
-            color: tab === k ? "var(--color-canvas)" : "var(--color-ink)",
-            border: `1px solid ${tab === k ? "var(--color-ink)" : "var(--color-hair-strong)"}`,
+            borderRadius: 10,
+            border: `1px solid ${AMBER}`,
+            background: "linear-gradient(180deg, var(--color-ink-0), var(--color-ink-1))",
+            color: "#f5efe2",
           }}
         >
-          {label}
-        </button>
-      ))}
+          {OWNER_TABS.map(([k, label]) => (
+            <option key={k} value={k} style={{ color: "#111" }}>
+              {label.toUpperCase()}
+            </option>
+          ))}
+        </select>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px]"
+          style={{ color: AMBER }}
+        >
+          ▼
+        </span>
+      </div>
+
+      {/* Desktop: instrument rail */}
+      <div
+        className="hidden gap-1 overflow-x-auto p-1 text-[12px] sm:flex"
+        style={{
+          borderRadius: 12,
+          border: "1px solid var(--color-hair-strong)",
+          background: "var(--color-paper-2)",
+        }}
+      >
+        {OWNER_TABS.map(([k, label]) => {
+          const active = tab === k;
+          return (
+            <button
+              key={k}
+              onClick={() => onChange(k)}
+              className="mono-tag relative whitespace-nowrap px-3 py-2 tracking-widest transition-colors"
+              style={{
+                borderRadius: 8,
+                background: active
+                  ? "linear-gradient(180deg, var(--color-ink-0), var(--color-ink-1))"
+                  : "transparent",
+                color: active ? "#f5efe2" : "var(--color-silver)",
+                border: `1px solid ${active ? AMBER : "transparent"}`,
+              }}
+            >
+              {active && (
+                <span
+                  aria-hidden
+                  className="mr-1.5 inline-block align-middle"
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 99,
+                    background: AMBER,
+                    boxShadow: `0 0 8px ${AMBER}`,
+                  }}
+                />
+              )}
+              {label.toUpperCase()}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
 
 // ─── OVERVIEW ────────────────────────────────────────────────
 function OverviewTab() {
