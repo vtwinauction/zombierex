@@ -56,8 +56,8 @@ export async function reportCrash(error: unknown, extra: Partial<Payload> = {}) 
   } catch {}
 
   const payload = {
-    message,
-    stack,
+    message: message.slice(0, 2000),
+    stack: stack?.slice(0, 20_000),
     route: window.location.pathname,
     userAgent: navigator.userAgent.slice(0, 500),
     platform:
