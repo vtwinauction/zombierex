@@ -938,6 +938,34 @@ function LandingStyles() {
 .mkt-contact h3 { font-size: 14px; margin: 12px 0 5px; }
 .mkt-contact p { font-size: 13px; }
 
+/* ---------- TOUCH ---------- */
+.mkt-touch { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+.mkt-touch-card { padding: 20px; height: 100%; transition: transform .18s ease, border-color .18s ease; }
+.mkt-touch-card:hover { transform: translateY(-3px); border-color: var(--neon); }
+.mkt-touch-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: 12px;
+  border: 1px solid var(--line); color: var(--neon);
+  background: rgba(0,224,94,0.08);
+}
+.mkt-touch-card h3 { font-size: 14px; margin: 13px 0 6px; }
+.mkt-touch-card p { font-size: 13px; line-height: 1.6; }
+
+/* ---------- CONTACT FORM ---------- */
+.mkt-form { display: grid; gap: 14px; padding: 24px; }
+.mkt-field { display: grid; gap: 7px; }
+.mkt-field > span { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--txt-2); }
+.mkt-field input, .mkt-field textarea, .mkt-field select {
+  width: 100%; padding: 12px 13px; border-radius: 11px;
+  background: #ffffff; border: 1px solid var(--line);
+  color: var(--txt); font-size: 14px; outline: none; min-height: 44px;
+}
+.mkt-field select option { background: #ffffff; color: #0a0a0a; }
+.mkt-field input:focus, .mkt-field textarea:focus, .mkt-field select:focus { border-color: var(--neon); box-shadow: 0 0 0 3px rgba(0,224,94,0.14); }
+.mkt-field textarea { resize: vertical; }
+
+
+
 @media (prefers-reduced-motion: reduce) {
   .mkt-marquee-track { animation: none; }
 }
