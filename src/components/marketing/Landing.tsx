@@ -26,7 +26,17 @@ import {
   Mail,
   MapPin,
   Check,
+  Send,
+  Hand,
+  Heart,
+  ZoomIn,
+  RefreshCw,
+  Vibrate,
+  Fingerprint,
+  Smartphone,
+  MousePointerClick as PointerClick,
 } from "lucide-react";
+import { toast } from "sonner";
 import { siteConfig } from "@/config/site";
 import { MarketingShell } from "./MarketingShell";
 import { slugify } from "@/config/feature-guides";
