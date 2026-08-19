@@ -25,7 +25,7 @@ export function BrandMark({
       height={size}
       className="relative z-10 h-full w-full object-contain"
       style={{
-        filter: "drop-shadow(0 0 16px color-mix(in oklab, var(--color-neon) 40%, transparent))",
+        filter: "drop-shadow(0 6px 14px color-mix(in oklab, var(--color-neon) 26%, transparent))",
       }}
     />
   );
