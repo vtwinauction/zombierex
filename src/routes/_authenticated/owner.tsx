@@ -163,19 +163,146 @@ function OverviewTab() {
     refetchInterval: 15_000,
   });
   const m = q.data;
+  const n = (v?: number) => (v ?? 0);
+  const fmt = (v?: number) => (v?.toLocaleString() ?? "—");
+
   return (
-    <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-      <Metric label="Total Users" value={m?.totalUsers} />
-      <Metric label="Signups · 24h" value={m?.signups24h} />
-      <Metric label="Posts · 24h" value={m?.posts24h} />
-      <Metric label="Messages · 24h" value={m?.messages24h} />
-      <Metric label="Active Listings" value={m?.activeListings} />
-      <Metric label="Weekly Active" value={m?.weeklyActive} />
-      <Metric label="Suspended" value={m?.suspendedUsers} accent="#dc2626" />
-      <Metric label="Open Reports" value={m?.openReports} accent="#eab308" />
+    <div className="space-y-5">
+      <CockpitHeader
+        title="Flight deck"
+        subtitle="Live platform telemetry — refreshed every 15 seconds."
+        right={
+          <Link to="/owner/command" className="btn-ghost text-xs">
+            Mission Control →
+          </Link>
+        }
+      />
+
+      <section
+        className="p-4"
+        style={{
+          borderRadius: 14,
+          border: "1px solid var(--color-hair)",
+          background: "var(--color-paper-2)",
+        }}
+      >
+        <p className="mono-tag mb-3" style={{ color: "var(--color-silver)" }}>
+          INSTRUMENT CLUSTER
+        </p>
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <Gauge
+            label="Total users"
+            value={n(m?.totalUsers)}
+            max={Math.max(1, n(m?.totalUsers))}
+            display={fmt(m?.totalUsers)}
+            unit="riders"
+          />
+          <Gauge
+            label="Weekly active"
+            value={n(m?.weeklyActive)}
+            max={Math.max(1, n(m?.totalUsers))}
+            display={fmt(m?.weeklyActive)}
+            unit="7d"
+          />
+          <Gauge
+            label="Signups · 24h"
+            value={n(m?.signups24h)}
+            max={Math.max(1, n(m?.signups24h) * 2, 10)}
+            display={fmt(m?.signups24h)}
+            unit="new"
+          />
+          <Gauge
+            label="Containment"
+            value={n(m?.openReports) + n(m?.suspendedUsers)}
+            max={50}
+            redline={0.4}
+            display={fmt(n(m?.openReports) + n(m?.suspendedUsers))}
+            unit="open"
+          />
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <BarMeter
+            label="Posts · 24h"
+            value={n(m?.posts24h)}
+            max={Math.max(1, n(m?.posts24h), 25)}
+            display={fmt(m?.posts24h)}
+          />
+          <BarMeter
+            label="Messages · 24h"
+            value={n(m?.messages24h)}
+            max={Math.max(1, n(m?.messages24h), 50)}
+            display={fmt(m?.messages24h)}
+            tone="amber"
+          />
+          <BarMeter
+            label="Active listings"
+            value={n(m?.activeListings)}
+            max={Math.max(1, n(m?.activeListings), 25)}
+            display={fmt(m?.activeListings)}
+          />
+          <BarMeter
+            label="Suspended"
+            value={n(m?.suspendedUsers)}
+            max={Math.max(1, n(m?.totalUsers))}
+            display={fmt(m?.suspendedUsers)}
+            tone="heat"
+          />
+        </div>
+      </section>
+
+      <section
+        className="p-4"
+        style={{
+          borderRadius: 14,
+          border: "1px solid var(--color-hair)",
+          background: "var(--color-paper-2)",
+        }}
+      >
+        <p className="mono-tag mb-3" style={{ color: "var(--color-silver)" }}>
+          TELEMETRY · ACTIVITY
+        </p>
+        <BarChart
+          series={[
+            { label: "Users", value: n(m?.totalUsers) },
+            { label: "Weekly", value: n(m?.weeklyActive) },
+            { label: "Posts", value: n(m?.posts24h) },
+            { label: "Msgs", value: n(m?.messages24h) },
+            { label: "Listings", value: n(m?.activeListings) },
+          ]}
+        />
+      </section>
+
+      <section
+        className="p-4"
+        style={{
+          borderRadius: 14,
+          border: "1px solid var(--color-hair)",
+          background: "var(--color-paper-2)",
+        }}
+      >
+        <p className="mono-tag mb-3" style={{ color: "var(--color-silver)" }}>
+          ANNUNCIATOR
+        </p>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <Lamp label="Open reports" active={n(m?.openReports) > 0} tone="heat">
+            {fmt(m?.openReports)}
+          </Lamp>
+          <Lamp label="Suspended users" active={n(m?.suspendedUsers) > 0} tone="heat">
+            {fmt(m?.suspendedUsers)}
+          </Lamp>
+          <Lamp label="Signups · 24h" active={n(m?.signups24h) > 0} tone="neon">
+            {fmt(m?.signups24h)}
+          </Lamp>
+          <Lamp label="Posts · 24h" active={n(m?.posts24h) > 0}>
+            {fmt(m?.posts24h)}
+          </Lamp>
+        </div>
+      </section>
     </div>
   );
 }
+
 
 function Metric({ label, value, accent }: { label: string; value?: number; accent?: string }) {
   return (
