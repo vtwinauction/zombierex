@@ -3,6 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getCommandOverview } from "@/lib/command.functions";
 import { Metric, Panel, money, num } from "@/components/command/ui";
+import {
+  BarChart,
+  BarMeter,
+  CockpitHeader,
+  Gauge,
+  Lamp,
+} from "@/components/command/instruments";
 
 export const Route = createFileRoute("/_authenticated/owner/command/")({
   head: () => ({
