@@ -903,7 +903,7 @@ function LandingStyles() {
 
 .mkt-video { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 16/9; background: var(--bg-2); }
 .mkt-video img, .mkt-video video { width: 100%; height: 100%; object-fit: cover; }
-.mkt-video-veil { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; background: linear-gradient(180deg, rgba(250,250,250,0.4), rgba(250,250,250,0.9)); }
+.mkt-video-veil { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; background: linear-gradient(180deg, rgba(7,9,11,0.35), rgba(7,9,11,0.88)); }
 
 .mkt-stats { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; grid-template-columns: repeat(2, 1fr); }
 @media (min-width: 780px) { .mkt-stats { grid-template-columns: repeat(4, 1fr); } }
