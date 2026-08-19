@@ -83,6 +83,7 @@ export function StatusBar({ index, section }: { index: string; section: string }
 
   return (
     <header
+      data-app-chrome
       className="sticky top-0 z-40"
       style={{
         paddingTop: "env(safe-area-inset-top)",
