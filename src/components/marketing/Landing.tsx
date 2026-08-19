@@ -198,7 +198,9 @@ export function Landing() {
       <Testimonials />
       <DownloadCta />
       <Faq />
+      <TouchBlock />
       <ContactBlock />
+
     </MarketingShell>
   );
 }
