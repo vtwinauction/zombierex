@@ -1,44 +1,54 @@
 @import "tailwindcss";
 
 /* ============================================================
-   ZOMBIEREX · TITANIUM EDITORIAL
-   Light premium surfaces, graphite ink, one toxic-green accent.
-   Space Grotesk display · DM Sans body · JetBrains Mono numerals.
+   ZOMBIEREX · MISSION BLACK
+   Aerospace-grade dark hull, machined metal panels, one
+   surgical green signal. NASA mission-control meets motorsport.
+   Space Grotesk display · DM Sans body · JetBrains Mono readouts.
+
+   NOTE: the token NAMES are inherited from the previous light
+   system and are used across ~200 files. They are intentionally
+   preserved — only their VALUES are inverted, so the entire
+   platform adopts the dark identity coherently.
+   `paper-*` = surfaces (dark), `ink-*` = text (light).
    ============================================================ */
 
 @theme {
-  /* ---- Titanium Editorial palette ---- */
-  --color-paper-0: #ffffff; /* pure surface */
-  --color-paper-1: #fafafa; /* page bg */
-  --color-paper-2: #f4f4f5; /* muted surface */
-  --color-paper-3: #ececec; /* raised chip */
+  /* ---- Mission Black surfaces (dark → darker) ---- */
+  --color-paper-0: #0e1316; /* card / panel */
+  --color-paper-1: #07090b; /* page hull */
+  --color-paper-2: #151b1f; /* muted surface */
+  --color-paper-3: #1d2529; /* raised chip / control */
 
-  --color-line: #e6e6e6; /* hairline */
-  --color-line-2: #d4d4d4; /* hairline strong */
+  --color-line: rgba(255, 255, 255, 0.09); /* hairline */
+  --color-line-2: rgba(255, 255, 255, 0.17); /* hairline strong */
 
-  --color-ink-0: #0a0a0a; /* primary text / dark surface */
-  --color-ink-1: #1a1a1a;
-  --color-ink-2: #3a3a3a; /* secondary text */
-  --color-ink-3: #6b6b6b; /* muted text */
-  --color-ink-4: #9a9a9a; /* micro text */
+  --color-ink-0: #eef4f2; /* primary text */
+  --color-ink-1: #d3dcda;
+  --color-ink-2: #a7b3b1; /* secondary text */
+  --color-ink-3: #78within; /* placeholder, overridden below */
+  --color-ink-3: #7c8a88; /* muted text */
+  --color-ink-4: #566462; /* micro text */
 
-  --color-neon: #00c853; /* signal green (legible on white) */
-  --color-neon-deep: #00a844;
-  --color-ember: #e11d2a; /* danger only */
+  --color-neon: #00e070; /* signal green */
+  --color-neon-deep: #00a856;
+  --color-neon-soft: rgba(0, 224, 112, 0.14);
+  --color-ember: #ff3b46; /* danger / heat */
+  --color-amber: #ffb020; /* caution */
 
   /* ---- Legacy aliases (many components still reference these) ---- */
-  --color-obsidian: var(--color-ink-0); /* dark ink; used as dark surfaces & text */
-  --color-slate: var(--color-paper-2); /* elevated light surface */
-  --color-graphite: var(--color-paper-0); /* cards → white */
+  --color-obsidian: var(--color-paper-1); /* deep hull surface */
+  --color-slate: var(--color-paper-2); /* elevated surface */
+  --color-graphite: var(--color-paper-0); /* cards */
   --color-gunmetal: var(--color-paper-3); /* controls */
   --color-titanium: var(--color-ink-3); /* muted */
   --color-silver: var(--color-ink-2); /* secondary */
-  --color-bone: var(--color-paper-1);
+  --color-bone: var(--color-ink-0);
   --color-paper: var(--color-paper-1);
-  --color-ink: var(--color-ink-0); /* primary text (was light, now dark) */
+  --color-ink: var(--color-ink-0); /* primary text */
   --color-hair: var(--color-line);
   --color-hair-strong: var(--color-line-2);
-  --color-hair-soft: #efefef;
+  --color-hair-soft: rgba(255, 255, 255, 0.06);
   --color-signal: var(--color-neon);
   --color-signal-deep: var(--color-neon-deep);
   --color-heat: var(--color-ember);
@@ -47,8 +57,8 @@
   --color-ash: var(--color-ink-3);
   --color-white: #ffffff;
   --color-matte: var(--color-paper-1);
-  --color-platinum: var(--color-paper-0);
-  --color-neon-deep-glow: rgba(0, 200, 83, 0.35);
+  --color-platinum: var(--color-ink-0);
+  --color-neon-deep-glow: rgba(0, 224, 112, 0.35);
 
   /* ---- shadcn semantic tokens ---- */
   --color-bg: var(--color-paper-1);
@@ -58,32 +68,32 @@
   --color-muted: var(--color-paper-2);
   --color-muted-foreground: var(--color-ink-3);
   --color-border: var(--color-line);
-  --color-primary: var(--color-ink-0);
-  --color-primary-foreground: var(--color-paper-0);
+  --color-primary: var(--color-neon);
+  --color-primary-foreground: #04120a;
   --color-accent: var(--color-neon);
-  --color-accent-foreground: var(--color-ink-0);
+  --color-accent-foreground: #04120a;
   --color-destructive: var(--color-ember);
   --color-destructive-foreground: #ffffff;
   --color-card: var(--color-paper-0);
   --color-card-foreground: var(--color-ink-0);
-  --color-input: var(--color-line);
-  --color-ring: var(--color-ink-0);
+  --color-input: var(--color-line-2);
+  --color-ring: var(--color-neon);
   --color-popover: var(--color-paper-0);
   --color-popover-foreground: var(--color-ink-0);
   --color-secondary: var(--color-paper-2);
   --color-secondary-foreground: var(--color-ink-0);
   --color-sidebar: var(--color-paper-0);
   --color-sidebar-foreground: var(--color-ink-0);
-  --color-sidebar-primary: var(--color-ink-0);
-  --color-sidebar-primary-foreground: var(--color-paper-0);
+  --color-sidebar-primary: var(--color-neon);
+  --color-sidebar-primary-foreground: #04120a;
   --color-sidebar-accent: var(--color-paper-2);
   --color-sidebar-accent-foreground: var(--color-ink-0);
   --color-sidebar-border: var(--color-line);
-  --color-sidebar-ring: var(--color-ink-0);
+  --color-sidebar-ring: var(--color-neon);
   --color-chart-1: var(--color-neon);
-  --color-chart-2: var(--color-ink-2);
-  --color-chart-3: var(--color-ink-3);
-  --color-chart-4: var(--color-ink-4);
+  --color-chart-2: #4ad9ff;
+  --color-chart-3: var(--color-ink-2);
+  --color-chart-4: var(--color-amber);
   --color-chart-5: var(--color-ember);
 
   /* ---- Typography ---- */
