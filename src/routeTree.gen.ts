@@ -64,7 +64,6 @@ import { Route as AuthenticatedSecurityRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSavedRouteImport } from './routes/_authenticated/saved'
 import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
 import { Route as AuthenticatedReferralsRouteImport } from './routes/_authenticated/referrals'
-import { Route as AuthenticatedOwnerRouteImport } from './routes/_authenticated/owner'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedMenuRouteImport } from './routes/_authenticated/menu'
@@ -74,6 +73,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedVendorIndexRouteImport } from './routes/_authenticated/vendor.index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings.index'
 import { Route as AuthenticatedRidesIndexRouteImport } from './routes/_authenticated/rides.index'
+import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
 import { Route as AuthenticatedDragIndexRouteImport } from './routes/_authenticated/drag.index'
 import { Route as AuthenticatedBusinessIndexRouteImport } from './routes/_authenticated/business.index'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads.index'
@@ -468,11 +468,6 @@ const AuthenticatedReferralsRoute = AuthenticatedReferralsRouteImport.update({
   path: '/referrals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedOwnerRoute = AuthenticatedOwnerRouteImport.update({
-  id: '/owner',
-  path: '/owner',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -518,6 +513,11 @@ const AuthenticatedSettingsIndexRoute =
 const AuthenticatedRidesIndexRoute = AuthenticatedRidesIndexRouteImport.update({
   id: '/rides/',
   path: '/rides/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
+  id: '/owner/',
+  path: '/owner/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDragIndexRoute = AuthenticatedDragIndexRouteImport.update({
@@ -728,21 +728,21 @@ const AuthenticatedPostNewRoute = AuthenticatedPostNewRouteImport.update({
 } as any)
 const AuthenticatedOwnerFinanceRoute =
   AuthenticatedOwnerFinanceRouteImport.update({
-    id: '/finance',
-    path: '/finance',
-    getParentRoute: () => AuthenticatedOwnerRoute,
+    id: '/owner/finance',
+    path: '/owner/finance',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOwnerCommandRoute =
   AuthenticatedOwnerCommandRouteImport.update({
-    id: '/command',
-    path: '/command',
-    getParentRoute: () => AuthenticatedOwnerRoute,
+    id: '/owner/command',
+    path: '/owner/command',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedOwnerAnalyticsRoute =
   AuthenticatedOwnerAnalyticsRouteImport.update({
-    id: '/analytics',
-    path: '/analytics',
-    getParentRoute: () => AuthenticatedOwnerRoute,
+    id: '/owner/analytics',
+    path: '/owner/analytics',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
   id: '/$id',
@@ -1221,7 +1221,6 @@ export interface FileRoutesByFullPath {
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/owner': typeof AuthenticatedOwnerRouteWithChildren
   '/referrals': typeof AuthenticatedReferralsRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
@@ -1335,6 +1334,7 @@ export interface FileRoutesByFullPath {
   '/ads/': typeof AuthenticatedAdsIndexRoute
   '/business/': typeof AuthenticatedBusinessIndexRoute
   '/drag/': typeof AuthenticatedDragIndexRoute
+  '/owner/': typeof AuthenticatedOwnerIndexRoute
   '/rides/': typeof AuthenticatedRidesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
   '/vendor/': typeof AuthenticatedVendorIndexRoute
@@ -1404,7 +1404,6 @@ export interface FileRoutesByTo {
   '/menu': typeof AuthenticatedMenuRoute
   '/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/owner': typeof AuthenticatedOwnerRouteWithChildren
   '/referrals': typeof AuthenticatedReferralsRoute
   '/rewards': typeof AuthenticatedRewardsRoute
   '/saved': typeof AuthenticatedSavedRoute
@@ -1514,6 +1513,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AuthenticatedAdsIndexRoute
   '/business': typeof AuthenticatedBusinessIndexRoute
   '/drag': typeof AuthenticatedDragIndexRoute
+  '/owner': typeof AuthenticatedOwnerIndexRoute
   '/rides': typeof AuthenticatedRidesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
   '/vendor': typeof AuthenticatedVendorIndexRoute
@@ -1586,7 +1586,6 @@ export interface FileRoutesById {
   '/_authenticated/menu': typeof AuthenticatedMenuRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
-  '/_authenticated/owner': typeof AuthenticatedOwnerRouteWithChildren
   '/_authenticated/referrals': typeof AuthenticatedReferralsRoute
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
   '/_authenticated/saved': typeof AuthenticatedSavedRoute
@@ -1700,6 +1699,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/business/': typeof AuthenticatedBusinessIndexRoute
   '/_authenticated/drag/': typeof AuthenticatedDragIndexRoute
+  '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
   '/_authenticated/rides/': typeof AuthenticatedRidesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
   '/_authenticated/vendor/': typeof AuthenticatedVendorIndexRoute
@@ -1772,7 +1772,6 @@ export interface FileRouteTypes {
     | '/menu'
     | '/messages'
     | '/onboarding'
-    | '/owner'
     | '/referrals'
     | '/rewards'
     | '/saved'
@@ -1886,6 +1885,7 @@ export interface FileRouteTypes {
     | '/ads/'
     | '/business/'
     | '/drag/'
+    | '/owner/'
     | '/rides/'
     | '/settings/'
     | '/vendor/'
@@ -1955,7 +1955,6 @@ export interface FileRouteTypes {
     | '/menu'
     | '/messages'
     | '/onboarding'
-    | '/owner'
     | '/referrals'
     | '/rewards'
     | '/saved'
@@ -2065,6 +2064,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/business'
     | '/drag'
+    | '/owner'
     | '/rides'
     | '/settings'
     | '/vendor'
@@ -2136,7 +2136,6 @@ export interface FileRouteTypes {
     | '/_authenticated/menu'
     | '/_authenticated/messages'
     | '/_authenticated/onboarding'
-    | '/_authenticated/owner'
     | '/_authenticated/referrals'
     | '/_authenticated/rewards'
     | '/_authenticated/saved'
@@ -2250,6 +2249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/'
     | '/_authenticated/business/'
     | '/_authenticated/drag/'
+    | '/_authenticated/owner/'
     | '/_authenticated/rides/'
     | '/_authenticated/settings/'
     | '/_authenticated/vendor/'
@@ -2748,13 +2748,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReferralsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/owner': {
-      id: '/_authenticated/owner'
-      path: '/owner'
-      fullPath: '/owner'
-      preLoaderRoute: typeof AuthenticatedOwnerRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -2816,6 +2809,13 @@ declare module '@tanstack/react-router' {
       path: '/rides'
       fullPath: '/rides/'
       preLoaderRoute: typeof AuthenticatedRidesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/owner/': {
+      id: '/_authenticated/owner/'
+      path: '/owner'
+      fullPath: '/owner/'
+      preLoaderRoute: typeof AuthenticatedOwnerIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/drag/': {
@@ -3072,24 +3072,24 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/owner/finance': {
       id: '/_authenticated/owner/finance'
-      path: '/finance'
+      path: '/owner/finance'
       fullPath: '/owner/finance'
       preLoaderRoute: typeof AuthenticatedOwnerFinanceRouteImport
-      parentRoute: typeof AuthenticatedOwnerRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/owner/command': {
       id: '/_authenticated/owner/command'
-      path: '/command'
+      path: '/owner/command'
       fullPath: '/owner/command'
       preLoaderRoute: typeof AuthenticatedOwnerCommandRouteImport
-      parentRoute: typeof AuthenticatedOwnerRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/owner/analytics': {
       id: '/_authenticated/owner/analytics'
-      path: '/analytics'
+      path: '/owner/analytics'
       fullPath: '/owner/analytics'
       preLoaderRoute: typeof AuthenticatedOwnerAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedOwnerRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/messages/$id': {
       id: '/_authenticated/messages/$id'
@@ -3695,6 +3695,82 @@ const AuthenticatedMessagesRouteWithChildren =
     AuthenticatedMessagesRouteChildren,
   )
 
+interface AuthenticatedSettingsRouteChildren {
+  AuthenticatedSettingsAboutRoute: typeof AuthenticatedSettingsAboutRoute
+  AuthenticatedSettingsAccessibilityRoute: typeof AuthenticatedSettingsAccessibilityRoute
+  AuthenticatedSettingsAccountPrivacyRoute: typeof AuthenticatedSettingsAccountPrivacyRoute
+  AuthenticatedSettingsActivityRoute: typeof AuthenticatedSettingsActivityRoute
+  AuthenticatedSettingsAppLockRoute: typeof AuthenticatedSettingsAppLockRoute
+  AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
+  AuthenticatedSettingsBlockedRoute: typeof AuthenticatedSettingsBlockedRoute
+  AuthenticatedSettingsConnectionsRoute: typeof AuthenticatedSettingsConnectionsRoute
+  AuthenticatedSettingsContentRoute: typeof AuthenticatedSettingsContentRoute
+  AuthenticatedSettingsDataRoute: typeof AuthenticatedSettingsDataRoute
+  AuthenticatedSettingsDeleteAccountRoute: typeof AuthenticatedSettingsDeleteAccountRoute
+  AuthenticatedSettingsEmailRoute: typeof AuthenticatedSettingsEmailRoute
+  AuthenticatedSettingsExportRoute: typeof AuthenticatedSettingsExportRoute
+  AuthenticatedSettingsGuideRoute: typeof AuthenticatedSettingsGuideRoute
+  AuthenticatedSettingsHelpRoute: typeof AuthenticatedSettingsHelpRoute
+  AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
+  AuthenticatedSettingsPasswordRoute: typeof AuthenticatedSettingsPasswordRoute
+  AuthenticatedSettingsPrivacyRoute: typeof AuthenticatedSettingsPrivacyRoute
+  AuthenticatedSettingsReportRoute: typeof AuthenticatedSettingsReportRoute
+  AuthenticatedSettingsSessionsRoute: typeof AuthenticatedSettingsSessionsRoute
+  AuthenticatedSettingsTermsRoute: typeof AuthenticatedSettingsTermsRoute
+  AuthenticatedSettingsTwofaRoute: typeof AuthenticatedSettingsTwofaRoute
+  AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
+}
+
+const AuthenticatedSettingsRouteChildren: AuthenticatedSettingsRouteChildren = {
+  AuthenticatedSettingsAboutRoute: AuthenticatedSettingsAboutRoute,
+  AuthenticatedSettingsAccessibilityRoute:
+    AuthenticatedSettingsAccessibilityRoute,
+  AuthenticatedSettingsAccountPrivacyRoute:
+    AuthenticatedSettingsAccountPrivacyRoute,
+  AuthenticatedSettingsActivityRoute: AuthenticatedSettingsActivityRoute,
+  AuthenticatedSettingsAppLockRoute: AuthenticatedSettingsAppLockRoute,
+  AuthenticatedSettingsAppearanceRoute: AuthenticatedSettingsAppearanceRoute,
+  AuthenticatedSettingsBlockedRoute: AuthenticatedSettingsBlockedRoute,
+  AuthenticatedSettingsConnectionsRoute: AuthenticatedSettingsConnectionsRoute,
+  AuthenticatedSettingsContentRoute: AuthenticatedSettingsContentRoute,
+  AuthenticatedSettingsDataRoute: AuthenticatedSettingsDataRoute,
+  AuthenticatedSettingsDeleteAccountRoute:
+    AuthenticatedSettingsDeleteAccountRoute,
+  AuthenticatedSettingsEmailRoute: AuthenticatedSettingsEmailRoute,
+  AuthenticatedSettingsExportRoute: AuthenticatedSettingsExportRoute,
+  AuthenticatedSettingsGuideRoute: AuthenticatedSettingsGuideRoute,
+  AuthenticatedSettingsHelpRoute: AuthenticatedSettingsHelpRoute,
+  AuthenticatedSettingsNotificationsRoute:
+    AuthenticatedSettingsNotificationsRoute,
+  AuthenticatedSettingsPasswordRoute: AuthenticatedSettingsPasswordRoute,
+  AuthenticatedSettingsPrivacyRoute: AuthenticatedSettingsPrivacyRoute,
+  AuthenticatedSettingsReportRoute: AuthenticatedSettingsReportRoute,
+  AuthenticatedSettingsSessionsRoute: AuthenticatedSettingsSessionsRoute,
+  AuthenticatedSettingsTermsRoute: AuthenticatedSettingsTermsRoute,
+  AuthenticatedSettingsTwofaRoute: AuthenticatedSettingsTwofaRoute,
+  AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
+}
+
+const AuthenticatedSettingsRouteWithChildren =
+  AuthenticatedSettingsRoute._addFileChildren(
+    AuthenticatedSettingsRouteChildren,
+  )
+
+interface AuthenticatedVendorRouteChildren {
+  AuthenticatedVendorApplyRoute: typeof AuthenticatedVendorApplyRoute
+  AuthenticatedVendorPlansRoute: typeof AuthenticatedVendorPlansRoute
+  AuthenticatedVendorIndexRoute: typeof AuthenticatedVendorIndexRoute
+}
+
+const AuthenticatedVendorRouteChildren: AuthenticatedVendorRouteChildren = {
+  AuthenticatedVendorApplyRoute: AuthenticatedVendorApplyRoute,
+  AuthenticatedVendorPlansRoute: AuthenticatedVendorPlansRoute,
+  AuthenticatedVendorIndexRoute: AuthenticatedVendorIndexRoute,
+}
+
+const AuthenticatedVendorRouteWithChildren =
+  AuthenticatedVendorRoute._addFileChildren(AuthenticatedVendorRouteChildren)
+
 interface AuthenticatedOwnerCommandUsersRouteChildren {
   AuthenticatedOwnerCommandUsersIdRoute: typeof AuthenticatedOwnerCommandUsersIdRoute
 }
@@ -3782,97 +3858,6 @@ const AuthenticatedOwnerFinanceRouteWithChildren =
     AuthenticatedOwnerFinanceRouteChildren,
   )
 
-interface AuthenticatedOwnerRouteChildren {
-  AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
-  AuthenticatedOwnerCommandRoute: typeof AuthenticatedOwnerCommandRouteWithChildren
-  AuthenticatedOwnerFinanceRoute: typeof AuthenticatedOwnerFinanceRouteWithChildren
-}
-
-const AuthenticatedOwnerRouteChildren: AuthenticatedOwnerRouteChildren = {
-  AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
-  AuthenticatedOwnerCommandRoute: AuthenticatedOwnerCommandRouteWithChildren,
-  AuthenticatedOwnerFinanceRoute: AuthenticatedOwnerFinanceRouteWithChildren,
-}
-
-const AuthenticatedOwnerRouteWithChildren =
-  AuthenticatedOwnerRoute._addFileChildren(AuthenticatedOwnerRouteChildren)
-
-interface AuthenticatedSettingsRouteChildren {
-  AuthenticatedSettingsAboutRoute: typeof AuthenticatedSettingsAboutRoute
-  AuthenticatedSettingsAccessibilityRoute: typeof AuthenticatedSettingsAccessibilityRoute
-  AuthenticatedSettingsAccountPrivacyRoute: typeof AuthenticatedSettingsAccountPrivacyRoute
-  AuthenticatedSettingsActivityRoute: typeof AuthenticatedSettingsActivityRoute
-  AuthenticatedSettingsAppLockRoute: typeof AuthenticatedSettingsAppLockRoute
-  AuthenticatedSettingsAppearanceRoute: typeof AuthenticatedSettingsAppearanceRoute
-  AuthenticatedSettingsBlockedRoute: typeof AuthenticatedSettingsBlockedRoute
-  AuthenticatedSettingsConnectionsRoute: typeof AuthenticatedSettingsConnectionsRoute
-  AuthenticatedSettingsContentRoute: typeof AuthenticatedSettingsContentRoute
-  AuthenticatedSettingsDataRoute: typeof AuthenticatedSettingsDataRoute
-  AuthenticatedSettingsDeleteAccountRoute: typeof AuthenticatedSettingsDeleteAccountRoute
-  AuthenticatedSettingsEmailRoute: typeof AuthenticatedSettingsEmailRoute
-  AuthenticatedSettingsExportRoute: typeof AuthenticatedSettingsExportRoute
-  AuthenticatedSettingsGuideRoute: typeof AuthenticatedSettingsGuideRoute
-  AuthenticatedSettingsHelpRoute: typeof AuthenticatedSettingsHelpRoute
-  AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
-  AuthenticatedSettingsPasswordRoute: typeof AuthenticatedSettingsPasswordRoute
-  AuthenticatedSettingsPrivacyRoute: typeof AuthenticatedSettingsPrivacyRoute
-  AuthenticatedSettingsReportRoute: typeof AuthenticatedSettingsReportRoute
-  AuthenticatedSettingsSessionsRoute: typeof AuthenticatedSettingsSessionsRoute
-  AuthenticatedSettingsTermsRoute: typeof AuthenticatedSettingsTermsRoute
-  AuthenticatedSettingsTwofaRoute: typeof AuthenticatedSettingsTwofaRoute
-  AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
-}
-
-const AuthenticatedSettingsRouteChildren: AuthenticatedSettingsRouteChildren = {
-  AuthenticatedSettingsAboutRoute: AuthenticatedSettingsAboutRoute,
-  AuthenticatedSettingsAccessibilityRoute:
-    AuthenticatedSettingsAccessibilityRoute,
-  AuthenticatedSettingsAccountPrivacyRoute:
-    AuthenticatedSettingsAccountPrivacyRoute,
-  AuthenticatedSettingsActivityRoute: AuthenticatedSettingsActivityRoute,
-  AuthenticatedSettingsAppLockRoute: AuthenticatedSettingsAppLockRoute,
-  AuthenticatedSettingsAppearanceRoute: AuthenticatedSettingsAppearanceRoute,
-  AuthenticatedSettingsBlockedRoute: AuthenticatedSettingsBlockedRoute,
-  AuthenticatedSettingsConnectionsRoute: AuthenticatedSettingsConnectionsRoute,
-  AuthenticatedSettingsContentRoute: AuthenticatedSettingsContentRoute,
-  AuthenticatedSettingsDataRoute: AuthenticatedSettingsDataRoute,
-  AuthenticatedSettingsDeleteAccountRoute:
-    AuthenticatedSettingsDeleteAccountRoute,
-  AuthenticatedSettingsEmailRoute: AuthenticatedSettingsEmailRoute,
-  AuthenticatedSettingsExportRoute: AuthenticatedSettingsExportRoute,
-  AuthenticatedSettingsGuideRoute: AuthenticatedSettingsGuideRoute,
-  AuthenticatedSettingsHelpRoute: AuthenticatedSettingsHelpRoute,
-  AuthenticatedSettingsNotificationsRoute:
-    AuthenticatedSettingsNotificationsRoute,
-  AuthenticatedSettingsPasswordRoute: AuthenticatedSettingsPasswordRoute,
-  AuthenticatedSettingsPrivacyRoute: AuthenticatedSettingsPrivacyRoute,
-  AuthenticatedSettingsReportRoute: AuthenticatedSettingsReportRoute,
-  AuthenticatedSettingsSessionsRoute: AuthenticatedSettingsSessionsRoute,
-  AuthenticatedSettingsTermsRoute: AuthenticatedSettingsTermsRoute,
-  AuthenticatedSettingsTwofaRoute: AuthenticatedSettingsTwofaRoute,
-  AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
-}
-
-const AuthenticatedSettingsRouteWithChildren =
-  AuthenticatedSettingsRoute._addFileChildren(
-    AuthenticatedSettingsRouteChildren,
-  )
-
-interface AuthenticatedVendorRouteChildren {
-  AuthenticatedVendorApplyRoute: typeof AuthenticatedVendorApplyRoute
-  AuthenticatedVendorPlansRoute: typeof AuthenticatedVendorPlansRoute
-  AuthenticatedVendorIndexRoute: typeof AuthenticatedVendorIndexRoute
-}
-
-const AuthenticatedVendorRouteChildren: AuthenticatedVendorRouteChildren = {
-  AuthenticatedVendorApplyRoute: AuthenticatedVendorApplyRoute,
-  AuthenticatedVendorPlansRoute: AuthenticatedVendorPlansRoute,
-  AuthenticatedVendorIndexRoute: AuthenticatedVendorIndexRoute,
-}
-
-const AuthenticatedVendorRouteWithChildren =
-  AuthenticatedVendorRoute._addFileChildren(AuthenticatedVendorRouteChildren)
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
@@ -3880,7 +3865,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMenuRoute: typeof AuthenticatedMenuRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
-  AuthenticatedOwnerRoute: typeof AuthenticatedOwnerRouteWithChildren
   AuthenticatedReferralsRoute: typeof AuthenticatedReferralsRoute
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
   AuthenticatedSavedRoute: typeof AuthenticatedSavedRoute
@@ -3917,6 +3901,9 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedJudgeMineRoute: typeof AuthenticatedJudgeMineRoute
   AuthenticatedMarketplaceDashboardRoute: typeof AuthenticatedMarketplaceDashboardRoute
   AuthenticatedMarketplaceNewRoute: typeof AuthenticatedMarketplaceNewRoute
+  AuthenticatedOwnerAnalyticsRoute: typeof AuthenticatedOwnerAnalyticsRoute
+  AuthenticatedOwnerCommandRoute: typeof AuthenticatedOwnerCommandRouteWithChildren
+  AuthenticatedOwnerFinanceRoute: typeof AuthenticatedOwnerFinanceRouteWithChildren
   AuthenticatedPostNewRoute: typeof AuthenticatedPostNewRoute
   AuthenticatedPostsMineRoute: typeof AuthenticatedPostsMineRoute
   AuthenticatedProfileEditRoute: typeof AuthenticatedProfileEditRoute
@@ -3924,6 +3911,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedBusinessIndexRoute: typeof AuthenticatedBusinessIndexRoute
   AuthenticatedDragIndexRoute: typeof AuthenticatedDragIndexRoute
+  AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
   AuthenticatedRidesIndexRoute: typeof AuthenticatedRidesIndexRoute
   AuthenticatedAtlasGroupIdRoute: typeof AuthenticatedAtlasGroupIdRoute
   AuthenticatedCheckoutOrderIdRoute: typeof AuthenticatedCheckoutOrderIdRoute
@@ -3946,7 +3934,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMenuRoute: AuthenticatedMenuRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
-  AuthenticatedOwnerRoute: AuthenticatedOwnerRouteWithChildren,
   AuthenticatedReferralsRoute: AuthenticatedReferralsRoute,
   AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
   AuthenticatedSavedRoute: AuthenticatedSavedRoute,
@@ -3984,6 +3971,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMarketplaceDashboardRoute:
     AuthenticatedMarketplaceDashboardRoute,
   AuthenticatedMarketplaceNewRoute: AuthenticatedMarketplaceNewRoute,
+  AuthenticatedOwnerAnalyticsRoute: AuthenticatedOwnerAnalyticsRoute,
+  AuthenticatedOwnerCommandRoute: AuthenticatedOwnerCommandRouteWithChildren,
+  AuthenticatedOwnerFinanceRoute: AuthenticatedOwnerFinanceRouteWithChildren,
   AuthenticatedPostNewRoute: AuthenticatedPostNewRoute,
   AuthenticatedPostsMineRoute: AuthenticatedPostsMineRoute,
   AuthenticatedProfileEditRoute: AuthenticatedProfileEditRoute,
@@ -3991,6 +3981,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedBusinessIndexRoute: AuthenticatedBusinessIndexRoute,
   AuthenticatedDragIndexRoute: AuthenticatedDragIndexRoute,
+  AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
   AuthenticatedRidesIndexRoute: AuthenticatedRidesIndexRoute,
   AuthenticatedAtlasGroupIdRoute: AuthenticatedAtlasGroupIdRoute,
   AuthenticatedCheckoutOrderIdRoute: AuthenticatedCheckoutOrderIdRoute,

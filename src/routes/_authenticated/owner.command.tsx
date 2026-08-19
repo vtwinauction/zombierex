@@ -1,8 +1,10 @@
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { ChevronDown, Menu, ShieldCheck, X } from "lucide-react";
 import { getMyClearance } from "@/lib/command.functions";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/owner/command")({
   head: () => ({
@@ -68,6 +70,7 @@ function CommandShell() {
     staleTime: 60_000,
   });
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate({ from: "/owner/command" });
   const [open, setOpen] = useState(false);
 
   if (q.isLoading) {
@@ -97,33 +100,40 @@ function CommandShell() {
   const groups = NAV.map((g) => ({ ...g, items: g.items.filter((i) => can(i.scope)) })).filter(
     (g) => g.items.length,
   );
+  const items = groups.flatMap((group) => group.items);
+  const activeItem =
+    items.find((item) => (item.exact ? path === item.to : path.startsWith(item.to))) ?? items[0];
 
   return (
     <div className="pb-28 lg:flex lg:min-h-svh lg:gap-0">
-      {/* Sidebar — rail on desktop, sheet on mobile */}
+      {/* Sidebar — fixed instrument rail on desktop, slide-over directory on mobile */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 overflow-y-auto p-4 transition-transform lg:sticky lg:top-0 lg:h-svh lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: "var(--color-paper-1, #fafafa)",
+          background: "var(--color-paper-1)",
           borderRight: "1px solid var(--color-hair)",
         }}
       >
         <div className="flex items-center justify-between">
-          <div>
-            <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
-              ◆ ZOMBIEREX
+          <div className="min-w-0">
+            <p className="mono-tag truncate" style={{ color: "var(--color-neon)" }}>
+              ◆ ZOMBIEREX · SITE B
             </p>
             <h1 className="text-lg font-semibold leading-tight">Mission Control</h1>
           </div>
-          <button className="btn-ghost text-xs lg:hidden" onClick={() => setOpen(false)}>
-            ✕
-          </button>
+          <Button variant="ghost" size="icon" className="min-h-11 min-w-11 lg:hidden" aria-label="Close navigation" onClick={() => setOpen(false)}>
+            <X className="size-4" />
+          </Button>
         </div>
-        <p className="mono-tag mt-2" style={{ color: "var(--color-silver)" }}>
-          {q.data.isOwner ? "SUPER ADMIN" : (q.data.label ?? "ADMIN")}
-        </p>
+        <div className="mt-3 flex items-center gap-2 border-y py-2" style={{ borderColor: "var(--color-hair)" }}>
+          <ShieldCheck className="size-4 shrink-0" style={{ color: "var(--color-neon)" }} />
+          <div className="min-w-0">
+            <p className="mono-tag truncate" style={{ color: "var(--color-silver)" }}>PARK CLEARANCE</p>
+            <p className="truncate text-xs font-semibold">{q.data.isOwner ? "SUPER ADMIN" : (q.data.label ?? "ADMIN")}</p>
+          </div>
+        </div>
 
         <nav className="mt-5 space-y-5">
           {groups.map((g) => (
@@ -139,13 +149,14 @@ function CommandShell() {
                       key={i.to}
                       to={i.to}
                       onClick={() => setOpen(false)}
-                      className="block rounded px-3 py-2 text-[13px]"
+                      className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2 rounded px-3 py-2.5 text-[13px]"
                       style={{
                         background: active ? "rgba(0,200,83,0.12)" : "transparent",
                         color: active ? "var(--color-neon)" : "var(--color-ink)",
                       }}
                     >
-                      {i.label}
+                      <span aria-hidden className="size-1.5 rounded-full" style={{ background: active ? "var(--color-neon)" : "var(--color-hair-strong)" }} />
+                      <span className="truncate">{i.label}</span>
                     </Link>
                   );
                 })}
@@ -170,18 +181,44 @@ function CommandShell() {
 
       <main className="min-w-0 flex-1">
         <header
-          className="sticky top-0 z-20 flex items-center gap-3 px-4 py-3 backdrop-blur lg:px-6"
+          className="sticky top-0 z-20 border-b backdrop-blur"
           style={{
-            borderBottom: "1px solid var(--color-hair)",
-            background: "color-mix(in srgb, var(--color-paper-1, #fafafa) 88%, transparent)",
+            borderColor: "var(--color-hair)",
+            background: "color-mix(in srgb, var(--color-paper-1) 90%, transparent)",
           }}
         >
-          <button className="btn-ghost text-xs lg:hidden" onClick={() => setOpen(true)}>
-            ☰
-          </button>
-          <Link to="/owner/command/search" className="mono-tag text-[11px] flex-1 truncate">
-            ⌕ SEARCH EVERYTHING — users, businesses, orders, invoices, campaigns
-          </Link>
+          <div aria-hidden className="h-0.5 bg-gradient-to-r from-primary via-accent to-transparent" />
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 lg:flex lg:px-6">
+            <div className="min-w-0 lg:hidden">
+              <p className="mono-tag truncate" style={{ color: "var(--color-neon)" }}>◆ PARK OPERATIONS · LIVE</p>
+              <p className="truncate text-base font-semibold">Mission Control</p>
+            </div>
+            <Button variant="ghost" size="icon" className="min-h-11 min-w-11 lg:hidden" aria-label="Open navigation" onClick={() => setOpen(true)}>
+              <Menu className="size-5" />
+            </Button>
+            <Link to="/owner/command/search" className="mono-tag hidden min-w-0 flex-1 truncate text-[11px] lg:block">
+              ⌕ SEARCH EVERYTHING — users, businesses, orders, invoices, campaigns
+            </Link>
+            <span className="mono-tag hidden shrink-0 items-center gap-2 text-[10px] lg:flex" style={{ color: "var(--color-neon)" }}>
+              <span className="size-1.5 rounded-full bg-primary" /> SYSTEMS NOMINAL
+            </span>
+          </div>
+
+          <div className="relative px-3 pb-3 lg:hidden">
+            <select
+              aria-label="Select Mission Control module"
+              value={activeItem?.to ?? "/owner/command"}
+              onChange={(event) => navigate({ to: event.target.value })}
+              className="mono-tag min-h-11 w-full appearance-none rounded-md border bg-background px-3 pr-10 text-xs font-semibold text-foreground"
+            >
+              {groups.map((group) => (
+                <optgroup key={group.group} label={group.group}>
+                  {group.items.map((item) => <option key={item.to} value={item.to}>{item.label}</option>)}
+                </optgroup>
+              ))}
+            </select>
+            <ChevronDown aria-hidden className="pointer-events-none absolute right-6 top-3.5 size-4 text-muted-foreground" />
+          </div>
         </header>
         <div className="px-4 py-5 lg:px-6">
           <Outlet />
