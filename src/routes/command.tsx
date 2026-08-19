@@ -136,16 +136,45 @@ function CommandAccess() {
             <span className="mono-tag" style={{ color: "var(--color-silver)" }}>
               ACCESS KEY
             </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password"
-              placeholder="••••••••"
-              className="mt-1 w-full rounded-lg px-3 py-2 text-sm"
-              style={{ background: "var(--color-paper-1)", border: "1px solid var(--color-hair)" }}
-            />
+            <div className="relative mt-1">
+              <input
+                type={showPw ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="w-full rounded-lg px-3 py-2 pr-16 text-sm"
+                style={{ background: "var(--color-paper-1)", border: "1px solid var(--color-hair)" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-[11px]"
+                style={{ color: "var(--color-silver)" }}
+              >
+                {showPw ? "HIDE" : "SHOW"}
+              </button>
+            </div>
           </label>
+
+          <button
+            type="button"
+            onClick={() => {
+              setErr(null);
+              setEmail(TEST_OPERATOR.email);
+              setPassword(TEST_OPERATOR.password);
+            }}
+            className="tap w-full px-3 py-2 text-[12px]"
+            style={{
+              background: "transparent",
+              border: "1px dashed var(--color-hair)",
+              borderRadius: 10,
+              color: "var(--color-silver)",
+            }}
+          >
+            Fill test operator credentials
+          </button>
+
 
           {err && (
             <p className="text-sm" style={{ color: "var(--color-heat, #c53030)" }}>
