@@ -149,8 +149,8 @@
     scrollbar-width: none;
   }
   ::selection {
-    background: var(--color-ink-0);
-    color: var(--color-paper-0);
+    background: var(--color-neon);
+    color: #04120a;
   }
 }
 
