@@ -174,23 +174,6 @@ function RootComponent() {
     pathname.startsWith("/reels/");
 
 
-  useEffect(() => {
-    let active = true;
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!active) return;
-      setHomeHasSession(!!data.session);
-      setHomeSessionResolved(true);
-    });
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!active) return;
-      setHomeHasSession(!!session);
-      setHomeSessionResolved(true);
-    });
-    return () => {
-      active = false;
-      data.subscription.unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     const onScroll = () => setIsTop(window.scrollY < 40);
