@@ -126,8 +126,39 @@ function OwnerConsole() {
         <TabBar tab={tab} onChange={setTab} />
       </div>
 
+      <div className="px-5 pt-4">
+        <p className="mono-tag mb-2" style={{ color: "#c07a12" }}>
+          ◆ MISSION CONTROL MODULES
+        </p>
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+          {[
+            { to: "/owner/command", label: "Overview" },
+            { to: "/owner/command/users", label: "Users" },
+            { to: "/owner/command/businesses", label: "Businesses" },
+            { to: "/owner/command/crm", label: "CRM" },
+            { to: "/owner/command/erp", label: "ERP · Inventory" },
+            { to: "/owner/command/finance", label: "Finance" },
+            { to: "/owner/command/ads", label: "Advertising" },
+            { to: "/owner/command/moderation", label: "Moderation" },
+            { to: "/owner/command/content", label: "CMS" },
+            { to: "/owner/command/system", label: "System" },
+            { to: "/owner/command/search", label: "Global search" },
+            { to: "/owner/finance", label: "Revenue ledger" },
+          ].map((m) => (
+            <Link
+              key={m.to}
+              to={m.to}
+              className="rounded-md border px-3 py-2 text-[12px] font-medium"
+              style={{ borderColor: "var(--color-hair-strong)" }}
+            >
+              {m.label}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <div className="p-5 pb-24">
+
         {tab === "overview" && <OverviewTab />}
         {tab === "flags" && <FlagsTab />}
         {tab === "maintenance" && <MaintenanceTab />}
