@@ -74,6 +74,7 @@ import { Route as AuthenticatedVendorIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings.index'
 import { Route as AuthenticatedRidesIndexRouteImport } from './routes/_authenticated/rides.index'
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
+import { Route as AuthenticatedGarageIndexRouteImport } from './routes/_authenticated/garage.index'
 import { Route as AuthenticatedDragIndexRouteImport } from './routes/_authenticated/drag.index'
 import { Route as AuthenticatedBusinessIndexRouteImport } from './routes/_authenticated/business.index'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads.index'
@@ -521,6 +522,12 @@ const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
   path: '/owner/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGarageIndexRoute =
+  AuthenticatedGarageIndexRouteImport.update({
+    id: '/garage/',
+    path: '/garage/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDragIndexRoute = AuthenticatedDragIndexRouteImport.update({
   id: '/drag/',
   path: '/drag/',
@@ -1341,6 +1348,7 @@ export interface FileRoutesByFullPath {
   '/ads/': typeof AuthenticatedAdsIndexRoute
   '/business/': typeof AuthenticatedBusinessIndexRoute
   '/drag/': typeof AuthenticatedDragIndexRoute
+  '/garage/': typeof AuthenticatedGarageIndexRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
   '/rides/': typeof AuthenticatedRidesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -1521,6 +1529,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AuthenticatedAdsIndexRoute
   '/business': typeof AuthenticatedBusinessIndexRoute
   '/drag': typeof AuthenticatedDragIndexRoute
+  '/garage': typeof AuthenticatedGarageIndexRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
   '/rides': typeof AuthenticatedRidesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
@@ -1708,6 +1717,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/business/': typeof AuthenticatedBusinessIndexRoute
   '/_authenticated/drag/': typeof AuthenticatedDragIndexRoute
+  '/_authenticated/garage/': typeof AuthenticatedGarageIndexRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
   '/_authenticated/rides/': typeof AuthenticatedRidesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -1895,6 +1905,7 @@ export interface FileRouteTypes {
     | '/ads/'
     | '/business/'
     | '/drag/'
+    | '/garage/'
     | '/owner/'
     | '/rides/'
     | '/settings/'
@@ -2075,6 +2086,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/business'
     | '/drag'
+    | '/garage'
     | '/owner'
     | '/rides'
     | '/settings'
@@ -2261,6 +2273,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/'
     | '/_authenticated/business/'
     | '/_authenticated/drag/'
+    | '/_authenticated/garage/'
     | '/_authenticated/owner/'
     | '/_authenticated/rides/'
     | '/_authenticated/settings/'
@@ -2830,6 +2843,13 @@ declare module '@tanstack/react-router' {
       path: '/owner'
       fullPath: '/owner/'
       preLoaderRoute: typeof AuthenticatedOwnerIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/garage/': {
+      id: '/_authenticated/garage/'
+      path: '/garage'
+      fullPath: '/garage/'
+      preLoaderRoute: typeof AuthenticatedGarageIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/drag/': {
@@ -3932,6 +3952,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedBusinessIndexRoute: typeof AuthenticatedBusinessIndexRoute
   AuthenticatedDragIndexRoute: typeof AuthenticatedDragIndexRoute
+  AuthenticatedGarageIndexRoute: typeof AuthenticatedGarageIndexRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
   AuthenticatedRidesIndexRoute: typeof AuthenticatedRidesIndexRoute
   AuthenticatedAtlasGroupIdRoute: typeof AuthenticatedAtlasGroupIdRoute
@@ -4002,6 +4023,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedBusinessIndexRoute: AuthenticatedBusinessIndexRoute,
   AuthenticatedDragIndexRoute: AuthenticatedDragIndexRoute,
+  AuthenticatedGarageIndexRoute: AuthenticatedGarageIndexRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
   AuthenticatedRidesIndexRoute: AuthenticatedRidesIndexRoute,
   AuthenticatedAtlasGroupIdRoute: AuthenticatedAtlasGroupIdRoute,
