@@ -13,6 +13,7 @@ import {
   type SplitContext,
   type TxnKind,
 } from "@/lib/commission";
+import { DEFAULT_CURRENCY } from "@/lib/money";
 
 type Admin = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
@@ -170,6 +171,29 @@ export async function settleTransaction(input: SettleInput) {
   return { transaction: txn, deduped: false as const };
 }
 
+/**
+ * Double-entry invariant: per currency, SUM(debits) must equal SUM(credits).
+ * An unbalanced row set that reaches the database is far more expensive to find
+ * later than a settlement that retried, so this throws before the insert.
+ */
+function assertBalanced(
+  rows: { direction: string; amount_cents: number; currency?: string | null }[],
+  label: string,
+) {
+  const byCurrency = new Map<string, number>();
+  for (const r of rows) {
+    const c = (r.currency ?? DEFAULT_CURRENCY).toUpperCase();
+    byCurrency.set(
+      c,
+      (byCurrency.get(c) ?? 0) + (r.direction === "debit" ? r.amount_cents : -r.amount_cents),
+    );
+  }
+  for (const [c, diff] of byCurrency) {
+    if (diff !== 0)
+      throw new Error(`[finance] unbalanced ${label} ledger for ${c}: debits-credits=${diff}`);
+  }
+}
+
 async function writeLedger(sb: Admin, txn: any) {
   const rows: any[] = [];
   const base = { transaction_id: txn.id, currency: txn.currency };
@@ -224,8 +248,11 @@ async function writeLedger(sb: Admin, txn: any) {
       memo: "Cash received (clearing)",
     });
   if (rows.length) {
+    assertBalanced(rows, "settlement");
     const { error } = await sb.from("ledger_entries").insert(rows);
-    if (error) console.error("[finance] ledger write failed", error);
+    // A settled transaction with no accounting record is worse than a retry:
+    // throw so the webhook returns non-2xx and reconcileSettlements re-runs it.
+    if (error) throw new Error(`[finance] ledger write failed: ${error.message}`);
   }
 }
 
@@ -353,7 +380,9 @@ export async function refundTransaction(input: RefundInput) {
       party_id: t.seller_id,
       memo: "Seller refund debit",
     });
-  await sb.from("ledger_entries").insert(ledger);
+  assertBalanced(ledger, "refund");
+  const { error: lErr } = await sb.from("ledger_entries").insert(ledger);
+  if (lErr) throw new Error(`[finance] refund ledger write failed: ${lErr.message}`);
 
   // Only flip the order once it is fully refunded — a partial refund must
   // leave the order in its fulfilled state.
