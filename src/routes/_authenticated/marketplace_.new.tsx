@@ -106,6 +106,7 @@ function NewListing() {
       if (!form.title || form.title.length < 3) throw new Error("Title too short");
       if (!form.price_cents && form.price_cents !== 0) throw new Error("Price required");
       const payload: any = {
+        vehicle_id: vehicleId ?? null,
         title: form.title.trim(),
         description: form.description || null,
         category: form.category,
