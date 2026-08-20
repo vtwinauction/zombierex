@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { siteConfig } from "@/config/site";
+import { setMarketingMode } from "@/lib/marketing-mode";
 
 /**
  * Dark, premium chrome for every public marketing page.
