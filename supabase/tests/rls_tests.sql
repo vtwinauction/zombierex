@@ -36,7 +36,7 @@ BEGIN
   BEGIN
     EXECUTE _sql;
     RAISE EXCEPTION 'FAIL [%]: expected RLS/permission error but statement succeeded', _label;
-  EXCEPTION WHEN insufficient_privilege OR check_violation OR others THEN
+  EXCEPTION WHEN insufficient_privilege OR check_violation OR raise_exception THEN
     RAISE NOTICE 'OK   [%]: blocked as expected (%).', _label, SQLERRM;
   END;
 END $$;

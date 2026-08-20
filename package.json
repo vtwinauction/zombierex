@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "test": "vitest run",
     "test:smoke": "playwright test",
     "test:smoke:install": "playwright install --with-deps chromium",
     "cap:sync": "vite build && cap sync",
