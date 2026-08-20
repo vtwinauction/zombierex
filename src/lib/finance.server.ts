@@ -334,9 +334,6 @@ export async function refundTransaction(input: RefundInput) {
       memo: input.reason ?? "Refund paid out",
     },
   ];
-  if (amount - commissionBack - (amount - commissionBack) !== 0) {
-    /* unreachable guard kept for clarity */
-  }
   if (commissionBack > 0)
     ledger.push({
       transaction_id: t.id,
@@ -388,10 +385,6 @@ export async function refundTransaction(input: RefundInput) {
   return { refunded_cents: amount, commission_returned_cents: commissionBack };
 }
 
-function currencyOf(sfs: any): string {
-  return sfs?.currency ?? "USD";
-}
-
 /** Seller balance = credited net minus debits minus already-paid payouts. */
 export async function getSellerBalance(sellerId: string) {
   const sb = await admin();
@@ -421,6 +414,7 @@ export async function runPayoutBatch() {
   const sb = await admin();
   const cfg = await loadPaymentConfig(sb);
   const globalMin = cfg.withdrawals?.min_cents ?? 2500;
+  const payoutCurrency: string = cfg.default_currency ?? cfg.currency?.default ?? "USD";
 
   const { data: sellers } = await sb
     .from("ledger_entries")
@@ -469,7 +463,7 @@ export async function runPayoutBatch() {
       kind: "system",
       payload: {
         title: "Payout scheduled",
-        body: `A payout of ${formatMoney(balance, currencyOf(sfs))} has been scheduled.`,
+        body: `A payout of ${formatMoney(balance, payoutCurrency)} has been scheduled.`,
       },
     });
 
