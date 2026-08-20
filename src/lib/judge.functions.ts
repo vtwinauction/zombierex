@@ -201,6 +201,7 @@ export const judgeMyEntries = createServerFn({ method: "GET" })
 
 const CreateEntrySchema = z.object({
   event_slug: z.string().min(1),
+  vehicle_id: z.string().uuid().optional().nullable(),
   display_name: z.string().min(2).max(80),
   vehicle_type: z.enum(["motorcycle", "car"]),
   make: z.string().max(40).optional().nullable(),
@@ -234,10 +235,24 @@ export const judgeCreateEntry = createServerFn({ method: "POST" })
       .maybeSingle();
     if (existing) return { id: existing.id, status: existing.status };
 
+    // Only link a garage vehicle the caller owns.
+    let vehicleId: string | null = data.vehicle_id ?? null;
+    if (vehicleId) {
+      const { data: owned } = await context.supabase
+        .from("vehicles")
+        .select("id")
+        .eq("id", vehicleId)
+        .eq("owner_id", context.userId)
+        .is("deleted_at", null)
+        .maybeSingle();
+      if (!owned) vehicleId = null;
+    }
+
     const { data: inserted, error } = await context.supabase
       .from("judge_entries")
       .insert({
         event_id: evt.id,
+        vehicle_id: vehicleId,
         user_id: context.userId,
         display_name: data.display_name,
         vehicle_type: data.vehicle_type,
