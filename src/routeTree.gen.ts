@@ -74,6 +74,7 @@ import { Route as AuthenticatedVendorIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings.index'
 import { Route as AuthenticatedRidesIndexRouteImport } from './routes/_authenticated/rides.index'
 import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authenticated/owner.index'
+import { Route as AuthenticatedGarageIndexRouteImport } from './routes/_authenticated/garage.index'
 import { Route as AuthenticatedDragIndexRouteImport } from './routes/_authenticated/drag.index'
 import { Route as AuthenticatedBusinessIndexRouteImport } from './routes/_authenticated/business.index'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads.index'
@@ -117,6 +118,8 @@ import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authentic
 import { Route as AuthenticatedMarketplaceNewRouteImport } from './routes/_authenticated/marketplace_.new'
 import { Route as AuthenticatedMarketplaceDashboardRouteImport } from './routes/_authenticated/marketplace_.dashboard'
 import { Route as AuthenticatedJudgeMineRouteImport } from './routes/_authenticated/judge.mine'
+import { Route as AuthenticatedGarageNewRouteImport } from './routes/_authenticated/garage.new'
+import { Route as AuthenticatedGarageIdRouteImport } from './routes/_authenticated/garage.$id'
 import { Route as AuthenticatedEventsNewRouteImport } from './routes/_authenticated/events.new'
 import { Route as AuthenticatedEventsMeRouteImport } from './routes/_authenticated/events.me'
 import { Route as AuthenticatedEventsIdRouteImport } from './routes/_authenticated/events.$id'
@@ -521,6 +524,12 @@ const AuthenticatedOwnerIndexRoute = AuthenticatedOwnerIndexRouteImport.update({
   path: '/owner/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGarageIndexRoute =
+  AuthenticatedGarageIndexRouteImport.update({
+    id: '/garage/',
+    path: '/garage/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDragIndexRoute = AuthenticatedDragIndexRouteImport.update({
   id: '/drag/',
   path: '/drag/',
@@ -765,6 +774,16 @@ const AuthenticatedMarketplaceDashboardRoute =
 const AuthenticatedJudgeMineRoute = AuthenticatedJudgeMineRouteImport.update({
   id: '/judge/mine',
   path: '/judge/mine',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGarageNewRoute = AuthenticatedGarageNewRouteImport.update({
+  id: '/garage/new',
+  path: '/garage/new',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGarageIdRoute = AuthenticatedGarageIdRouteImport.update({
+  id: '/garage/$id',
+  path: '/garage/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEventsNewRoute = AuthenticatedEventsNewRouteImport.update({
@@ -1298,6 +1317,8 @@ export interface FileRoutesByFullPath {
   '/events/$id': typeof AuthenticatedEventsIdRoute
   '/events/me': typeof AuthenticatedEventsMeRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
+  '/garage/$id': typeof AuthenticatedGarageIdRoute
+  '/garage/new': typeof AuthenticatedGarageNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
@@ -1341,6 +1362,7 @@ export interface FileRoutesByFullPath {
   '/ads/': typeof AuthenticatedAdsIndexRoute
   '/business/': typeof AuthenticatedBusinessIndexRoute
   '/drag/': typeof AuthenticatedDragIndexRoute
+  '/garage/': typeof AuthenticatedGarageIndexRoute
   '/owner/': typeof AuthenticatedOwnerIndexRoute
   '/rides/': typeof AuthenticatedRidesIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -1480,6 +1502,8 @@ export interface FileRoutesByTo {
   '/events/$id': typeof AuthenticatedEventsIdRoute
   '/events/me': typeof AuthenticatedEventsMeRoute
   '/events/new': typeof AuthenticatedEventsNewRoute
+  '/garage/$id': typeof AuthenticatedGarageIdRoute
+  '/garage/new': typeof AuthenticatedGarageNewRoute
   '/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/marketplace/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
   '/marketplace/new': typeof AuthenticatedMarketplaceNewRoute
@@ -1521,6 +1545,7 @@ export interface FileRoutesByTo {
   '/ads': typeof AuthenticatedAdsIndexRoute
   '/business': typeof AuthenticatedBusinessIndexRoute
   '/drag': typeof AuthenticatedDragIndexRoute
+  '/garage': typeof AuthenticatedGarageIndexRoute
   '/owner': typeof AuthenticatedOwnerIndexRoute
   '/rides': typeof AuthenticatedRidesIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
@@ -1665,6 +1690,8 @@ export interface FileRoutesById {
   '/_authenticated/events/$id': typeof AuthenticatedEventsIdRoute
   '/_authenticated/events/me': typeof AuthenticatedEventsMeRoute
   '/_authenticated/events/new': typeof AuthenticatedEventsNewRoute
+  '/_authenticated/garage/$id': typeof AuthenticatedGarageIdRoute
+  '/_authenticated/garage/new': typeof AuthenticatedGarageNewRoute
   '/_authenticated/judge/mine': typeof AuthenticatedJudgeMineRoute
   '/_authenticated/marketplace_/dashboard': typeof AuthenticatedMarketplaceDashboardRoute
   '/_authenticated/marketplace_/new': typeof AuthenticatedMarketplaceNewRoute
@@ -1708,6 +1735,7 @@ export interface FileRoutesById {
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
   '/_authenticated/business/': typeof AuthenticatedBusinessIndexRoute
   '/_authenticated/drag/': typeof AuthenticatedDragIndexRoute
+  '/_authenticated/garage/': typeof AuthenticatedGarageIndexRoute
   '/_authenticated/owner/': typeof AuthenticatedOwnerIndexRoute
   '/_authenticated/rides/': typeof AuthenticatedRidesIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -1852,6 +1880,8 @@ export interface FileRouteTypes {
     | '/events/$id'
     | '/events/me'
     | '/events/new'
+    | '/garage/$id'
+    | '/garage/new'
     | '/judge/mine'
     | '/marketplace/dashboard'
     | '/marketplace/new'
@@ -1895,6 +1925,7 @@ export interface FileRouteTypes {
     | '/ads/'
     | '/business/'
     | '/drag/'
+    | '/garage/'
     | '/owner/'
     | '/rides/'
     | '/settings/'
@@ -2034,6 +2065,8 @@ export interface FileRouteTypes {
     | '/events/$id'
     | '/events/me'
     | '/events/new'
+    | '/garage/$id'
+    | '/garage/new'
     | '/judge/mine'
     | '/marketplace/dashboard'
     | '/marketplace/new'
@@ -2075,6 +2108,7 @@ export interface FileRouteTypes {
     | '/ads'
     | '/business'
     | '/drag'
+    | '/garage'
     | '/owner'
     | '/rides'
     | '/settings'
@@ -2218,6 +2252,8 @@ export interface FileRouteTypes {
     | '/_authenticated/events/$id'
     | '/_authenticated/events/me'
     | '/_authenticated/events/new'
+    | '/_authenticated/garage/$id'
+    | '/_authenticated/garage/new'
     | '/_authenticated/judge/mine'
     | '/_authenticated/marketplace_/dashboard'
     | '/_authenticated/marketplace_/new'
@@ -2261,6 +2297,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ads/'
     | '/_authenticated/business/'
     | '/_authenticated/drag/'
+    | '/_authenticated/garage/'
     | '/_authenticated/owner/'
     | '/_authenticated/rides/'
     | '/_authenticated/settings/'
@@ -2832,6 +2869,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOwnerIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/garage/': {
+      id: '/_authenticated/garage/'
+      path: '/garage'
+      fullPath: '/garage/'
+      preLoaderRoute: typeof AuthenticatedGarageIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/drag/': {
       id: '/_authenticated/drag/'
       path: '/drag'
@@ -3131,6 +3175,20 @@ declare module '@tanstack/react-router' {
       path: '/judge/mine'
       fullPath: '/judge/mine'
       preLoaderRoute: typeof AuthenticatedJudgeMineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/garage/new': {
+      id: '/_authenticated/garage/new'
+      path: '/garage/new'
+      fullPath: '/garage/new'
+      preLoaderRoute: typeof AuthenticatedGarageNewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/garage/$id': {
+      id: '/_authenticated/garage/$id'
+      path: '/garage/$id'
+      fullPath: '/garage/$id'
+      preLoaderRoute: typeof AuthenticatedGarageIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/events/new': {
@@ -3919,6 +3977,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEventsIdRoute: typeof AuthenticatedEventsIdRoute
   AuthenticatedEventsMeRoute: typeof AuthenticatedEventsMeRoute
   AuthenticatedEventsNewRoute: typeof AuthenticatedEventsNewRoute
+  AuthenticatedGarageIdRoute: typeof AuthenticatedGarageIdRoute
+  AuthenticatedGarageNewRoute: typeof AuthenticatedGarageNewRoute
   AuthenticatedJudgeMineRoute: typeof AuthenticatedJudgeMineRoute
   AuthenticatedMarketplaceDashboardRoute: typeof AuthenticatedMarketplaceDashboardRoute
   AuthenticatedMarketplaceNewRoute: typeof AuthenticatedMarketplaceNewRoute
@@ -3932,6 +3992,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
   AuthenticatedBusinessIndexRoute: typeof AuthenticatedBusinessIndexRoute
   AuthenticatedDragIndexRoute: typeof AuthenticatedDragIndexRoute
+  AuthenticatedGarageIndexRoute: typeof AuthenticatedGarageIndexRoute
   AuthenticatedOwnerIndexRoute: typeof AuthenticatedOwnerIndexRoute
   AuthenticatedRidesIndexRoute: typeof AuthenticatedRidesIndexRoute
   AuthenticatedAtlasGroupIdRoute: typeof AuthenticatedAtlasGroupIdRoute
@@ -3988,6 +4049,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEventsIdRoute: AuthenticatedEventsIdRoute,
   AuthenticatedEventsMeRoute: AuthenticatedEventsMeRoute,
   AuthenticatedEventsNewRoute: AuthenticatedEventsNewRoute,
+  AuthenticatedGarageIdRoute: AuthenticatedGarageIdRoute,
+  AuthenticatedGarageNewRoute: AuthenticatedGarageNewRoute,
   AuthenticatedJudgeMineRoute: AuthenticatedJudgeMineRoute,
   AuthenticatedMarketplaceDashboardRoute:
     AuthenticatedMarketplaceDashboardRoute,
@@ -4002,6 +4065,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
   AuthenticatedBusinessIndexRoute: AuthenticatedBusinessIndexRoute,
   AuthenticatedDragIndexRoute: AuthenticatedDragIndexRoute,
+  AuthenticatedGarageIndexRoute: AuthenticatedGarageIndexRoute,
   AuthenticatedOwnerIndexRoute: AuthenticatedOwnerIndexRoute,
   AuthenticatedRidesIndexRoute: AuthenticatedRidesIndexRoute,
   AuthenticatedAtlasGroupIdRoute: AuthenticatedAtlasGroupIdRoute,
