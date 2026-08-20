@@ -876,7 +876,7 @@ function HomePage() {
             {gridReels.map((r) => (
               <Link
                 key={r.id}
-                to="/"
+                to="/reels"
                 className="tap relative block overflow-hidden"
                 style={{ aspectRatio: "9/16", borderRadius: 8 }}
               >
@@ -897,19 +897,16 @@ function HomePage() {
                     <span className="mono-num text-[10px]">{fmt(r.likes)}</span>
                   </div>
                 </div>
-                <span
-                  className="absolute right-1.5 top-1.5 mono-tag"
-                  style={{
-                    background: "rgba(0,0,0,0.55)",
-                    color: "white",
-                    padding: "1px 4px",
-                    fontSize: 8,
-                  }}
-                >
-                  ▶ {r.duration}s
-                </span>
               </Link>
             ))}
+            {gridReels.length === 0 && (
+              <p
+                className="col-span-3 py-6 text-center text-[12px]"
+                style={{ color: "var(--color-ink-3)" }}
+              >
+                No reels yet — be the first to post one.
+              </p>
+            )}
           </div>
         </section>
 
