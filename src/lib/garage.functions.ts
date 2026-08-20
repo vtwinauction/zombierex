@@ -230,3 +230,51 @@ export const listVehicleJudgeEntries = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+/** Fleet-wide maintenance intelligence across every vehicle the rider owns. */
+export const getFleetHealth = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { computeVehicleHealth } = await import("@/lib/vehicle-health");
+
+    const { data: vehicles, error } = await context.supabase
+      .from("vehicles")
+      .select("id, make, model, year, nickname, odometer_km")
+      .eq("owner_id", context.userId)
+      .is("deleted_at", null);
+    if (error) throw new Error(error.message);
+    if (!vehicles?.length) return { vehicles: [], averageScore: null, overdueCount: 0, dueSoonCount: 0 };
+
+    const { data: records } = await context.supabase
+      .from("vehicle_service_records")
+      .select("id, vehicle_id, title, service_date, due_date, status, odometer_km, due_odometer_km")
+      .in(
+        "vehicle_id",
+        vehicles.map((v) => v.id),
+      );
+
+    let overdueCount = 0;
+    let dueSoonCount = 0;
+    const rows = vehicles.map((v) => {
+      const health = computeVehicleHealth(
+        (records ?? []).filter((r) => r.vehicle_id === v.id),
+        v.odometer_km == null ? null : Number(v.odometer_km),
+      );
+      overdueCount += health.items.filter((i) => i.severity === "overdue").length;
+      dueSoonCount += health.items.filter((i) => i.severity === "due-soon").length;
+      return {
+        id: v.id,
+        label: v.nickname || [v.year, v.make, v.model].filter(Boolean).join(" "),
+        score: health.score,
+        grade: health.grade,
+        nextItem:
+          health.items.find((i) => i.severity === "overdue") ??
+          health.items.find((i) => i.severity === "due-soon") ??
+          health.items[0] ??
+          null,
+      };
+    });
+
+    const averageScore = Math.round(rows.reduce((s, r) => s + r.score, 0) / rows.length);
+    return { vehicles: rows, averageScore, overdueCount, dueSoonCount };
+  });
