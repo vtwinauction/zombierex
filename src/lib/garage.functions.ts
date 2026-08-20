@@ -214,3 +214,19 @@ export const listVehicleMods = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+export const listVehicleJudgeEntries = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((raw: unknown) => VehicleIdInput.parse(raw))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("judge_entries")
+      .select(
+        "id, display_name, status, overall_score, awards, created_at, judge_events(slug, title, status)",
+      )
+      .eq("vehicle_id", data.vehicleId)
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
