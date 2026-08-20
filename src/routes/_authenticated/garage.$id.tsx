@@ -123,7 +123,10 @@ function VehiclePage() {
         <VehicleRides vehicleId={id} odometerKm={Number((vehicle as any).odometer_km ?? 0)} />
       )}
 
+      {isOwner && <VehicleJudge vehicleId={id} />}
+
       <TaggedPosts vehicleId={id} />
+
 
       {isOwner && (
         <ServiceSection vehicleId={id} records={service} onChanged={invalidate} />
