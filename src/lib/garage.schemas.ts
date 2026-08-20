@@ -64,6 +64,7 @@ export const ServiceInput = z.object({
   currency: z.string().trim().length(3).default("BHD"),
   service_date: z.string().trim().max(10),
   due_date: z.string().trim().max(10).nullable().optional(),
+  due_odometer_km: z.number().int().min(0).max(5_000_000).nullable().optional(),
   status: z.enum(["done", "upcoming"]).default("done"),
 });
 
