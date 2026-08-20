@@ -6915,6 +6915,7 @@ export type Database = {
           created_at: string
           currency: string
           due_date: string | null
+          due_odometer_km: number | null
           id: string
           notes: string | null
           odometer_km: number | null
@@ -6931,6 +6932,7 @@ export type Database = {
           created_at?: string
           currency?: string
           due_date?: string | null
+          due_odometer_km?: number | null
           id?: string
           notes?: string | null
           odometer_km?: number | null
@@ -6947,6 +6949,7 @@ export type Database = {
           created_at?: string
           currency?: string
           due_date?: string | null
+          due_odometer_km?: number | null
           id?: string
           notes?: string | null
           odometer_km?: number | null
