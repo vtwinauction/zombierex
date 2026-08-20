@@ -677,14 +677,29 @@ function HomePage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {suggestedClubs.map((c) => (
+            {(crews.data ?? []).map((c: any) => (
               <div
                 key={c.id}
                 className="overflow-hidden"
                 style={{ borderRadius: 12, border: "1px solid var(--color-hair)" }}
               >
-                <div className="relative h-20">
-                  <img src={c.cover} alt="" className="h-full w-full object-cover" />
+                <Link
+                  to="/communities/$slug"
+                  params={{ slug: c.slug }}
+                  className="relative block h-20"
+                >
+                  {c.cover_url || c.banner_url ? (
+                    <img
+                      src={c.cover_url || c.banner_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="h-full w-full"
+                      style={{ background: "var(--color-graphite)" }}
+                    />
+                  )}
                   <div
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(180deg, transparent, rgba(8,9,11,0.7))" }}
@@ -692,7 +707,7 @@ function HomePage() {
                   <span className="absolute left-2 bottom-1.5 text-[12px] font-bold text-white">
                     {c.name}
                   </span>
-                </div>
+                </Link>
                 <div
                   className="flex items-center justify-between px-2.5 py-2"
                   style={{ background: "var(--color-graphite)" }}
@@ -701,21 +716,32 @@ function HomePage() {
                     className="mono-tag"
                     style={{ color: "var(--color-titanium)", fontSize: 9 }}
                   >
-                    {c.tag} · {c.members.toLocaleString()} ops
+                    {c.category ?? "crew"} · {(c.members_count ?? 0).toLocaleString()} ops
                   </span>
                   <button
+                    onClick={() => joinCrew(c.id)}
+                    disabled={joiningCrew === c.id}
                     className="tap rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider"
                     style={{
                       background: "var(--color-neon)",
                       color: "var(--color-obsidian)",
                       letterSpacing: "0.14em",
+                      opacity: joiningCrew === c.id ? 0.6 : 1,
                     }}
                   >
-                    Join
+                    {joiningCrew === c.id ? "…" : "Join"}
                   </button>
                 </div>
               </div>
             ))}
+            {!crews.isLoading && (crews.data ?? []).length === 0 && (
+              <p
+                className="col-span-2 py-4 text-center text-[12px]"
+                style={{ color: "var(--color-ink-3)" }}
+              >
+                No crews yet.
+              </p>
+            )}
           </div>
         </section>
 
