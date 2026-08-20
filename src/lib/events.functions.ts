@@ -54,6 +54,8 @@ export const createEvent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => EventInput.parse(raw))
   .handler(async ({ data, context }) => {
+    const { assertModuleEnabled } = await import("./feature-gate.server");
+    await assertModuleEnabled("events", "Events");
     const payload = {
       ...data,
       contact_email: data.contact_email === "" ? null : data.contact_email,

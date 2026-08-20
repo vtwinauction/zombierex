@@ -166,6 +166,8 @@ export const sendMessage = createServerFn({ method: "POST" })
   )
 
   .handler(async ({ data, context }) => {
+    const { assertModuleEnabled } = await import("./feature-gate.server");
+    await assertModuleEnabled("messaging", "Messaging");
     const { error: rlErr } = await context.supabase.rpc("check_rate_limit", {
       _bucket: "messages",
       _max_hits: 30,
