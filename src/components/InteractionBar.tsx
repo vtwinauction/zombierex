@@ -198,7 +198,35 @@ export function InteractionBar({
             </button>
           );
         })}
+
+        {typeof counts.views === "number" && (
+          <div
+            className="relative flex h-12 min-w-0 flex-col items-center justify-center gap-1"
+            aria-label={`${counts.views} views`}
+          >
+            <span className="relative flex h-[30px] w-[30px] items-center justify-center">
+              <EngagementGauge value={counts.views} size={30} />
+              <span
+                className="relative"
+                style={{
+                  color: "var(--color-neon)",
+                  lineHeight: 0,
+                  filter: "drop-shadow(0 0 3px rgba(0,200,83,0.42))",
+                }}
+              >
+                <EyeIcon size={17} />
+              </span>
+            </span>
+            <span
+              className="mono-num max-w-full truncate text-[10px] tabular-nums leading-none"
+              style={{ color: "var(--color-neon)", fontWeight: 700 }}
+            >
+              {fmt(counts.views)}
+            </span>
+          </div>
+        )}
       </div>
+
 
       {/* ── Sync status rail ── */}
       {status && (
