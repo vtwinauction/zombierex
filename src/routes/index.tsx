@@ -277,8 +277,19 @@ function HomePage() {
     await Promise.all([
       qc.invalidateQueries({ queryKey: ["feed", "live"] }),
       qc.invalidateQueries({ queryKey: ["ads", "feed"] }),
+      qc.invalidateQueries({ queryKey: ["home", "conversations"] }),
     ]);
   };
+
+  async function joinCrew(clubId: string) {
+    setJoiningCrew(clubId);
+    try {
+      await joinCrewFn({ data: { club_id: clubId } });
+      await qc.invalidateQueries({ queryKey: ["home", "crews"] });
+    } finally {
+      setJoiningCrew(null);
+    }
+  }
 
   return (
     <PullToRefresh onRefresh={onRefresh}>
