@@ -12,6 +12,7 @@ import {
 import { MOD_CATEGORIES } from "@/lib/garage.schemas";
 import { confirmDialog } from "@/lib/confirm";
 import { VehicleIntelligence } from "@/components/VehicleIntelligence";
+import { listVehicleRides } from "@/lib/rides.functions";
 import { listVehiclePosts } from "@/lib/garage-public.functions";
 
 export const Route = createFileRoute("/_authenticated/garage/$id")({
@@ -108,12 +109,67 @@ function VehiclePage() {
 
       {isOwner && <VehicleIntelligence vehicleId={id} />}
 
+      {isOwner && (
+        <VehicleRides vehicleId={id} odometerKm={Number((vehicle as any).odometer_km ?? 0)} />
+      )}
+
       <TaggedPosts vehicleId={id} />
 
       {isOwner && (
         <ServiceSection vehicleId={id} records={service} onChanged={invalidate} />
       )}
     </div>
+  );
+}
+
+function VehicleRides({ vehicleId, odometerKm }: { vehicleId: string; odometerKm: number }) {
+  const fetchRides = useServerFn(listVehicleRides);
+  const q = useQuery({
+    queryKey: ["garage", "vehicle-rides", vehicleId],
+    queryFn: () => fetchRides({ data: { vehicleId } }),
+    retry: false,
+  });
+  const rides = q.data ?? [];
+
+  return (
+    <section className="mt-8 px-4">
+      <h2 className="mono-tag text-[11px]" style={{ color: "var(--color-ink-1)" }}>
+        ODOMETER · RIDE LOG
+      </h2>
+      <div
+        className="mt-3 border p-4"
+        style={{ borderColor: "var(--color-hair)", background: "var(--color-paper-2)" }}
+      >
+        <p className="mono-num text-3xl font-black" style={{ color: "var(--color-ink-0)" }}>
+          {odometerKm.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+          <span className="mono-tag ml-1 text-[10px]" style={{ color: "var(--color-ink-3)" }}>
+            KM TRACKED
+          </span>
+        </p>
+        <p className="mono-tag mt-1 text-[10px]" style={{ color: "var(--color-ink-3)" }}>
+          {rides.length ? `${rides.length} LOGGED RIDE${rides.length === 1 ? "" : "S"}` : "NO RIDES LINKED YET"}
+        </p>
+      </div>
+      {rides.length > 0 && (
+        <ul className="mt-2 divide-y" style={{ borderColor: "var(--color-hair)" }}>
+          {rides.map((r: any) => (
+            <li key={r.id} className="py-2">
+              <Link
+                to="/rides/$id"
+                params={{ id: r.id }}
+                className="flex items-center justify-between text-[13px]"
+                style={{ color: "var(--color-ink-1)" }}
+              >
+                <span>{r.title || new Date(r.started_at).toLocaleDateString()}</span>
+                <span className="mono-num text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                  {(r.distance_m / 1000).toFixed(1)} KM
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

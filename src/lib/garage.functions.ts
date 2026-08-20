@@ -20,7 +20,9 @@ export const listMyVehicles = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("vehicles")
-      .select("id, kind, make, model, year, nickname, spec, hero_image_url, is_primary, created_at")
+      .select(
+        "id, kind, make, model, year, nickname, spec, hero_image_url, is_primary, odometer_km, created_at",
+      )
       .eq("owner_id", context.userId)
       .is("deleted_at", null)
       .order("is_primary", { ascending: false })
@@ -37,7 +39,7 @@ export const getVehicle = createServerFn({ method: "GET" })
       context.supabase
         .from("vehicles")
         .select(
-          "id, owner_id, kind, make, model, year, nickname, spec, hero_image_url, is_primary, created_at",
+          "id, owner_id, kind, make, model, year, nickname, spec, hero_image_url, is_primary, odometer_km, created_at",
         )
         .eq("id", data.id)
         .is("deleted_at", null)

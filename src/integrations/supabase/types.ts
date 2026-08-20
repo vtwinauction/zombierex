@@ -5501,6 +5501,7 @@ export type Database = {
           title: string | null
           updated_at: string
           user_id: string
+          vehicle_id: string | null
           visibility: string
         }
         Insert: {
@@ -5520,6 +5521,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id: string
+          vehicle_id?: string | null
           visibility?: string
         }
         Update: {
@@ -5539,9 +5541,18 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id?: string
+          vehicle_id?: string | null
           visibility?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rides_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       route_comments: {
         Row: {
@@ -6968,6 +6979,7 @@ export type Database = {
           make: string
           model: string
           nickname: string | null
+          odometer_km: number
           owner_id: string
           spec: Json
           updated_at: string
@@ -6983,6 +6995,7 @@ export type Database = {
           make: string
           model: string
           nickname?: string | null
+          odometer_km?: number
           owner_id: string
           spec?: Json
           updated_at?: string
@@ -6998,6 +7011,7 @@ export type Database = {
           make?: string
           model?: string
           nickname?: string | null
+          odometer_km?: number
           owner_id?: string
           spec?: Json
           updated_at?: string
