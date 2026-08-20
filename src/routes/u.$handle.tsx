@@ -1,11 +1,12 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { follow, unfollow, getProfileByHandlePublic } from "@/lib/feed.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { RichCaption } from "@/components/RichCaption";
 import { haptic } from "@/lib/native";
+import { listPublicGarage } from "@/lib/garage-public.functions";
 
 const profileQO = (handle: string) =>
   queryOptions({
@@ -290,5 +291,57 @@ function FollowActions({ profileId, handle }: { profileId: string; handle: strin
         MESSAGE
       </button>
     </div>
+  );
+}
+
+/** Rider's public Digital Garage — vehicles and their logged modifications. */
+function PublicGarage({ ownerId, handle }: { ownerId: string; handle: string }) {
+  const { data } = useQuery({
+    queryKey: ["public-garage", ownerId],
+    queryFn: () => listPublicGarage({ data: { ownerId } }),
+    staleTime: 60_000,
+  });
+
+  if (!data?.length) return null;
+
+  return (
+    <section className="mt-8">
+      <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+        GARAGE · {data.length}
+      </p>
+      <ul className="mt-3 flex gap-3 overflow-x-auto pb-1">
+        {data.map((v) => (
+          <li key={v.id} className="w-56 shrink-0 overflow-hidden hairline card-surface">
+            <div className="aspect-[16/9] w-full" style={{ background: "var(--color-mist)" }}>
+              {v.hero_image_url && (
+                <img
+                  src={v.hero_image_url}
+                  alt={`${v.make} ${v.model} owned by @${handle}`}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
+              )}
+            </div>
+            <div className="p-3">
+              <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+                {String(v.kind).toUpperCase()}
+                {v.year ? ` · ${v.year}` : ""}
+              </p>
+              <p className="mt-1 truncate text-[14px] font-semibold">
+                {v.nickname || `${v.make} ${v.model}`}
+              </p>
+              {v.mods.length > 0 && (
+                <p className="mt-1 line-clamp-2 text-[12px]" style={{ color: "var(--color-ash)" }}>
+                  {v.mods.map((m) => m.title).join(" · ")}
+                </p>
+              )}
+              <p className="mono-tag mt-2" style={{ color: "var(--color-ash)" }}>
+                {v.mods.length} MOD{v.mods.length === 1 ? "" : "S"}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
