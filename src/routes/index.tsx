@@ -156,10 +156,41 @@ function HomePage() {
     authorId?: string;
     handle?: string;
   }>(null);
-  const featured = reels[1];
-  const gridReels = [reels[0], reels[2], reels[3]];
-  const suggestedCreators = users.slice(0, 6);
-  const suggestedClubs = clubs.slice(0, 4);
+  const [joiningCrew, setJoiningCrew] = useState<string | null>(null);
+  const fetchConversations = useServerFn(listConversations);
+  const conversations = useQuery({
+    queryKey: ["home", "conversations"],
+    queryFn: () => fetchConversations(),
+    staleTime: 60_000,
+  });
+  const fetchCreators = useServerFn(listCreators);
+  const creators = useQuery({
+    queryKey: ["home", "creators"],
+    queryFn: () => fetchCreators({ data: { scope: "trending", limit: 6 } }),
+    staleTime: 5 * 60_000,
+  });
+  const suggestedCreators = (creators.data ?? []).map((c: any) => ({
+    id: c.user_id,
+    name: c.profiles?.display_name || c.profiles?.handle || "Rider",
+    handle: c.profiles?.handle || "rider",
+    avatar: c.profiles?.avatar_url || "",
+    location: c.profiles?.location || "",
+    verified: !!c.is_verified,
+    tier: (c.profiles?.tier as any) ?? "NITRO",
+  }));
+  const fetchCrews = useServerFn(discoverCommunities);
+  const crews = useQuery({
+    queryKey: ["home", "crews"],
+    queryFn: () => fetchCrews({ data: { sort: "trending", limit: 4 } }),
+    staleTime: 5 * 60_000,
+  });
+  const fetchTags = useServerFn(listTrendingHashtags);
+  const tags = useQuery({
+    queryKey: ["home", "tags"],
+    queryFn: () => fetchTags({ data: { limit: 6 } }),
+    staleTime: 5 * 60_000,
+  });
+  const joinCrewFn = useServerFn(joinCommunity);
   const listAds = useServerFn(listSponsoredCreatives);
   const sponsored = useQuery({
     queryKey: ["ads", "feed"],
