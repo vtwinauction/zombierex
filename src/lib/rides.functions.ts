@@ -119,3 +119,18 @@ export const deleteRide = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const listVehicleRides = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((d) => z.object({ vehicleId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase
+      .from("rides")
+      .select("id, title, distance_m, duration_s, avg_speed_kmh, started_at")
+      .eq("user_id", context.userId)
+      .eq("vehicle_id", data.vehicleId)
+      .order("started_at", { ascending: false })
+      .limit(20);
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
