@@ -81,12 +81,20 @@ export function InteractionBar({
   void isDark;
   const dividerColor = "transparent";
 
+  const commentTotal = counts.comments + commentDelta;
   const values: Record<ActionKey, string> = {
     like: fmt(likes),
-    comment: fmt(counts.comments + commentDelta),
+    comment: fmt(commentTotal),
     share: fmt(shares),
     save: saved ? "SAVED" : "SAVE",
   };
+  const gaugeValues: Record<ActionKey, number> = {
+    like: likes,
+    comment: commentTotal,
+    share: shares,
+    save: saved ? 5_000 : 0,
+  };
+
 
   const queuedCount = pending.length;
   const status = getStatus({ online, hasFailed, isSyncing, queuedCount });
