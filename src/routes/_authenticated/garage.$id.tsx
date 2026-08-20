@@ -186,6 +186,49 @@ function VehicleRides({ vehicleId, odometerKm }: { vehicleId: string; odometerKm
   );
 }
 
+function VehicleJudge({ vehicleId }: { vehicleId: string }) {
+  const fetchEntries = useServerFn(listVehicleJudgeEntries);
+  const q = useQuery({
+    queryKey: ["garage", "vehicle-judge", vehicleId],
+    queryFn: () => fetchEntries({ data: { vehicleId } }),
+    retry: false,
+  });
+  const entries = q.data ?? [];
+  if (!entries.length) return null;
+
+  return (
+    <section className="mt-8 px-4">
+      <h2 className="mono-tag text-[11px]" style={{ color: "var(--color-ink-1)" }}>
+        AI JUDGE · {entries.length}
+      </h2>
+      <ul className="mt-3 space-y-2">
+        {entries.map((e: any) => (
+          <li key={e.id}>
+            <Link
+              to="/judge/entries/$id"
+              params={{ id: e.id }}
+              className="flex items-center justify-between border p-3"
+              style={{ borderColor: "var(--color-hair)", background: "var(--color-paper-2)" }}
+            >
+              <span className="min-w-0">
+                <span className="block truncate text-[13px]" style={{ color: "var(--color-ink-0)" }}>
+                  {e.display_name}
+                </span>
+                <span className="mono-tag text-[10px]" style={{ color: "var(--color-ink-3)" }}>
+                  {(e.judge_events?.title ?? "EVENT").toUpperCase()} · {String(e.status).toUpperCase()}
+                </span>
+              </span>
+              <span className="mono-num text-xl font-black" style={{ color: "var(--color-ink-0)" }}>
+                {e.overall_score != null ? Number(e.overall_score).toFixed(1) : "—"}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function TaggedPosts({ vehicleId }: { vehicleId: string }) {
   const fetchPosts = useServerFn(listVehiclePosts);
   const q = useQuery({
