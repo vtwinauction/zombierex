@@ -98,6 +98,16 @@ function VehiclePage() {
             {vehicle.make} {vehicle.model}
           </p>
         )}
+        {isOwner && (
+          <Link
+            to="/marketplace/new"
+            search={{ vehicle: id }}
+            className="tap mono-tag mt-3 inline-block rounded-lg px-3 py-2 text-[10px]"
+            style={{ background: "var(--color-ink-0)", color: "var(--color-paper-0)" }}
+          >
+            LIST FOR SALE →
+          </Link>
+        )}
       </header>
 
       <ModsSection
