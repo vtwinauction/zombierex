@@ -12,6 +12,7 @@ import {
 import { MOD_CATEGORIES } from "@/lib/garage.schemas";
 import { confirmDialog } from "@/lib/confirm";
 import { VehicleIntelligence } from "@/components/VehicleIntelligence";
+import { listVehiclePosts } from "@/lib/garage-public.functions";
 
 export const Route = createFileRoute("/_authenticated/garage/$id")({
   head: () => ({
@@ -107,10 +108,51 @@ function VehiclePage() {
 
       {isOwner && <VehicleIntelligence vehicleId={id} />}
 
+      <TaggedPosts vehicleId={id} />
+
       {isOwner && (
         <ServiceSection vehicleId={id} records={service} onChanged={invalidate} />
       )}
     </div>
+  );
+}
+
+function TaggedPosts({ vehicleId }: { vehicleId: string }) {
+  const fetchPosts = useServerFn(listVehiclePosts);
+  const q = useQuery({
+    queryKey: ["garage", "vehicle-posts", vehicleId],
+    queryFn: () => fetchPosts({ data: { vehicleId } }),
+    retry: false,
+  });
+  const posts = q.data ?? [];
+  if (!posts.length) return null;
+
+  return (
+    <section className="mt-8 px-4">
+      <h2 className="mono-tag text-[11px]" style={{ color: "var(--color-ink-1)" }}>
+        TAGGED POSTS · {posts.length}
+      </h2>
+      <div className="mt-3 grid grid-cols-3 gap-1">
+        {posts.map((p) => (
+          <Link
+            key={p.id}
+            to="/p/$id"
+            params={{ id: p.id }}
+            className="aspect-square overflow-hidden rounded"
+            style={{ background: "var(--color-paper-2)" }}
+          >
+            {(p.thumbnail_url || p.media_url) && (
+              <img
+                src={p.thumbnail_url || p.media_url!}
+                alt={p.caption?.slice(0, 80) ?? "Tagged post"}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            )}
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
