@@ -19,6 +19,7 @@ import {
   updateListing,
   deleteListing,
 } from "@/lib/marketplace.functions";
+import { getListingProvenance } from "@/lib/garage-public.functions";
 import { startDirectMessage } from "@/lib/messages.functions";
 import { addToCart } from "@/lib/cart.functions";
 import { confirmDialog } from "@/lib/confirm";
@@ -360,6 +361,9 @@ function ListingDetail() {
           </div>
         )}
 
+        {/* Garage provenance */}
+        <GarageProvenance listingId={l.id} />
+
         {/* Seller */}
         {l.seller && (
           <Link
@@ -542,6 +546,53 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
         {children}
       </span>
       <div className="h-px flex-1" style={{ background: "var(--color-hair)" }} />
+    </div>
+  );
+}
+
+function GarageProvenance({ listingId }: { listingId: string }) {
+  const fetchProvenance = useServerFn(getListingProvenance);
+  const { data } = useQuery({
+    queryKey: ["listing", listingId, "provenance"],
+    queryFn: () => fetchProvenance({ data: { listingId } }),
+    staleTime: 60_000,
+  });
+  if (!data?.vehicle) return null;
+  const v: any = data.vehicle;
+  const mods: any[] = data.mods ?? [];
+  return (
+    <div className="space-y-3">
+      <SectionLabel>GARAGE HISTORY</SectionLabel>
+      <div className="border p-4 space-y-3" style={{ borderColor: "var(--color-hair-strong)" }}>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-bold truncate" style={{ color: "var(--color-ink)" }}>
+            {v.nickname || [v.year, v.make, v.model].filter(Boolean).join(" ")}
+          </p>
+          <span className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+            {v.odometer_km ? `${Math.round(Number(v.odometer_km)).toLocaleString()} KM` : "NO ODO"}
+          </span>
+        </div>
+        <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
+          TRACKED IN OWNER&apos;S DIGITAL GARAGE · {mods.length} LOGGED MOD
+          {mods.length === 1 ? "" : "S"}
+        </p>
+        {mods.length > 0 && (
+          <ul className="space-y-1.5">
+            {mods.slice(0, 8).map((m) => (
+              <li
+                key={m.id}
+                className="flex items-center justify-between gap-3 text-[13px]"
+                style={{ color: "color-mix(in oklab, var(--color-ink) 80%, transparent)" }}
+              >
+                <span className="truncate">{m.title}</span>
+                <span className="mono-tag shrink-0" style={{ color: "var(--color-titanium)" }}>
+                  {String(m.category ?? "").toUpperCase()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
