@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getListing } from "@/lib/marketplace.functions";
+import { getEscrowPolicy } from "@/lib/payments.functions";
 import { formatMoney } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/checkout/order/$id")({
@@ -14,6 +15,12 @@ function Checkout() {
   const { id } = Route.useParams();
   const get = useServerFn(getListing);
   const { data: l } = useQuery({ queryKey: ["listing", id], queryFn: () => get({ data: { id } }) });
+  const policyFn = useServerFn(getEscrowPolicy);
+  const { data: policy } = useQuery({
+    queryKey: ["escrow-policy"],
+    queryFn: () => policyFn({ data: undefined as any }),
+  });
+  const holdDays = policy?.hold_days ?? 0;
 
   if (!l) return <div className="p-6 mono-tag">LOADING…</div>;
   const price = (l as any).price_cents ?? 0;
@@ -65,8 +72,10 @@ function Checkout() {
           PAY WITH STRIPE ▸ (ENABLING…)
         </button>
         <p className="mt-3 text-xs text-center" style={{ color: "var(--color-titanium)" }}>
-          Online payments are not enabled yet. Once live, this button will process your purchase.
-          Payment is released to the seller after delivery.
+          Online payments are not enabled yet. Once live, this button will process your purchase.{" "}
+          {holdDays > 0
+            ? `Your payment is held for ${holdDays} days and released to the seller if no dispute is opened.`
+            : "Payment is passed to the seller when the order completes. Arrange delivery and returns directly with the seller."}
         </p>
 
         <Link

@@ -140,3 +140,23 @@ export const confirmMockPayment = createServerFn({ method: "POST" })
     }
     return { ok: true, status: data.outcome };
   });
+
+/**
+ * Buyer-protection policy, read from `payment_config.escrow`.
+ *
+ * Checkout copy is driven by this so the promise can never outrun the
+ * mechanism: at hold_days = 0 funds pass straight to the seller, and the
+ * protection wording only appears once a hold actually exists.
+ */
+export const getEscrowPolicy = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("payment_config")
+    .select("value")
+    .eq("key", "escrow")
+    .maybeSingle();
+  const v = ((data as { value: Record<string, unknown> } | null)?.value ?? {}) as {
+    hold_days?: number;
+  };
+  return { hold_days: Number(v.hold_days ?? 0) || 0 };
+});
