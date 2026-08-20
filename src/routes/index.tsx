@@ -107,14 +107,13 @@ function RootEntry() {
   return authed ? <HomePage /> : <Landing />;
 }
 
-const TRENDING_TAGS = [
-  { tag: "#nightride", posts: "48.2K" },
-  { tag: "#widebody", posts: "31.6K" },
-  { tag: "#trackday", posts: "22.9K" },
-  { tag: "#wrenchlife", posts: "18.4K" },
-  { tag: "#jdm", posts: "72.1K" },
-  { tag: "#turbolife", posts: "14.8K" },
-];
+function timeAgoShort(iso: string) {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return "now";
+  if (s < 3600) return `${Math.floor(s / 60)}m`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h`;
+  return `${Math.floor(s / 86400)}d`;
+}
 
 const QUICK_ACTIONS = [
   { to: "/atlas" as const, label: "Atlas", icon: Map },
