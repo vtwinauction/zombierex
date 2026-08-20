@@ -158,6 +158,7 @@ function RootComponent() {
   const [isTop, setIsTop] = useState(true);
   const [shellReady, setShellReady] = useState(false);
   const pathname = router.state.location.pathname;
+  const marketingMounted = useMarketingMode();
   // Public marketing surfaces are known from the URL only. The signed-in
   // check is intentionally deferred to the index route (RootEntry) so the root
   // shell renders identically on the server and the first client paint — no
