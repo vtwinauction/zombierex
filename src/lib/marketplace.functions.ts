@@ -114,6 +114,8 @@ export const createListing = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw) => ListingInput.parse(raw))
   .handler(async ({ data, context }) => {
+    const { assertModuleEnabled } = await import("./feature-gate.server");
+    await assertModuleEnabled("marketplace", "The Vault");
     const { photos, ...row } = data;
     const insert: any = {
       ...row,

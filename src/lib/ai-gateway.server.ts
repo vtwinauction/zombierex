@@ -25,6 +25,9 @@ export async function aiComplete(
   messages: ChatMessage[],
   opts: GenerateOptions = {},
 ): Promise<string> {
+  const { assertModuleEnabled } = await import("./feature-gate.server");
+  await assertModuleEnabled("ai", "REX AI");
+
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
