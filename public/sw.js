@@ -69,31 +69,21 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Never cache server functions, auth endpoints, or webhooks
+  // Never touch server functions, auth endpoints, webhooks or API payloads.
   if (
     url.pathname.startsWith("/_serverFn") ||
-    url.pathname.startsWith("/auth/") ||
-    url.pathname.startsWith("/api/public/hooks/") ||
-    // Never cache authenticated HTML — it must not survive on a shared device.
-    url.pathname.startsWith("/_authenticated")
+    url.pathname.startsWith("/auth") ||
+    url.pathname.startsWith("/reset-password") ||
+    isPrivateAsset(url)
   ) {
     return;
   }
 
-  // HTML navigation → network-first, fall back to cached shell
+  // HTML navigation → network-only. Rendered HTML can contain the signed-in
+  // user's data, so it is never persisted; offline falls back to the generic
+  // app shell cached at install time.
   if (req.mode === "navigate") {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches
-            .open(SHELL_CACHE)
-            .then((c) => c.put(req, copy))
-            .catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || caches.match("/"))),
-    );
+    event.respondWith(fetch(req).catch(() => caches.match("/")));
     return;
   }
 
@@ -119,27 +109,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Safe GET API responses → stale-while-revalidate
-  if (shouldCacheApi(url)) {
-    event.respondWith(
-      caches.open(API_CACHE).then(async (cache) => {
-        const cached = await cache.match(req);
-        const network = fetch(req)
-          .then((res) => {
-            if (res.ok) {
-              cache
-                .put(req, res.clone())
-                .then(() => trimCache(API_CACHE, MAX_API))
-                .catch(() => {});
-            }
-            return res;
-          })
-          .catch(() => cached);
-        return cached || network;
-      }),
-    );
-    return;
-  }
 
   // Static assets → cache-first
   event.respondWith(
