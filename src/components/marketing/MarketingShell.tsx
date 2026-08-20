@@ -22,6 +22,13 @@ export function MarketingShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
 
+  // Tell the app shell a public marketing page is mounted so it hides the
+  // member chrome (bottom nav, status bar, banners, tour, maintenance gate).
+  useEffect(() => {
+    setMarketingMode(true);
+    return () => setMarketingMode(false);
+  }, []);
+
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
     onScroll();
