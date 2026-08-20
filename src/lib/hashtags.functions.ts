@@ -25,6 +25,24 @@ function serverPublic() {
 const POST_COLS =
   "id, kind, caption, media_url, thumbnail_url, likes_count, comments_count, views_count, created_at";
 
+/** Public: real trending hashtags straight from the hashtags table. */
+export const listTrendingHashtags = createServerFn({ method: "GET" })
+  .validator((raw) =>
+    z
+      .object({ limit: z.number().int().min(1).max(24).default(6) })
+      .parse(raw ?? {}),
+  )
+  .handler(async ({ data }) => {
+    const sb = serverPublic();
+    const { data: rows, error } = await sb
+      .from("hashtags")
+      .select("tag, usage_count")
+      .order("usage_count", { ascending: false })
+      .limit(data.limit);
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
 export const getHashtagFeed = createServerFn({ method: "GET" })
   .validator((raw) =>
     z

@@ -15,7 +15,10 @@ import {
   Gauge,
 } from "lucide-react";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
-import { reels, posts, chats, users, clubs } from "@/lib/mock-data";
+import { listConversations } from "@/lib/messages.functions";
+import { listCreators } from "@/lib/creator.functions";
+import { discoverCommunities, joinCommunity } from "@/lib/communities.functions";
+import { listTrendingHashtags } from "@/lib/hashtags.functions";
 import { StoriesRail } from "@/components/StoriesRail";
 import { useFollow } from "@/hooks/useFollow";
 import { SponsoredCard } from "@/components/SponsoredCard";
@@ -104,14 +107,13 @@ function RootEntry() {
   return authed ? <HomePage /> : <Landing />;
 }
 
-const TRENDING_TAGS = [
-  { tag: "#nightride", posts: "48.2K" },
-  { tag: "#widebody", posts: "31.6K" },
-  { tag: "#trackday", posts: "22.9K" },
-  { tag: "#wrenchlife", posts: "18.4K" },
-  { tag: "#jdm", posts: "72.1K" },
-  { tag: "#turbolife", posts: "14.8K" },
-];
+function timeAgoShort(iso: string) {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return "now";
+  if (s < 3600) return `${Math.floor(s / 60)}m`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h`;
+  return `${Math.floor(s / 86400)}d`;
+}
 
 const QUICK_ACTIONS = [
   { to: "/atlas" as const, label: "Atlas", icon: Map },
@@ -153,10 +155,41 @@ function HomePage() {
     authorId?: string;
     handle?: string;
   }>(null);
-  const featured = reels[1];
-  const gridReels = [reels[0], reels[2], reels[3]];
-  const suggestedCreators = users.slice(0, 6);
-  const suggestedClubs = clubs.slice(0, 4);
+  const [joiningCrew, setJoiningCrew] = useState<string | null>(null);
+  const fetchConversations = useServerFn(listConversations);
+  const conversations = useQuery({
+    queryKey: ["home", "conversations"],
+    queryFn: () => fetchConversations(),
+    staleTime: 60_000,
+  });
+  const fetchCreators = useServerFn(listCreators);
+  const creators = useQuery({
+    queryKey: ["home", "creators"],
+    queryFn: () => fetchCreators({ data: { scope: "trending", limit: 6 } }),
+    staleTime: 5 * 60_000,
+  });
+  const suggestedCreators = (creators.data ?? []).map((c: any) => ({
+    id: c.user_id,
+    name: c.profiles?.display_name || c.profiles?.handle || "Rider",
+    handle: c.profiles?.handle || "rider",
+    avatar: c.profiles?.avatar_url || "",
+    location: c.profiles?.location || "",
+    verified: !!c.is_verified,
+    tier: (c.profiles?.tier as any) ?? "NITRO",
+  }));
+  const fetchCrews = useServerFn(discoverCommunities);
+  const crews = useQuery({
+    queryKey: ["home", "crews"],
+    queryFn: () => fetchCrews({ data: { sort: "trending", limit: 4 } }),
+    staleTime: 5 * 60_000,
+  });
+  const fetchTags = useServerFn(listTrendingHashtags);
+  const tags = useQuery({
+    queryKey: ["home", "tags"],
+    queryFn: () => fetchTags({ data: { limit: 6 } }),
+    staleTime: 5 * 60_000,
+  });
+  const joinCrewFn = useServerFn(joinCommunity);
   const listAds = useServerFn(listSponsoredCreatives);
   const sponsored = useQuery({
     queryKey: ["ads", "feed"],
@@ -211,6 +244,16 @@ function HomePage() {
   const feedPosts = realPosts;
   const feedIsEmpty = !liveFeed.isLoading && realPosts.length === 0;
 
+  // Reels are real video posts from the same authenticated feed.
+  const videoPosts = realPosts.filter((p: any) => p.video || p.poster);
+  const featured = videoPosts[0] ?? null;
+  const gridReels = videoPosts.slice(1, 4).map((p: any) => ({
+    id: p.id,
+    poster: p.poster || p.image,
+    likes: p.likes,
+  }));
+
+
   // IntersectionObserver sentinel — auto-load next page as user scrolls.
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -233,8 +276,19 @@ function HomePage() {
     await Promise.all([
       qc.invalidateQueries({ queryKey: ["feed", "live"] }),
       qc.invalidateQueries({ queryKey: ["ads", "feed"] }),
+      qc.invalidateQueries({ queryKey: ["home", "conversations"] }),
     ]);
   };
+
+  async function joinCrew(clubId: string) {
+    setJoiningCrew(clubId);
+    try {
+      await joinCrewFn({ data: { club_id: clubId } });
+      await qc.invalidateQueries({ queryKey: ["home", "crews"] });
+    } finally {
+      setJoiningCrew(null);
+    }
+  }
 
   return (
     <PullToRefresh onRefresh={onRefresh}>
@@ -337,109 +391,100 @@ function HomePage() {
         {/* ==================================================
          FEATURED REEL — TikTok DNA · tap → /reels
          ================================================== */}
-        <section className="mt-4 px-4">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
-              ● Trending · Reels
-            </p>
-            <Link to="/reels" className="mono-tag" style={{ color: "var(--color-silver)" }}>
-              Open reels →
-            </Link>
-          </div>
-          <Link
-            to="/reels"
-            className="relative block overflow-hidden"
-            style={{ aspectRatio: "9/14", borderRadius: 18, border: "1px solid var(--color-hair)" }}
-          >
-            {featured.poster ? (
-              <img src={featured.poster} alt="" className="ken-burns h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
-            )}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)",
-              }}
-            />
-
-            {/* top row — user + follow */}
-            <div className="absolute inset-x-3 top-3 flex items-center gap-2">
-              <img
-                src={featured.user.avatar}
-                alt=""
-                className="h-8 w-8 rounded-full object-cover"
-                style={{ boxShadow: "0 0 0 1.5px var(--color-neon)" }}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-[13px] font-semibold text-white">
-                  {featured.user.handle} <RiderMark tier="APEX_REX" />
-                </p>
-                <p className="mono-tag" style={{ color: "rgba(255,255,255,0.7)" }}>
-                  ◎ {featured.location}
-                </p>
-              </div>
-              <FollowButton id={featured.user.id} label={featured.user.handle} variant="ember" />
-            </div>
-
-            {/* TikTok-style right action rail */}
-            <div className="absolute bottom-20 right-3 flex flex-col items-center gap-4 text-white">
-              <RailBtn
-                Icon={IconClaw}
-                count={fmt(featured.likes)}
-                active
-                tint="var(--color-ember)"
-              />
-              <RailBtn Icon={IconVisor} count={fmt(featured.comments)} />
-              <RailBtn Icon={IconBoneMark} count="Save" />
-              <RailBtn Icon={IconMechClaw} count={fmt(featured.shares)} />
-              <div
-                className="mt-1 h-9 w-9 overflow-hidden rounded-full border-2 border-white"
-                style={{ animation: "ken-burns 18s linear infinite" }}
-              >
-                <img src={featured.user.avatar} alt="" className="h-full w-full object-cover" />
-              </div>
-            </div>
-
-            {/* caption + music ticker */}
-            <div className="absolute inset-x-3 bottom-3 pr-16 text-white">
-              <p className="text-[13px] leading-snug">{featured.caption}</p>
-              <p className="mt-1.5 text-[11px]" style={{ color: "rgba(255,255,255,0.75)" }}>
-                {featured.hashtags.slice(0, 3).join(" ")}
+        {featured && (
+          <section className="mt-4 px-4">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="mono-tag" style={{ color: "var(--color-neon-deep)" }}>
+                ● Trending · Reels
               </p>
-              <div className="mt-2.5 flex items-center gap-2 overflow-hidden">
-                <span
-                  className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px]"
-                  style={{
-                    background: "rgba(255,255,255,0.15)",
-                    border: "1px solid rgba(255,255,255,0.25)",
-                  }}
-                >
-                  ♫
-                </span>
-                <div className="min-w-0 flex-1 overflow-hidden">
-                  <p
-                    className="marquee whitespace-nowrap text-[11px]"
-                    style={{ color: "rgba(255,255,255,0.9)" }}
-                  >
-                    {featured.music.title} — {featured.music.artist} · original sound ·{" "}
-                    {featured.views} views · &nbsp;
-                    {featured.music.title} — {featured.music.artist} ·&nbsp;
-                  </p>
-                </div>
-              </div>
+              <Link to="/reels" className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                Open reels →
+              </Link>
             </div>
-
-            {/* play indicator */}
-            <span
-              className="absolute left-3 top-14 mono-tag"
-              style={{ color: "rgba(255,255,255,0.75)" }}
+            <Link
+              to="/reels"
+              className="relative block overflow-hidden"
+              style={{
+                aspectRatio: "9/14",
+                borderRadius: 18,
+                border: "1px solid var(--color-hair)",
+              }}
             >
-              ▶ Autoplay · {featured.duration}s
-            </span>
-          </Link>
-        </section>
+              {featured.poster ? (
+                <img
+                  src={featured.poster}
+                  alt={featured.caption || "Featured reel"}
+                  className="ken-burns h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
+              )}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)",
+                }}
+              />
+
+              {/* top row — user + follow */}
+              <div className="absolute inset-x-3 top-3 flex items-center gap-2">
+                {featured.user.avatar ? (
+                  <img
+                    src={featured.user.avatar}
+                    alt=""
+                    className="h-8 w-8 rounded-full object-cover"
+                    style={{ boxShadow: "0 0 0 1.5px var(--color-neon)" }}
+                  />
+                ) : (
+                  <div
+                    className="h-8 w-8 rounded-full"
+                    style={{
+                      background: "var(--color-hair)",
+                      boxShadow: "0 0 0 1.5px var(--color-neon)",
+                    }}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1.5 text-[13px] font-semibold text-white">
+                    {featured.user.handle}
+                    {featured.user.verified && <RiderMark tier="APEX_REX" />}
+                  </p>
+                  {featured.user.location && (
+                    <p className="mono-tag" style={{ color: "rgba(255,255,255,0.7)" }}>
+                      ◎ {featured.user.location}
+                    </p>
+                  )}
+                </div>
+                {featured.authorId && (
+                  <FollowButton
+                    id={featured.authorId}
+                    label={featured.user.handle}
+                    variant="ember"
+                  />
+                )}
+              </div>
+
+              {/* right action rail */}
+              <div className="absolute bottom-20 right-3 flex flex-col items-center gap-4 text-white">
+                <RailBtn
+                  Icon={IconClaw}
+                  count={fmt(featured.likes)}
+                  active
+                  tint="var(--color-ember)"
+                />
+                <RailBtn Icon={IconVisor} count={fmt(featured.comments)} />
+                <RailBtn Icon={IconBoneMark} count="Save" />
+                <RailBtn Icon={IconMechClaw} count="Share" />
+              </div>
+
+              {/* caption */}
+              <div className="absolute inset-x-3 bottom-3 pr-16 text-white">
+                <p className="text-[13px] leading-snug">{featured.caption}</p>
+              </div>
+            </Link>
+          </section>
+        )}
 
         {/* ==================================================
          QUICK CHATS — Snap-style horizontal chat strip
@@ -462,68 +507,78 @@ function HomePage() {
             </Link>
           </div>
           <div className="no-scrollbar flex gap-2 overflow-x-auto px-4">
-            {chats.map((c) => (
-              <Link key={c.id} to="/messages" className="tap shrink-0" style={{ width: 168 }}>
-                <div
-                  className="flex flex-col items-start gap-2 p-3"
-                  style={{
-                    background:
-                      c.unread > 0
-                        ? "linear-gradient(160deg, rgba(198,255,61,0.10), rgba(255,91,58,0.06))"
-                        : "var(--color-graphite)",
-                    border: `1px solid ${c.unread > 0 ? "rgba(198,255,61,0.35)" : "var(--color-hair)"}`,
-                    borderRadius: 14,
-                  }}
-                >
-                  <div className="flex w-full items-center gap-2">
-                    <div className="relative">
-                      <img
-                        src={c.user.avatar}
-                        alt=""
-                        className="h-9 w-9 rounded-full object-cover"
-                      />
-                      {c.online && (
-                        <span
-                          className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full"
-                          style={{
-                            background: "var(--color-neon)",
-                            boxShadow: "0 0 0 2px var(--color-graphite)",
-                          }}
+            {(conversations.data ?? []).slice(0, 8).map((c: any) => {
+              const other = c.others?.[0];
+              const name = c.title || other?.display_name || other?.handle || "Conversation";
+              const when = c.lastMessageAt ? timeAgoShort(c.lastMessageAt) : "";
+              return (
+                <Link key={c.id} to="/messages" className="tap shrink-0" style={{ width: 168 }}>
+                  <div
+                    className="flex flex-col items-start gap-2 p-3"
+                    style={{
+                      background:
+                        c.unread > 0
+                          ? "linear-gradient(160deg, rgba(198,255,61,0.10), rgba(255,91,58,0.06))"
+                          : "var(--color-graphite)",
+                      border: `1px solid ${c.unread > 0 ? "rgba(198,255,61,0.35)" : "var(--color-hair)"}`,
+                      borderRadius: 14,
+                    }}
+                  >
+                    <div className="flex w-full items-center gap-2">
+                      {other?.avatar_url ? (
+                        <img
+                          src={other.avatar_url}
+                          alt=""
+                          className="h-9 w-9 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="h-9 w-9 rounded-full"
+                          style={{ background: "var(--color-hair)" }}
                         />
                       )}
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className="truncate text-[12px] font-semibold"
+                          style={{ color: "var(--color-ink)" }}
+                        >
+                          {name}
+                        </p>
+                        <p
+                          className="mono-tag"
+                          style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
+                        >
+                          {when}
+                        </p>
+                      </div>
+                      {c.unread > 0 && (
+                        <span
+                          className="grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold"
+                          style={{ background: "var(--color-ember)", color: "white" }}
+                        >
+                          {c.unread}
+                        </span>
+                      )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className="truncate text-[12px] font-semibold"
-                        style={{ color: "var(--color-ink)" }}
-                      >
-                        {c.user.name}
-                      </p>
-                      <p
-                        className="mono-tag"
-                        style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
-                      >
-                        {c.timeAgo}
-                      </p>
-                    </div>
-                    {c.unread > 0 && (
-                      <span
-                        className="grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold"
-                        style={{ background: "var(--color-ember)", color: "white" }}
-                      >
-                        {c.unread}
-                      </span>
-                    )}
+                    <p
+                      className="line-clamp-2 text-[11.5px] leading-snug"
+                      style={{ color: "var(--color-silver)" }}
+                    >
+                      {c.lastMessage?.body ?? "No messages yet"}
+                    </p>
                   </div>
-                  <p
-                    className="line-clamp-2 text-[11.5px] leading-snug"
-                    style={{ color: "var(--color-silver)" }}
-                  >
-                    {c.lastMessage}
-                  </p>
-                </div>
+                </Link>
+              );
+            })}
+            {!conversations.isLoading && (conversations.data ?? []).length === 0 && (
+              <Link
+                to="/messages"
+                className="tap shrink-0 p-3 text-[12px]"
+                style={{ color: "var(--color-ink-3)" }}
+              >
+                No conversations yet — start one →
               </Link>
-            ))}
+            )}
           </div>
         </section>
 
@@ -548,66 +603,75 @@ function HomePage() {
             </Link>
           </div>
           <div className="no-scrollbar flex gap-3 overflow-x-auto px-4 pb-1">
-            {suggestedCreators.map((u, i) => {
-              const tiers = [
-                "APEX_REX",
-                "LEGEND",
-                "ELITE",
-                "TURBO",
-                "MASTER_BUILDER",
-                "NITRO",
-              ] as const;
-              const tier = tiers[i % tiers.length];
-              return (
-                <div
-                  key={u.id}
-                  className="shrink-0 overflow-hidden"
-                  style={{
-                    width: 158,
-                    borderRadius: 14,
-                    border: "1px solid var(--color-hair)",
-                    background: "var(--color-graphite)",
-                  }}
-                >
-                  <div className="relative h-20">
+            {suggestedCreators.map((u: any) => (
+              <div
+                key={u.id}
+                className="shrink-0 overflow-hidden"
+                style={{
+                  width: 158,
+                  borderRadius: 14,
+                  border: "1px solid var(--color-hair)",
+                  background: "var(--color-graphite)",
+                }}
+              >
+                <div className="relative h-20">
+                  {u.avatar ? (
                     <img
                       src={u.avatar}
                       alt=""
                       className="h-full w-full object-cover"
                       style={{ filter: "brightness(0.55) saturate(1.1)" }}
                     />
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background: "linear-gradient(180deg, transparent, rgba(8,9,11,0.85))",
-                      }}
-                    />
-                  </div>
-                  <div className="-mt-8 px-3 pb-3">
+                  ) : (
+                    <div className="h-full w-full" style={{ background: "var(--color-hair)" }} />
+                  )}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: "linear-gradient(180deg, transparent, rgba(8,9,11,0.85))",
+                    }}
+                  />
+                </div>
+                <div className="-mt-8 px-3 pb-3">
+                  {u.avatar ? (
                     <img
                       src={u.avatar}
                       alt=""
                       className="h-12 w-12 rounded-full object-cover"
                       style={{ boxShadow: "0 0 0 2px var(--color-graphite)" }}
                     />
-                    <p
-                      className="mt-1.5 flex items-center gap-1 truncate text-[12.5px] font-semibold"
-                      style={{ color: "var(--color-ink)" }}
-                    >
-                      {u.name}
-                      {u.verified && <RiderMark tier={tier} />}
-                    </p>
-                    <p
-                      className="mono-tag truncate"
-                      style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
-                    >
-                      {u.handle} · ◎ {u.location}
-                    </p>
-                    <FollowButton id={u.id} label={u.handle} variant="neon" fullWidth />
-                  </div>
+                  ) : (
+                    <div
+                      className="h-12 w-12 rounded-full"
+                      style={{
+                        background: "var(--color-hair)",
+                        boxShadow: "0 0 0 2px var(--color-graphite)",
+                      }}
+                    />
+                  )}
+                  <p
+                    className="mt-1.5 flex items-center gap-1 truncate text-[12.5px] font-semibold"
+                    style={{ color: "var(--color-ink)" }}
+                  >
+                    {u.name}
+                    {u.verified && <RiderMark tier={u.tier} />}
+                  </p>
+                  <p
+                    className="mono-tag truncate"
+                    style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
+                  >
+                    @{u.handle}
+                    {u.location ? ` · ◎ ${u.location}` : ""}
+                  </p>
+                  <FollowButton id={u.id} label={u.handle} variant="neon" fullWidth />
                 </div>
-              );
-            })}
+              </div>
+            ))}
+            {!creators.isLoading && suggestedCreators.length === 0 && (
+              <p className="px-1 py-4 text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                No featured creators yet.
+              </p>
+            )}
           </div>
         </section>
 
@@ -632,10 +696,11 @@ function HomePage() {
             </Link>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {TRENDING_TAGS.map((t, i) => (
+            {(tags.data ?? []).map((t: any, i: number) => (
               <Link
                 key={t.tag}
-                to="/search"
+                to="/tag/$tag"
+                params={{ tag: t.tag }}
                 className="tap flex items-center gap-2 rounded-full px-2.5 py-1.5"
                 style={{
                   border: "1px solid var(--color-hair-strong)",
@@ -646,13 +711,18 @@ function HomePage() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="text-[12px] font-semibold" style={{ color: "var(--color-ink)" }}>
-                  {t.tag}
+                  #{t.tag}
                 </span>
-                <span className="mono-num text-[10px]" style={{ color: "var(--color-neon)" }}>
-                  {t.posts}
+                <span className="mono-num text-[10px]" style={{ color: "var(--color-neon-deep)" }}>
+                  {fmt(t.usage_count ?? 0)}
                 </span>
               </Link>
             ))}
+            {!tags.isLoading && (tags.data ?? []).length === 0 && (
+              <p className="text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                No trending tags yet.
+              </p>
+            )}
           </div>
         </section>
 
@@ -674,14 +744,29 @@ function HomePage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {suggestedClubs.map((c) => (
+            {(crews.data ?? []).map((c: any) => (
               <div
                 key={c.id}
                 className="overflow-hidden"
                 style={{ borderRadius: 12, border: "1px solid var(--color-hair)" }}
               >
-                <div className="relative h-20">
-                  <img src={c.cover} alt="" className="h-full w-full object-cover" />
+                <Link
+                  to="/communities/$slug"
+                  params={{ slug: c.slug }}
+                  className="relative block h-20"
+                >
+                  {c.cover_url || c.banner_url ? (
+                    <img
+                      src={c.cover_url || c.banner_url}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="h-full w-full"
+                      style={{ background: "var(--color-graphite)" }}
+                    />
+                  )}
                   <div
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(180deg, transparent, rgba(8,9,11,0.7))" }}
@@ -689,7 +774,7 @@ function HomePage() {
                   <span className="absolute left-2 bottom-1.5 text-[12px] font-bold text-white">
                     {c.name}
                   </span>
-                </div>
+                </Link>
                 <div
                   className="flex items-center justify-between px-2.5 py-2"
                   style={{ background: "var(--color-graphite)" }}
@@ -698,21 +783,32 @@ function HomePage() {
                     className="mono-tag"
                     style={{ color: "var(--color-titanium)", fontSize: 9 }}
                   >
-                    {c.tag} · {c.members.toLocaleString()} ops
+                    {c.category ?? "crew"} · {(c.members_count ?? 0).toLocaleString()} ops
                   </span>
                   <button
+                    onClick={() => joinCrew(c.id)}
+                    disabled={joiningCrew === c.id}
                     className="tap rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider"
                     style={{
                       background: "var(--color-neon)",
                       color: "var(--color-obsidian)",
                       letterSpacing: "0.14em",
+                      opacity: joiningCrew === c.id ? 0.6 : 1,
                     }}
                   >
-                    Join
+                    {joiningCrew === c.id ? "…" : "Join"}
                   </button>
                 </div>
               </div>
             ))}
+            {!crews.isLoading && (crews.data ?? []).length === 0 && (
+              <p
+                className="col-span-2 py-4 text-center text-[12px]"
+                style={{ color: "var(--color-ink-3)" }}
+              >
+                No crews yet.
+              </p>
+            )}
           </div>
         </section>
 
@@ -873,7 +969,7 @@ function HomePage() {
             {gridReels.map((r) => (
               <Link
                 key={r.id}
-                to="/"
+                to="/reels"
                 className="tap relative block overflow-hidden"
                 style={{ aspectRatio: "9/16", borderRadius: 8 }}
               >
@@ -894,19 +990,16 @@ function HomePage() {
                     <span className="mono-num text-[10px]">{fmt(r.likes)}</span>
                   </div>
                 </div>
-                <span
-                  className="absolute right-1.5 top-1.5 mono-tag"
-                  style={{
-                    background: "rgba(0,0,0,0.55)",
-                    color: "white",
-                    padding: "1px 4px",
-                    fontSize: 8,
-                  }}
-                >
-                  ▶ {r.duration}s
-                </span>
               </Link>
             ))}
+            {gridReels.length === 0 && (
+              <p
+                className="col-span-3 py-6 text-center text-[12px]"
+                style={{ color: "var(--color-ink-3)" }}
+              >
+                No reels yet — be the first to post one.
+              </p>
+            )}
           </div>
         </section>
 
