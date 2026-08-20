@@ -27,7 +27,7 @@ self.addEventListener("activate", (e) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((k) => ![SHELL_CACHE, MEDIA_CACHE, API_CACHE].includes(k))
+            .filter((k) => ![SHELL_CACHE, MEDIA_CACHE].includes(k))
             .map((k) => caches.delete(k)),
         ),
       )
