@@ -6,6 +6,7 @@
  * idempotent (transactions carry a unique index on provider/provider_ref and we
  * skip payments that already have a transaction).
  */
+import { DEFAULT_CURRENCY } from "@/lib/money";
 
 type Admin = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
@@ -67,7 +68,7 @@ export async function settlePaymentById(
   await settleTransaction({
     kind: row.order_id ? "order" : row.subscription_id ? "plan" : "other",
     gross_cents: row.amount_cents,
-    currency: row.currency ?? "USD",
+    currency: row.currency ?? DEFAULT_CURRENCY,
     buyer_id: row.user_id,
     seller_id: sellerId,
     order_id: row.order_id,
