@@ -376,7 +376,30 @@ function ProfilePage() {
               label="Settings"
             />
           </div>
+
+          {/* Digital Garage entry */}
+          <Link
+            to="/garage"
+            className="tap mt-2 flex items-center justify-between rounded-xl px-4 py-3"
+            style={{ border: "1px solid var(--color-line)", background: "var(--color-paper-0)" }}
+          >
+            <span>
+              <span
+                className="mono-tag block"
+                style={{ color: "var(--color-ink-3)", fontSize: 9 }}
+              >
+                DIGITAL GARAGE
+              </span>
+              <span className="text-[13px] font-semibold" style={{ color: "var(--color-ink-0)" }}>
+                Builds, mods &amp; service history
+              </span>
+            </span>
+            <span className="mono-tag text-[11px]" style={{ color: "var(--color-neon)" }}>
+              OPEN →
+            </span>
+          </Link>
         </div>
+
       </section>
 
       {/* ============ GAUGE CLUSTER ============ */}
