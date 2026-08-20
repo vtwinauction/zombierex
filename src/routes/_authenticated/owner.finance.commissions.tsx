@@ -9,6 +9,7 @@ import {
   checkFinanceAccess,
 } from "@/lib/finance.functions";
 import { computeSplit, describeRule, formatMoney, type FeeRule } from "@/lib/commission";
+import { DEFAULT_CURRENCY, inputStep, toDecimalString, toMinorUnits } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/commissions")({
   head: () => ({
@@ -54,7 +55,7 @@ const EMPTY: Draft = {
   scope_value: "",
   percent: "5",
   fixed: "0",
-  min: "0.30",
+  min: "0.300",
   max: "",
   priority: "0",
   starts_at: "",
@@ -70,9 +71,9 @@ function toDraft(r: FeeRule): Draft {
     scope: r.scope,
     scope_value: r.scope_value ?? "",
     percent: (r.percent_bps / 100).toString(),
-    fixed: (r.fixed_cents / 100).toFixed(2),
-    min: (r.min_fee_cents / 100).toFixed(2),
-    max: r.max_fee_cents != null ? (r.max_fee_cents / 100).toFixed(2) : "",
+    fixed: toDecimalString(r.fixed_cents, r.currency ?? DEFAULT_CURRENCY),
+    min: toDecimalString(r.min_fee_cents, r.currency ?? DEFAULT_CURRENCY),
+    max: r.max_fee_cents != null ? toDecimalString(r.max_fee_cents, r.currency ?? DEFAULT_CURRENCY) : "",
     priority: String(r.priority),
     starts_at: r.starts_at ? r.starts_at.slice(0, 10) : "",
     ends_at: r.ends_at ? r.ends_at.slice(0, 10) : "",
@@ -80,7 +81,12 @@ function toDraft(r: FeeRule): Draft {
   };
 }
 
-const cents = (v: string) => Math.round((parseFloat(v || "0") || 0) * 100);
+/**
+ * Currency-aware write path. `* 100` here would store BHD 2.500 as 250 fils —
+ * a silent 10x under-charge that the read path (`/100`) hides perfectly.
+ */
+const minor = (v: string, currency: string = DEFAULT_CURRENCY) =>
+  toMinorUnits(parseFloat(v || "0") || 0, currency);
 
 function CommissionsPage() {
   const qc = useQueryClient();
@@ -102,6 +108,9 @@ function CommissionsPage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [preview, setPreview] = useState("100");
+  // Rules are platform-currency for now; kept as a variable so a per-rule
+  // currency selector only needs wiring here.
+  const ruleCurrency = DEFAULT_CURRENCY;
 
   const canWrite = !!gate.data?.canWrite;
 
@@ -118,9 +127,9 @@ function CommissionsPage() {
           scope: draft.scope,
           scope_value: draft.scope === "default" ? null : draft.scope_value.trim(),
           percent_bps: Math.round((parseFloat(draft.percent || "0") || 0) * 100),
-          fixed_cents: cents(draft.fixed),
-          min_fee_cents: cents(draft.min),
-          max_fee_cents: draft.max ? cents(draft.max) : null,
+          fixed_cents: minor(draft.fixed, ruleCurrency),
+          min_fee_cents: minor(draft.min, ruleCurrency),
+          max_fee_cents: draft.max ? minor(draft.max, ruleCurrency) : null,
           currency: null,
           priority: parseInt(draft.priority || "0", 10),
           starts_at: draft.starts_at ? new Date(draft.starts_at).toISOString() : null,
@@ -149,7 +158,7 @@ function CommissionsPage() {
   }
 
   const list = (rules.data ?? []) as unknown as FeeRule[];
-  const previewGross = Math.round((parseFloat(preview || "0") || 0) * 100);
+  const previewGross = minor(preview, ruleCurrency);
 
   return (
     <div className="space-y-5 p-5">
@@ -251,26 +260,29 @@ function CommissionsPage() {
                 onChange={(e) => setDraft({ ...draft, percent: e.target.value })}
               />
             </Field>
-            <Field label="Fixed fee ($)">
+            <Field label={`Fixed fee (${ruleCurrency})`}>
               <input
                 className="zx-input"
                 inputMode="decimal"
+                step={inputStep(ruleCurrency)}
                 value={draft.fixed}
                 onChange={(e) => setDraft({ ...draft, fixed: e.target.value })}
               />
             </Field>
-            <Field label="Minimum fee ($)">
+            <Field label={`Minimum fee (${ruleCurrency})`}>
               <input
                 className="zx-input"
                 inputMode="decimal"
+                step={inputStep(ruleCurrency)}
                 value={draft.min}
                 onChange={(e) => setDraft({ ...draft, min: e.target.value })}
               />
             </Field>
-            <Field label="Maximum fee ($)">
+            <Field label={`Maximum fee (${ruleCurrency})`}>
               <input
                 className="zx-input"
                 inputMode="decimal"
+                step={inputStep(ruleCurrency)}
                 value={draft.max}
                 onChange={(e) => setDraft({ ...draft, max: e.target.value })}
                 placeholder="none"
@@ -314,10 +326,11 @@ function CommissionsPage() {
 
           <div className="rounded p-3" style={{ background: "rgba(0,200,83,0.07)" }}>
             <div className="flex items-center gap-2">
-              <span className="mono-tag text-[10px] opacity-60">PREVIEW ON $</span>
+              <span className="mono-tag text-[10px] opacity-60">PREVIEW ON {ruleCurrency}</span>
               <input
                 className="zx-input w-24"
                 inputMode="decimal"
+                step={inputStep(ruleCurrency)}
                 value={preview}
                 onChange={(e) => setPreview(e.target.value)}
               />
@@ -330,9 +343,9 @@ function CommissionsPage() {
                 scope: draft.scope,
                 scope_value: draft.scope_value,
                 percent_bps: Math.round((parseFloat(draft.percent || "0") || 0) * 100),
-                fixed_cents: cents(draft.fixed),
-                min_fee_cents: cents(draft.min),
-                max_fee_cents: draft.max ? cents(draft.max) : null,
+                fixed_cents: minor(draft.fixed, ruleCurrency),
+                min_fee_cents: minor(draft.min, ruleCurrency),
+                max_fee_cents: draft.max ? minor(draft.max, ruleCurrency) : null,
                 currency: null,
                 priority: 0,
                 starts_at: null,
