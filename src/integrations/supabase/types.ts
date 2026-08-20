@@ -4508,6 +4508,7 @@ export type Database = {
           period_start: string
           status: Database["public"]["Enums"]["payout_status"]
           total_cents: number
+          totals: Json
           updated_at: string
         }
         Insert: {
@@ -4519,6 +4520,7 @@ export type Database = {
           period_start: string
           status?: Database["public"]["Enums"]["payout_status"]
           total_cents?: number
+          totals?: Json
           updated_at?: string
         }
         Update: {
@@ -4530,6 +4532,7 @@ export type Database = {
           period_start?: string
           status?: Database["public"]["Enums"]["payout_status"]
           total_cents?: number
+          totals?: Json
           updated_at?: string
         }
         Relationships: []
