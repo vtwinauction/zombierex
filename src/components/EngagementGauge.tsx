@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Compact speedometer-style arc used behind each engagement control.
  *
  * Purely visual — it reads the count it is given and sweeps a 240° arc on a
  * logarithmic scale so a post with 12 likes and a post with 1.2M likes both
- * read sensibly. No data fetching, no layout impact: it is absolutely
- * positioned behind the icon it decorates.
+ * read sensibly. The arc color shifts from green → yellow → red as the count
+ * climbs, giving an instant "heat" read. No data fetching, no layout impact.
  */
 
 const SWEEP = 240; // degrees of travel
@@ -31,11 +31,18 @@ function arcPath(cx: number, cy: number, r: number, from: number, to: number) {
   return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 }
 
+/** Heat gradient: green (low) → yellow (mid) → red (high). */
+function heatColor(ratio: number) {
+  // Hue moves from 140 (green) down to 0 (red); yellow sits around 55.
+  const hue = Math.round(140 * (1 - ratio));
+  return `hsl(${hue} 95% 48%)`;
+}
+
 export function EngagementGauge({
   value,
   size = 38,
   active = false,
-  color = "var(--color-neon)",
+  color,
 }: {
   value: number;
   size?: number;
@@ -49,6 +56,8 @@ export function EngagementGauge({
   const len = (SWEEP / 360) * 2 * Math.PI * r;
 
   const ratio = toRatio(value);
+  const arcColor = useMemo(() => color ?? heatColor(ratio), [color, ratio]);
+
   // Animate from 0 on first paint so the needle "spools up" once, then
   // transitions smoothly on every count change.
   const [shown, setShown] = useState(0);
@@ -81,7 +90,7 @@ export function EngagementGauge({
       <path
         d={track}
         fill="none"
-        stroke={color}
+        stroke={arcColor}
         strokeWidth={2}
         strokeLinecap="round"
         strokeDasharray={`${len} ${len}`}
@@ -89,11 +98,12 @@ export function EngagementGauge({
         style={{
           transition: "stroke-dashoffset 420ms cubic-bezier(0.22,1,0.36,1)",
           filter: active
-            ? "drop-shadow(0 0 5px rgba(0,200,83,0.85))"
-            : "drop-shadow(0 0 2px rgba(0,200,83,0.35))",
+            ? `drop-shadow(0 0 5px ${arcColor})`
+            : `drop-shadow(0 0 2px ${arcColor})`,
           opacity: shown === 0 ? 0.5 : 1,
         }}
       />
     </svg>
   );
 }
+
