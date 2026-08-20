@@ -6920,6 +6920,7 @@ export type Database = {
           notes: string | null
           odometer_km: number | null
           owner_id: string
+          reminded_at: string | null
           service_date: string
           shop: string | null
           status: string
@@ -6937,6 +6938,7 @@ export type Database = {
           notes?: string | null
           odometer_km?: number | null
           owner_id: string
+          reminded_at?: string | null
           service_date?: string
           shop?: string | null
           status?: string
@@ -6954,6 +6956,7 @@ export type Database = {
           notes?: string | null
           odometer_km?: number | null
           owner_id?: string
+          reminded_at?: string | null
           service_date?: string
           shop?: string | null
           status?: string
