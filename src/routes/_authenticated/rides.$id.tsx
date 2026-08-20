@@ -2,10 +2,11 @@
  * Ride detail — replay map, stats, GPX export, edit title/notes, delete.
  */
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { lazy, Suspense, useState } from "react";
 import { getRide, updateRide, deleteRide } from "@/lib/rides.functions";
+import { listMyVehicles } from "@/lib/garage.functions";
 import { ridePathToGpx, downloadGpx } from "@/lib/gpx";
 import { confirmDialog } from "@/lib/confirm";
 
@@ -38,10 +39,15 @@ function RideDetail() {
   const del = useServerFn(deleteRide);
   const q = queryOptions({ queryKey: ["ride", id], queryFn: () => getRide({ data: { id } }) });
   const { data: r, refetch } = useSuspenseQuery(q);
+  const { data: vehicles = [] } = useQuery({
+    queryKey: ["garage", "mine"],
+    queryFn: () => listMyVehicles(),
+  });
 
   const [title, setTitle] = useState<string>(r.title ?? "");
   const [notes, setNotes] = useState<string>(r.notes ?? "");
   const [visibility, setVisibility] = useState<string>(r.visibility);
+  const [vehicleId, setVehicleId] = useState<string>((r as any).vehicle_id ?? "");
   const [saving, setSaving] = useState(false);
 
   const path = Array.isArray(r.path)
@@ -51,7 +57,13 @@ function RideDetail() {
   async function save() {
     setSaving(true);
     await upd({
-      data: { id, title: title || null, notes: notes || null, visibility: visibility as any },
+      data: {
+        id,
+        title: title || null,
+        notes: notes || null,
+        visibility: visibility as any,
+        vehicle_id: vehicleId || null,
+      },
     });
     await refetch();
     setSaving(false);
@@ -107,6 +119,19 @@ function RideDetail() {
           className="w-full bg-graphite p-3 text-sm"
           style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
         />
+        <select
+          value={vehicleId}
+          onChange={(e) => setVehicleId(e.target.value)}
+          className="w-full bg-graphite p-3 text-sm"
+          style={{ color: "var(--color-ink)", border: "1px solid var(--color-hair)" }}
+        >
+          <option value="">NO VEHICLE TAGGED</option>
+          {vehicles.map((v: any) => (
+            <option key={v.id} value={v.id}>
+              {(v.nickname || `${v.make} ${v.model}`).toUpperCase()}
+            </option>
+          ))}
+        </select>
         <select
           value={visibility}
           onChange={(e) => setVisibility(e.target.value)}
