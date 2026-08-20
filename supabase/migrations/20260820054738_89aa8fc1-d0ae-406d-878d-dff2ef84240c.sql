@@ -1,0 +1,1 @@
+ALTER TYPE public.ledger_account ADD VALUE IF NOT EXISTS 'cash_clearing';
