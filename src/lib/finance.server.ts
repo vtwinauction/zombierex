@@ -451,11 +451,42 @@ export async function getSellerBalance(sellerId: string, currency: string = DEFA
   return balances[currency.toUpperCase()] ?? 0;
 }
 
+/**
+ * Balances whose underlying transaction settled longer ago than the hold
+ * window, i.e. money that is actually free to disburse. This is the mechanism
+ * behind any "funds held until delivery" promise — without it that promise is
+ * decoration.
+ */
+async function getReleasableBalances(
+  sb: Admin,
+  sellerId: string,
+  holdDays: number,
+): Promise<Record<string, number>> {
+  const cutoff = new Date(Date.now() - holdDays * 86_400_000).toISOString();
+  const { data: rows } = await sb
+    .from("ledger_entries")
+    .select("direction, amount_cents, currency, transactions!inner(settled_at, status)")
+    .eq("account", "seller_payable")
+    .eq("party_id", sellerId)
+    .lte("transactions.settled_at", cutoff);
+
+  const out: Record<string, number> = {};
+  for (const r of (rows ?? []) as any[]) {
+    // A disputed or refunded transaction never releases.
+    const status = r.transactions?.status;
+    if (status && status !== "succeeded") continue;
+    const cur = (r.currency ?? DEFAULT_CURRENCY).toUpperCase();
+    out[cur] = (out[cur] ?? 0) + (r.direction === "credit" ? r.amount_cents : -r.amount_cents);
+  }
+  return out;
+}
+
 /** Builds a payout batch for every seller above their withdrawal minimum. */
 export async function runPayoutBatch() {
   const sb = await admin();
   const cfg = await loadPaymentConfig(sb);
   const globalMin = cfg.withdrawals?.min_cents ?? 2500;
+  const holdDays = Number(cfg.escrow?.hold_days ?? 0) || 0;
 
   const { data: sellers } = await sb
     .from("ledger_entries")
@@ -463,7 +494,8 @@ export async function runPayoutBatch() {
     .eq("account", "seller_payable")
     .not("party_id", "is", null);
   const ids = Array.from(new Set(((sellers ?? []) as any[]).map((r) => r.party_id)));
-  if (!ids.length) return { batch_id: null, payouts: 0, total_cents: 0, totals: {} };
+  if (!ids.length)
+    return { batch_id: null, payouts: 0, total_cents: 0, totals: {}, held: 0, negative: [] };
 
   const periodEnd = new Date();
   const periodStart = new Date(periodEnd.getTime() - 7 * 86_400_000);
@@ -480,6 +512,10 @@ export async function runPayoutBatch() {
   const batchId = (batch as any).id;
 
   const totals: Record<string, number> = {};
+  // Money the hold window is still sitting on, and sellers carrying a debt.
+  // Both are reported rather than silently folded into the batch.
+  let held = 0;
+  const negative: string[] = [];
   let count = 0;
   for (const sellerId of ids) {
     const balances = await getSellerBalances(sellerId);
@@ -490,16 +526,25 @@ export async function runPayoutBatch() {
       .maybeSingle();
     if ((sfs as any)?.suspended) continue;
     const min = (sfs as any)?.min_withdrawal_cents ?? globalMin;
+    const releasable = holdDays > 0 ? await getReleasableBalances(sb, sellerId, holdDays) : balances;
 
     for (const [currency, balance] of Object.entries(balances)) {
-      if (balance < min) continue;
+      if (balance < 0) {
+        // Seller owes the platform. Never net a debt off silently and never
+        // pay out alongside it — surface it for a human decision.
+        negative.push(`${sellerId}:${currency}:${balance}`);
+        continue;
+      }
+      const available = Math.min(balance, releasable[currency] ?? 0);
+      if (available < balance) held += balance - available;
+      if (available < min) continue;
 
       // One payout per (batch, seller, currency). The unique index makes a
       // concurrent run a 23505 rather than a double payment.
       const { error: pErr } = await sb.from("payouts").insert({
         batch_id: batchId,
         seller_id: sellerId,
-        amount_cents: balance,
+        amount_cents: available,
         currency,
         status: "scheduled",
         method: (sfs as any)?.payout_method ?? null,
@@ -515,11 +560,11 @@ export async function runPayoutBatch() {
         kind: "system",
         payload: {
           title: "Payout scheduled",
-          body: `A payout of ${formatMoney(balance, currency)} has been scheduled.`,
+          body: `A payout of ${formatMoney(available, currency)} has been scheduled.`,
         },
       });
 
-      totals[currency] = (totals[currency] ?? 0) + balance;
+      totals[currency] = (totals[currency] ?? 0) + available;
       count += 1;
     }
   }
@@ -538,5 +583,7 @@ export async function runPayoutBatch() {
     payouts: count,
     total_cents: totals[DEFAULT_CURRENCY] ?? 0,
     totals,
+    held,
+    negative,
   };
 }

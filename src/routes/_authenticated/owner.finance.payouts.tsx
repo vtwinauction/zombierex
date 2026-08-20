@@ -8,7 +8,7 @@ import {
   markPayoutPaid,
   checkFinanceAccess,
 } from "@/lib/finance.functions";
-import { formatMoney } from "@/lib/commission";
+import { formatMoney } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/payouts")({
   head: () => ({
@@ -51,7 +51,18 @@ function PayoutsPage() {
     setErr(null);
     try {
       const res = await run({ data: undefined as any });
-      setNote(`Batch created: ${res.payouts} payouts · ${formatMoney(res.total_cents)}`);
+      // Per currency — a batch mixing BHD and USD has no single total.
+      const totals = Object.entries(res.totals ?? {})
+        .map(([cur, amount]) => formatMoney(amount as number, cur))
+        .join(" · ");
+      const extras: string[] = [];
+      if (res.held) extras.push(`${formatMoney(res.held)} still inside the hold window`);
+      if (res.negative?.length)
+        extras.push(`${res.negative.length} seller(s) carrying a negative balance — skipped`);
+      setNote(
+        `Batch created: ${res.payouts} payouts${totals ? ` · ${totals}` : ""}` +
+          (extras.length ? ` · ${extras.join(" · ")}` : ""),
+      );
       await qc.invalidateQueries({ queryKey: ["finance"] });
     } catch (e: any) {
       setErr(e?.message ?? "Batch failed");
