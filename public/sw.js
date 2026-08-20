@@ -1,10 +1,15 @@
-/* ZOMBIEREX Service Worker — offline shell + media/API cache */
-const SHELL_CACHE = "zrx-shell-v4";
-const MEDIA_CACHE = "zrx-media-v4";
-const API_CACHE = "zrx-api-v4";
+/* ZOMBIEREX Service Worker — offline shell + media cache
+ *
+ * Privacy rule: personalised HTML and API payloads are NEVER written to the
+ * cache. Any page can be private (auth state is client-side, so the URL alone
+ * cannot tell us), so navigations are network-only with a generic offline
+ * shell fallback. Only immutable static assets and media are cached.
+ */
+const SHELL_CACHE = "zrx-shell-v5";
+const MEDIA_CACHE = "zrx-media-v5";
 const CORE = ["/", "/favicon.ico", "/manifest.webmanifest"];
 const MAX_MEDIA = 200;
-const MAX_API = 100;
+
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -22,7 +27,7 @@ self.addEventListener("activate", (e) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((k) => ![SHELL_CACHE, MEDIA_CACHE, API_CACHE].includes(k))
+            .filter((k) => ![SHELL_CACHE, MEDIA_CACHE].includes(k))
             .map((k) => caches.delete(k)),
         ),
       )
@@ -44,10 +49,11 @@ function shouldCacheMedia(url) {
   return /\.(jpg|jpeg|png|webp|avif|gif|mp4|webm|mov|mkv)(\?|$)/i.test(path);
 }
 
-function shouldCacheApi(url) {
-  // Cache GET API calls that are safe to replay offline (public read endpoints, not server functions or auth)
-  return url.pathname.startsWith("/api/") && !url.pathname.startsWith("/api/public/hooks/");
+function isPrivateAsset(url) {
+  // Signed/expiring storage URLs and anything API-shaped is per-user data.
+  return url.pathname.startsWith("/api/") || url.search.includes("token=");
 }
+
 
 async function trimCache(cacheName, maxItems) {
   const cache = await caches.open(cacheName);
@@ -63,31 +69,21 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Never cache server functions, auth endpoints, or webhooks
+  // Never touch server functions, auth endpoints, webhooks or API payloads.
   if (
     url.pathname.startsWith("/_serverFn") ||
-    url.pathname.startsWith("/auth/") ||
-    url.pathname.startsWith("/api/public/hooks/") ||
-    // Never cache authenticated HTML — it must not survive on a shared device.
-    url.pathname.startsWith("/_authenticated")
+    url.pathname.startsWith("/auth") ||
+    url.pathname.startsWith("/reset-password") ||
+    isPrivateAsset(url)
   ) {
     return;
   }
 
-  // HTML navigation → network-first, fall back to cached shell
+  // HTML navigation → network-only. Rendered HTML can contain the signed-in
+  // user's data, so it is never persisted; offline falls back to the generic
+  // app shell cached at install time.
   if (req.mode === "navigate") {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches
-            .open(SHELL_CACHE)
-            .then((c) => c.put(req, copy))
-            .catch(() => {});
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || caches.match("/"))),
-    );
+    event.respondWith(fetch(req).catch(() => caches.match("/")));
     return;
   }
 
@@ -113,27 +109,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Safe GET API responses → stale-while-revalidate
-  if (shouldCacheApi(url)) {
-    event.respondWith(
-      caches.open(API_CACHE).then(async (cache) => {
-        const cached = await cache.match(req);
-        const network = fetch(req)
-          .then((res) => {
-            if (res.ok) {
-              cache
-                .put(req, res.clone())
-                .then(() => trimCache(API_CACHE, MAX_API))
-                .catch(() => {});
-            }
-            return res;
-          })
-          .catch(() => cached);
-        return cached || network;
-      }),
-    );
-    return;
-  }
 
   // Static assets → cache-first
   event.respondWith(

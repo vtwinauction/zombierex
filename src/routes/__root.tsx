@@ -281,6 +281,14 @@ function RootComponent() {
       if (event === "SIGNED_OUT") {
         void router.invalidate();
         queryClient.clear();
+        // Drop every service-worker cache so nothing from the previous
+        // session can be replayed offline on a shared device.
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.controller?.postMessage({ type: "PURGE_CACHES" });
+        }
+        if (typeof caches !== "undefined") {
+          void caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
+        }
         return;
       }
       void queryClient.invalidateQueries();
