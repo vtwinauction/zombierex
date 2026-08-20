@@ -335,9 +335,20 @@ function PublicGarage({ ownerId, handle }: { ownerId: string; handle: string }) 
                   {v.mods.map((m) => m.title).join(" · ")}
                 </p>
               )}
-              <p className="mono-tag mt-2" style={{ color: "var(--color-ash)" }}>
-                {v.mods.length} MOD{v.mods.length === 1 ? "" : "S"}
-              </p>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
+                  {v.mods.length} MOD{v.mods.length === 1 ? "" : "S"}
+                </p>
+                {v.judge_score != null && (
+                  <span
+                    className="mono-tag px-1.5 py-0.5"
+                    style={{ background: "var(--color-ink)", color: "var(--color-neon)" }}
+                  >
+                    AI JUDGE {Math.round(v.judge_score)}
+                  </span>
+                )}
+              </div>
+
             </div>
           </li>
         ))}
