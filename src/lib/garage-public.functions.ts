@@ -51,3 +51,31 @@ export const listPublicGarage = createServerFn({ method: "GET" })
       mods: (mods ?? []).filter((m) => m.vehicle_id === v.id),
     }));
   });
+
+/** Posts tagged with a vehicle — public feed slice for the vehicle page. */
+export const listVehiclePosts = createServerFn({ method: "GET" })
+  .validator((raw: unknown) => z.object({ vehicleId: z.string().uuid() }).parse(raw))
+  .handler(async ({ data }) => {
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+    const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+      auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input, init) => {
+          const h = new Headers(init?.headers);
+          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+            h.delete("Authorization");
+          h.set("apikey", key);
+          return fetch(input, { ...init, headers: h });
+        },
+      },
+    });
+
+    const { data: posts, error } = await client
+      .from("posts")
+      .select("id, kind, caption, media_url, thumbnail_url, is_reel, created_at")
+      .eq("vehicle_id", data.vehicleId)
+      .order("created_at", { ascending: false })
+      .limit(24);
+    if (error) throw new Error(error.message);
+    return posts ?? [];
+  });
