@@ -29,7 +29,7 @@ export function SlashHeader({
   return (
     <div className="flex items-end justify-between gap-3">
       <div className="flex items-baseline gap-2">
-        <span className="mono-caps text-signal font-bold">//</span>
+        <span className="mono-caps text-signal-ink font-bold">//</span>
         <h2 className="font-display text-xl leading-none tracking-wide uppercase">{label}</h2>
         {count !== undefined && (
           <span className="mono-num text-ash text-xs">[{String(count).padStart(2, "0")}]</span>
@@ -108,7 +108,7 @@ export function AngularButton({
   return (
     <button
       onClick={onClick}
-      className={`tap clip-chamfer-sm mono-caps inline-flex items-center gap-2 border border-ink font-bold ${v} ${s} ${active ? "ring-2 ring-signal ring-offset-0" : ""} ${className}`}
+      className={`tap clip-chamfer-sm mono-caps inline-flex items-center gap-2 border border-ink font-bold ${v} ${s} ${active ? "ring-2 ring-signal-deep ring-offset-0" : ""} ${className}`}
     >
       {children}
     </button>

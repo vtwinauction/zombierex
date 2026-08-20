@@ -2,19 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getListing } from "@/lib/marketplace.functions";
+import { formatMoney } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/checkout/order/$id")({
   head: () => ({ meta: [{ title: "Checkout · ZOMBIEREX" }] }),
   component: Checkout,
 });
 
-function fmtPrice(cents: number, currency = "USD") {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
 
 function Checkout() {
   const { id } = Route.useParams();
@@ -25,15 +19,13 @@ function Checkout() {
   const price = (l as any).price_cents ?? 0;
   const currency = (l as any).currency ?? "USD";
   const shippingEst = 0;
-  const commissionCents = Math.round(price * 0.1);
   const totalCents = price + shippingEst;
-  const sellerNet = price - commissionCents;
 
   return (
     <div className="pb-32">
       <div className="px-4 pt-4">
         <p className="mono-tag font-bold" style={{ color: "var(--color-neon)" }}>
-          SECURE CHECKOUT · ESCROW PROTECTED
+          SECURE CHECKOUT
         </p>
         <h1 className="serif mt-2 text-3xl italic" style={{ color: "var(--color-ink)" }}>
           Review Order
@@ -54,32 +46,15 @@ function Checkout() {
               {(l as any).brand} · {(l as any).model} · {(l as any).year ?? ""}
             </p>
             <p className="mono-num text-lg font-bold mt-1" style={{ color: "var(--color-neon)" }}>
-              {fmtPrice(price, currency)}
+              {formatMoney(price, currency)}
             </p>
           </div>
         </div>
 
         <div className="mt-6 border" style={{ borderColor: "var(--color-hair-strong)" }}>
-          <Row k="ITEM PRICE" v={fmtPrice(price, currency)} />
+          <Row k="ITEM PRICE" v={formatMoney(price, currency)} />
           <Row k="SHIPPING" v="Set by seller" />
-          <Row k="PLATFORM FEE (10%)" v={fmtPrice(commissionCents, currency)} muted />
-          <Row k="ESTIMATED TOTAL" v={fmtPrice(totalCents, currency)} strong />
-        </div>
-
-        <div
-          className="mt-6 border p-3"
-          style={{ borderColor: "var(--color-hair-strong)", background: "rgba(0,200,83,0.06)" }}
-        >
-          <p className="mono-tag font-bold" style={{ color: "var(--color-neon)" }}>
-            ■ ZOMBIEREX ESCROW
-          </p>
-          <ul className="mt-2 space-y-1.5 text-xs" style={{ color: "var(--color-ink)" }}>
-            <li>· Funds held safely until you confirm delivery</li>
-            <li>· Auto-release after 25 days if no dispute filed</li>
-            <li>· Seller must upload tracking # to ship</li>
-            <li>· Full refund if item never arrives</li>
-            <li>· Seller receives {fmtPrice(sellerNet, currency)} after our 10% commission</li>
-          </ul>
+          <Row k="ESTIMATED TOTAL" v={formatMoney(totalCents, currency)} strong />
         </div>
 
         <button
@@ -90,8 +65,8 @@ function Checkout() {
           PAY WITH STRIPE ▸ (ENABLING…)
         </button>
         <p className="mt-3 text-xs text-center" style={{ color: "var(--color-titanium)" }}>
-          Stripe payments are being enabled for ZombieRex. Once live, this button will process your
-          escrow-protected purchase.
+          Online payments are not enabled yet. Once live, this button will process your purchase.
+          Payment is released to the seller after delivery.
         </p>
 
         <Link

@@ -67,7 +67,9 @@ self.addEventListener("fetch", (event) => {
   if (
     url.pathname.startsWith("/_serverFn") ||
     url.pathname.startsWith("/auth/") ||
-    url.pathname.startsWith("/api/public/hooks/")
+    url.pathname.startsWith("/api/public/hooks/") ||
+    // Never cache authenticated HTML — it must not survive on a shared device.
+    url.pathname.startsWith("/_authenticated")
   ) {
     return;
   }

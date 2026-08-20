@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -15,9 +16,6 @@ export const Route = createFileRoute("/creator/$id")({
   component: CreatorPublicPage,
 });
 
-function fmtUSD(cents: number) {
-  return `$${(cents / 100).toFixed(2)}`;
-}
 
 function CreatorPublicPage() {
   const { id } = Route.useParams();
@@ -192,7 +190,7 @@ function CreatorPublicPage() {
             >
               <MiniStat label="SUBS" value={c.subscribers_count ?? 0} />
               <MiniStat label="FOLLOWERS" value={c.profile?.followers_count ?? 0} />
-              <MiniStat label="TIPS" value={fmtUSD(c.tips_total_cents ?? 0)} />
+              <MiniStat label="TIPS" value={formatMoney(c.tips_total_cents ?? 0)} />
             </div>
 
             <div className="px-4 pt-4 grid grid-cols-2 gap-2">
@@ -272,7 +270,7 @@ function CreatorPublicPage() {
                           {t.name}
                         </p>
                         <p className="mono-num font-bold" style={{ color: "var(--color-neon)" }}>
-                          {fmtUSD(t.price_cents)}/mo
+                          {formatMoney(t.price_cents)}/mo
                         </p>
                       </div>
                       {t.description && (
@@ -307,7 +305,7 @@ function CreatorPublicPage() {
                     color: "var(--color-ink)",
                   }}
                 >
-                  {fmtUSD(n)}
+                  {formatMoney(n)}
                 </button>
               ))}
             </div>
@@ -342,7 +340,7 @@ function CreatorPublicPage() {
               className="btn-neon mt-4 w-full"
               style={{ padding: "12px", fontSize: 11 }}
             >
-              {busy === "tip" ? "SENDING…" : `SEND ${fmtUSD(tipAmt)} ▸`}
+              {busy === "tip" ? "SENDING…" : `SEND ${formatMoney(tipAmt)} ▸`}
             </button>
           </Modal>
         )}

@@ -4,7 +4,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
  * ZOMBIEREX — native shell configuration.
  *
  * The web app remains the source of truth. Capacitor loads the built
- * static bundle from `dist/` into a WKWebView / Android WebView and
+ * static bundle from `.output/public/` into a WKWebView / Android WebView and
  * layers native APIs on top via `src/lib/native`.
  *
  * Bundle IDs are provisional; swap `com.zombierex.app` for the real
@@ -13,7 +13,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "com.zombierex.app",
   appName: "ZOMBIEREX",
-  webDir: "dist",
+  webDir: ".output/public",
   bundledWebRuntime: false,
 
   // Deep-link / OAuth return scheme. Also declare in
@@ -42,7 +42,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 1200,
       launchAutoHide: false, // we hide it in bootstrap() once React commits
-      backgroundColor: "#08090b",
+      backgroundColor: "#fafafa",
       androidSplashResourceName: "splash",
       androidScaleType: "CENTER_CROP",
       showSpinner: false,
@@ -51,8 +51,8 @@ const config: CapacitorConfig = {
     },
     StatusBar: {
       overlaysWebView: false,
-      style: "DARK",
-      backgroundColor: "#08090b",
+      style: "LIGHT",
+      backgroundColor: "#fafafa",
     },
     Keyboard: {
       resize: "native",

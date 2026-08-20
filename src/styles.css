@@ -20,9 +20,10 @@
   --color-ink-1: #1a1a1a;
   --color-ink-2: #3a3a3a; /* secondary text */
   --color-ink-3: #6b6b6b; /* muted text */
-  --color-ink-4: #9a9a9a; /* micro text */
+  --color-ink-4: #767676; /* micro text — 4.5:1 on paper */
 
-  --color-neon: #00c853; /* signal green (legible on white) */
+  --color-neon: #00c853; /* signal green — FILLS ONLY (2.2:1 on white) */
+  --color-signal-text: #067a37; /* accent TEXT on light surfaces (5.4:1) */
   --color-neon-deep: #00a844;
   --color-ember: #e11d2a; /* danger only */
 
@@ -40,6 +41,7 @@
   --color-hair-strong: var(--color-line-2);
   --color-hair-soft: #efefef;
   --color-signal: var(--color-neon);
+  --color-signal-ink: var(--color-signal-text);
   --color-signal-deep: var(--color-neon-deep);
   --color-heat: var(--color-ember);
   --color-cool: var(--color-ink-3);

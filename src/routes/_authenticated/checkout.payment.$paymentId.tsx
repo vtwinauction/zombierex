@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -76,7 +77,7 @@ function CheckoutPage() {
           AMOUNT
         </p>
         <p className="serif mt-1 text-5xl italic" style={{ color: "var(--color-ink)" }}>
-          ${(payment.amount_cents / 100).toFixed(2)}
+          {formatMoney(payment.amount_cents, (payment as any).currency ?? undefined)}
         </p>
         <p className="mt-1 text-[11px]" style={{ color: "var(--color-silver)" }}>
           {payment.currency}

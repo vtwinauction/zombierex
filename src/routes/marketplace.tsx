@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -65,13 +66,6 @@ const CAT_LABEL: Record<string, string> = {
   services: "Services",
 };
 
-function fmtPrice(cents: number, currency = "USD") {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
 
 function MarketplacePage() {
   const zxModule = useModule("marketplace");
@@ -436,7 +430,7 @@ function FeaturedCard({ listing }: { listing: any }) {
           </h2>
           <div className="mt-2 flex items-baseline justify-between gap-3">
             <p className="mono-num text-xl font-bold" style={{ color: "var(--color-neon-deep)" }}>
-              {fmtPrice(l.price_cents, l.currency)}
+              {formatMoney(l.price_cents, l.currency)}
               {l.is_negotiable && (
                 <span
                   className="mono-tag ml-2 text-[10px]"
@@ -559,7 +553,7 @@ function ListingCard({ listing }: { listing: any }) {
           className="mono-num mt-1.5 text-sm font-bold"
           style={{ color: "var(--color-neon-deep)" }}
         >
-          {fmtPrice(l.price_cents, l.currency)}
+          {formatMoney(l.price_cents, l.currency)}
           {l.is_negotiable && (
             <span className="mono-tag ml-1 text-[9px]" style={{ color: "var(--color-neon-deep)" }}>
               OBO

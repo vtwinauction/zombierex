@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -10,13 +11,6 @@ export const Route = createFileRoute("/marketplace_/seller/$id")({
   component: SellerPage,
 });
 
-function fmtPrice(cents: number, currency = "USD") {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
 
 function SellerPage() {
   const { id } = Route.useParams();
@@ -117,7 +111,7 @@ function SellerPage() {
                     {l.title}
                   </p>
                   <p className="mono-num text-sm font-bold" style={{ color: "var(--color-ink)" }}>
-                    {fmtPrice(l.price_cents, l.currency)}
+                    {formatMoney(l.price_cents, l.currency)}
                   </p>
                 </div>
               </Link>

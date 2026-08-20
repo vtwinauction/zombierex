@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "test": "vitest run",
     "test:smoke": "playwright test",
     "test:smoke:install": "playwright install --with-deps chromium",
     "cap:sync": "vite build && cap sync",
@@ -124,7 +125,8 @@
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^8.0.16"
+    "vite": "^8.0.16",
+    "vitest": "^4.1.11"
   },
   "pnpm": {
     "overrides": {

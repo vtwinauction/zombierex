@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,9 +10,6 @@ export const Route = createFileRoute("/_authenticated/creator/tiers")({
   component: TiersPage,
 });
 
-function fmtUSD(cents: number) {
-  return `$${(cents / 100).toFixed(2)}`;
-}
 
 function TiersPage() {
   const qc = useQueryClient();
@@ -76,7 +74,7 @@ function TiersPage() {
                 {t.name}
               </p>
               <p className="mono-num font-bold" style={{ color: "var(--color-neon)" }}>
-                {fmtUSD(t.price_cents)}/mo
+                {formatMoney(t.price_cents)}/mo
               </p>
             </div>
             {t.description && (
@@ -121,7 +119,7 @@ function TiersPage() {
           }}
         />
         <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
-          PRICE · {fmtUSD(price)}/MO
+          PRICE · {formatMoney(price)}/MO
         </p>
         <textarea
           placeholder="Description (optional)"

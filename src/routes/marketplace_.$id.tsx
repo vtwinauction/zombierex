@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -37,13 +38,6 @@ export const Route = createFileRoute("/marketplace_/$id")({
   notFoundComponent: () => <div className="p-6">Listing not found.</div>,
 });
 
-function fmtPrice(cents: number, currency = "USD") {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
 
 function ListingDetail() {
   const { id } = Route.useParams();
@@ -212,7 +206,7 @@ function ListingDetail() {
               className="mono-num text-[28px] font-bold leading-none"
               style={{ color: "var(--color-neon)" }}
             >
-              {fmtPrice(l.price_cents, l.currency)}
+              {formatMoney(l.price_cents, l.currency)}
             </span>
             {l.is_negotiable && (
               <span

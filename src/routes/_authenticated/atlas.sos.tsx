@@ -129,10 +129,13 @@ function SosHub() {
     setPendingKind(kind);
     setCountdown(seconds);
   }
+  // Keep the latest `fire` in a ref: the countdown effect must never call a
+  // stale closure on an emergency path.
+  const fireRef = useRef<(kind: "manual" | "crash" | "test") => void>(() => {});
   useEffect(() => {
     if (countdown == null) return;
     if (countdown <= 0) {
-      fire(pendingKind);
+      fireRef.current(pendingKind);
       setCountdown(null);
       return;
     }
@@ -163,6 +166,7 @@ function SosHub() {
   function fire(kind: "manual" | "crash" | "test") {
     fireMut.mutate(kind);
   }
+  fireRef.current = fire;
 
   /* --- once active, stream pings every 6s --- */
   useEffect(() => {

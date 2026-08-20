@@ -56,6 +56,17 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
         // Dedupe: refuse to re-apply the same provider_ref on a payment
         // already in a terminal state.
         if (payment.status === "succeeded" || payment.status === "failed") {
+          // A retry after a failed settlement must still settle — otherwise the
+          // terminal status swallows the commission permanently.
+          if (payment.status === "succeeded") {
+            const { settlePaymentById } = await import("@/lib/settlement.server");
+            try {
+              await settlePaymentById(payment.id, payload.provider_ref ?? payment.provider_ref);
+            } catch (e) {
+              console.error("[webhook/payments] retry settlement failed", e);
+              return new Response("Settlement failed", { status: 500 });
+            }
+          }
           return Response.json({ ok: true, deduped: true, status: payment.status });
         }
         if (payload.provider_ref && payment.provider_ref === payload.provider_ref) {
@@ -104,54 +115,11 @@ export const Route = createFileRoute("/api/public/webhooks/payments")({
         // the platform's cut is captured on every successful payment.
         if (nextStatus === "succeeded") {
           try {
-            const { data: full } = await supabaseAdmin
-              .from("payments")
-              .select("id, user_id, amount_cents, currency, provider, subscription_id, order_id")
-              .eq("id", payment.id)
-              .maybeSingle();
-            if (full) {
-              // Seller + category come from the order when this payment settles one.
-              let sellerId: string | null = null;
-              const category: string | null = null;
-              if ((full as any).order_id) {
-                const { data: order } = await supabaseAdmin
-                  .from("orders")
-                  .select("vendor_id")
-                  .eq("id", (full as any).order_id)
-                  .maybeSingle();
-                // transactions.seller_id references profiles(id), while
-                // orders.vendor_id references vendors(id) — resolve the
-                // vendor's owning profile or the settlement FK will fail.
-                const vendorId = (order as any)?.vendor_id ?? null;
-                if (vendorId) {
-                  const { data: vendor } = await supabaseAdmin
-                    .from("vendors")
-                    .select("owner_id")
-                    .eq("id", vendorId)
-                    .maybeSingle();
-                  sellerId = (vendor as any)?.owner_id ?? null;
-                }
-              }
-              const { settleTransaction } = await import("@/lib/finance.server");
-              await settleTransaction({
-                kind: (full as any).order_id
-                  ? "order"
-                  : (full as any).subscription_id
-                    ? "plan"
-                    : "other",
-                gross_cents: (full as any).amount_cents,
-                currency: (full as any).currency ?? "USD",
-                buyer_id: (full as any).user_id,
-                seller_id: sellerId,
-                order_id: (full as any).order_id ?? null,
-                payment_id: (full as any).id,
-                subscription_id: (full as any).subscription_id ?? null,
-                category,
-                provider: (full as any).provider ?? "mock",
-                provider_ref: payload.provider_ref ?? null,
-              });
-            }
+            const { settlePaymentById } = await import("@/lib/settlement.server");
+            await settlePaymentById(payment.id, payload.provider_ref ?? null);
           } catch (e) {
+            // Non-2xx so the provider retries; the retry path above re-runs
+            // settlement, and the reconcile sweep catches anything still open.
             console.error("[webhook/payments] settlement failed", e);
             return new Response("Settlement failed", { status: 500 });
           }
