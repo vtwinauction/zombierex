@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -19,15 +20,6 @@ export const Route = createFileRoute("/_authenticated/creator/payouts")({
   component: PayoutsPage,
 });
 
-function money(cents: number, currency = "USD") {
-  try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(
-      (cents ?? 0) / 100,
-    );
-  } catch {
-    return `$${((cents ?? 0) / 100).toFixed(2)}`;
-  }
-}
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
@@ -96,13 +88,13 @@ function PayoutsPage() {
             LIFETIME TIPS
           </p>
           <p className="serif mt-1 text-5xl italic" style={{ color: "var(--color-ink)" }}>
-            {s ? money(s.lifetime_tips_cents) : "—"}
+            {s ? formatMoney(s.lifetime_tips_cents) : "—"}
           </p>
           <div
             className="mt-4 grid grid-cols-3 gap-2 border-t pt-4"
             style={{ borderColor: "var(--color-hair)" }}
           >
-            <Stat label="THIS MONTH" value={s ? money(s.tips_this_month_cents) : "—"} />
+            <Stat label="THIS MONTH" value={s ? formatMoney(s.tips_this_month_cents) : "—"} />
             <Stat label="SUBSCRIBERS" value={s?.subscribers ?? 0} />
             <Stat label="ACTIVE SUBS" value={s?.active_subscriptions ?? 0} />
           </div>
@@ -179,7 +171,7 @@ function PayoutsPage() {
                   </p>
                 </div>
                 <p className="serif text-lg italic" style={{ color: "var(--color-neon)" }}>
-                  {money(t.amount_cents, t.currency)}
+                  {formatMoney(t.amount_cents, t.currency)}
                 </p>
               </li>
             ))}

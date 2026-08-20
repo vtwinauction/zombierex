@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -38,9 +39,6 @@ const PERIODS = [
   { label: "90D", days: 90 },
 ];
 
-function fmtUSD(cents: number) {
-  return `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 function fmtNum(n: number) {
   return n.toLocaleString();
 }
@@ -141,7 +139,7 @@ function AnalyticsPage() {
               />
               <Stat icon={<Share2 size={14} />} label="SHARES" value={fmtNum(data.totals.shares)} />
               <Stat icon={<Users size={14} />} label="NEW SUBS" value={fmtNum(data.totals.subs)} />
-              <Stat icon={<DollarSign size={14} />} label="TIPS" value={fmtUSD(data.totals.tips)} />
+              <Stat icon={<DollarSign size={14} />} label="TIPS" value={formatMoney(data.totals.tips)} />
             </div>
 
             <Section title="ENGAGEMENT VELOCITY">

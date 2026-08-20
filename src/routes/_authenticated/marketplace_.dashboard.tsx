@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -10,13 +11,6 @@ export const Route = createFileRoute("/_authenticated/marketplace_/dashboard")({
   component: Dashboard,
 });
 
-function fmtPrice(cents: number, currency = "USD") {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
 
 function Dashboard() {
   const getFn = useServerFn(getSellerDashboard);
@@ -73,7 +67,7 @@ function Dashboard() {
           <Metric k="RATING" v={`★ ${(d?.avg_rating ?? 0).toFixed(1)}`} />
           <Metric k="VIEWS" v={d?.total_views ?? 0} />
           <Metric k="SAVES" v={d?.total_saves ?? 0} />
-          <Metric k="AVG PRICE" v={fmtPrice(d?.avg_price_cents ?? 0)} />
+          <Metric k="AVG PRICE" v={formatMoney(d?.avg_price_cents ?? 0)} />
         </div>
 
         <div className="px-4 pt-6">
@@ -120,7 +114,7 @@ function Dashboard() {
                     </span>
                   </div>
                   <p className="mono-num text-sm font-bold" style={{ color: "var(--color-ink)" }}>
-                    {fmtPrice(l.price_cents, l.currency)}
+                    {formatMoney(l.price_cents, l.currency)}
                   </p>
                   <p className="mono-tag" style={{ color: "var(--color-titanium)" }}>
                     {l.views_count ?? 0} VIEWS · {l.saves_count ?? 0} SAVES

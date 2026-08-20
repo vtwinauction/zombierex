@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -12,13 +13,6 @@ export const Route = createFileRoute("/_authenticated/cart")({
   component: Cart,
 });
 
-function fmtPrice(cents: number, currency = "USD") {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
 
 function Cart() {
   const search = Route.useSearch();
@@ -132,7 +126,7 @@ function Cart() {
                 </p>
                 <div className="flex items-center justify-between mt-2 gap-2">
                   <p className="mono-num font-bold" style={{ color: "var(--color-neon)" }}>
-                    {l.price_cents != null ? fmtPrice(l.price_cents, l.currency) : "—"}
+                    {l.price_cents != null ? formatMoney(l.price_cents, l.currency) : "—"}
                   </p>
                   <div className="flex items-center gap-1">
                     <button
@@ -187,7 +181,7 @@ function Cart() {
                     className="mono-num text-lg font-bold"
                     style={{ color: "var(--color-neon)" }}
                   >
-                    {fmtPrice(cents, c)}
+                    {formatMoney(cents, c)}
                   </span>
                 </div>
               ))}

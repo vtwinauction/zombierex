@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -9,9 +10,6 @@ export const Route = createFileRoute("/_authenticated/creator/dashboard")({
   component: DashboardPage,
 });
 
-function fmtUSD(cents: number) {
-  return `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 function fmtNum(n: number) {
   return n.toLocaleString();
 }
@@ -125,10 +123,10 @@ function DashboardPage() {
               className="grid grid-cols-2 gap-px mx-4 mt-6 border"
               style={{ borderColor: "var(--color-hair-strong)", background: "var(--color-hair)" }}
             >
-              <Stat label="EARNINGS · TIPS" value={fmtUSD((dash as any).tips_cents_last_30d)} />
+              <Stat label="EARNINGS · TIPS" value={formatMoney((dash as any).tips_cents_last_30d)} />
               <Stat
                 label="LIFETIME TIPS"
-                value={fmtUSD((dash as any).profile.tips_total_cents ?? 0)}
+                value={formatMoney((dash as any).profile.tips_total_cents ?? 0)}
               />
               <Stat label="NEW SUBSCRIBERS" value={fmtNum((dash as any).new_subscribers)} />
               <Stat
@@ -218,7 +216,7 @@ function DashboardPage() {
                       </p>
                     </div>
                     <p className="mono-num font-bold" style={{ color: "var(--color-neon)" }}>
-                      {fmtUSD(t.price_cents)}/mo
+                      {formatMoney(t.price_cents)}/mo
                     </p>
                   </div>
                 ))}

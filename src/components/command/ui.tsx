@@ -2,20 +2,10 @@
  * Shared Mission Control primitives — dense, technical, responsive.
  * Purely presentational; every one uses the ZOMBIEREX design tokens.
  */
+import { formatMoney } from "@/lib/money";
+export { formatMoney as money };
 import type { ReactNode } from "react";
 
-export function money(cents?: number | null, currency = "USD") {
-  const v = (cents ?? 0) / 100;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      maximumFractionDigits: v >= 1000 ? 0 : 2,
-    }).format(v);
-  } catch {
-    return `$${v.toFixed(2)}`;
-  }
-}
 
 export function num(n?: number | null) {
   return new Intl.NumberFormat().format(n ?? 0);
@@ -197,7 +187,7 @@ export function Bars({ data, currency = "USD" }: { data: { day: string; cents: n
   return (
     <div className="flex h-32 items-end gap-[3px]">
       {data.map((d) => (
-        <div key={d.day} className="group relative flex-1" title={`${d.day} · ${money(d.cents, currency)}`}>
+        <div key={d.day} className="group relative flex-1" title={`${d.day} · ${formatMoney(d.cents, currency)}`}>
           <div
             style={{
               height: `${Math.max(2, (d.cents / max) * 100)}%`,
@@ -221,7 +211,7 @@ export function Split({ data, currency = "USD" }: { data: { kind: string; cents:
         <div key={d.kind}>
           <div className="flex items-center justify-between text-[12px]">
             <span className="mono-tag">{d.kind}</span>
-            <span className="tabular-nums">{money(d.cents, currency)}</span>
+            <span className="tabular-nums">{formatMoney(d.cents, currency)}</span>
           </div>
           <div className="mt-1 h-1.5 w-full rounded" style={{ background: "rgba(0,0,0,0.06)" }}>
             <div
