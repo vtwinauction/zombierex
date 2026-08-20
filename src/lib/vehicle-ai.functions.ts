@@ -17,13 +17,22 @@ export const getVehicleHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((raw: unknown) => VehicleIdInput.parse(raw))
   .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
-      .from("vehicle_service_records")
-      .select("id, title, service_date, due_date, status, odometer_km")
-      .eq("vehicle_id", data.id)
-      .eq("owner_id", context.userId);
-    if (error) throw new Error(error.message);
-    return computeVehicleHealth(rows ?? []);
+    const [records, vehicle] = await Promise.all([
+      context.supabase
+        .from("vehicle_service_records")
+        .select("id, title, service_date, due_date, status, odometer_km, due_odometer_km")
+        .eq("vehicle_id", data.id)
+        .eq("owner_id", context.userId),
+      context.supabase
+        .from("vehicles")
+        .select("odometer_km")
+        .eq("id", data.id)
+        .eq("owner_id", context.userId)
+        .maybeSingle(),
+    ]);
+    if (records.error) throw new Error(records.error.message);
+    const odo = vehicle.data?.odometer_km ?? null;
+    return computeVehicleHealth(records.data ?? [], odo === null ? null : Number(odo));
   });
 
 export const reviewBuild = createServerFn({ method: "POST" })
@@ -45,7 +54,7 @@ export const reviewBuild = createServerFn({ method: "POST" })
     const [vehicle, mods, service] = await Promise.all([
       context.supabase
         .from("vehicles")
-        .select("kind, make, model, year, nickname, spec")
+        .select("kind, make, model, year, nickname, spec, odometer_km")
         .eq("id", data.id)
         .eq("owner_id", context.userId)
         .is("deleted_at", null)
@@ -56,7 +65,7 @@ export const reviewBuild = createServerFn({ method: "POST" })
         .eq("vehicle_id", data.id),
       context.supabase
         .from("vehicle_service_records")
-        .select("id, title, service_date, due_date, status, odometer_km")
+        .select("id, title, service_date, due_date, status, odometer_km, due_odometer_km")
         .eq("vehicle_id", data.id)
         .eq("owner_id", context.userId),
     ]);
@@ -64,7 +73,10 @@ export const reviewBuild = createServerFn({ method: "POST" })
     if (!vehicle.data) throw new Error("Vehicle not found");
 
     const v = vehicle.data;
-    const health = computeVehicleHealth(service.data ?? []);
+    const health = computeVehicleHealth(
+      service.data ?? [],
+      v.odometer_km === null || v.odometer_km === undefined ? null : Number(v.odometer_km),
+    );
     const modList = (mods.data ?? [])
       .map((m) => `- [${m.category}] ${m.title}${m.brand ? ` (${m.brand})` : ""}`)
       .join("\n");
@@ -82,11 +94,14 @@ export const reviewBuild = createServerFn({ method: "POST" })
           role: "user",
           content: [
             `Vehicle: ${v.year ?? ""} ${v.make} ${v.model} (${v.kind}).`,
+            health.currentOdometerKm !== null
+              ? `Odometer: ${Math.round(health.currentOdometerKm).toLocaleString()} km.`
+              : "Odometer: not tracked.",
             modList ? `Modifications:\n${modList}` : "Modifications: none logged.",
             `Maintenance health score: ${health.score}/100 (${health.grade}).`,
             health.items.length
               ? `Outstanding items: ${health.items
-                  .map((i) => `${i.title} (${i.daysUntilDue < 0 ? `${-i.daysUntilDue}d overdue` : `in ${i.daysUntilDue}d`})`)
+                  .map((i) => `${i.title} (${describeDue(i)})`)
                   .join(", ")}`
               : "No outstanding scheduled work.",
             health.daysSinceLastService === null
@@ -107,3 +122,12 @@ export const reviewBuild = createServerFn({ method: "POST" })
       maintenance: (out.maintenance ?? []).slice(0, 3),
     };
   });
+
+function describeDue(i: { daysUntilDue: number | null; kmUntilDue: number | null }): string {
+  const parts: string[] = [];
+  if (i.daysUntilDue !== null)
+    parts.push(i.daysUntilDue < 0 ? `${-i.daysUntilDue}d overdue` : `in ${i.daysUntilDue}d`);
+  if (i.kmUntilDue !== null)
+    parts.push(i.kmUntilDue < 0 ? `${-i.kmUntilDue}km overdue` : `in ${i.kmUntilDue}km`);
+  return parts.join(" / ") || "scheduled";
+}

@@ -11,15 +11,19 @@ export type ServiceLike = {
   due_date: string | null;
   status: string | null;
   odometer_km: number | null;
+  due_odometer_km?: number | null;
 };
 
 export type HealthItem = {
   id: string;
   title: string;
-  /** Days until due — negative when overdue. */
-  daysUntilDue: number;
+  /** Days until due — negative when overdue. Null when the item is distance-only. */
+  daysUntilDue: number | null;
+  /** Kilometres until due — negative when overdue. Null when the item is date-only. */
+  kmUntilDue: number | null;
   severity: "overdue" | "due-soon" | "scheduled";
-  dueDate: string;
+  dueDate: string | null;
+  dueOdometerKm: number | null;
 };
 
 export type VehicleHealth = {
@@ -30,6 +34,8 @@ export type VehicleHealth = {
   lastServiceDate: string | null;
   lastOdometerKm: number | null;
   daysSinceLastService: number | null;
+  /** Current vehicle odometer used for distance-based scoring. */
+  currentOdometerKm: number | null;
 };
 
 const DAY = 86_400_000;
@@ -44,29 +50,58 @@ export function daysBetween(from: Date, to: Date): number {
   return Math.round((to.getTime() - from.getTime()) / DAY);
 }
 
+/** Distance window (km) that counts as "due soon". */
+const KM_SOON = 500;
+
 export function computeVehicleHealth(
   records: ServiceLike[],
+  currentOdometerKm: number | null = null,
   now: Date = new Date(),
 ): VehicleHealth {
   const today = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
   );
 
+  const odo = typeof currentOdometerKm === "number" && currentOdometerKm >= 0 ? currentOdometerKm : null;
+
   const items: HealthItem[] = [];
   for (const r of records) {
     const due = toDate(r.due_date);
-    if (!due) continue;
+    const dueKm = typeof r.due_odometer_km === "number" ? r.due_odometer_km : null;
+    if (!due && dueKm === null) continue;
     if (r.status === "done" && !isUpcoming(r)) continue;
-    const daysUntilDue = daysBetween(today, due);
+
+    const daysUntilDue = due ? daysBetween(today, due) : null;
+    const kmUntilDue = dueKm !== null && odo !== null ? dueKm - odo : null;
+
+    const bySeverity = (): HealthItem["severity"] => {
+      if ((daysUntilDue !== null && daysUntilDue < 0) || (kmUntilDue !== null && kmUntilDue < 0))
+        return "overdue";
+      if (
+        (daysUntilDue !== null && daysUntilDue <= 30) ||
+        (kmUntilDue !== null && kmUntilDue <= KM_SOON)
+      )
+        return "due-soon";
+      return "scheduled";
+    };
+
     items.push({
       id: r.id,
       title: r.title,
       daysUntilDue,
-      dueDate: r.due_date!.slice(0, 10),
-      severity: daysUntilDue < 0 ? "overdue" : daysUntilDue <= 30 ? "due-soon" : "scheduled",
+      kmUntilDue,
+      dueDate: r.due_date ? r.due_date.slice(0, 10) : null,
+      dueOdometerKm: dueKm,
+      severity: bySeverity(),
     });
   }
-  items.sort((a, b) => a.daysUntilDue - b.daysUntilDue);
+
+  const rank = { overdue: 0, "due-soon": 1, scheduled: 2 } as const;
+  items.sort(
+    (a, b) =>
+      rank[a.severity] - rank[b.severity] ||
+      (a.daysUntilDue ?? Number.MAX_SAFE_INTEGER) - (b.daysUntilDue ?? Number.MAX_SAFE_INTEGER),
+  );
 
   const done = records
     .filter((r) => r.status !== "upcoming" && toDate(r.service_date))
@@ -79,8 +114,11 @@ export function computeVehicleHealth(
 
   let score = 100;
   for (const it of items) {
-    if (it.severity === "overdue") score -= Math.min(40, 15 + Math.floor(-it.daysUntilDue / 30) * 5);
-    else if (it.severity === "due-soon") score -= 8;
+    if (it.severity === "overdue") {
+      const monthsLate = it.daysUntilDue !== null && it.daysUntilDue < 0 ? Math.floor(-it.daysUntilDue / 30) : 0;
+      const kmLate = it.kmUntilDue !== null && it.kmUntilDue < 0 ? Math.floor(-it.kmUntilDue / 1000) : 0;
+      score -= Math.min(40, 15 + Math.max(monthsLate, kmLate) * 5);
+    } else if (it.severity === "due-soon") score -= 8;
   }
   if (daysSinceLastService === null) score -= 15;
   else if (daysSinceLastService > 365) score -= 20;
@@ -97,6 +135,7 @@ export function computeVehicleHealth(
     lastServiceDate: last?.service_date?.slice(0, 10) ?? null,
     lastOdometerKm: last?.odometer_km ?? null,
     daysSinceLastService,
+    currentOdometerKm: odo,
   };
 }
 
