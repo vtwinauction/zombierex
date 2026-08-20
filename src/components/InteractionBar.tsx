@@ -159,19 +159,23 @@ export function InteractionBar({
               className="tap group relative flex h-12 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl"
               style={{ background: "transparent" }}
             >
-              <span
-                key={active ? "on" : "off"}
-                className={`transition-transform duration-200 ease-out group-active:scale-90 ${active ? "ibar-pop" : ""}`}
-                style={{
-                  color: iconColor,
-                  lineHeight: 0,
-                  filter: active
-                    ? "drop-shadow(0 0 8px rgba(0,200,83,0.95)) drop-shadow(0 0 18px rgba(0,200,83,0.45))"
-                    : "drop-shadow(0 0 3px rgba(0,200,83,0.42))",
-                }}
-              >
-                <Icon size={23} active={active} />
+              <span className="relative flex h-[30px] w-[30px] items-center justify-center">
+                <EngagementGauge value={gaugeValues[key]} size={30} active={active} />
+                <span
+                  key={active ? "on" : "off"}
+                  className={`relative transition-transform duration-200 ease-out group-active:scale-90 ${active ? "ibar-pop" : ""}`}
+                  style={{
+                    color: iconColor,
+                    lineHeight: 0,
+                    filter: active
+                      ? "drop-shadow(0 0 8px rgba(0,200,83,0.95)) drop-shadow(0 0 18px rgba(0,200,83,0.45))"
+                      : "drop-shadow(0 0 3px rgba(0,200,83,0.42))",
+                  }}
+                >
+                  <Icon size={17} active={active} />
+                </span>
               </span>
+
 
               <span
                 className="mono-num max-w-full truncate text-[10px] tabular-nums leading-none"
