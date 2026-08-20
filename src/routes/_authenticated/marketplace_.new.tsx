@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { getVehicle } from "@/lib/garage.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
   createListing,
@@ -25,8 +26,19 @@ import {
 
 export const Route = createFileRoute("/_authenticated/marketplace_/new")({
   head: () => ({ meta: [{ title: "New Listing · ZOMBIEREX" }] }),
+  validateSearch: (raw: Record<string, unknown>) =>
+    raw.vehicle ? { vehicle: String(raw.vehicle) } : {},
   component: NewListing,
 });
+
+const VEHICLE_CATEGORY: Record<string, string> = {
+  motorcycle: "motorcycle",
+  car: "car",
+  truck: "truck",
+  scooter: "scooter",
+  atv: "atv",
+  other: "other_vehicle",
+};
 
 type Photo = { url: string; is_video: boolean };
 
@@ -58,6 +70,32 @@ function NewListing() {
   const [uploading, setUploading] = useState(false);
   const [uploadPct, setUploadPct] = useState(0);
   const [err, setErr] = useState<string | null>(null);
+
+  // Prefill from a garage vehicle (?vehicle=<id>)
+  const { vehicle: vehicleId } = Route.useSearch() as { vehicle?: string };
+  const fetchVehicle = useServerFn(getVehicle);
+  const vq = useQuery({
+    queryKey: ["garage", "vehicle", vehicleId],
+    queryFn: () => fetchVehicle({ data: { id: vehicleId! } }),
+    enabled: !!vehicleId,
+    retry: false,
+  });
+  const prefilled = useRef(false);
+  useEffect(() => {
+    const v = vq.data?.vehicle as any;
+    if (!v || prefilled.current) return;
+    prefilled.current = true;
+    setForm((f: any) => ({
+      ...f,
+      title: [v.year, v.make, v.model].filter(Boolean).join(" "),
+      category: VEHICLE_CATEGORY[String(v.kind)] ?? "other_vehicle",
+      brand: v.make ?? "",
+      model: v.model ?? "",
+      year: v.year ? String(v.year) : "",
+      mileage_km: v.odometer_km ? String(Math.round(Number(v.odometer_km))) : "",
+    }));
+    if (v.hero_image_url) setPhotos((p) => (p.length ? p : [{ url: v.hero_image_url, is_video: false }]));
+  }, [vq.data]);
 
   function set<K extends string>(k: K, v: any) {
     setForm((f: any) => ({ ...f, [k]: v }));
