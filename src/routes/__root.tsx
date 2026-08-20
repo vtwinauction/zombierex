@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { installCrashReporter, reportCrash } from "../lib/crash-reporter";
 import { BottomNav } from "@/components/BottomNav";
-import { isMarketingPath } from "@/lib/marketing-mode";
+import { isMarketingPath, useMarketingMode } from "@/lib/marketing-mode";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
