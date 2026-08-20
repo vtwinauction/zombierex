@@ -104,6 +104,8 @@ function VehiclePage() {
         onChanged={invalidate}
       />
 
+      {isOwner && <VehicleIntelligence vehicleId={id} />}
+
       {isOwner && (
         <ServiceSection vehicleId={id} records={service} onChanged={invalidate} />
       )}
