@@ -159,6 +159,7 @@ import { Route as CommunitiesSlugChallengesChallengeIdRouteImport } from './rout
 import { Route as ApiPublicWebhooksStreamRouteImport } from './routes/api/public/webhooks.stream'
 import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/public/webhooks.payments'
 import { Route as ApiPublicHooksRunPayoutsRouteImport } from './routes/api/public/hooks/run-payouts'
+import { Route as ApiPublicHooksReconcileSettlementsRouteImport } from './routes/api/public/hooks/reconcile-settlements'
 import { Route as ApiPublicHooksPublishScheduledRouteImport } from './routes/api/public/hooks/publish-scheduled'
 import { Route as ApiPublicHooksFanoutPushRouteImport } from './routes/api/public/hooks/fanout-push'
 import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
@@ -1000,6 +1001,12 @@ const ApiPublicHooksRunPayoutsRoute =
     path: '/api/public/hooks/run-payouts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksReconcileSettlementsRoute =
+  ApiPublicHooksReconcileSettlementsRouteImport.update({
+    id: '/api/public/hooks/reconcile-settlements',
+    path: '/api/public/hooks/reconcile-settlements',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksPublishScheduledRoute =
   ApiPublicHooksPublishScheduledRouteImport.update({
     id: '/api/public/hooks/publish-scheduled',
@@ -1367,6 +1374,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/reconcile-settlements': typeof ApiPublicHooksReconcileSettlementsRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/api/public/webhooks/stream': typeof ApiPublicWebhooksStreamRoute
@@ -1546,6 +1554,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/reconcile-settlements': typeof ApiPublicHooksReconcileSettlementsRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/api/public/webhooks/stream': typeof ApiPublicWebhooksStreamRoute
@@ -1732,6 +1741,7 @@ export interface FileRoutesById {
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
+  '/api/public/hooks/reconcile-settlements': typeof ApiPublicHooksReconcileSettlementsRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
   '/api/public/webhooks/payments': typeof ApiPublicWebhooksPaymentsRoute
   '/api/public/webhooks/stream': typeof ApiPublicWebhooksStreamRoute
@@ -1918,6 +1928,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/reconcile-settlements'
     | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/api/public/webhooks/stream'
@@ -2097,6 +2108,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/reconcile-settlements'
     | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/api/public/webhooks/stream'
@@ -2282,6 +2294,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
     | '/api/public/hooks/publish-scheduled'
+    | '/api/public/hooks/reconcile-settlements'
     | '/api/public/hooks/run-payouts'
     | '/api/public/webhooks/payments'
     | '/api/public/webhooks/stream'
@@ -2353,6 +2366,7 @@ export interface RootRouteChildren {
   ApiPublicHooksCleanupMediaRoute: typeof ApiPublicHooksCleanupMediaRoute
   ApiPublicHooksFanoutPushRoute: typeof ApiPublicHooksFanoutPushRoute
   ApiPublicHooksPublishScheduledRoute: typeof ApiPublicHooksPublishScheduledRoute
+  ApiPublicHooksReconcileSettlementsRoute: typeof ApiPublicHooksReconcileSettlementsRoute
   ApiPublicHooksRunPayoutsRoute: typeof ApiPublicHooksRunPayoutsRoute
   ApiPublicWebhooksPaymentsRoute: typeof ApiPublicWebhooksPaymentsRoute
   ApiPublicWebhooksStreamRoute: typeof ApiPublicWebhooksStreamRoute
@@ -3413,6 +3427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRunPayoutsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/reconcile-settlements': {
+      id: '/api/public/hooks/reconcile-settlements'
+      path: '/api/public/hooks/reconcile-settlements'
+      fullPath: '/api/public/hooks/reconcile-settlements'
+      preLoaderRoute: typeof ApiPublicHooksReconcileSettlementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/publish-scheduled': {
       id: '/api/public/hooks/publish-scheduled'
       path: '/api/public/hooks/publish-scheduled'
@@ -4094,6 +4115,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksCleanupMediaRoute: ApiPublicHooksCleanupMediaRoute,
   ApiPublicHooksFanoutPushRoute: ApiPublicHooksFanoutPushRoute,
   ApiPublicHooksPublishScheduledRoute: ApiPublicHooksPublishScheduledRoute,
+  ApiPublicHooksReconcileSettlementsRoute:
+    ApiPublicHooksReconcileSettlementsRoute,
   ApiPublicHooksRunPayoutsRoute: ApiPublicHooksRunPayoutsRoute,
   ApiPublicWebhooksPaymentsRoute: ApiPublicWebhooksPaymentsRoute,
   ApiPublicWebhooksStreamRoute: ApiPublicWebhooksStreamRoute,
