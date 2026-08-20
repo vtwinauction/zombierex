@@ -465,68 +465,78 @@ function HomePage() {
             </Link>
           </div>
           <div className="no-scrollbar flex gap-2 overflow-x-auto px-4">
-            {chats.map((c) => (
-              <Link key={c.id} to="/messages" className="tap shrink-0" style={{ width: 168 }}>
-                <div
-                  className="flex flex-col items-start gap-2 p-3"
-                  style={{
-                    background:
-                      c.unread > 0
-                        ? "linear-gradient(160deg, rgba(198,255,61,0.10), rgba(255,91,58,0.06))"
-                        : "var(--color-graphite)",
-                    border: `1px solid ${c.unread > 0 ? "rgba(198,255,61,0.35)" : "var(--color-hair)"}`,
-                    borderRadius: 14,
-                  }}
-                >
-                  <div className="flex w-full items-center gap-2">
-                    <div className="relative">
-                      <img
-                        src={c.user.avatar}
-                        alt=""
-                        className="h-9 w-9 rounded-full object-cover"
-                      />
-                      {c.online && (
-                        <span
-                          className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full"
-                          style={{
-                            background: "var(--color-neon)",
-                            boxShadow: "0 0 0 2px var(--color-graphite)",
-                          }}
+            {(conversations.data ?? []).slice(0, 8).map((c: any) => {
+              const other = c.others?.[0];
+              const name = c.title || other?.display_name || other?.handle || "Conversation";
+              const when = c.lastMessageAt ? timeAgoShort(c.lastMessageAt) : "";
+              return (
+                <Link key={c.id} to="/messages" className="tap shrink-0" style={{ width: 168 }}>
+                  <div
+                    className="flex flex-col items-start gap-2 p-3"
+                    style={{
+                      background:
+                        c.unread > 0
+                          ? "linear-gradient(160deg, rgba(198,255,61,0.10), rgba(255,91,58,0.06))"
+                          : "var(--color-graphite)",
+                      border: `1px solid ${c.unread > 0 ? "rgba(198,255,61,0.35)" : "var(--color-hair)"}`,
+                      borderRadius: 14,
+                    }}
+                  >
+                    <div className="flex w-full items-center gap-2">
+                      {other?.avatar_url ? (
+                        <img
+                          src={other.avatar_url}
+                          alt=""
+                          className="h-9 w-9 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="h-9 w-9 rounded-full"
+                          style={{ background: "var(--color-hair)" }}
                         />
                       )}
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className="truncate text-[12px] font-semibold"
+                          style={{ color: "var(--color-ink)" }}
+                        >
+                          {name}
+                        </p>
+                        <p
+                          className="mono-tag"
+                          style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
+                        >
+                          {when}
+                        </p>
+                      </div>
+                      {c.unread > 0 && (
+                        <span
+                          className="grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold"
+                          style={{ background: "var(--color-ember)", color: "white" }}
+                        >
+                          {c.unread}
+                        </span>
+                      )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p
-                        className="truncate text-[12px] font-semibold"
-                        style={{ color: "var(--color-ink)" }}
-                      >
-                        {c.user.name}
-                      </p>
-                      <p
-                        className="mono-tag"
-                        style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
-                      >
-                        {c.timeAgo}
-                      </p>
-                    </div>
-                    {c.unread > 0 && (
-                      <span
-                        className="grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold"
-                        style={{ background: "var(--color-ember)", color: "white" }}
-                      >
-                        {c.unread}
-                      </span>
-                    )}
+                    <p
+                      className="line-clamp-2 text-[11.5px] leading-snug"
+                      style={{ color: "var(--color-silver)" }}
+                    >
+                      {c.lastMessage?.body ?? "No messages yet"}
+                    </p>
                   </div>
-                  <p
-                    className="line-clamp-2 text-[11.5px] leading-snug"
-                    style={{ color: "var(--color-silver)" }}
-                  >
-                    {c.lastMessage}
-                  </p>
-                </div>
+                </Link>
+              );
+            })}
+            {!conversations.isLoading && (conversations.data ?? []).length === 0 && (
+              <Link
+                to="/messages"
+                className="tap shrink-0 p-3 text-[12px]"
+                style={{ color: "var(--color-ink-3)" }}
+              >
+                No conversations yet — start one →
               </Link>
-            ))}
+            )}
           </div>
         </section>
 
