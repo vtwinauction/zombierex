@@ -18,7 +18,7 @@
  *    surfaces scheduled drafts on the composer's drafts screen.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -36,6 +36,7 @@ import { uploadVideoToStream } from "@/lib/video-upload";
 import { toast } from "sonner";
 import { saveDraft, type PostDraft } from "@/lib/post-drafts";
 import { createPost } from "@/lib/feed.functions";
+import { listMyVehicles } from "@/lib/garage.functions";
 import { createStory } from "@/lib/stories.functions";
 import { moderateImage } from "@/lib/moderation-image.functions";
 import { checkTextSafety } from "@/lib/moderation-text.functions";
@@ -285,7 +286,17 @@ export function MediaComposer({ onDone }: Props) {
   const pickCamera = useRef<HTMLInputElement>(null);
   const pickVideo = useRef<HTMLInputElement>(null);
 
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
+
   const post = useServerFn(createPost);
+  const fetchMyVehicles = useServerFn(listMyVehicles);
+  const myVehiclesQ = useQuery({
+    queryKey: ["garage", "vehicles", "composer"],
+    queryFn: () => fetchMyVehicles(),
+    staleTime: 60_000,
+    retry: false,
+  });
+  const myVehicles = myVehiclesQ.data ?? [];
   const postStory = useServerFn(createStory);
   const moderate = useServerFn(moderateImage);
   const moderateCaption = useServerFn(checkTextSafety);
@@ -644,6 +655,7 @@ export function MediaComposer({ onDone }: Props) {
           media_url: first?.url,
           thumbnail_url: first?.coverUrl ?? first?.url,
           is_reel: postType === "reel",
+          vehicle_id: vehicleId ?? undefined,
         },
       });
       return { scheduled: false, story: false };
@@ -1405,6 +1417,35 @@ export function MediaComposer({ onDone }: Props) {
                 border: "1px solid var(--color-hair)",
               }}
             />
+
+            {myVehicles.length > 0 && (
+              <div className="mt-3">
+                <p className="mono-tag text-[10px]" style={{ color: "var(--color-silver)" }}>
+                  TAG A VEHICLE
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {myVehicles.map((v) => {
+                    const on = vehicleId === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setVehicleId(on ? null : v.id)}
+                        className="mono-tag rounded-full px-3 py-1 text-[10px]"
+                        style={{
+                          border: `1px solid ${on ? "var(--color-neon)" : "var(--color-hair)"}`,
+                          color: on ? "var(--color-neon)" : "var(--color-silver)",
+                        }}
+                      >
+                        {(v.nickname || `${v.make} ${v.model}`).toUpperCase()}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+
 
             <div className="mt-3 flex items-center justify-between gap-2">
               <label
