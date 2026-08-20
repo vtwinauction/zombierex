@@ -69,6 +69,7 @@ export const LISTING_TRANSMISSIONS = [
 ] as const;
 
 const ListingInput = z.object({
+  vehicle_id: z.string().uuid().optional().nullable(),
   title: z.string().trim().min(3).max(200),
   description: z.string().trim().max(8000).optional().nullable(),
   category: z.enum(LISTING_CATEGORIES),
@@ -117,6 +118,17 @@ export const createListing = createServerFn({ method: "POST" })
     const { assertModuleEnabled } = await import("./feature-gate.server");
     await assertModuleEnabled("marketplace", "The Vault");
     const { photos, ...row } = data;
+    // Only allow linking a vehicle the caller actually owns.
+    if (row.vehicle_id) {
+      const { data: owned } = await context.supabase
+        .from("vehicles")
+        .select("id")
+        .eq("id", row.vehicle_id)
+        .eq("owner_id", context.userId)
+        .is("deleted_at", null)
+        .maybeSingle();
+      if (!owned) row.vehicle_id = null;
+    }
     const insert: any = {
       ...row,
       seller_id: context.userId,
