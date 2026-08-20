@@ -390,6 +390,8 @@ function ServiceSection({
   const [shop, setShop] = useState("");
   const [odo, setOdo] = useState("");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [dueDate, setDueDate] = useState("");
+  const [dueOdo, setDueOdo] = useState("");
 
   const addM = useMutation({
     mutationFn: () =>
@@ -400,6 +402,8 @@ function ServiceSection({
           shop: shop.trim() || null,
           odometer_km: odo ? Number(odo) : null,
           service_date: date,
+          due_date: dueDate || null,
+          due_odometer_km: dueOdo ? Number(dueOdo) : null,
           status: "done" as const,
           currency: "BHD",
         },
@@ -408,6 +412,8 @@ function ServiceSection({
       setTitle("");
       setShop("");
       setOdo("");
+      setDueDate("");
+      setDueOdo("");
       setOpen(false);
       onChanged();
     },
@@ -472,6 +478,26 @@ function ServiceSection({
             className="w-full rounded-lg px-3 py-2 text-[14px]"
             style={field}
           />
+          <p className="mono-tag pt-1 text-[9px]" style={{ color: "var(--color-ink-3)" }}>
+            NEXT SERVICE DUE (OPTIONAL)
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-1/2 rounded-lg px-3 py-2 text-[14px]"
+              style={field}
+            />
+            <input
+              value={dueOdo}
+              onChange={(e) => setDueOdo(e.target.value)}
+              inputMode="numeric"
+              placeholder="Due at km"
+              className="w-1/2 rounded-lg px-3 py-2 text-[14px]"
+              style={field}
+            />
+          </div>
           <button
             type="submit"
             disabled={!title.trim() || addM.isPending}

@@ -87,6 +87,11 @@ export function VehicleIntelligence({ vehicleId }: { vehicleId: string }) {
                     h.lastOdometerKm ? ` · ${h.lastOdometerKm.toLocaleString()} km` : ""
                   }.`}
             </p>
+            <p className="mt-0.5 text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+              {h?.currentOdometerKm != null
+                ? `Odometer ${Math.round(h.currentOdometerKm).toLocaleString()} km`
+                : "Odometer not tracked"}
+            </p>
           </div>
         </div>
 
@@ -108,9 +113,7 @@ export function VehicleIntelligence({ vehicleId }: { vehicleId: string }) {
                           : "var(--color-ink-3)",
                   }}
                 >
-                  {it.daysUntilDue < 0
-                    ? `${-it.daysUntilDue}D OVERDUE`
-                    : `DUE IN ${it.daysUntilDue}D`}
+                  {dueLabel(it)}
                 </span>
               </li>
             ))}
@@ -148,6 +151,19 @@ export function VehicleIntelligence({ vehicleId }: { vehicleId: string }) {
       </div>
     </section>
   );
+}
+
+function dueLabel(it: { daysUntilDue: number | null; kmUntilDue: number | null }): string {
+  const parts: string[] = [];
+  if (it.daysUntilDue !== null)
+    parts.push(it.daysUntilDue < 0 ? `${-it.daysUntilDue}D OVERDUE` : `${it.daysUntilDue}D`);
+  if (it.kmUntilDue !== null)
+    parts.push(
+      it.kmUntilDue < 0
+        ? `${(-it.kmUntilDue).toLocaleString()}KM OVER`
+        : `${it.kmUntilDue.toLocaleString()}KM`,
+    );
+  return parts.join(" · ") || "SCHEDULED";
 }
 
 function Bullets({ label, items }: { label: string; items: string[] }) {
