@@ -1,0 +1,2 @@
+ALTER TABLE public.vehicle_service_records ADD COLUMN IF NOT EXISTS reminded_at timestamptz;
+CREATE INDEX IF NOT EXISTS vehicle_service_records_reminder_idx ON public.vehicle_service_records (reminded_at) WHERE status <> 'done';

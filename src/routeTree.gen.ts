@@ -164,6 +164,7 @@ import { Route as ApiPublicWebhooksPaymentsRouteImport } from './routes/api/publ
 import { Route as ApiPublicHooksRunPayoutsRouteImport } from './routes/api/public/hooks/run-payouts'
 import { Route as ApiPublicHooksReconcileSettlementsRouteImport } from './routes/api/public/hooks/reconcile-settlements'
 import { Route as ApiPublicHooksPublishScheduledRouteImport } from './routes/api/public/hooks/publish-scheduled'
+import { Route as ApiPublicHooksMaintenanceRemindersRouteImport } from './routes/api/public/hooks/maintenance-reminders'
 import { Route as ApiPublicHooksFanoutPushRouteImport } from './routes/api/public/hooks/fanout-push'
 import { Route as ApiPublicHooksCleanupMediaRouteImport } from './routes/api/public/hooks/cleanup-media'
 import { Route as AuthenticatedPostIdEditRouteImport } from './routes/_authenticated/post.$id.edit'
@@ -1032,6 +1033,12 @@ const ApiPublicHooksPublishScheduledRoute =
     path: '/api/public/hooks/publish-scheduled',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMaintenanceRemindersRoute =
+  ApiPublicHooksMaintenanceRemindersRouteImport.update({
+    id: '/api/public/hooks/maintenance-reminders',
+    path: '/api/public/hooks/maintenance-reminders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksFanoutPushRoute =
   ApiPublicHooksFanoutPushRouteImport.update({
     id: '/api/public/hooks/fanout-push',
@@ -1395,6 +1402,7 @@ export interface FileRoutesByFullPath {
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
+  '/api/public/hooks/maintenance-reminders': typeof ApiPublicHooksMaintenanceRemindersRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/hooks/reconcile-settlements': typeof ApiPublicHooksReconcileSettlementsRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
@@ -1578,6 +1586,7 @@ export interface FileRoutesByTo {
   '/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
+  '/api/public/hooks/maintenance-reminders': typeof ApiPublicHooksMaintenanceRemindersRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/hooks/reconcile-settlements': typeof ApiPublicHooksReconcileSettlementsRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
@@ -1768,6 +1777,7 @@ export interface FileRoutesById {
   '/_authenticated/post/$id/edit': typeof AuthenticatedPostIdEditRoute
   '/api/public/hooks/cleanup-media': typeof ApiPublicHooksCleanupMediaRoute
   '/api/public/hooks/fanout-push': typeof ApiPublicHooksFanoutPushRoute
+  '/api/public/hooks/maintenance-reminders': typeof ApiPublicHooksMaintenanceRemindersRoute
   '/api/public/hooks/publish-scheduled': typeof ApiPublicHooksPublishScheduledRoute
   '/api/public/hooks/reconcile-settlements': typeof ApiPublicHooksReconcileSettlementsRoute
   '/api/public/hooks/run-payouts': typeof ApiPublicHooksRunPayoutsRoute
@@ -1958,6 +1968,7 @@ export interface FileRouteTypes {
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
+    | '/api/public/hooks/maintenance-reminders'
     | '/api/public/hooks/publish-scheduled'
     | '/api/public/hooks/reconcile-settlements'
     | '/api/public/hooks/run-payouts'
@@ -2141,6 +2152,7 @@ export interface FileRouteTypes {
     | '/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
+    | '/api/public/hooks/maintenance-reminders'
     | '/api/public/hooks/publish-scheduled'
     | '/api/public/hooks/reconcile-settlements'
     | '/api/public/hooks/run-payouts'
@@ -2330,6 +2342,7 @@ export interface FileRouteTypes {
     | '/_authenticated/post/$id/edit'
     | '/api/public/hooks/cleanup-media'
     | '/api/public/hooks/fanout-push'
+    | '/api/public/hooks/maintenance-reminders'
     | '/api/public/hooks/publish-scheduled'
     | '/api/public/hooks/reconcile-settlements'
     | '/api/public/hooks/run-payouts'
@@ -2402,6 +2415,7 @@ export interface RootRouteChildren {
   MarketplaceSellerIdRoute: typeof MarketplaceSellerIdRoute
   ApiPublicHooksCleanupMediaRoute: typeof ApiPublicHooksCleanupMediaRoute
   ApiPublicHooksFanoutPushRoute: typeof ApiPublicHooksFanoutPushRoute
+  ApiPublicHooksMaintenanceRemindersRoute: typeof ApiPublicHooksMaintenanceRemindersRoute
   ApiPublicHooksPublishScheduledRoute: typeof ApiPublicHooksPublishScheduledRoute
   ApiPublicHooksReconcileSettlementsRoute: typeof ApiPublicHooksReconcileSettlementsRoute
   ApiPublicHooksRunPayoutsRoute: typeof ApiPublicHooksRunPayoutsRoute
@@ -3499,6 +3513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPublishScheduledRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/maintenance-reminders': {
+      id: '/api/public/hooks/maintenance-reminders'
+      path: '/api/public/hooks/maintenance-reminders'
+      fullPath: '/api/public/hooks/maintenance-reminders'
+      preLoaderRoute: typeof ApiPublicHooksMaintenanceRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/fanout-push': {
       id: '/api/public/hooks/fanout-push'
       path: '/api/public/hooks/fanout-push'
@@ -4178,6 +4199,8 @@ const rootRouteChildren: RootRouteChildren = {
   MarketplaceSellerIdRoute: MarketplaceSellerIdRoute,
   ApiPublicHooksCleanupMediaRoute: ApiPublicHooksCleanupMediaRoute,
   ApiPublicHooksFanoutPushRoute: ApiPublicHooksFanoutPushRoute,
+  ApiPublicHooksMaintenanceRemindersRoute:
+    ApiPublicHooksMaintenanceRemindersRoute,
   ApiPublicHooksPublishScheduledRoute: ApiPublicHooksPublishScheduledRoute,
   ApiPublicHooksReconcileSettlementsRoute:
     ApiPublicHooksReconcileSettlementsRoute,
