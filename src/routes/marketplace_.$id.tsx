@@ -576,6 +576,15 @@ function GarageProvenance({ listingId }: { listingId: string }) {
           TRACKED IN OWNER&apos;S DIGITAL GARAGE · {mods.length} LOGGED MOD
           {mods.length === 1 ? "" : "S"}
         </p>
+        {(data as any).judge_score != null && (
+          <span
+            className="mono-tag inline-block px-2 py-1"
+            style={{ background: "var(--color-ink)", color: "var(--color-neon)" }}
+          >
+            AI JUDGE VERIFIED · {Math.round(Number((data as any).judge_score))}/100
+          </span>
+        )}
+
         {mods.length > 0 && (
           <ul className="space-y-1.5">
             {mods.slice(0, 8).map((m) => (

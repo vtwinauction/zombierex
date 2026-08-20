@@ -36,19 +36,33 @@ export const listPublicGarage = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!vehicles?.length) return [];
 
+    const ids = vehicles.map((v) => v.id);
+    // Published-event judge scores only (RLS restricts to public published events).
+    const { data: judged } = await client
+      .from("judge_entries")
+      .select("vehicle_id, overall_score")
+      .in("vehicle_id", ids)
+      .not("overall_score", "is", null)
+      .limit(200);
+    const bestScore = new Map<string, number>();
+    for (const j of judged ?? []) {
+      if (!j.vehicle_id) continue;
+      const score = Number(j.overall_score);
+      if (!Number.isFinite(score)) continue;
+      if (score > (bestScore.get(j.vehicle_id) ?? -1)) bestScore.set(j.vehicle_id, score);
+    }
+
     const { data: mods } = await client
       .from("vehicle_mods")
       .select("id, vehicle_id, category, title, brand")
-      .in(
-        "vehicle_id",
-        vehicles.map((v) => v.id),
-      )
+      .in("vehicle_id", ids)
       .order("created_at", { ascending: false })
       .limit(200);
 
     return vehicles.map((v) => ({
       ...v,
       mods: (mods ?? []).filter((m) => m.vehicle_id === v.id),
+      judge_score: bestScore.get(v.id) ?? null,
     }));
   });
 
@@ -120,5 +134,14 @@ export const getListingProvenance = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(50);
 
-    return { vehicle, mods: mods ?? [] };
+    const { data: judged } = await client
+      .from("judge_entries")
+      .select("overall_score")
+      .eq("vehicle_id", vehicle.id)
+      .not("overall_score", "is", null)
+      .order("overall_score", { ascending: false })
+      .limit(1);
+    const judgeScore = judged?.[0]?.overall_score != null ? Number(judged[0].overall_score) : null;
+
+    return { vehicle, mods: mods ?? [], judge_score: judgeScore };
   });
