@@ -551,66 +551,75 @@ function HomePage() {
             </Link>
           </div>
           <div className="no-scrollbar flex gap-3 overflow-x-auto px-4 pb-1">
-            {suggestedCreators.map((u, i) => {
-              const tiers = [
-                "APEX_REX",
-                "LEGEND",
-                "ELITE",
-                "TURBO",
-                "MASTER_BUILDER",
-                "NITRO",
-              ] as const;
-              const tier = tiers[i % tiers.length];
-              return (
-                <div
-                  key={u.id}
-                  className="shrink-0 overflow-hidden"
-                  style={{
-                    width: 158,
-                    borderRadius: 14,
-                    border: "1px solid var(--color-hair)",
-                    background: "var(--color-graphite)",
-                  }}
-                >
-                  <div className="relative h-20">
+            {suggestedCreators.map((u: any) => (
+              <div
+                key={u.id}
+                className="shrink-0 overflow-hidden"
+                style={{
+                  width: 158,
+                  borderRadius: 14,
+                  border: "1px solid var(--color-hair)",
+                  background: "var(--color-graphite)",
+                }}
+              >
+                <div className="relative h-20">
+                  {u.avatar ? (
                     <img
                       src={u.avatar}
                       alt=""
                       className="h-full w-full object-cover"
                       style={{ filter: "brightness(0.55) saturate(1.1)" }}
                     />
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background: "linear-gradient(180deg, transparent, rgba(8,9,11,0.85))",
-                      }}
-                    />
-                  </div>
-                  <div className="-mt-8 px-3 pb-3">
+                  ) : (
+                    <div className="h-full w-full" style={{ background: "var(--color-hair)" }} />
+                  )}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: "linear-gradient(180deg, transparent, rgba(8,9,11,0.85))",
+                    }}
+                  />
+                </div>
+                <div className="-mt-8 px-3 pb-3">
+                  {u.avatar ? (
                     <img
                       src={u.avatar}
                       alt=""
                       className="h-12 w-12 rounded-full object-cover"
                       style={{ boxShadow: "0 0 0 2px var(--color-graphite)" }}
                     />
-                    <p
-                      className="mt-1.5 flex items-center gap-1 truncate text-[12.5px] font-semibold"
-                      style={{ color: "var(--color-ink)" }}
-                    >
-                      {u.name}
-                      {u.verified && <RiderMark tier={tier} />}
-                    </p>
-                    <p
-                      className="mono-tag truncate"
-                      style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
-                    >
-                      {u.handle} · ◎ {u.location}
-                    </p>
-                    <FollowButton id={u.id} label={u.handle} variant="neon" fullWidth />
-                  </div>
+                  ) : (
+                    <div
+                      className="h-12 w-12 rounded-full"
+                      style={{
+                        background: "var(--color-hair)",
+                        boxShadow: "0 0 0 2px var(--color-graphite)",
+                      }}
+                    />
+                  )}
+                  <p
+                    className="mt-1.5 flex items-center gap-1 truncate text-[12.5px] font-semibold"
+                    style={{ color: "var(--color-ink)" }}
+                  >
+                    {u.name}
+                    {u.verified && <RiderMark tier={u.tier} />}
+                  </p>
+                  <p
+                    className="mono-tag truncate"
+                    style={{ fontSize: 8.5, color: "var(--color-titanium)" }}
+                  >
+                    @{u.handle}
+                    {u.location ? ` · ◎ ${u.location}` : ""}
+                  </p>
+                  <FollowButton id={u.id} label={u.handle} variant="neon" fullWidth />
                 </div>
-              );
-            })}
+              </div>
+            ))}
+            {!creators.isLoading && suggestedCreators.length === 0 && (
+              <p className="px-1 py-4 text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                No featured creators yet.
+              </p>
+            )}
           </div>
         </section>
 
