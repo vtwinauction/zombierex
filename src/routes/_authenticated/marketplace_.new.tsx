@@ -26,8 +26,19 @@ import {
 
 export const Route = createFileRoute("/_authenticated/marketplace_/new")({
   head: () => ({ meta: [{ title: "New Listing · ZOMBIEREX" }] }),
+  validateSearch: (raw: Record<string, unknown>) =>
+    raw.vehicle ? { vehicle: String(raw.vehicle) } : {},
   component: NewListing,
 });
+
+const VEHICLE_CATEGORY: Record<string, string> = {
+  motorcycle: "motorcycle",
+  car: "car",
+  truck: "truck",
+  scooter: "scooter",
+  atv: "atv",
+  other: "other_vehicle",
+};
 
 type Photo = { url: string; is_video: boolean };
 
