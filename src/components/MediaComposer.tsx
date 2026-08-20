@@ -1406,6 +1406,35 @@ export function MediaComposer({ onDone }: Props) {
               }}
             />
 
+            {myVehicles.length > 0 && (
+              <div className="mt-3">
+                <p className="mono-tag text-[10px]" style={{ color: "var(--color-silver)" }}>
+                  TAG A VEHICLE
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {myVehicles.map((v) => {
+                    const on = vehicleId === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setVehicleId(on ? null : v.id)}
+                        className="mono-tag rounded-full px-3 py-1 text-[10px]"
+                        style={{
+                          border: `1px solid ${on ? "var(--color-neon)" : "var(--color-hair)"}`,
+                          color: on ? "var(--color-neon)" : "var(--color-silver)",
+                        }}
+                      >
+                        {(v.nickname || `${v.make} ${v.model}`).toUpperCase()}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+
+
             <div className="mt-3 flex items-center justify-between gap-2">
               <label
                 className="mono-tag flex items-center gap-2"
