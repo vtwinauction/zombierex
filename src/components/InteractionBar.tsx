@@ -114,7 +114,9 @@ export function InteractionBar({
         padding: "0",
       }}
     >
-      <div className="grid grid-cols-4 items-center gap-1 px-1">
+      <div
+        className={`grid ${typeof counts.views === "number" ? "grid-cols-5" : "grid-cols-4"} items-center gap-1 px-1`}
+      >
         {ACTIONS.map(({ key, label, icon: Icon }) => {
           const active = (key === "like" && liked) || (key === "save" && saved);
 
