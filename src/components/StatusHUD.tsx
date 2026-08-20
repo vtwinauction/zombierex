@@ -20,7 +20,7 @@ export function StatusHUD({
   return (
     <header className="border-b border-ink bg-bone">
       <div className="panel-ink flex items-center gap-3 px-3 py-1.5">
-        <span className="mono-caps text-signal">SYS</span>
+        <span className="mono-caps text-signal-ink">SYS</span>
         <span className="mono-num text-[10px] text-bone/70">GRID·{code}</span>
         {typeof level === "number" && (
           <>

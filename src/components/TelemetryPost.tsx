@@ -56,10 +56,10 @@ export function TelemetryPost({ post, index = 0 }: { post: Post; index?: number 
           {/* bottom vehicle telemetry bar */}
           {post.vehicle && (
             <div className="panel-ink absolute inset-x-0 bottom-0 flex items-center gap-2 px-2 py-1.5">
-              <span className="mono-caps text-signal">◇</span>
+              <span className="mono-caps text-signal-ink">◇</span>
               <span className="font-display truncate text-xs uppercase">{post.vehicle.name}</span>
               <div className="ml-auto flex items-center gap-1">
-                <span className="mono-num text-signal text-[10px] font-bold">
+                <span className="mono-num text-signal-ink text-[10px] font-bold">
                   {post.vehicle.hp}HP
                 </span>
                 <span className="text-bone/40">·</span>
@@ -70,7 +70,7 @@ export function TelemetryPost({ post, index = 0 }: { post: Post; index?: number 
           {liked && (
             <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <span
-                className="heart-burst text-signal"
+                className="heart-burst text-signal-ink"
                 style={{ filter: "drop-shadow(0 4px 12px rgba(182,255,60,0.8))" }}
               >
                 <IconClaw size={92} strokeWidth={2.5} />
