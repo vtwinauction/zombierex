@@ -635,10 +635,11 @@ function HomePage() {
             </Link>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {TRENDING_TAGS.map((t, i) => (
+            {(tags.data ?? []).map((t: any, i: number) => (
               <Link
                 key={t.tag}
-                to="/search"
+                to="/tag/$tag"
+                params={{ tag: t.tag }}
                 className="tap flex items-center gap-2 rounded-full px-2.5 py-1.5"
                 style={{
                   border: "1px solid var(--color-hair-strong)",
@@ -649,13 +650,18 @@ function HomePage() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="text-[12px] font-semibold" style={{ color: "var(--color-ink)" }}>
-                  {t.tag}
+                  #{t.tag}
                 </span>
-                <span className="mono-num text-[10px]" style={{ color: "var(--color-neon)" }}>
-                  {t.posts}
+                <span className="mono-num text-[10px]" style={{ color: "var(--color-neon-deep)" }}>
+                  {fmt(t.usage_count ?? 0)}
                 </span>
               </Link>
             ))}
+            {!tags.isLoading && (tags.data ?? []).length === 0 && (
+              <p className="text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                No trending tags yet.
+              </p>
+            )}
           </div>
         </section>
 
