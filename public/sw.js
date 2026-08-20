@@ -49,10 +49,11 @@ function shouldCacheMedia(url) {
   return /\.(jpg|jpeg|png|webp|avif|gif|mp4|webm|mov|mkv)(\?|$)/i.test(path);
 }
 
-function shouldCacheApi(url) {
-  // Cache GET API calls that are safe to replay offline (public read endpoints, not server functions or auth)
-  return url.pathname.startsWith("/api/") && !url.pathname.startsWith("/api/public/hooks/");
+function isPrivateAsset(url) {
+  // Signed/expiring storage URLs and anything API-shaped is per-user data.
+  return url.pathname.startsWith("/api/") || url.search.includes("token=");
 }
+
 
 async function trimCache(cacheName, maxItems) {
   const cache = await caches.open(cacheName);
