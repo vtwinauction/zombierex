@@ -1,10 +1,15 @@
-/* ZOMBIEREX Service Worker — offline shell + media/API cache */
-const SHELL_CACHE = "zrx-shell-v4";
-const MEDIA_CACHE = "zrx-media-v4";
-const API_CACHE = "zrx-api-v4";
+/* ZOMBIEREX Service Worker — offline shell + media cache
+ *
+ * Privacy rule: personalised HTML and API payloads are NEVER written to the
+ * cache. Any page can be private (auth state is client-side, so the URL alone
+ * cannot tell us), so navigations are network-only with a generic offline
+ * shell fallback. Only immutable static assets and media are cached.
+ */
+const SHELL_CACHE = "zrx-shell-v5";
+const MEDIA_CACHE = "zrx-media-v5";
 const CORE = ["/", "/favicon.ico", "/manifest.webmanifest"];
 const MAX_MEDIA = 200;
-const MAX_API = 100;
+
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
