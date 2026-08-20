@@ -15,7 +15,10 @@ import {
   Gauge,
 } from "lucide-react";
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
-import { reels, posts, chats, users, clubs } from "@/lib/mock-data";
+import { listConversations } from "@/lib/messages.functions";
+import { listCreators } from "@/lib/creator.functions";
+import { discoverCommunities, joinCommunity } from "@/lib/communities.functions";
+import { listTrendingHashtags } from "@/lib/hashtags.functions";
 import { StoriesRail } from "@/components/StoriesRail";
 import { useFollow } from "@/hooks/useFollow";
 import { SponsoredCard } from "@/components/SponsoredCard";
