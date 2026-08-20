@@ -214,6 +214,16 @@ function HomePage() {
   const feedPosts = realPosts;
   const feedIsEmpty = !liveFeed.isLoading && realPosts.length === 0;
 
+  // Reels are real video posts from the same authenticated feed.
+  const videoPosts = realPosts.filter((p: any) => p.video || p.poster);
+  const featured = videoPosts[0] ?? null;
+  const gridReels = videoPosts.slice(1, 4).map((p: any) => ({
+    id: p.id,
+    poster: p.poster || p.image,
+    likes: p.likes,
+  }));
+
+
   // IntersectionObserver sentinel — auto-load next page as user scrolls.
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
