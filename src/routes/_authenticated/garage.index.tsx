@@ -1,7 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listMyVehicles, setPrimaryVehicle, deleteVehicle } from "@/lib/garage.functions";
+import {
+  listMyVehicles,
+  setPrimaryVehicle,
+  deleteVehicle,
+  getFleetHealth,
+} from "@/lib/garage.functions";
 import { PullToRefresh } from "@/components/PullToRefresh";
 import { confirmDialog } from "@/lib/confirm";
 
@@ -63,6 +68,8 @@ function GaragePage() {
             Add vehicle
           </Link>
         </header>
+
+        <FleetHealth />
 
         <div className="mt-5 space-y-3 px-4">
           {q.isLoading && (
@@ -157,5 +164,76 @@ function GaragePage() {
         </div>
       </div>
     </PullToRefresh>
+  );
+}
+
+/** Fleet-wide maintenance summary across the rider's whole garage. */
+function FleetHealth() {
+  const fetchFleet = useServerFn(getFleetHealth);
+  const { data } = useQuery({
+    queryKey: ["garage", "fleet-health"],
+    queryFn: () => fetchFleet(),
+    retry: false,
+    staleTime: 60_000,
+  });
+  if (!data || !data.vehicles.length) return null;
+
+  const tone =
+    data.overdueCount > 0
+      ? "var(--color-danger, #d64545)"
+      : data.dueSoonCount > 0
+        ? "var(--color-warn, #c98a1d)"
+        : "var(--color-neon)";
+
+  return (
+    <section className="mt-5 px-4">
+      <div
+        className="rounded-xl p-4"
+        style={{ background: "var(--color-paper-0)", border: "1px solid var(--color-line)" }}
+      >
+        <div className="flex items-baseline justify-between">
+          <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+            FLEET HEALTH · {data.vehicles.length} VEHICLE{data.vehicles.length === 1 ? "" : "S"}
+          </p>
+          <p className="text-2xl font-semibold" style={{ color: tone }}>
+            {data.averageScore}
+            <span className="text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+              /100
+            </span>
+          </p>
+        </div>
+        <p className="mono-tag mt-1" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+          {data.overdueCount} OVERDUE · {data.dueSoonCount} DUE SOON
+        </p>
+        <ul className="mt-3 space-y-2">
+          {data.vehicles.map((v) => (
+            <li key={v.id}>
+              <Link
+                to="/garage/$id"
+                params={{ id: v.id }}
+                className="flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <p
+                    className="truncate text-[13px] font-medium"
+                    style={{ color: "var(--color-ink-0)" }}
+                  >
+                    {v.label}
+                  </p>
+                  <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
+                    {v.nextItem
+                      ? `${v.nextItem.severity.toUpperCase().replace("-", " ")} · ${v.nextItem.title}`
+                      : "NOTHING OUTSTANDING"}
+                  </p>
+                </div>
+                <span className="text-[13px] font-semibold" style={{ color: "var(--color-ink-0)" }}>
+                  {v.score}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
