@@ -7789,6 +7789,7 @@ export type Database = {
         | "refunds"
         | "tax_payable"
         | "cash_clearing"
+        | "escrow_held"
       listing_category:
         | "motorcycle"
         | "car"
@@ -8075,6 +8076,7 @@ export const Constants = {
         "refunds",
         "tax_payable",
         "cash_clearing",
+        "escrow_held",
       ],
       listing_category: [
         "motorcycle",
