@@ -11,6 +11,7 @@ import {
   checkFinanceAccess,
 } from "@/lib/finance.functions";
 import { formatMoney } from "@/lib/commission";
+import { DEFAULT_CURRENCY, toDecimal, toDecimalString } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/transactions")({
   head: () => ({
@@ -102,9 +103,9 @@ function TransactionsPage() {
           r.created_at,
           r.kind,
           r.status,
-          r.gross_cents / 100,
-          r.platform_fee_cents / 100,
-          r.net_cents / 100,
+          toDecimal(r.gross_cents, r.currency),
+          toDecimal(r.platform_fee_cents, r.currency),
+          toDecimal(r.net_cents, r.currency),
           r.buyer_name ?? "",
           r.seller_name ?? "",
           r.provider,
@@ -282,8 +283,8 @@ function TransactionsPage() {
                           className="btn-ghost text-[10px]"
                           onClick={() => {
                             const fee = prompt(
-                              "New commission in dollars",
-                              (r.platform_fee_cents / 100).toFixed(2),
+                              `New commission in ${r.currency ?? DEFAULT_CURRENCY}`,
+                              toDecimalString(r.platform_fee_cents, r.currency ?? DEFAULT_CURRENCY),
                             );
                             if (!fee) return;
                             const reason = prompt("Reason for adjustment") ?? "manual";

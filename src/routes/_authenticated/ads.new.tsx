@@ -7,6 +7,7 @@ import {
   AD_PLACEMENTS,
   AD_CREATIVE_KINDS,
 } from "@/lib/ads.functions";
+import { DEFAULT_CURRENCY, inputStep, toDecimal, toMinorUnits } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/ads/new")({
   head: () => ({ meta: [{ title: "New campaign · ZOMBIEREX" }] }),
@@ -154,12 +155,13 @@ function NewCampaign() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <label className="text-[11px]" style={{ color: "var(--color-silver)" }}>
-              Budget (USD)
+              Budget ({DEFAULT_CURRENCY})
               <input
                 type="number"
                 min={1}
-                value={budget / 100}
-                onChange={(e) => setBudget(Math.round(+e.target.value * 100))}
+                step={inputStep(DEFAULT_CURRENCY)}
+                value={toDecimal(budget)}
+                onChange={(e) => setBudget(toMinorUnits(+e.target.value, DEFAULT_CURRENCY))}
                 className="mt-1 w-full px-3 py-2 text-[13px]"
                 style={fieldStyle}
               />

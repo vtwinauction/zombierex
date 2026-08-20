@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyCollabInbox } from "@/lib/creator.functions";
+import { DEFAULT_CURRENCY, formatMoney } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/creator/collabs")({
   head: () => ({ meta: [{ title: "Collab Inbox · ZOMBIEREX" }] }),
@@ -122,7 +123,7 @@ function CollabsPage() {
             </p>
             {r.budget_cents != null && (
               <p className="mt-2 mono-tag font-bold" style={{ color: "var(--color-neon)" }}>
-                BUDGET · ${(r.budget_cents / 100).toFixed(2)}
+                BUDGET · {formatMoney(r.budget_cents, DEFAULT_CURRENCY)}
               </p>
             )}
           </article>

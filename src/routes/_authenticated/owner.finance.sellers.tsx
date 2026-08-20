@@ -8,6 +8,7 @@ import {
   checkFinanceAccess,
 } from "@/lib/finance.functions";
 import { formatMoney } from "@/lib/commission";
+import { DEFAULT_CURRENCY, toDecimalString, toMinorUnits } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/sellers")({
   head: () => ({
@@ -122,11 +123,13 @@ function SellersPage() {
                 className="btn-ghost text-[10px]"
                 onClick={() => {
                   const v = prompt(
-                    "Minimum withdrawal in dollars",
-                    (s.min_withdrawal_cents / 100).toFixed(2),
+                    `Minimum withdrawal in ${DEFAULT_CURRENCY}`,
+                    toDecimalString(s.min_withdrawal_cents, DEFAULT_CURRENCY),
                   );
                   if (v)
-                    patch(s.seller_id, { min_withdrawal_cents: Math.round(parseFloat(v) * 100) });
+                    patch(s.seller_id, {
+                      min_withdrawal_cents: toMinorUnits(parseFloat(v) || 0, DEFAULT_CURRENCY),
+                    });
                 }}
               >
                 Withdrawal limit

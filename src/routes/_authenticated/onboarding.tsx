@@ -5,6 +5,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { onboardingRecommendations } from "@/lib/ai.functions";
+import { DEFAULT_CURRENCY, formatMoney } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Personalize · ZOMBIEREX" }] }),
@@ -158,7 +159,7 @@ function OnboardingPage() {
                     {l.title}
                   </div>
                   <div className="text-[11px]" style={{ color: "var(--color-silver)" }}>
-                    {(l.price_cents / 100).toLocaleString()} {l.currency}
+                    {formatMoney(l.price_cents, l.currency ?? DEFAULT_CURRENCY)}
                   </div>
                 </div>
               </Link>
