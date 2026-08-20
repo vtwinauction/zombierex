@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -104,7 +105,7 @@ function AdsManager() {
                     { k: "Impr.", v: c.impressions_count ?? 0 },
                     { k: "Clicks", v: c.clicks_count ?? 0 },
                     { k: "CTR", v: `${ctr.toFixed(1)}%` },
-                    { k: "Spent", v: `$${((c.spent_cents ?? 0) / 100).toFixed(0)}` },
+                    { k: "Spent", v: formatMoney(c.spent_cents ?? 0) },
                   ].map((s) => (
                     <div
                       key={s.k}

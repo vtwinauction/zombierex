@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/money";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
@@ -45,8 +46,8 @@ function BusinessDashboard() {
 
   const { vendor, insights, ads, recent_activity } = q.data;
   const ctr = ads.impressions > 0 ? (ads.clicks / ads.impressions) * 100 : 0;
-  const spent = (ads.spent_cents / 100).toFixed(0);
-  const budget = (ads.budget_cents / 100).toFixed(0);
+  const spent = formatMoney(ads.spent_cents);
+  const budget = formatMoney(ads.budget_cents);
 
   return (
     <div className="pb-32">
