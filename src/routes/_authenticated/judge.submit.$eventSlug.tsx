@@ -2,6 +2,9 @@ import { createFileRoute, useNavigate, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { listMyVehicles } from "@/lib/garage.functions";
 import {
   judgeGetEvent,
   judgeCreateEntry,
@@ -83,6 +86,49 @@ const MEDIA_SLOTS: { kind: Kind; label: string; accept: string; hint: string }[]
   },
 ];
 
+function GaragePicker({
+  selected,
+  onPick,
+}: {
+  selected: string | null;
+  onPick: (v: any | null) => void;
+}) {
+  const fetchVehicles = useServerFn(listMyVehicles);
+  const { data } = useQuery({
+    queryKey: ["garage", "mine", "judge-picker"],
+    queryFn: () => fetchVehicles(),
+    staleTime: 60_000,
+  });
+  const vehicles: any[] = (data as any)?.vehicles ?? (Array.isArray(data) ? data : []);
+  if (!vehicles.length) return null;
+  return (
+    <div>
+      <p className="mono-tag mb-1" style={{ color: "var(--color-silver)" }}>
+        FROM YOUR GARAGE
+      </p>
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        {vehicles.map((v) => {
+          const on = selected === v.id;
+          return (
+            <button
+              key={v.id}
+              onClick={() => onPick(on ? null : v)}
+              className="chip shrink-0"
+              style={{
+                background: on ? "var(--color-obsidian)" : "transparent",
+                color: on ? "var(--color-neon)" : "var(--color-ink)",
+                borderColor: on ? "var(--color-obsidian)" : "var(--color-hair-strong)",
+              }}
+            >
+              {(v.nickname || [v.year, v.make, v.model].filter(Boolean).join(" ") || "VEHICLE").toUpperCase()}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function SubmitWizard() {
   const { eventSlug } = Route.useParams();
   const nav = useNavigate();
@@ -92,6 +138,7 @@ function SubmitWizard() {
 
   const [step, setStep] = useState<Step>("vehicle");
   const [entryId, setEntryId] = useState<string | null>(null);
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [form, setForm] = useState({
     display_name: "",
     vehicle_type: "motorcycle" as "motorcycle" | "car",
@@ -119,6 +166,7 @@ function SubmitWizard() {
       const r = await judgeCreateEntry({
         data: {
           event_slug: eventSlug,
+          vehicle_id: vehicleId,
           display_name: form.display_name.trim(),
           vehicle_type: form.vehicle_type,
           make: form.make || null,
@@ -223,6 +271,21 @@ function SubmitWizard() {
 
       {step === "vehicle" && (
         <section className="px-5 mt-6 space-y-3">
+          <GaragePicker
+            selected={vehicleId}
+            onPick={(v) => {
+              setVehicleId(v?.id ?? null);
+              if (v)
+                setForm((f) => ({
+                  ...f,
+                  display_name: f.display_name || v.nickname || [v.year, v.make, v.model].filter(Boolean).join(" "),
+                  vehicle_type: v.kind === "car" ? "car" : "motorcycle",
+                  make: v.make ?? f.make,
+                  model: v.model ?? f.model,
+                  year: v.year ? String(v.year) : f.year,
+                }));
+            }}
+          />
           <Field
             label="Build name *"
             value={form.display_name}
