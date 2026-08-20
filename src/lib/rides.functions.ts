@@ -29,28 +29,12 @@ const RideInput = z.object({
   vehicle_id: z.string().uuid().optional().nullable(),
 });
 
-/** Confirms a vehicle belongs to the caller; returns null when unowned/missing. */
-async function ownedVehicleId(
-  supabase: any,
-  userId: string,
-  vehicleId: string | null | undefined,
-): Promise<string | null> {
-  if (!vehicleId) return null;
-  const { data } = await supabase
-    .from("vehicles")
-    .select("id")
-    .eq("id", vehicleId)
-    .eq("owner_id", userId)
-    .is("deleted_at", null)
-    .maybeSingle();
-  return data?.id ?? null;
-}
-
 export const createRide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d) => RideInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { ownedVehicleId } = await import("@/lib/rides.server");
     let vehicleId = await ownedVehicleId(supabase, userId, data.vehicle_id);
     if (!vehicleId) {
       // Default to the rider's primary vehicle so odometers stay accurate.
@@ -118,6 +102,7 @@ export const updateRide = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { id, ...patch } = data;
+    const { ownedVehicleId } = await import("@/lib/rides.server");
     if ("vehicle_id" in patch) {
       patch.vehicle_id = await ownedVehicleId(context.supabase, context.userId, patch.vehicle_id);
     }
