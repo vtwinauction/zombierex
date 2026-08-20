@@ -206,6 +206,23 @@ async function writeLedger(sb: Admin, txn: any) {
       amount_cents: txn.tax_cents,
       memo: "Tax collected",
     });
+  // Offsetting debit so the books balance: every credit above is funded by
+  // cash received from the processor. SUM(debits) === SUM(credits) per txn.
+  const credits = rows
+    .filter((r) => r.direction === "credit")
+    .reduce((n, r) => n + r.amount_cents, 0);
+  const debits = rows
+    .filter((r) => r.direction === "debit")
+    .reduce((n, r) => n + r.amount_cents, 0);
+  const offset = credits - debits;
+  if (offset !== 0)
+    rows.push({
+      ...base,
+      account: "cash_clearing",
+      direction: offset > 0 ? "debit" : "credit",
+      amount_cents: Math.abs(offset),
+      memo: "Cash received (clearing)",
+    });
   if (rows.length) {
     const { error } = await sb.from("ledger_entries").insert(rows);
     if (error) console.error("[finance] ledger write failed", error);
@@ -214,14 +231,14 @@ async function writeLedger(sb: Admin, txn: any) {
 
 async function notifyParties(sb: Admin, txn: any) {
   const rows: any[] = [];
-  const amount = (txn.gross_cents / 100).toFixed(2);
+  const amount = formatMoney(txn.gross_cents, txn.currency);
   if (txn.buyer_id)
     rows.push({
       user_id: txn.buyer_id,
       kind: "order",
       payload: {
         title: "Payment confirmed",
-        body: `Your payment of ${txn.currency} ${amount} was successful.`,
+        body: `Your payment of ${amount} was successful.`,
       },
     });
   if (txn.seller_id)
@@ -230,7 +247,7 @@ async function notifyParties(sb: Admin, txn: any) {
       kind: "order",
       payload: {
         title: "You made a sale",
-        body: `${txn.currency} ${(txn.net_cents / 100).toFixed(2)} added to your balance (after ${(txn.platform_fee_cents / 100).toFixed(2)} platform fee).`,
+        body: `${formatMoney(txn.net_cents, txn.currency)} added to your balance (after ${formatMoney(txn.platform_fee_cents, txn.currency)} platform fee).`,
       },
     });
   if (!rows.length) return;
@@ -265,8 +282,25 @@ export async function refundTransaction(input: RefundInput) {
 
   const cfg = await loadPaymentConfig(sb);
   const reclaim = input.reclaim_commission ?? cfg.refunds?.reclaim_commission ?? true;
-  const ratio = amount / t.gross_cents;
-  const commissionBack = reclaim ? Math.round(t.platform_fee_cents * ratio) : 0;
+  const totalAfter = t.refunded_cents + amount;
+  // Remainder maths: the final refund reclaims exactly what is left of the fee
+  // so Σ(clawbacks) === platform_fee_cents with no rounding drift.
+  let commissionBack = 0;
+  if (reclaim) {
+    const { data: priorRefunds } = await sb
+      .from("refunds")
+      .select("commission_returned_cents")
+      .eq("transaction_id", t.id);
+    const already = ((priorRefunds ?? []) as any[]).reduce(
+      (n, r) => n + (r.commission_returned_cents ?? 0),
+      0,
+    );
+    const target =
+      totalAfter >= t.gross_cents
+        ? t.platform_fee_cents
+        : Math.round((t.platform_fee_cents * totalAfter) / t.gross_cents);
+    commissionBack = Math.max(0, Math.min(target - already, t.platform_fee_cents - already));
+  }
   const sellerBack = amount - commissionBack;
 
   const { error: rErr } = await sb.from("refunds").insert({
@@ -293,13 +327,16 @@ export async function refundTransaction(input: RefundInput) {
   const ledger: any[] = [
     {
       transaction_id: t.id,
-      account: "refunds",
-      direction: "debit",
+      account: "cash_clearing",
+      direction: "credit",
       amount_cents: amount,
       currency: t.currency,
-      memo: input.reason ?? "Refund",
+      memo: input.reason ?? "Refund paid out",
     },
   ];
+  if (amount - commissionBack - (amount - commissionBack) !== 0) {
+    /* unreachable guard kept for clarity */
+  }
   if (commissionBack > 0)
     ledger.push({
       transaction_id: t.id,
@@ -351,6 +388,10 @@ export async function refundTransaction(input: RefundInput) {
   return { refunded_cents: amount, commission_returned_cents: commissionBack };
 }
 
+function currencyOf(sfs: any): string {
+  return sfs?.currency ?? "USD";
+}
+
 /** Seller balance = credited net minus debits minus already-paid payouts. */
 export async function getSellerBalance(sellerId: string) {
   const sb = await admin();
@@ -369,7 +410,10 @@ export async function getSellerBalance(sellerId: string) {
     .eq("seller_id", sellerId)
     .in("status", ["scheduled", "processing", "paid"]);
   for (const p of (paid ?? []) as any[]) balance -= p.amount_cents;
-  return Math.max(0, balance);
+  // Return the true balance — a negative value is recoverable debt (e.g. a
+  // refund after a payout) and must stay visible. Clamping happens only at the
+  // payout decision, which skips anything below the withdrawal minimum.
+  return balance;
 }
 
 /** Builds a payout batch for every seller above their withdrawal minimum. */
@@ -425,7 +469,7 @@ export async function runPayoutBatch() {
       kind: "system",
       payload: {
         title: "Payout scheduled",
-        body: `A payout of $${(balance / 100).toFixed(2)} has been scheduled.`,
+        body: `A payout of ${formatMoney(balance, currencyOf(sfs))} has been scheduled.`,
       },
     });
 
