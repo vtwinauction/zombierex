@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.bump_vehicle_odometer() FROM PUBLIC, anon, authenticated;
