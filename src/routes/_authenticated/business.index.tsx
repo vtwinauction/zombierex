@@ -112,7 +112,7 @@ function BusinessDashboard() {
               { k: "Active", v: ads.active },
               { k: "Impr.", v: ads.impressions },
               { k: "CTR", v: `${ctr.toFixed(1)}%` },
-              { k: "Spent", v: `$${spent}/${budget}` },
+              { k: "Spent", v: `${spent} / ${budget}` },
             ].map((s) => (
               <div
                 key={s.k}
