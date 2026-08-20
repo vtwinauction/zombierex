@@ -340,109 +340,100 @@ function HomePage() {
         {/* ==================================================
          FEATURED REEL — TikTok DNA · tap → /reels
          ================================================== */}
-        <section className="mt-4 px-4">
-          <div className="mb-2 flex items-center justify-between">
-            <p className="mono-tag" style={{ color: "var(--color-neon)" }}>
-              ● Trending · Reels
-            </p>
-            <Link to="/reels" className="mono-tag" style={{ color: "var(--color-silver)" }}>
-              Open reels →
-            </Link>
-          </div>
-          <Link
-            to="/reels"
-            className="relative block overflow-hidden"
-            style={{ aspectRatio: "9/14", borderRadius: 18, border: "1px solid var(--color-hair)" }}
-          >
-            {featured.poster ? (
-              <img src={featured.poster} alt="" className="ken-burns h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
-            )}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)",
-              }}
-            />
-
-            {/* top row — user + follow */}
-            <div className="absolute inset-x-3 top-3 flex items-center gap-2">
-              <img
-                src={featured.user.avatar}
-                alt=""
-                className="h-8 w-8 rounded-full object-cover"
-                style={{ boxShadow: "0 0 0 1.5px var(--color-neon)" }}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-[13px] font-semibold text-white">
-                  {featured.user.handle} <RiderMark tier="APEX_REX" />
-                </p>
-                <p className="mono-tag" style={{ color: "rgba(255,255,255,0.7)" }}>
-                  ◎ {featured.location}
-                </p>
-              </div>
-              <FollowButton id={featured.user.id} label={featured.user.handle} variant="ember" />
-            </div>
-
-            {/* TikTok-style right action rail */}
-            <div className="absolute bottom-20 right-3 flex flex-col items-center gap-4 text-white">
-              <RailBtn
-                Icon={IconClaw}
-                count={fmt(featured.likes)}
-                active
-                tint="var(--color-ember)"
-              />
-              <RailBtn Icon={IconVisor} count={fmt(featured.comments)} />
-              <RailBtn Icon={IconBoneMark} count="Save" />
-              <RailBtn Icon={IconMechClaw} count={fmt(featured.shares)} />
-              <div
-                className="mt-1 h-9 w-9 overflow-hidden rounded-full border-2 border-white"
-                style={{ animation: "ken-burns 18s linear infinite" }}
-              >
-                <img src={featured.user.avatar} alt="" className="h-full w-full object-cover" />
-              </div>
-            </div>
-
-            {/* caption + music ticker */}
-            <div className="absolute inset-x-3 bottom-3 pr-16 text-white">
-              <p className="text-[13px] leading-snug">{featured.caption}</p>
-              <p className="mt-1.5 text-[11px]" style={{ color: "rgba(255,255,255,0.75)" }}>
-                {featured.hashtags.slice(0, 3).join(" ")}
+        {featured && (
+          <section className="mt-4 px-4">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="mono-tag" style={{ color: "var(--color-neon-deep)" }}>
+                ● Trending · Reels
               </p>
-              <div className="mt-2.5 flex items-center gap-2 overflow-hidden">
-                <span
-                  className="grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px]"
-                  style={{
-                    background: "rgba(255,255,255,0.15)",
-                    border: "1px solid rgba(255,255,255,0.25)",
-                  }}
-                >
-                  ♫
-                </span>
-                <div className="min-w-0 flex-1 overflow-hidden">
-                  <p
-                    className="marquee whitespace-nowrap text-[11px]"
-                    style={{ color: "rgba(255,255,255,0.9)" }}
-                  >
-                    {featured.music.title} — {featured.music.artist} · original sound ·{" "}
-                    {featured.views} views · &nbsp;
-                    {featured.music.title} — {featured.music.artist} ·&nbsp;
-                  </p>
-                </div>
-              </div>
+              <Link to="/reels" className="mono-tag" style={{ color: "var(--color-silver)" }}>
+                Open reels →
+              </Link>
             </div>
-
-            {/* play indicator */}
-            <span
-              className="absolute left-3 top-14 mono-tag"
-              style={{ color: "rgba(255,255,255,0.75)" }}
+            <Link
+              to="/reels"
+              className="relative block overflow-hidden"
+              style={{
+                aspectRatio: "9/14",
+                borderRadius: 18,
+                border: "1px solid var(--color-hair)",
+              }}
             >
-              ▶ Autoplay · {featured.duration}s
-            </span>
-          </Link>
-        </section>
+              {featured.poster ? (
+                <img
+                  src={featured.poster}
+                  alt={featured.caption || "Featured reel"}
+                  className="ken-burns h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full" style={{ background: "var(--color-graphite)" }} />
+              )}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 30%, rgba(0,0,0,0.85) 100%)",
+                }}
+              />
+
+              {/* top row — user + follow */}
+              <div className="absolute inset-x-3 top-3 flex items-center gap-2">
+                {featured.user.avatar ? (
+                  <img
+                    src={featured.user.avatar}
+                    alt=""
+                    className="h-8 w-8 rounded-full object-cover"
+                    style={{ boxShadow: "0 0 0 1.5px var(--color-neon)" }}
+                  />
+                ) : (
+                  <div
+                    className="h-8 w-8 rounded-full"
+                    style={{
+                      background: "var(--color-hair)",
+                      boxShadow: "0 0 0 1.5px var(--color-neon)",
+                    }}
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1.5 text-[13px] font-semibold text-white">
+                    {featured.user.handle}
+                    {featured.user.verified && <RiderMark tier="APEX_REX" />}
+                  </p>
+                  {featured.user.location && (
+                    <p className="mono-tag" style={{ color: "rgba(255,255,255,0.7)" }}>
+                      ◎ {featured.user.location}
+                    </p>
+                  )}
+                </div>
+                {featured.authorId && (
+                  <FollowButton
+                    id={featured.authorId}
+                    label={featured.user.handle}
+                    variant="ember"
+                  />
+                )}
+              </div>
+
+              {/* right action rail */}
+              <div className="absolute bottom-20 right-3 flex flex-col items-center gap-4 text-white">
+                <RailBtn
+                  Icon={IconClaw}
+                  count={fmt(featured.likes)}
+                  active
+                  tint="var(--color-ember)"
+                />
+                <RailBtn Icon={IconVisor} count={fmt(featured.comments)} />
+                <RailBtn Icon={IconBoneMark} count="Save" />
+                <RailBtn Icon={IconMechClaw} count="Share" />
+              </div>
+
+              {/* caption */}
+              <div className="absolute inset-x-3 bottom-3 pr-16 text-white">
+                <p className="text-[13px] leading-snug">{featured.caption}</p>
+              </div>
+            </Link>
+          </section>
+        )}
 
         {/* ==================================================
          QUICK CHATS — Snap-style horizontal chat strip
