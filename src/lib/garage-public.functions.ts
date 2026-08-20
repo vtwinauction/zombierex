@@ -79,3 +79,46 @@ export const listVehiclePosts = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return posts ?? [];
   });
+
+/** Garage provenance for a marketplace listing linked to a vehicle. */
+export const getListingProvenance = createServerFn({ method: "GET" })
+  .validator((raw: unknown) => z.object({ listingId: z.string().uuid() }).parse(raw))
+  .handler(async ({ data }) => {
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+    const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+      auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input, init) => {
+          const h = new Headers(init?.headers);
+          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+            h.delete("Authorization");
+          h.set("apikey", key);
+          return fetch(input, { ...init, headers: h });
+        },
+      },
+    });
+
+    const { data: listing } = await client
+      .from("listings")
+      .select("id, vehicle_id")
+      .eq("id", data.listingId)
+      .maybeSingle();
+    if (!listing?.vehicle_id) return null;
+
+    const { data: vehicle } = await client
+      .from("vehicles")
+      .select("id, owner_id, kind, make, model, year, nickname, odometer_km, created_at")
+      .eq("id", listing.vehicle_id)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (!vehicle) return null;
+
+    const { data: mods } = await client
+      .from("vehicle_mods")
+      .select("id, category, title, brand")
+      .eq("vehicle_id", vehicle.id)
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    return { vehicle, mods: mods ?? [] };
+  });
