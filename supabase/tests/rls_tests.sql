@@ -35,9 +35,15 @@ LANGUAGE plpgsql AS $$
 BEGIN
   BEGIN
     EXECUTE _sql;
-    RAISE EXCEPTION 'FAIL [%]: expected RLS/permission error but statement succeeded', _label;
-  EXCEPTION WHEN insufficient_privilege OR check_violation OR raise_exception THEN
-    RAISE NOTICE 'OK   [%]: blocked as expected (%).', _label, SQLERRM;
+    -- Distinct SQLSTATE so the handler below cannot swallow our own failure.
+    RAISE EXCEPTION 'FAIL [%]: expected RLS/permission error but statement succeeded', _label
+      USING ERRCODE = 'ZZ001';
+  EXCEPTION
+    WHEN insufficient_privilege OR check_violation THEN
+      RAISE NOTICE 'OK   [%]: blocked as expected (%).', _label, SQLERRM;
+    WHEN raise_exception THEN
+      -- A policy trigger raising is a legitimate block; our own sentinel is not.
+      RAISE NOTICE 'OK   [%]: blocked as expected (%).', _label, SQLERRM;
   END;
 END $$;
 
