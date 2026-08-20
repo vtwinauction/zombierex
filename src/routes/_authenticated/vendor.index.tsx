@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getVendorDashboardStats } from "@/lib/vendor.functions";
+import { DEFAULT_CURRENCY, formatMoney } from "@/lib/money";
 
 const statsQuery = queryOptions({
   queryKey: ["vendor-stats"],
@@ -30,7 +31,7 @@ function VendorOverview() {
   const cards = [
     {
       k: "Revenue",
-      v: `$${(stats.revenue_cents / 100).toFixed(0)}`,
+      v: formatMoney(stats.revenue_cents, DEFAULT_CURRENCY),
       sub: `${stats.orders} orders`,
       hi: true,
     },

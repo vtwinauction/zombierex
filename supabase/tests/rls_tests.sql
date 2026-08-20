@@ -168,7 +168,7 @@ SELECT pg_temp.expect_fail(
 );
 SELECT pg_temp.expect_fail(
   $f$INSERT INTO public.notifications (user_id, kind) VALUES
-     ('11111111-1111-1111-1111-111111111111', 'spam')$f$,
+     ('11111111-1111-1111-1111-111111111111', 'system')$f$,
   'anon: cannot insert notification'
 );
 ROLLBACK TO SAVEPOINT t8;

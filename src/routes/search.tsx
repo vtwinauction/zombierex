@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { searchAll } from "@/lib/search.functions";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { DEFAULT_CURRENCY, formatMoney as fmtMoney } from "@/lib/money";
 import {
   Select,
   SelectContent,
@@ -525,16 +526,7 @@ function Skeleton() {
 
 function formatMoney(cents?: number | null, currency?: string | null) {
   if (cents == null) return "—";
-  const value = cents / 100;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currency || "USD",
-      maximumFractionDigits: 0,
-    }).format(value);
-  } catch {
-    return `$${value.toFixed(0)}`;
-  }
+  return fmtMoney(cents, currency || DEFAULT_CURRENCY);
 }
 
 function formatDate(iso?: string | null) {

@@ -14,6 +14,7 @@ import {
 } from "recharts";
 import { getRevenueOverview } from "@/lib/finance.functions";
 import { formatMoney } from "@/lib/commission";
+import { toDecimal } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/owner/finance/")({
   head: () => ({
@@ -102,7 +103,7 @@ function OverviewPage() {
         <div style={{ height: 180 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
-              data={d.series.map((s) => ({ ...s, fees: s.fees / 100, gross: s.gross / 100 }))}
+              data={d.series.map((s) => ({ ...s, fees: toDecimal(s.fees), gross: toDecimal(s.gross) }))}
             >
               <defs>
                 <linearGradient id="feeGrad" x1="0" y1="0" x2="0" y2="1">
@@ -143,7 +144,7 @@ function OverviewPage() {
         ) : (
           <div style={{ height: 170 }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={d.byKind.map((k) => ({ ...k, fees: k.fees / 100 }))}>
+              <BarChart data={d.byKind.map((k) => ({ ...k, fees: toDecimal(k.fees) }))}>
                 <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.06)" />
                 <XAxis dataKey="kind" tick={{ fontSize: 9, fill: "rgba(255,255,255,0.5)" }} />
                 <YAxis width={38} tick={{ fontSize: 10, fill: "rgba(255,255,255,0.4)" }} />

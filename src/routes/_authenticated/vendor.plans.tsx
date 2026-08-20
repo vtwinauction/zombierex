@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { listPlans, subscribeVendor, getMyVendor, getMySubscription } from "@/lib/vendor.functions";
 import { startCheckout } from "@/lib/payments.functions";
+import { DEFAULT_CURRENCY, formatMoney } from "@/lib/money";
 
 const plansQuery = queryOptions({ queryKey: ["plans"], queryFn: () => listPlans() });
 const vendorQuery = queryOptions({ queryKey: ["my-vendor"], queryFn: () => getMyVendor() });
@@ -134,7 +135,7 @@ function PlansPage() {
                   className="serif text-4xl"
                   style={{ color: featured ? "var(--color-neon)" : "var(--color-ink)" }}
                 >
-                  ${(p.price_cents / 100).toFixed(0)}
+                  {formatMoney(p.price_cents, DEFAULT_CURRENCY)}
                 </span>
                 <span className="ml-1 text-[11px] opacity-70">/ {p.interval}</span>
               </p>

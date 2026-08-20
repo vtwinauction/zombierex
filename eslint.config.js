@@ -36,5 +36,19 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "off",
     },
   },
+  {
+    files: ["src/routes/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "BinaryExpression[operator='/'][right.value=100][left.property.name=/(cents|amount|gross|net|fee|price|total|balance|budget|revenue)$/i]",
+          message:
+            "The divisor depends on the currency — BHD is 1/1000. Use formatMoney() or toDecimal() from '@/lib/money'.",
+        },
+      ],
+    },
+  },
   eslintPluginPrettier,
 );

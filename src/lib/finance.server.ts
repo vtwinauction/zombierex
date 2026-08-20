@@ -13,6 +13,7 @@ import {
   type SplitContext,
   type TxnKind,
 } from "@/lib/commission";
+import { DEFAULT_CURRENCY } from "@/lib/money";
 
 type Admin = Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"];
 
@@ -170,6 +171,29 @@ export async function settleTransaction(input: SettleInput) {
   return { transaction: txn, deduped: false as const };
 }
 
+/**
+ * Double-entry invariant: per currency, SUM(debits) must equal SUM(credits).
+ * An unbalanced row set that reaches the database is far more expensive to find
+ * later than a settlement that retried, so this throws before the insert.
+ */
+function assertBalanced(
+  rows: { direction: string; amount_cents: number; currency?: string | null }[],
+  label: string,
+) {
+  const byCurrency = new Map<string, number>();
+  for (const r of rows) {
+    const c = (r.currency ?? DEFAULT_CURRENCY).toUpperCase();
+    byCurrency.set(
+      c,
+      (byCurrency.get(c) ?? 0) + (r.direction === "debit" ? r.amount_cents : -r.amount_cents),
+    );
+  }
+  for (const [c, diff] of byCurrency) {
+    if (diff !== 0)
+      throw new Error(`[finance] unbalanced ${label} ledger for ${c}: debits-credits=${diff}`);
+  }
+}
+
 async function writeLedger(sb: Admin, txn: any) {
   const rows: any[] = [];
   const base = { transaction_id: txn.id, currency: txn.currency };
@@ -224,8 +248,11 @@ async function writeLedger(sb: Admin, txn: any) {
       memo: "Cash received (clearing)",
     });
   if (rows.length) {
+    assertBalanced(rows, "settlement");
     const { error } = await sb.from("ledger_entries").insert(rows);
-    if (error) console.error("[finance] ledger write failed", error);
+    // A settled transaction with no accounting record is worse than a retry:
+    // throw so the webhook returns non-2xx and reconcileSettlements re-runs it.
+    if (error) throw new Error(`[finance] ledger write failed: ${error.message}`);
   }
 }
 
@@ -353,7 +380,9 @@ export async function refundTransaction(input: RefundInput) {
       party_id: t.seller_id,
       memo: "Seller refund debit",
     });
-  await sb.from("ledger_entries").insert(ledger);
+  assertBalanced(ledger, "refund");
+  const { error: lErr } = await sb.from("ledger_entries").insert(ledger);
+  if (lErr) throw new Error(`[finance] refund ledger write failed: ${lErr.message}`);
 
   // Only flip the order once it is fully refunded — a partial refund must
   // leave the order in its fulfilled state.
@@ -385,28 +414,41 @@ export async function refundTransaction(input: RefundInput) {
   return { refunded_cents: amount, commission_returned_cents: commissionBack };
 }
 
-/** Seller balance = credited net minus debits minus already-paid payouts. */
-export async function getSellerBalance(sellerId: string) {
+/**
+ * Seller balances, bucketed by currency. A seller with BHD and USD entries has
+ * two balances; adding 1000 fils to 1000 cents produces a number that
+ * corresponds to no amount of money.
+ */
+export async function getSellerBalances(sellerId: string): Promise<Record<string, number>> {
   const sb = await admin();
+  const out: Record<string, number> = {};
   const { data: entries } = await sb
     .from("ledger_entries")
-    .select("direction, amount_cents")
+    .select("direction, amount_cents, currency")
     .eq("account", "seller_payable")
     .eq("party_id", sellerId);
-  let balance = 0;
   for (const e of (entries ?? []) as any[]) {
-    balance += e.direction === "credit" ? e.amount_cents : -e.amount_cents;
+    const c = (e.currency ?? DEFAULT_CURRENCY).toUpperCase();
+    out[c] = (out[c] ?? 0) + (e.direction === "credit" ? e.amount_cents : -e.amount_cents);
   }
   const { data: paid } = await sb
     .from("payouts")
-    .select("amount_cents, status")
+    .select("amount_cents, currency, status")
     .eq("seller_id", sellerId)
     .in("status", ["scheduled", "processing", "paid"]);
-  for (const p of (paid ?? []) as any[]) balance -= p.amount_cents;
-  // Return the true balance — a negative value is recoverable debt (e.g. a
-  // refund after a payout) and must stay visible. Clamping happens only at the
-  // payout decision, which skips anything below the withdrawal minimum.
-  return balance;
+  for (const p of (paid ?? []) as any[]) {
+    const c = (p.currency ?? DEFAULT_CURRENCY).toUpperCase();
+    out[c] = (out[c] ?? 0) - p.amount_cents;
+  }
+  // True balances — a negative value is recoverable debt (e.g. a refund after a
+  // payout) and must stay visible. Clamping happens only at the payout decision.
+  return out;
+}
+
+/** Balance in a single currency (defaults to the platform currency). */
+export async function getSellerBalance(sellerId: string, currency: string = DEFAULT_CURRENCY) {
+  const balances = await getSellerBalances(sellerId);
+  return balances[currency.toUpperCase()] ?? 0;
 }
 
 /** Builds a payout batch for every seller above their withdrawal minimum. */
@@ -414,7 +456,6 @@ export async function runPayoutBatch() {
   const sb = await admin();
   const cfg = await loadPaymentConfig(sb);
   const globalMin = cfg.withdrawals?.min_cents ?? 2500;
-  const payoutCurrency: string = cfg.default_currency ?? cfg.currency?.default ?? "USD";
 
   const { data: sellers } = await sb
     .from("ledger_entries")
@@ -422,7 +463,7 @@ export async function runPayoutBatch() {
     .eq("account", "seller_payable")
     .not("party_id", "is", null);
   const ids = Array.from(new Set(((sellers ?? []) as any[]).map((r) => r.party_id)));
-  if (!ids.length) return { batch_id: null, payouts: 0, total_cents: 0 };
+  if (!ids.length) return { batch_id: null, payouts: 0, total_cents: 0, totals: {} };
 
   const periodEnd = new Date();
   const periodStart = new Date(periodEnd.getTime() - 7 * 86_400_000);
@@ -436,11 +477,12 @@ export async function runPayoutBatch() {
     .select("id")
     .single();
   if (bErr) throw new Error(bErr.message);
+  const batchId = (batch as any).id;
 
-  let total = 0;
+  const totals: Record<string, number> = {};
   let count = 0;
   for (const sellerId of ids) {
-    const balance = await getSellerBalance(sellerId);
+    const balances = await getSellerBalances(sellerId);
     const { data: sfs } = await sb
       .from("seller_finance_settings")
       .select("min_withdrawal_cents, suspended, payout_method")
@@ -448,33 +490,53 @@ export async function runPayoutBatch() {
       .maybeSingle();
     if ((sfs as any)?.suspended) continue;
     const min = (sfs as any)?.min_withdrawal_cents ?? globalMin;
-    if (balance < min) continue;
 
-    await sb.from("payouts").insert({
-      batch_id: (batch as any).id,
-      seller_id: sellerId,
-      amount_cents: balance,
-      status: "scheduled",
-      method: (sfs as any)?.payout_method ?? null,
-      scheduled_for: periodEnd.toISOString(),
-    });
-    await sb.from("notifications").insert({
-      user_id: sellerId,
-      kind: "system",
-      payload: {
-        title: "Payout scheduled",
-        body: `A payout of ${formatMoney(balance, payoutCurrency)} has been scheduled.`,
-      },
-    });
+    for (const [currency, balance] of Object.entries(balances)) {
+      if (balance < min) continue;
 
-    total += balance;
-    count += 1;
+      // One payout per (batch, seller, currency). The unique index makes a
+      // concurrent run a 23505 rather than a double payment.
+      const { error: pErr } = await sb.from("payouts").insert({
+        batch_id: batchId,
+        seller_id: sellerId,
+        amount_cents: balance,
+        currency,
+        status: "scheduled",
+        method: (sfs as any)?.payout_method ?? null,
+        scheduled_for: periodEnd.toISOString(),
+      });
+      if (pErr) {
+        if ((pErr as any).code === "23505") continue; // already handled by another run
+        throw new Error(pErr.message);
+      }
+
+      await sb.from("notifications").insert({
+        user_id: sellerId,
+        kind: "system",
+        payload: {
+          title: "Payout scheduled",
+          body: `A payout of ${formatMoney(balance, currency)} has been scheduled.`,
+        },
+      });
+
+      totals[currency] = (totals[currency] ?? 0) + balance;
+      count += 1;
+    }
   }
 
   await sb
     .from("payout_batches")
-    .update({ total_cents: total, payouts_count: count })
-    .eq("id", (batch as any).id);
+    .update({
+      total_cents: totals[DEFAULT_CURRENCY] ?? 0,
+      totals,
+      payouts_count: count,
+    })
+    .eq("id", batchId);
 
-  return { batch_id: (batch as any).id, payouts: count, total_cents: total };
+  return {
+    batch_id: batchId,
+    payouts: count,
+    total_cents: totals[DEFAULT_CURRENCY] ?? 0,
+    totals,
+  };
 }

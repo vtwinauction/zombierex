@@ -87,7 +87,62 @@ describe("computeSplit", () => {
   });
 });
 
+describe("computeSplit invariants", () => {
+  it("fee + net always equals gross, and the fee is always an integer", () => {
+    for (const gross of [1, 7, 33, 99, 101, 999, 12_345, 1_000_003]) {
+      for (const bps of [1, 250, 999, 1000, 3333, 9999]) {
+        const s = computeSplit(gross, rule({ percent_bps: bps }));
+        expect(s.platform_fee_cents + s.net_cents).toBe(s.gross_cents);
+        expect(Number.isInteger(s.platform_fee_cents)).toBe(true);
+      }
+    }
+  });
+
+  it("splits several partial refund clawbacks to exactly the full fee", () => {
+    // Mirrors refundTransaction: each clawback targets the pro-rata share of
+    // the fee minus what was already returned, so the sum can never drift.
+    const s = computeSplit(10_003, rule({ percent_bps: 1234 }));
+    const slices = [3_000, 3_000, 4_003];
+    let already = 0;
+    let refunded = 0;
+    for (const amount of slices) {
+      refunded += amount;
+      const target =
+        refunded >= s.gross_cents
+          ? s.platform_fee_cents
+          : Math.round((s.platform_fee_cents * refunded) / s.gross_cents);
+      already += Math.max(0, Math.min(target - already, s.platform_fee_cents - already));
+    }
+    expect(already).toBe(s.platform_fee_cents);
+  });
+});
+
 describe("resolveFeeRule", () => {
+  it("resolves scope precedence promo > seller > category > seller_type > country > default", () => {
+    const rules = [
+      rule({ id: "default", scope: "default" }),
+      rule({ id: "country", scope: "country", scope_value: "bh" }),
+      rule({ id: "sellertype", scope: "seller_type", scope_value: "pro" }),
+      rule({ id: "category", scope: "category", scope_value: "helmets" }),
+      rule({ id: "seller", scope: "seller", scope_value: "seller-1" }),
+      rule({ id: "promo", scope: "promo", scope_value: "*" }),
+    ];
+    const full: SplitContext = {
+      kind: "order",
+      country: "BH",
+      sellerType: "pro",
+      category: "helmets",
+      sellerId: "seller-1",
+    };
+    // Peel one tier at a time — this is what makes the ORDERING load-bearing.
+    expect(resolveFeeRule(rules, full)?.id).toBe("promo");
+    expect(resolveFeeRule(rules.slice(0, 5), full)?.id).toBe("seller");
+    expect(resolveFeeRule(rules.slice(0, 4), full)?.id).toBe("category");
+    expect(resolveFeeRule(rules.slice(0, 3), full)?.id).toBe("sellertype");
+    expect(resolveFeeRule(rules.slice(0, 2), full)?.id).toBe("country");
+    expect(resolveFeeRule(rules.slice(0, 1), full)?.id).toBe("default");
+  });
+
   it("prefers the more specific scope", () => {
     const rules = [
       rule({ id: "default" }),

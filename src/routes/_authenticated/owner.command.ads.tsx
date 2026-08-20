@@ -5,6 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { adsDecideRequest, adsUpsertPlacement, adsWorkspace } from "@/lib/command.functions";
 import { Empty, Metric, Panel, Pill, Table, Td, inputStyle, money, num, statusTone, when } from "@/components/command/ui";
+import { DEFAULT_CURRENCY, toDecimalString, toMinorUnits } from "@/lib/money";
 
 export const Route = createFileRoute("/_authenticated/owner/command/ads")({
   head: () => ({
@@ -97,9 +98,9 @@ function AdsPage() {
                   <div className="flex flex-wrap gap-1">
                     <button className="btn-ghost text-[11px]" disabled={dm.isPending}
                       onClick={() => {
-                        const price = prompt("Approved price (in currency units)?", String((r.budget_cents ?? 0) / 100));
+                        const price = prompt(`Approved price in ${r.currency ?? DEFAULT_CURRENCY}?`, toDecimalString(r.budget_cents ?? 0, r.currency ?? DEFAULT_CURRENCY));
                         if (price === null) return;
-                        dm.mutate({ id: r.id, status: "approved", price_cents: Math.round(Number(price) * 100), createInvoice: true });
+                        dm.mutate({ id: r.id, status: "approved", price_cents: toMinorUnits(Number(price) || 0, r.currency ?? DEFAULT_CURRENCY), createInvoice: true });
                       }}>Approve + invoice</button>
                     <button className="btn-ghost text-[11px]" disabled={dm.isPending} onClick={() => dm.mutate({ id: r.id, status: "active" })}>Activate</button>
                     <button className="btn-ghost text-[11px]" disabled={dm.isPending} onClick={() => dm.mutate({ id: r.id, status: "paused" })}>Pause</button>
