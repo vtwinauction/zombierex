@@ -1,5 +1,7 @@
 import { useRef, useState, type ComponentType, type CSSProperties } from "react";
 import { HeartIcon, CommentIcon, ShareIcon, BookmarkIcon } from "./icons/SocialIcons";
+import { EyeIcon } from "./icons/SocialIcons";
+import { EngagementGauge } from "./EngagementGauge";
 import { useInteractionState } from "@/hooks/useInteractionState";
 import { haptic } from "@/lib/native";
 import { SaveToCollectionSheet } from "./SaveToCollectionSheet";
@@ -8,7 +10,10 @@ export type InteractionCounts = {
   likes: number;
   comments: number;
   shares: number;
+  /** Optional — when provided a read-only views gauge is rendered. */
+  views?: number;
 };
+
 
 type ActionKey = "like" | "comment" | "share" | "save";
 
