@@ -1,5 +1,7 @@
 import { useRef, useState, type ComponentType, type CSSProperties } from "react";
 import { HeartIcon, CommentIcon, ShareIcon, BookmarkIcon } from "./icons/SocialIcons";
+import { EyeIcon } from "./icons/SocialIcons";
+import { EngagementGauge } from "./EngagementGauge";
 import { useInteractionState } from "@/hooks/useInteractionState";
 import { haptic } from "@/lib/native";
 import { SaveToCollectionSheet } from "./SaveToCollectionSheet";
@@ -8,7 +10,10 @@ export type InteractionCounts = {
   likes: number;
   comments: number;
   shares: number;
+  /** Optional — when provided a read-only views gauge is rendered. */
+  views?: number;
 };
+
 
 type ActionKey = "like" | "comment" | "share" | "save";
 
@@ -81,12 +86,20 @@ export function InteractionBar({
   void isDark;
   const dividerColor = "transparent";
 
+  const commentTotal = counts.comments + commentDelta;
   const values: Record<ActionKey, string> = {
     like: fmt(likes),
-    comment: fmt(counts.comments + commentDelta),
+    comment: fmt(commentTotal),
     share: fmt(shares),
     save: saved ? "SAVED" : "SAVE",
   };
+  const gaugeValues: Record<ActionKey, number> = {
+    like: likes,
+    comment: commentTotal,
+    share: shares,
+    save: saved ? 5_000 : 0,
+  };
+
 
   const queuedCount = pending.length;
   const status = getStatus({ online, hasFailed, isSyncing, queuedCount });
@@ -101,7 +114,9 @@ export function InteractionBar({
         padding: "0",
       }}
     >
-      <div className="grid grid-cols-4 items-center gap-1 px-1">
+      <div
+        className={`grid ${typeof counts.views === "number" ? "grid-cols-5" : "grid-cols-4"} items-center gap-1 px-1`}
+      >
         {ACTIONS.map(({ key, label, icon: Icon }) => {
           const active = (key === "like" && liked) || (key === "save" && saved);
 
@@ -151,19 +166,23 @@ export function InteractionBar({
               className="tap group relative flex h-12 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-xl"
               style={{ background: "transparent" }}
             >
-              <span
-                key={active ? "on" : "off"}
-                className={`transition-transform duration-200 ease-out group-active:scale-90 ${active ? "ibar-pop" : ""}`}
-                style={{
-                  color: iconColor,
-                  lineHeight: 0,
-                  filter: active
-                    ? "drop-shadow(0 0 8px rgba(0,200,83,0.95)) drop-shadow(0 0 18px rgba(0,200,83,0.45))"
-                    : "drop-shadow(0 0 3px rgba(0,200,83,0.42))",
-                }}
-              >
-                <Icon size={23} active={active} />
+              <span className="relative flex h-[30px] w-[30px] items-center justify-center">
+                <EngagementGauge value={gaugeValues[key]} size={30} active={active} />
+                <span
+                  key={active ? "on" : "off"}
+                  className={`relative transition-transform duration-200 ease-out group-active:scale-90 ${active ? "ibar-pop" : ""}`}
+                  style={{
+                    color: iconColor,
+                    lineHeight: 0,
+                    filter: active
+                      ? "drop-shadow(0 0 8px rgba(0,200,83,0.95)) drop-shadow(0 0 18px rgba(0,200,83,0.45))"
+                      : "drop-shadow(0 0 3px rgba(0,200,83,0.42))",
+                  }}
+                >
+                  <Icon size={17} active={active} />
+                </span>
               </span>
+
 
               <span
                 className="mono-num max-w-full truncate text-[10px] tabular-nums leading-none"
@@ -179,7 +198,35 @@ export function InteractionBar({
             </button>
           );
         })}
+
+        {typeof counts.views === "number" && (
+          <div
+            className="relative flex h-12 min-w-0 flex-col items-center justify-center gap-1"
+            aria-label={`${counts.views} views`}
+          >
+            <span className="relative flex h-[30px] w-[30px] items-center justify-center">
+              <EngagementGauge value={counts.views} size={30} />
+              <span
+                className="relative"
+                style={{
+                  color: "var(--color-neon)",
+                  lineHeight: 0,
+                  filter: "drop-shadow(0 0 3px rgba(0,200,83,0.42))",
+                }}
+              >
+                <EyeIcon size={17} />
+              </span>
+            </span>
+            <span
+              className="mono-num max-w-full truncate text-[10px] tabular-nums leading-none"
+              style={{ color: "var(--color-neon)", fontWeight: 700 }}
+            >
+              {fmt(counts.views)}
+            </span>
+          </div>
+        )}
       </div>
+
 
       {/* ── Sync status rail ── */}
       {status && (
