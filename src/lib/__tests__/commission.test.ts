@@ -9,16 +9,24 @@ import {
   type SplitContext,
 } from "@/lib/commission";
 
-const base: Omit<FeeRule, "id" | "label" | "scope"> & Partial<FeeRule> = {
-  percent_bps: 1000,
-  fixed_cents: 0,
-  min_fee_cents: 0,
-  max_fee_cents: null,
-  is_active: true,
-} as any;
-
 function rule(p: Partial<FeeRule>): FeeRule {
-  return { id: p.id ?? "r", label: p.label ?? "rule", ...(base as any), ...p } as FeeRule;
+  return {
+    id: "r",
+    label: "rule",
+    kind: "order",
+    scope: "default",
+    scope_value: null,
+    percent_bps: 1000,
+    fixed_cents: 0,
+    min_fee_cents: 0,
+    max_fee_cents: null,
+    currency: null,
+    priority: 0,
+    starts_at: null,
+    ends_at: null,
+    is_active: true,
+    ...p,
+  };
 }
 
 const ctx: SplitContext = {
@@ -82,8 +90,8 @@ describe("computeSplit", () => {
 describe("resolveFeeRule", () => {
   it("prefers the more specific scope", () => {
     const rules = [
-      rule({ id: "default", scope: "default" as any }),
-      rule({ id: "seller", scope: "seller" as any, seller_id: "seller-1" } as any),
+      rule({ id: "default" }),
+      rule({ id: "seller", scope: "seller", scope_value: "seller-1" }),
     ];
     expect(resolveFeeRule(rules, ctx)?.id).toBe("seller");
   });
@@ -91,21 +99,16 @@ describe("resolveFeeRule", () => {
   it("ignores rules outside their time window", () => {
     const past = new Date(Date.now() - 86_400_000).toISOString();
     const rules = [
-      rule({ id: "default", scope: "default" as any }),
-      rule({
-        id: "promo",
-        scope: "promo" as any,
-        starts_at: past,
-        ends_at: past,
-      } as any),
+      rule({ id: "default" }),
+      rule({ id: "promo", scope: "promo", starts_at: past, ends_at: past }),
     ];
     expect(resolveFeeRule(rules, ctx)?.id).toBe("default");
   });
 
   it("ignores rules for another currency", () => {
     const rules = [
-      rule({ id: "default", scope: "default" as any }),
-      rule({ id: "usd-only", scope: "seller" as any, seller_id: "seller-1", currency: "USD" } as any),
+      rule({ id: "default" }),
+      rule({ id: "usd-only", scope: "seller", scope_value: "seller-1", currency: "USD" }),
     ];
     expect(resolveFeeRule(rules, ctx)?.id).toBe("default");
   });
