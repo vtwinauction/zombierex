@@ -162,7 +162,10 @@ function RootComponent() {
   // check is intentionally deferred to the index route (RootEntry) so the root
   // shell renders identically on the server and the first client paint — no
   // hydration mismatch from auth state that only exists in the browser.
-  const marketing = isMarketingPath(pathname);
+  // "/" serves the public landing page to signed-out visitors; that page
+  // registers itself through the marketing store on mount, so the chrome
+  // steps aside without any auth check during render.
+  const marketing = isMarketingPath(pathname) || marketingMounted;
   // Hidden admin surface: no member chrome, no tour, no nav.
   const isCommand = pathname === "/command" || pathname.startsWith("/owner/command");
   const isImmersive =
