@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { installCrashReporter, reportCrash } from "../lib/crash-reporter";
 import { BottomNav } from "@/components/BottomNav";
-import { isMarketingPath } from "@/lib/marketing-mode";
+import { isMarketingPath, useMarketingMode } from "@/lib/marketing-mode";
 import { OwnerBroadcastBanner } from "@/components/OwnerBroadcastBanner";
 import { MaintenanceGate } from "@/components/MaintenanceGate";
 import { GlobalStatusBar } from "@/components/GlobalStatusBar";
@@ -158,11 +158,15 @@ function RootComponent() {
   const [isTop, setIsTop] = useState(true);
   const [shellReady, setShellReady] = useState(false);
   const pathname = router.state.location.pathname;
+  const marketingMounted = useMarketingMode();
   // Public marketing surfaces are known from the URL only. The signed-in
   // check is intentionally deferred to the index route (RootEntry) so the root
   // shell renders identically on the server and the first client paint — no
   // hydration mismatch from auth state that only exists in the browser.
-  const marketing = isMarketingPath(pathname);
+  // "/" serves the public landing page to signed-out visitors; that page
+  // registers itself through the marketing store on mount, so the chrome
+  // steps aside without any auth check during render.
+  const marketing = isMarketingPath(pathname) || marketingMounted;
   // Hidden admin surface: no member chrome, no tour, no nav.
   const isCommand = pathname === "/command" || pathname.startsWith("/owner/command");
   const isImmersive =

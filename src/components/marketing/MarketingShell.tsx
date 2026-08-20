@@ -3,6 +3,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import brandLogo from "@/assets/zombierex-logo.png.asset.json";
 import { siteConfig } from "@/config/site";
+import { setMarketingMode } from "@/lib/marketing-mode";
 
 /**
  * Dark, premium chrome for every public marketing page.
@@ -20,6 +21,13 @@ const NAV = [
 export function MarketingShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [solid, setSolid] = useState(false);
+
+  // Tell the app shell a public marketing page is mounted so it hides the
+  // member chrome (bottom nav, status bar, banners, tour, maintenance gate).
+  useEffect(() => {
+    setMarketingMode(true);
+    return () => setMarketingMode(false);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
