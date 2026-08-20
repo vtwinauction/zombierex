@@ -11,6 +11,7 @@ import {
 } from "@/lib/garage.functions";
 import { MOD_CATEGORIES } from "@/lib/garage.schemas";
 import { confirmDialog } from "@/lib/confirm";
+import { VehicleIntelligence } from "@/components/VehicleIntelligence";
 
 export const Route = createFileRoute("/_authenticated/garage/$id")({
   head: () => ({
