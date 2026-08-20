@@ -130,6 +130,9 @@ function PublicProfile() {
 
         <FollowActions profileId={p.id} handle={p.handle} />
 
+        <PublicGarage ownerId={p.id} handle={p.handle} />
+
+
         <div className="mt-8">
           <p className="mono-tag" style={{ color: "var(--color-ash)" }}>
             POSTS · {restricted ? "LOCKED" : posts.length}
