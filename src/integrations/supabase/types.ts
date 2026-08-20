@@ -6842,6 +6842,121 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_mods: {
+        Row: {
+          brand: string | null
+          category: string
+          cost_minor: number | null
+          created_at: string
+          currency: string
+          id: string
+          installed_on: string | null
+          notes: string | null
+          owner_id: string
+          photo_url: string | null
+          title: string
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          brand?: string | null
+          category?: string
+          cost_minor?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          installed_on?: string | null
+          notes?: string | null
+          owner_id: string
+          photo_url?: string | null
+          title: string
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          cost_minor?: number | null
+          created_at?: string
+          currency?: string
+          id?: string
+          installed_on?: string | null
+          notes?: string | null
+          owner_id?: string
+          photo_url?: string | null
+          title?: string
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_mods_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_service_records: {
+        Row: {
+          cost_minor: number | null
+          created_at: string
+          currency: string
+          due_date: string | null
+          id: string
+          notes: string | null
+          odometer_km: number | null
+          owner_id: string
+          service_date: string
+          shop: string | null
+          status: string
+          title: string
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          cost_minor?: number | null
+          created_at?: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          odometer_km?: number | null
+          owner_id: string
+          service_date?: string
+          shop?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          cost_minor?: number | null
+          created_at?: string
+          currency?: string
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          odometer_km?: number | null
+          owner_id?: string
+          service_date?: string
+          shop?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_service_records_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           created_at: string
