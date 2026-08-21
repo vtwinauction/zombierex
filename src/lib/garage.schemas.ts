@@ -62,10 +62,17 @@ export const ServiceInput = z.object({
   odometer_km: z.number().int().min(0).max(5_000_000).nullable().optional(),
   cost_minor: z.number().int().min(0).max(1_000_000_000).nullable().optional(),
   currency: z.string().trim().length(3).default("BHD"),
-  service_date: z.string().trim().max(10),
+  service_date: z.string().trim().max(10).nullable().optional(),
   due_date: z.string().trim().max(10).nullable().optional(),
   due_odometer_km: z.number().int().min(0).max(5_000_000).nullable().optional(),
   status: z.enum(["done", "upcoming"]).default("done"),
+});
+
+/** Mark a scheduled service item as completed. */
+export const CompleteServiceInput = z.object({
+  id: z.string().uuid(),
+  service_date: z.string().trim().max(10),
+  odometer_km: z.number().int().min(0).max(5_000_000).nullable().optional(),
 });
 
 export type VehicleKind = (typeof VEHICLE_KINDS)[number];
