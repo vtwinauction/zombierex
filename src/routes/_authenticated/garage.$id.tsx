@@ -101,16 +101,27 @@ function VehiclePage() {
             {vehicle.make} {vehicle.model}
           </p>
         )}
-        {isOwner && (
+        <div className="mt-3 flex flex-wrap gap-2">
           <Link
-            to="/marketplace/new"
-            search={{ vehicle: id }}
-            className="tap mono-tag mt-3 inline-block rounded-lg px-3 py-2 text-[10px]"
-            style={{ background: "var(--color-ink-0)", color: "var(--color-paper-0)" }}
+            to="/v/$id"
+            params={{ id }}
+            className="tap mono-tag inline-block rounded-lg px-3 py-2 text-[10px]"
+            style={{ border: "1px solid var(--color-hair-strong)", color: "var(--color-ink)" }}
           >
-            LIST FOR SALE →
+            PUBLIC SPEC SHEET →
           </Link>
-        )}
+          {isOwner && (
+            <Link
+              to="/marketplace/new"
+              search={{ vehicle: id }}
+              className="tap mono-tag inline-block rounded-lg px-3 py-2 text-[10px]"
+              style={{ background: "var(--color-ink-0)", color: "var(--color-paper-0)" }}
+            >
+              LIST FOR SALE →
+            </Link>
+          )}
+        </div>
+
       </header>
 
       <ModsSection
