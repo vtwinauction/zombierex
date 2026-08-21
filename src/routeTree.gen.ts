@@ -17,6 +17,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MarketplaceRouteImport } from './routes/marketplace'
 import { Route as GuideRouteImport } from './routes/guide'
+import { Route as GaragesRouteImport } from './routes/garages'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as CreatorsRouteImport } from './routes/creators'
@@ -29,6 +30,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LegalIndexRouteImport } from './routes/legal/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
+import { Route as WSlugRouteImport } from './routes/w.$slug'
 import { Route as VIdRouteImport } from './routes/v.$id'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as TagTagRouteImport } from './routes/tag.$tag'
@@ -78,6 +80,7 @@ import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedGarageIndexRouteImport } from './routes/_authenticated/garage.index'
 import { Route as AuthenticatedDragIndexRouteImport } from './routes/_authenticated/drag.index'
 import { Route as AuthenticatedBusinessIndexRouteImport } from './routes/_authenticated/business.index'
+import { Route as AuthenticatedBookingsIndexRouteImport } from './routes/_authenticated/bookings.index'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as MarketplaceSellerIdRouteImport } from './routes/marketplace_.seller.$id'
@@ -85,6 +88,8 @@ import { Route as JudgeEventsSlugRouteImport } from './routes/judge.events.$slug
 import { Route as JudgeEntriesIdRouteImport } from './routes/judge.entries.$id'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as AuthenticatedVendorPlansRouteImport } from './routes/_authenticated/vendor.plans'
+import { Route as AuthenticatedVendorGarageRouteImport } from './routes/_authenticated/vendor.garage'
+import { Route as AuthenticatedVendorBookingsRouteImport } from './routes/_authenticated/vendor.bookings'
 import { Route as AuthenticatedVendorApplyRouteImport } from './routes/_authenticated/vendor.apply'
 import { Route as AuthenticatedSettingsTwofaRouteImport } from './routes/_authenticated/settings.twofa'
 import { Route as AuthenticatedSettingsTermsRouteImport } from './routes/_authenticated/settings.terms'
@@ -138,6 +143,7 @@ import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authent
 import { Route as AuthenticatedCreatorAnalyticsRouteImport } from './routes/_authenticated/creator.analytics'
 import { Route as AuthenticatedCommunitiesCreateRouteImport } from './routes/_authenticated/communities.create'
 import { Route as AuthenticatedBusinessShowcaseRouteImport } from './routes/_authenticated/business.showcase'
+import { Route as AuthenticatedBookingsIdRouteImport } from './routes/_authenticated/bookings.$id'
 import { Route as AuthenticatedAtlasVoiceRouteImport } from './routes/_authenticated/atlas.voice'
 import { Route as AuthenticatedAtlasSosRouteImport } from './routes/_authenticated/atlas.sos'
 import { Route as AuthenticatedAtlasRideRouteImport } from './routes/_authenticated/atlas.ride'
@@ -239,6 +245,11 @@ const GuideRoute = GuideRouteImport.update({
   path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GaragesRoute = GaragesRouteImport.update({
+  id: '/garages',
+  path: '/garages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
@@ -296,6 +307,11 @@ const JudgeIndexRoute = JudgeIndexRouteImport.update({
 const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
   id: '/communities/',
   path: '/communities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WSlugRoute = WSlugRouteImport.update({
+  id: '/w/$slug',
+  path: '/w/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VIdRoute = VIdRouteImport.update({
@@ -548,6 +564,12 @@ const AuthenticatedBusinessIndexRoute =
     path: '/business/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBookingsIndexRoute =
+  AuthenticatedBookingsIndexRouteImport.update({
+    id: '/bookings/',
+    path: '/bookings/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdsIndexRoute = AuthenticatedAdsIndexRouteImport.update({
   id: '/ads/',
   path: '/ads/',
@@ -582,6 +604,18 @@ const AuthenticatedVendorPlansRoute =
   AuthenticatedVendorPlansRouteImport.update({
     id: '/plans',
     path: '/plans',
+    getParentRoute: () => AuthenticatedVendorRoute,
+  } as any)
+const AuthenticatedVendorGarageRoute =
+  AuthenticatedVendorGarageRouteImport.update({
+    id: '/garage',
+    path: '/garage',
+    getParentRoute: () => AuthenticatedVendorRoute,
+  } as any)
+const AuthenticatedVendorBookingsRoute =
+  AuthenticatedVendorBookingsRouteImport.update({
+    id: '/bookings',
+    path: '/bookings',
     getParentRoute: () => AuthenticatedVendorRoute,
   } as any)
 const AuthenticatedVendorApplyRoute =
@@ -889,6 +923,11 @@ const AuthenticatedBusinessShowcaseRoute =
     path: '/business/showcase',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBookingsIdRoute = AuthenticatedBookingsIdRouteImport.update({
+  id: '/bookings/$id',
+  path: '/bookings/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAtlasVoiceRoute = AuthenticatedAtlasVoiceRouteImport.update({
   id: '/atlas/voice',
   path: '/atlas/voice',
@@ -1246,6 +1285,7 @@ export interface FileRoutesByFullPath {
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
+  '/garages': typeof GaragesRoute
   '/guide': typeof GuideRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
@@ -1296,6 +1336,7 @@ export interface FileRoutesByFullPath {
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$id': typeof VIdRoute
+  '/w/$slug': typeof WSlugRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/legal/': typeof LegalIndexRoute
@@ -1314,6 +1355,7 @@ export interface FileRoutesByFullPath {
   '/atlas/ride': typeof AuthenticatedAtlasRideRoute
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
+  '/bookings/$id': typeof AuthenticatedBookingsIdRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
@@ -1367,6 +1409,8 @@ export interface FileRoutesByFullPath {
   '/settings/terms': typeof AuthenticatedSettingsTermsRoute
   '/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/vendor/apply': typeof AuthenticatedVendorApplyRoute
+  '/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
+  '/vendor/garage': typeof AuthenticatedVendorGarageRoute
   '/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1374,6 +1418,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/seller/$id': typeof MarketplaceSellerIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/ads/': typeof AuthenticatedAdsIndexRoute
+  '/bookings/': typeof AuthenticatedBookingsIndexRoute
   '/business/': typeof AuthenticatedBusinessIndexRoute
   '/drag/': typeof AuthenticatedDragIndexRoute
   '/garage/': typeof AuthenticatedGarageIndexRoute
@@ -1436,6 +1481,7 @@ export interface FileRoutesByTo {
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
+  '/garages': typeof GaragesRoute
   '/guide': typeof GuideRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
@@ -1483,6 +1529,7 @@ export interface FileRoutesByTo {
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$id': typeof VIdRoute
+  '/w/$slug': typeof WSlugRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
   '/legal': typeof LegalIndexRoute
@@ -1501,6 +1548,7 @@ export interface FileRoutesByTo {
   '/atlas/ride': typeof AuthenticatedAtlasRideRoute
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
+  '/bookings/$id': typeof AuthenticatedBookingsIdRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
@@ -1552,6 +1600,8 @@ export interface FileRoutesByTo {
   '/settings/terms': typeof AuthenticatedSettingsTermsRoute
   '/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/vendor/apply': typeof AuthenticatedVendorApplyRoute
+  '/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
+  '/vendor/garage': typeof AuthenticatedVendorGarageRoute
   '/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1559,6 +1609,7 @@ export interface FileRoutesByTo {
   '/marketplace/seller/$id': typeof MarketplaceSellerIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/ads': typeof AuthenticatedAdsIndexRoute
+  '/bookings': typeof AuthenticatedBookingsIndexRoute
   '/business': typeof AuthenticatedBusinessIndexRoute
   '/drag': typeof AuthenticatedDragIndexRoute
   '/garage': typeof AuthenticatedGarageIndexRoute
@@ -1623,6 +1674,7 @@ export interface FileRoutesById {
   '/creators': typeof CreatorsRoute
   '/download': typeof DownloadRoute
   '/events': typeof EventsRoute
+  '/garages': typeof GaragesRoute
   '/guide': typeof GuideRoute
   '/marketplace': typeof MarketplaceRoute
   '/notifications': typeof NotificationsRoute
@@ -1673,6 +1725,7 @@ export interface FileRoutesById {
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$id': typeof VIdRoute
+  '/w/$slug': typeof WSlugRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/legal/': typeof LegalIndexRoute
@@ -1691,6 +1744,7 @@ export interface FileRoutesById {
   '/_authenticated/atlas/ride': typeof AuthenticatedAtlasRideRoute
   '/_authenticated/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/_authenticated/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
+  '/_authenticated/bookings/$id': typeof AuthenticatedBookingsIdRoute
   '/_authenticated/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/_authenticated/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/_authenticated/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
@@ -1744,6 +1798,8 @@ export interface FileRoutesById {
   '/_authenticated/settings/terms': typeof AuthenticatedSettingsTermsRoute
   '/_authenticated/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/_authenticated/vendor/apply': typeof AuthenticatedVendorApplyRoute
+  '/_authenticated/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
+  '/_authenticated/vendor/garage': typeof AuthenticatedVendorGarageRoute
   '/_authenticated/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1751,6 +1807,7 @@ export interface FileRoutesById {
   '/marketplace_/seller/$id': typeof MarketplaceSellerIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
+  '/_authenticated/bookings/': typeof AuthenticatedBookingsIndexRoute
   '/_authenticated/business/': typeof AuthenticatedBusinessIndexRoute
   '/_authenticated/drag/': typeof AuthenticatedDragIndexRoute
   '/_authenticated/garage/': typeof AuthenticatedGarageIndexRoute
@@ -1815,6 +1872,7 @@ export interface FileRouteTypes {
     | '/creators'
     | '/download'
     | '/events'
+    | '/garages'
     | '/guide'
     | '/marketplace'
     | '/notifications'
@@ -1865,6 +1923,7 @@ export interface FileRouteTypes {
     | '/tag/$tag'
     | '/u/$handle'
     | '/v/$id'
+    | '/w/$slug'
     | '/communities/'
     | '/judge/'
     | '/legal/'
@@ -1883,6 +1942,7 @@ export interface FileRouteTypes {
     | '/atlas/ride'
     | '/atlas/sos'
     | '/atlas/voice'
+    | '/bookings/$id'
     | '/business/showcase'
     | '/communities/create'
     | '/creator/analytics'
@@ -1936,6 +1996,8 @@ export interface FileRouteTypes {
     | '/settings/terms'
     | '/settings/twofa'
     | '/vendor/apply'
+    | '/vendor/bookings'
+    | '/vendor/garage'
     | '/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -1943,6 +2005,7 @@ export interface FileRouteTypes {
     | '/marketplace/seller/$id'
     | '/admin/'
     | '/ads/'
+    | '/bookings/'
     | '/business/'
     | '/drag/'
     | '/garage/'
@@ -2005,6 +2068,7 @@ export interface FileRouteTypes {
     | '/creators'
     | '/download'
     | '/events'
+    | '/garages'
     | '/guide'
     | '/marketplace'
     | '/notifications'
@@ -2052,6 +2116,7 @@ export interface FileRouteTypes {
     | '/tag/$tag'
     | '/u/$handle'
     | '/v/$id'
+    | '/w/$slug'
     | '/communities'
     | '/judge'
     | '/legal'
@@ -2070,6 +2135,7 @@ export interface FileRouteTypes {
     | '/atlas/ride'
     | '/atlas/sos'
     | '/atlas/voice'
+    | '/bookings/$id'
     | '/business/showcase'
     | '/communities/create'
     | '/creator/analytics'
@@ -2121,6 +2187,8 @@ export interface FileRouteTypes {
     | '/settings/terms'
     | '/settings/twofa'
     | '/vendor/apply'
+    | '/vendor/bookings'
+    | '/vendor/garage'
     | '/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -2128,6 +2196,7 @@ export interface FileRouteTypes {
     | '/marketplace/seller/$id'
     | '/admin'
     | '/ads'
+    | '/bookings'
     | '/business'
     | '/drag'
     | '/garage'
@@ -2191,6 +2260,7 @@ export interface FileRouteTypes {
     | '/creators'
     | '/download'
     | '/events'
+    | '/garages'
     | '/guide'
     | '/marketplace'
     | '/notifications'
@@ -2241,6 +2311,7 @@ export interface FileRouteTypes {
     | '/tag/$tag'
     | '/u/$handle'
     | '/v/$id'
+    | '/w/$slug'
     | '/communities/'
     | '/judge/'
     | '/legal/'
@@ -2259,6 +2330,7 @@ export interface FileRouteTypes {
     | '/_authenticated/atlas/ride'
     | '/_authenticated/atlas/sos'
     | '/_authenticated/atlas/voice'
+    | '/_authenticated/bookings/$id'
     | '/_authenticated/business/showcase'
     | '/_authenticated/communities/create'
     | '/_authenticated/creator/analytics'
@@ -2312,6 +2384,8 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/terms'
     | '/_authenticated/settings/twofa'
     | '/_authenticated/vendor/apply'
+    | '/_authenticated/vendor/bookings'
+    | '/_authenticated/vendor/garage'
     | '/_authenticated/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -2319,6 +2393,7 @@ export interface FileRouteTypes {
     | '/marketplace_/seller/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/ads/'
+    | '/_authenticated/bookings/'
     | '/_authenticated/business/'
     | '/_authenticated/drag/'
     | '/_authenticated/garage/'
@@ -2383,6 +2458,7 @@ export interface RootRouteChildren {
   CreatorsRoute: typeof CreatorsRoute
   DownloadRoute: typeof DownloadRoute
   EventsRoute: typeof EventsRoute
+  GaragesRoute: typeof GaragesRoute
   GuideRoute: typeof GuideRoute
   MarketplaceRoute: typeof MarketplaceRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -2419,6 +2495,7 @@ export interface RootRouteChildren {
   TagTagRoute: typeof TagTagRoute
   UHandleRoute: typeof UHandleRoute
   VIdRoute: typeof VIdRoute
+  WSlugRoute: typeof WSlugRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
   LegalIndexRoute: typeof LegalIndexRoute
@@ -2495,6 +2572,13 @@ declare module '@tanstack/react-router' {
       path: '/guide'
       fullPath: '/guide'
       preLoaderRoute: typeof GuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/garages': {
+      id: '/garages'
+      path: '/garages'
+      fullPath: '/garages'
+      preLoaderRoute: typeof GaragesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -2579,6 +2663,13 @@ declare module '@tanstack/react-router' {
       path: '/communities'
       fullPath: '/communities/'
       preLoaderRoute: typeof CommunitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$slug': {
+      id: '/w/$slug'
+      path: '/w/$slug'
+      fullPath: '/w/$slug'
+      preLoaderRoute: typeof WSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v/$id': {
@@ -2924,6 +3015,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBusinessIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bookings/': {
+      id: '/_authenticated/bookings/'
+      path: '/bookings'
+      fullPath: '/bookings/'
+      preLoaderRoute: typeof AuthenticatedBookingsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ads/': {
       id: '/_authenticated/ads/'
       path: '/ads'
@@ -2971,6 +3069,20 @@ declare module '@tanstack/react-router' {
       path: '/plans'
       fullPath: '/vendor/plans'
       preLoaderRoute: typeof AuthenticatedVendorPlansRouteImport
+      parentRoute: typeof AuthenticatedVendorRoute
+    }
+    '/_authenticated/vendor/garage': {
+      id: '/_authenticated/vendor/garage'
+      path: '/garage'
+      fullPath: '/vendor/garage'
+      preLoaderRoute: typeof AuthenticatedVendorGarageRouteImport
+      parentRoute: typeof AuthenticatedVendorRoute
+    }
+    '/_authenticated/vendor/bookings': {
+      id: '/_authenticated/vendor/bookings'
+      path: '/bookings'
+      fullPath: '/vendor/bookings'
+      preLoaderRoute: typeof AuthenticatedVendorBookingsRouteImport
       parentRoute: typeof AuthenticatedVendorRoute
     }
     '/_authenticated/vendor/apply': {
@@ -3342,6 +3454,13 @@ declare module '@tanstack/react-router' {
       path: '/business/showcase'
       fullPath: '/business/showcase'
       preLoaderRoute: typeof AuthenticatedBusinessShowcaseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bookings/$id': {
+      id: '/_authenticated/bookings/$id'
+      path: '/bookings/$id'
+      fullPath: '/bookings/$id'
+      preLoaderRoute: typeof AuthenticatedBookingsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/atlas/voice': {
@@ -3878,12 +3997,16 @@ const AuthenticatedSettingsRouteWithChildren =
 
 interface AuthenticatedVendorRouteChildren {
   AuthenticatedVendorApplyRoute: typeof AuthenticatedVendorApplyRoute
+  AuthenticatedVendorBookingsRoute: typeof AuthenticatedVendorBookingsRoute
+  AuthenticatedVendorGarageRoute: typeof AuthenticatedVendorGarageRoute
   AuthenticatedVendorPlansRoute: typeof AuthenticatedVendorPlansRoute
   AuthenticatedVendorIndexRoute: typeof AuthenticatedVendorIndexRoute
 }
 
 const AuthenticatedVendorRouteChildren: AuthenticatedVendorRouteChildren = {
   AuthenticatedVendorApplyRoute: AuthenticatedVendorApplyRoute,
+  AuthenticatedVendorBookingsRoute: AuthenticatedVendorBookingsRoute,
+  AuthenticatedVendorGarageRoute: AuthenticatedVendorGarageRoute,
   AuthenticatedVendorPlansRoute: AuthenticatedVendorPlansRoute,
   AuthenticatedVendorIndexRoute: AuthenticatedVendorIndexRoute,
 }
@@ -4001,6 +4124,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtlasRideRoute: typeof AuthenticatedAtlasRideRoute
   AuthenticatedAtlasSosRoute: typeof AuthenticatedAtlasSosRoute
   AuthenticatedAtlasVoiceRoute: typeof AuthenticatedAtlasVoiceRoute
+  AuthenticatedBookingsIdRoute: typeof AuthenticatedBookingsIdRoute
   AuthenticatedBusinessShowcaseRoute: typeof AuthenticatedBusinessShowcaseRoute
   AuthenticatedCommunitiesCreateRoute: typeof AuthenticatedCommunitiesCreateRoute
   AuthenticatedCreatorAnalyticsRoute: typeof AuthenticatedCreatorAnalyticsRoute
@@ -4031,6 +4155,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileEditRoute: typeof AuthenticatedProfileEditRoute
   AuthenticatedRidesIdRoute: typeof AuthenticatedRidesIdRoute
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
+  AuthenticatedBookingsIndexRoute: typeof AuthenticatedBookingsIndexRoute
   AuthenticatedBusinessIndexRoute: typeof AuthenticatedBusinessIndexRoute
   AuthenticatedDragIndexRoute: typeof AuthenticatedDragIndexRoute
   AuthenticatedGarageIndexRoute: typeof AuthenticatedGarageIndexRoute
@@ -4073,6 +4198,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtlasRideRoute: AuthenticatedAtlasRideRoute,
   AuthenticatedAtlasSosRoute: AuthenticatedAtlasSosRoute,
   AuthenticatedAtlasVoiceRoute: AuthenticatedAtlasVoiceRoute,
+  AuthenticatedBookingsIdRoute: AuthenticatedBookingsIdRoute,
   AuthenticatedBusinessShowcaseRoute: AuthenticatedBusinessShowcaseRoute,
   AuthenticatedCommunitiesCreateRoute: AuthenticatedCommunitiesCreateRoute,
   AuthenticatedCreatorAnalyticsRoute: AuthenticatedCreatorAnalyticsRoute,
@@ -4104,6 +4230,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileEditRoute: AuthenticatedProfileEditRoute,
   AuthenticatedRidesIdRoute: AuthenticatedRidesIdRoute,
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
+  AuthenticatedBookingsIndexRoute: AuthenticatedBookingsIndexRoute,
   AuthenticatedBusinessIndexRoute: AuthenticatedBusinessIndexRoute,
   AuthenticatedDragIndexRoute: AuthenticatedDragIndexRoute,
   AuthenticatedGarageIndexRoute: AuthenticatedGarageIndexRoute,
@@ -4175,6 +4302,7 @@ const rootRouteChildren: RootRouteChildren = {
   CreatorsRoute: CreatorsRoute,
   DownloadRoute: DownloadRoute,
   EventsRoute: EventsRoute,
+  GaragesRoute: GaragesRoute,
   GuideRoute: GuideRoute,
   MarketplaceRoute: MarketplaceRoute,
   NotificationsRoute: NotificationsRoute,
@@ -4211,6 +4339,7 @@ const rootRouteChildren: RootRouteChildren = {
   TagTagRoute: TagTagRoute,
   UHandleRoute: UHandleRoute,
   VIdRoute: VIdRoute,
+  WSlugRoute: WSlugRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
   LegalIndexRoute: LegalIndexRoute,
