@@ -88,6 +88,7 @@ import { Route as JudgeEventsSlugRouteImport } from './routes/judge.events.$slug
 import { Route as JudgeEntriesIdRouteImport } from './routes/judge.entries.$id'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as AuthenticatedVendorPlansRouteImport } from './routes/_authenticated/vendor.plans'
+import { Route as AuthenticatedVendorGarageRouteImport } from './routes/_authenticated/vendor.garage'
 import { Route as AuthenticatedVendorBookingsRouteImport } from './routes/_authenticated/vendor.bookings'
 import { Route as AuthenticatedVendorApplyRouteImport } from './routes/_authenticated/vendor.apply'
 import { Route as AuthenticatedSettingsTwofaRouteImport } from './routes/_authenticated/settings.twofa'
@@ -603,6 +604,12 @@ const AuthenticatedVendorPlansRoute =
   AuthenticatedVendorPlansRouteImport.update({
     id: '/plans',
     path: '/plans',
+    getParentRoute: () => AuthenticatedVendorRoute,
+  } as any)
+const AuthenticatedVendorGarageRoute =
+  AuthenticatedVendorGarageRouteImport.update({
+    id: '/garage',
+    path: '/garage',
     getParentRoute: () => AuthenticatedVendorRoute,
   } as any)
 const AuthenticatedVendorBookingsRoute =
@@ -1403,6 +1410,7 @@ export interface FileRoutesByFullPath {
   '/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/vendor/apply': typeof AuthenticatedVendorApplyRoute
   '/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
+  '/vendor/garage': typeof AuthenticatedVendorGarageRoute
   '/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1593,6 +1601,7 @@ export interface FileRoutesByTo {
   '/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/vendor/apply': typeof AuthenticatedVendorApplyRoute
   '/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
+  '/vendor/garage': typeof AuthenticatedVendorGarageRoute
   '/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1790,6 +1799,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/_authenticated/vendor/apply': typeof AuthenticatedVendorApplyRoute
   '/_authenticated/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
+  '/_authenticated/vendor/garage': typeof AuthenticatedVendorGarageRoute
   '/_authenticated/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1987,6 +1997,7 @@ export interface FileRouteTypes {
     | '/settings/twofa'
     | '/vendor/apply'
     | '/vendor/bookings'
+    | '/vendor/garage'
     | '/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -2177,6 +2188,7 @@ export interface FileRouteTypes {
     | '/settings/twofa'
     | '/vendor/apply'
     | '/vendor/bookings'
+    | '/vendor/garage'
     | '/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -2373,6 +2385,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/twofa'
     | '/_authenticated/vendor/apply'
     | '/_authenticated/vendor/bookings'
+    | '/_authenticated/vendor/garage'
     | '/_authenticated/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -3056,6 +3069,13 @@ declare module '@tanstack/react-router' {
       path: '/plans'
       fullPath: '/vendor/plans'
       preLoaderRoute: typeof AuthenticatedVendorPlansRouteImport
+      parentRoute: typeof AuthenticatedVendorRoute
+    }
+    '/_authenticated/vendor/garage': {
+      id: '/_authenticated/vendor/garage'
+      path: '/garage'
+      fullPath: '/vendor/garage'
+      preLoaderRoute: typeof AuthenticatedVendorGarageRouteImport
       parentRoute: typeof AuthenticatedVendorRoute
     }
     '/_authenticated/vendor/bookings': {
@@ -3978,6 +3998,7 @@ const AuthenticatedSettingsRouteWithChildren =
 interface AuthenticatedVendorRouteChildren {
   AuthenticatedVendorApplyRoute: typeof AuthenticatedVendorApplyRoute
   AuthenticatedVendorBookingsRoute: typeof AuthenticatedVendorBookingsRoute
+  AuthenticatedVendorGarageRoute: typeof AuthenticatedVendorGarageRoute
   AuthenticatedVendorPlansRoute: typeof AuthenticatedVendorPlansRoute
   AuthenticatedVendorIndexRoute: typeof AuthenticatedVendorIndexRoute
 }
@@ -3985,6 +4006,7 @@ interface AuthenticatedVendorRouteChildren {
 const AuthenticatedVendorRouteChildren: AuthenticatedVendorRouteChildren = {
   AuthenticatedVendorApplyRoute: AuthenticatedVendorApplyRoute,
   AuthenticatedVendorBookingsRoute: AuthenticatedVendorBookingsRoute,
+  AuthenticatedVendorGarageRoute: AuthenticatedVendorGarageRoute,
   AuthenticatedVendorPlansRoute: AuthenticatedVendorPlansRoute,
   AuthenticatedVendorIndexRoute: AuthenticatedVendorIndexRoute,
 }
