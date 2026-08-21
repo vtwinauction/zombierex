@@ -7,7 +7,9 @@ import {
   addMod,
   deleteMod,
   addServiceRecord,
+  completeServiceRecord,
   deleteServiceRecord,
+
   listVehicleJudgeEntries,
 } from "@/lib/garage.functions";
 import { MOD_CATEGORIES } from "@/lib/garage.schemas";
