@@ -312,7 +312,9 @@ function PublicGarage({ ownerId, handle }: { ownerId: string; handle: string }) 
       <ul className="mt-3 flex gap-3 overflow-x-auto pb-1">
         {data.map((v) => (
           <li key={v.id} className="w-56 shrink-0 overflow-hidden hairline card-surface">
+            <Link to="/v/$id" params={{ id: v.id }} className="block">
             <div className="aspect-[16/9] w-full" style={{ background: "var(--color-mist)" }}>
+
               {v.hero_image_url && (
                 <img
                   src={v.hero_image_url}
