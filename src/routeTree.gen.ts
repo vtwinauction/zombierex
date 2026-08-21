@@ -80,6 +80,7 @@ import { Route as AuthenticatedOwnerIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedGarageIndexRouteImport } from './routes/_authenticated/garage.index'
 import { Route as AuthenticatedDragIndexRouteImport } from './routes/_authenticated/drag.index'
 import { Route as AuthenticatedBusinessIndexRouteImport } from './routes/_authenticated/business.index'
+import { Route as AuthenticatedBookingsIndexRouteImport } from './routes/_authenticated/bookings.index'
 import { Route as AuthenticatedAdsIndexRouteImport } from './routes/_authenticated/ads.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as MarketplaceSellerIdRouteImport } from './routes/marketplace_.seller.$id'
@@ -558,6 +559,12 @@ const AuthenticatedBusinessIndexRoute =
   AuthenticatedBusinessIndexRouteImport.update({
     id: '/business/',
     path: '/business/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBookingsIndexRoute =
+  AuthenticatedBookingsIndexRouteImport.update({
+    id: '/bookings/',
+    path: '/bookings/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdsIndexRoute = AuthenticatedAdsIndexRouteImport.update({
@@ -1388,6 +1395,7 @@ export interface FileRoutesByFullPath {
   '/marketplace/seller/$id': typeof MarketplaceSellerIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/ads/': typeof AuthenticatedAdsIndexRoute
+  '/bookings/': typeof AuthenticatedBookingsIndexRoute
   '/business/': typeof AuthenticatedBusinessIndexRoute
   '/drag/': typeof AuthenticatedDragIndexRoute
   '/garage/': typeof AuthenticatedGarageIndexRoute
@@ -1575,6 +1583,7 @@ export interface FileRoutesByTo {
   '/marketplace/seller/$id': typeof MarketplaceSellerIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/ads': typeof AuthenticatedAdsIndexRoute
+  '/bookings': typeof AuthenticatedBookingsIndexRoute
   '/business': typeof AuthenticatedBusinessIndexRoute
   '/drag': typeof AuthenticatedDragIndexRoute
   '/garage': typeof AuthenticatedGarageIndexRoute
@@ -1769,6 +1778,7 @@ export interface FileRoutesById {
   '/marketplace_/seller/$id': typeof MarketplaceSellerIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/ads/': typeof AuthenticatedAdsIndexRoute
+  '/_authenticated/bookings/': typeof AuthenticatedBookingsIndexRoute
   '/_authenticated/business/': typeof AuthenticatedBusinessIndexRoute
   '/_authenticated/drag/': typeof AuthenticatedDragIndexRoute
   '/_authenticated/garage/': typeof AuthenticatedGarageIndexRoute
@@ -1963,6 +1973,7 @@ export interface FileRouteTypes {
     | '/marketplace/seller/$id'
     | '/admin/'
     | '/ads/'
+    | '/bookings/'
     | '/business/'
     | '/drag/'
     | '/garage/'
@@ -2150,6 +2161,7 @@ export interface FileRouteTypes {
     | '/marketplace/seller/$id'
     | '/admin'
     | '/ads'
+    | '/bookings'
     | '/business'
     | '/drag'
     | '/garage'
@@ -2343,6 +2355,7 @@ export interface FileRouteTypes {
     | '/marketplace_/seller/$id'
     | '/_authenticated/admin/'
     | '/_authenticated/ads/'
+    | '/_authenticated/bookings/'
     | '/_authenticated/business/'
     | '/_authenticated/drag/'
     | '/_authenticated/garage/'
@@ -2962,6 +2975,13 @@ declare module '@tanstack/react-router' {
       path: '/business'
       fullPath: '/business/'
       preLoaderRoute: typeof AuthenticatedBusinessIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bookings/': {
+      id: '/_authenticated/bookings/'
+      path: '/bookings'
+      fullPath: '/bookings/'
+      preLoaderRoute: typeof AuthenticatedBookingsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ads/': {
@@ -4071,6 +4091,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProfileEditRoute: typeof AuthenticatedProfileEditRoute
   AuthenticatedRidesIdRoute: typeof AuthenticatedRidesIdRoute
   AuthenticatedAdsIndexRoute: typeof AuthenticatedAdsIndexRoute
+  AuthenticatedBookingsIndexRoute: typeof AuthenticatedBookingsIndexRoute
   AuthenticatedBusinessIndexRoute: typeof AuthenticatedBusinessIndexRoute
   AuthenticatedDragIndexRoute: typeof AuthenticatedDragIndexRoute
   AuthenticatedGarageIndexRoute: typeof AuthenticatedGarageIndexRoute
@@ -4144,6 +4165,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProfileEditRoute: AuthenticatedProfileEditRoute,
   AuthenticatedRidesIdRoute: AuthenticatedRidesIdRoute,
   AuthenticatedAdsIndexRoute: AuthenticatedAdsIndexRoute,
+  AuthenticatedBookingsIndexRoute: AuthenticatedBookingsIndexRoute,
   AuthenticatedBusinessIndexRoute: AuthenticatedBusinessIndexRoute,
   AuthenticatedDragIndexRoute: AuthenticatedDragIndexRoute,
   AuthenticatedGarageIndexRoute: AuthenticatedGarageIndexRoute,
