@@ -141,6 +141,7 @@ import { Route as AuthenticatedCreatorApplyRouteImport } from './routes/_authent
 import { Route as AuthenticatedCreatorAnalyticsRouteImport } from './routes/_authenticated/creator.analytics'
 import { Route as AuthenticatedCommunitiesCreateRouteImport } from './routes/_authenticated/communities.create'
 import { Route as AuthenticatedBusinessShowcaseRouteImport } from './routes/_authenticated/business.showcase'
+import { Route as AuthenticatedBookingsIdRouteImport } from './routes/_authenticated/bookings.$id'
 import { Route as AuthenticatedAtlasVoiceRouteImport } from './routes/_authenticated/atlas.voice'
 import { Route as AuthenticatedAtlasSosRouteImport } from './routes/_authenticated/atlas.sos'
 import { Route as AuthenticatedAtlasRideRouteImport } from './routes/_authenticated/atlas.ride'
@@ -908,6 +909,11 @@ const AuthenticatedBusinessShowcaseRoute =
     path: '/business/showcase',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBookingsIdRoute = AuthenticatedBookingsIdRouteImport.update({
+  id: '/bookings/$id',
+  path: '/bookings/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAtlasVoiceRoute = AuthenticatedAtlasVoiceRouteImport.update({
   id: '/atlas/voice',
   path: '/atlas/voice',
@@ -1335,6 +1341,7 @@ export interface FileRoutesByFullPath {
   '/atlas/ride': typeof AuthenticatedAtlasRideRoute
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
+  '/bookings/$id': typeof AuthenticatedBookingsIdRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
@@ -1525,6 +1532,7 @@ export interface FileRoutesByTo {
   '/atlas/ride': typeof AuthenticatedAtlasRideRoute
   '/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
+  '/bookings/$id': typeof AuthenticatedBookingsIdRoute
   '/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
@@ -1718,6 +1726,7 @@ export interface FileRoutesById {
   '/_authenticated/atlas/ride': typeof AuthenticatedAtlasRideRoute
   '/_authenticated/atlas/sos': typeof AuthenticatedAtlasSosRoute
   '/_authenticated/atlas/voice': typeof AuthenticatedAtlasVoiceRoute
+  '/_authenticated/bookings/$id': typeof AuthenticatedBookingsIdRoute
   '/_authenticated/business/showcase': typeof AuthenticatedBusinessShowcaseRoute
   '/_authenticated/communities/create': typeof AuthenticatedCommunitiesCreateRoute
   '/_authenticated/creator/analytics': typeof AuthenticatedCreatorAnalyticsRoute
@@ -1913,6 +1922,7 @@ export interface FileRouteTypes {
     | '/atlas/ride'
     | '/atlas/sos'
     | '/atlas/voice'
+    | '/bookings/$id'
     | '/business/showcase'
     | '/communities/create'
     | '/creator/analytics'
@@ -2103,6 +2113,7 @@ export interface FileRouteTypes {
     | '/atlas/ride'
     | '/atlas/sos'
     | '/atlas/voice'
+    | '/bookings/$id'
     | '/business/showcase'
     | '/communities/create'
     | '/creator/analytics'
@@ -2295,6 +2306,7 @@ export interface FileRouteTypes {
     | '/_authenticated/atlas/ride'
     | '/_authenticated/atlas/sos'
     | '/_authenticated/atlas/voice'
+    | '/_authenticated/bookings/$id'
     | '/_authenticated/business/showcase'
     | '/_authenticated/communities/create'
     | '/_authenticated/creator/analytics'
@@ -3404,6 +3416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBusinessShowcaseRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bookings/$id': {
+      id: '/_authenticated/bookings/$id'
+      path: '/bookings/$id'
+      fullPath: '/bookings/$id'
+      preLoaderRoute: typeof AuthenticatedBookingsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/atlas/voice': {
       id: '/_authenticated/atlas/voice'
       path: '/atlas/voice'
@@ -4061,6 +4080,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtlasRideRoute: typeof AuthenticatedAtlasRideRoute
   AuthenticatedAtlasSosRoute: typeof AuthenticatedAtlasSosRoute
   AuthenticatedAtlasVoiceRoute: typeof AuthenticatedAtlasVoiceRoute
+  AuthenticatedBookingsIdRoute: typeof AuthenticatedBookingsIdRoute
   AuthenticatedBusinessShowcaseRoute: typeof AuthenticatedBusinessShowcaseRoute
   AuthenticatedCommunitiesCreateRoute: typeof AuthenticatedCommunitiesCreateRoute
   AuthenticatedCreatorAnalyticsRoute: typeof AuthenticatedCreatorAnalyticsRoute
@@ -4134,6 +4154,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtlasRideRoute: AuthenticatedAtlasRideRoute,
   AuthenticatedAtlasSosRoute: AuthenticatedAtlasSosRoute,
   AuthenticatedAtlasVoiceRoute: AuthenticatedAtlasVoiceRoute,
+  AuthenticatedBookingsIdRoute: AuthenticatedBookingsIdRoute,
   AuthenticatedBusinessShowcaseRoute: AuthenticatedBusinessShowcaseRoute,
   AuthenticatedCommunitiesCreateRoute: AuthenticatedCommunitiesCreateRoute,
   AuthenticatedCreatorAnalyticsRoute: AuthenticatedCreatorAnalyticsRoute,
