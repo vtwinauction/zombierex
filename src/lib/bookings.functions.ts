@@ -278,7 +278,6 @@ export const updateBookingStatus = createServerFn({ method: "POST" })
 
     if (data.status === "completed") {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.rpc("noop" as never).catch(() => undefined);
       const { data: v } = await supabaseAdmin
         .from("vendors")
         .select("completed_jobs_count")
