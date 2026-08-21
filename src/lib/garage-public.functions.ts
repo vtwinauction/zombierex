@@ -145,3 +145,60 @@ export const getListingProvenance = createServerFn({ method: "GET" })
 
     return { vehicle, mods: mods ?? [], judge_score: judgeScore };
   });
+
+/** Full public spec sheet for one vehicle — powers the shareable /v/$id page. */
+export const getPublicVehicle = createServerFn({ method: "GET" })
+  .validator((raw: unknown) => z.object({ id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data }) => {
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+    const client = createClient<Database>(process.env["SUPABASE_URL"]!, key, {
+      auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+      global: {
+        fetch: (input, init) => {
+          const h = new Headers(init?.headers);
+          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+            h.delete("Authorization");
+          h.set("apikey", key);
+          return fetch(input, { ...init, headers: h });
+        },
+      },
+    });
+
+    const { data: vehicle } = await client
+      .from("vehicles")
+      .select(
+        "id, owner_id, kind, make, model, year, nickname, hero_image_url, odometer_km, spec, created_at",
+      )
+      .eq("id", data.id)
+      .is("deleted_at", null)
+      .maybeSingle();
+    if (!vehicle) return null;
+
+    const [{ data: owner }, { data: mods }, { data: judged }] = await Promise.all([
+      client
+        .from("profiles")
+        .select("id, handle, display_name, avatar_url")
+        .eq("id", vehicle.owner_id)
+        .maybeSingle(),
+      client
+        .from("vehicle_mods")
+        .select("id, category, title, brand, installed_on")
+        .eq("vehicle_id", vehicle.id)
+        .order("created_at", { ascending: false })
+        .limit(60),
+      client
+        .from("judge_entries")
+        .select("overall_score")
+        .eq("vehicle_id", vehicle.id)
+        .not("overall_score", "is", null)
+        .order("overall_score", { ascending: false })
+        .limit(1),
+    ]);
+
+    return {
+      vehicle,
+      owner: owner ?? null,
+      mods: mods ?? [],
+      judge_score: judged?.[0]?.overall_score != null ? Number(judged[0].overall_score) : null,
+    };
+  });

@@ -29,6 +29,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LegalIndexRouteImport } from './routes/legal/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
+import { Route as VIdRouteImport } from './routes/v.$id'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as TagTagRouteImport } from './routes/tag.$tag'
 import { Route as SosTokenRouteImport } from './routes/sos.$token'
@@ -295,6 +296,11 @@ const JudgeIndexRoute = JudgeIndexRouteImport.update({
 const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
   id: '/communities/',
   path: '/communities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VIdRoute = VIdRouteImport.update({
+  id: '/v/$id',
+  path: '/v/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UHandleRoute = UHandleRouteImport.update({
@@ -1289,6 +1295,7 @@ export interface FileRoutesByFullPath {
   '/sos/$token': typeof SosTokenRoute
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
+  '/v/$id': typeof VIdRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/legal/': typeof LegalIndexRoute
@@ -1475,6 +1482,7 @@ export interface FileRoutesByTo {
   '/sos/$token': typeof SosTokenRoute
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
+  '/v/$id': typeof VIdRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
   '/legal': typeof LegalIndexRoute
@@ -1664,6 +1672,7 @@ export interface FileRoutesById {
   '/sos/$token': typeof SosTokenRoute
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
+  '/v/$id': typeof VIdRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/legal/': typeof LegalIndexRoute
@@ -1855,6 +1864,7 @@ export interface FileRouteTypes {
     | '/sos/$token'
     | '/tag/$tag'
     | '/u/$handle'
+    | '/v/$id'
     | '/communities/'
     | '/judge/'
     | '/legal/'
@@ -2041,6 +2051,7 @@ export interface FileRouteTypes {
     | '/sos/$token'
     | '/tag/$tag'
     | '/u/$handle'
+    | '/v/$id'
     | '/communities'
     | '/judge'
     | '/legal'
@@ -2229,6 +2240,7 @@ export interface FileRouteTypes {
     | '/sos/$token'
     | '/tag/$tag'
     | '/u/$handle'
+    | '/v/$id'
     | '/communities/'
     | '/judge/'
     | '/legal/'
@@ -2406,6 +2418,7 @@ export interface RootRouteChildren {
   SosTokenRoute: typeof SosTokenRoute
   TagTagRoute: typeof TagTagRoute
   UHandleRoute: typeof UHandleRoute
+  VIdRoute: typeof VIdRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
   LegalIndexRoute: typeof LegalIndexRoute
@@ -2566,6 +2579,13 @@ declare module '@tanstack/react-router' {
       path: '/communities'
       fullPath: '/communities/'
       preLoaderRoute: typeof CommunitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/v/$id': {
+      id: '/v/$id'
+      path: '/v/$id'
+      fullPath: '/v/$id'
+      preLoaderRoute: typeof VIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/u/$handle': {
@@ -4190,6 +4210,7 @@ const rootRouteChildren: RootRouteChildren = {
   SosTokenRoute: SosTokenRoute,
   TagTagRoute: TagTagRoute,
   UHandleRoute: UHandleRoute,
+  VIdRoute: VIdRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
   LegalIndexRoute: LegalIndexRoute,
