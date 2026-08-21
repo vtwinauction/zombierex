@@ -429,7 +429,9 @@ type ServiceRow = {
   title: string;
   shop: string | null;
   odometer_km: number | null;
-  service_date: string;
+  service_date: string | null;
+  due_date: string | null;
+  due_odometer_km: number | null;
   status: string;
 };
 
@@ -444,7 +446,9 @@ function ServiceSection({
 }) {
   const add = useServerFn(addServiceRecord);
   const del = useServerFn(deleteServiceRecord);
+  const complete = useServerFn(completeServiceRecord);
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"done" | "upcoming">("done");
   const [title, setTitle] = useState("");
   const [shop, setShop] = useState("");
   const [odo, setOdo] = useState("");
@@ -459,11 +463,11 @@ function ServiceSection({
           vehicle_id: vehicleId,
           title: title.trim(),
           shop: shop.trim() || null,
-          odometer_km: odo ? Number(odo) : null,
-          service_date: date,
+          odometer_km: mode === "done" && odo ? Number(odo) : null,
+          service_date: mode === "done" ? date : null,
           due_date: dueDate || null,
           due_odometer_km: dueOdo ? Number(dueOdo) : null,
-          status: "done" as const,
+          status: mode,
           currency: "BHD",
         },
       }),
@@ -481,23 +485,31 @@ function ServiceSection({
     mutationFn: (sid: string) => del({ data: { id: sid } }),
     onSuccess: onChanged,
   });
+  const doneM = useMutation({
+    mutationFn: (sid: string) =>
+      complete({ data: { id: sid, service_date: new Date().toISOString().slice(0, 10) } }),
+    onSuccess: onChanged,
+  });
+
+  const upcoming = records.filter((r) => r.status !== "done");
+  const history = records.filter((r) => r.status === "done");
 
   return (
     <section className="mt-8 px-4">
       <div className="flex items-center justify-between">
         <h2 className="mono-tag text-[11px]" style={{ color: "var(--color-ink-1)" }}>
-          SERVICE HISTORY · {records.length}
+          SERVICE · {records.length}
         </h2>
         <button
           onClick={() => setOpen((v) => !v)}
           className="mono-tag text-[10px]"
           style={{ color: "var(--color-neon)" }}
         >
-          {open ? "CANCEL" : "+ LOG SERVICE"}
+          {open ? "CANCEL" : "+ ADD"}
         </button>
       </div>
       <p className="mt-1 text-[11px]" style={{ color: "var(--color-ink-3)" }}>
-        Private to you.
+        Private to you. Scheduled work triggers a reminder when it comes due.
       </p>
 
       {open && (
@@ -508,6 +520,23 @@ function ServiceSection({
             if (title.trim()) addM.mutate();
           }}
         >
+          <div className="flex gap-2">
+            {(["done", "upcoming"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className="mono-tag flex-1 rounded-lg py-2 text-[10px]"
+                style={{
+                  border: "1px solid var(--color-line)",
+                  background: mode === m ? "var(--color-ink-0)" : "transparent",
+                  color: mode === m ? "var(--color-paper-0)" : "var(--color-ink-2)",
+                }}
+              >
+                {m === "done" ? "COMPLETED" : "SCHEDULE"}
+              </button>
+            ))}
+          </div>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -522,23 +551,27 @@ function ServiceSection({
             className="w-full rounded-lg px-3 py-2 text-[14px]"
             style={field}
           />
-          <input
-            value={odo}
-            onChange={(e) => setOdo(e.target.value)}
-            inputMode="numeric"
-            placeholder="Odometer km (optional)"
-            className="w-full rounded-lg px-3 py-2 text-[14px]"
-            style={field}
-          />
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-lg px-3 py-2 text-[14px]"
-            style={field}
-          />
+          {mode === "done" && (
+            <>
+              <input
+                value={odo}
+                onChange={(e) => setOdo(e.target.value)}
+                inputMode="numeric"
+                placeholder="Odometer km (optional)"
+                className="w-full rounded-lg px-3 py-2 text-[14px]"
+                style={field}
+              />
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full rounded-lg px-3 py-2 text-[14px]"
+                style={field}
+              />
+            </>
+          )}
           <p className="mono-tag pt-1 text-[9px]" style={{ color: "var(--color-ink-3)" }}>
-            NEXT SERVICE DUE (OPTIONAL)
+            {mode === "done" ? "NEXT SERVICE DUE (OPTIONAL)" : "DUE AT"}
           </p>
           <div className="flex gap-2">
             <input
@@ -563,18 +596,84 @@ function ServiceSection({
             className="tap w-full rounded-lg py-2 text-[13px] font-semibold disabled:opacity-40"
             style={{ background: "var(--color-ink-0)", color: "var(--color-paper-0)" }}
           >
-            {addM.isPending ? "Saving…" : "Log service"}
+            {addM.isPending ? "Saving…" : mode === "done" ? "Log service" : "Schedule service"}
           </button>
         </form>
       )}
 
-      <ol className="mt-3 space-y-2">
-        {records.length === 0 && (
+      {upcoming.length > 0 && (
+        <>
+          <p className="mono-tag mt-4 text-[9px]" style={{ color: "var(--color-ink-3)" }}>
+            SCHEDULED
+          </p>
+          <ol className="mt-2 space-y-2">
+            {upcoming.map((r) => (
+              <li
+                key={r.id}
+                className="flex items-start justify-between gap-3 rounded-xl p-3"
+                style={{
+                  background: "var(--color-paper-0)",
+                  border: "1px solid var(--color-neon)",
+                }}
+              >
+                <div className="min-w-0">
+                  <p className="mono-tag" style={{ color: "var(--color-neon)", fontSize: 9 }}>
+                    {r.due_date ? `DUE ${new Date(r.due_date).toLocaleDateString()}` : "NO DATE"}
+                    {r.due_odometer_km != null
+                      ? ` · ${r.due_odometer_km.toLocaleString()} KM`
+                      : ""}
+                  </p>
+                  <p className="text-[14px] font-semibold" style={{ color: "var(--color-ink-0)" }}>
+                    {r.title}
+                  </p>
+                  {r.shop && (
+                    <p className="text-[12px]" style={{ color: "var(--color-ink-3)" }}>
+                      {r.shop}
+                    </p>
+                  )}
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  <button
+                    onClick={() => doneM.mutate(r.id)}
+                    disabled={doneM.isPending}
+                    className="mono-tag text-[10px] disabled:opacity-40"
+                    style={{ color: "var(--color-neon)" }}
+                  >
+                    MARK DONE
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (
+                        await confirmDialog({
+                          title: "Delete this record?",
+                          destructive: true,
+                          confirmLabel: "Delete",
+                        })
+                      )
+                        delM.mutate(r.id);
+                    }}
+                    className="mono-tag text-[10px]"
+                    style={{ color: "#ff6b6b" }}
+                  >
+                    DELETE
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
+
+      <p className="mono-tag mt-4 text-[9px]" style={{ color: "var(--color-ink-3)" }}>
+        HISTORY
+      </p>
+      <ol className="mt-2 space-y-2">
+        {history.length === 0 && (
           <li className="text-[13px]" style={{ color: "var(--color-ink-3)" }}>
             No service records yet.
           </li>
         )}
-        {records.map((r) => (
+        {history.map((r) => (
           <li
             key={r.id}
             className="flex items-start justify-between gap-3 rounded-xl p-3"
@@ -582,7 +681,7 @@ function ServiceSection({
           >
             <div className="min-w-0">
               <p className="mono-tag" style={{ color: "var(--color-ink-3)", fontSize: 9 }}>
-                {new Date(r.service_date).toLocaleDateString()}
+                {r.service_date ? new Date(r.service_date).toLocaleDateString() : "—"}
                 {r.odometer_km != null ? ` · ${r.odometer_km.toLocaleString()} KM` : ""}
               </p>
               <p className="text-[14px] font-semibold" style={{ color: "var(--color-ink-0)" }}>
@@ -616,3 +715,4 @@ function ServiceSection({
     </section>
   );
 }
+
