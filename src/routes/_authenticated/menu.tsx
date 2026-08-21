@@ -28,7 +28,7 @@ const QUICK: Item[] = [
   { to: "/post/new", label: "New post", hint: "Photo · video", glyph: "＋" },
   { to: "/atlas/ride", label: "Ride Mode", hint: "Turn-by-turn", glyph: "◎" },
   { to: "/marketplace", label: "The Vault", hint: "Browse & sell", glyph: "◈" },
-  { to: "/assistant", label: "Ask REX", hint: "AI companion", glyph: "✦" },
+  { to: "/garages", label: "Book a Service", hint: "Find a garage", glyph: "⚒" },
 ];
 
 const SECTIONS: { title: string; items: Item[] }[] = [
@@ -55,7 +55,17 @@ const SECTIONS: { title: string; items: Item[] }[] = [
       { to: "/communities", label: "Crews" },
       { to: "/events", label: "Events" },
       { to: "/marketplace", label: "Vault" },
+      { to: "/garages", label: "Garages", hint: "Workshops near you" },
       { to: "/search", label: "Search" },
+    ],
+  },
+  {
+    title: "Service",
+    items: [
+      { to: "/garages", label: "Find a garage", hint: "Nearby workshops · map · ratings" },
+      { to: "/bookings", label: "My bookings", hint: "Appointments · quotes · progress" },
+      { to: "/vendor/bookings", label: "Garage inbox", hint: "For workshop owners" },
+      { to: "/vendor/garage", label: "Garage settings", hint: "Services · hours · specialties" },
     ],
   },
   {
