@@ -5,6 +5,7 @@ import {
   DAY_KEYS,
   SPECIALTY_LABEL,
   isOpenNow,
+  DEFAULT_AVAILABILITY,
   type Availability,
 } from "@/lib/garage-taxonomy";
 import { BookingSheet } from "@/components/garage/BookingSheet";
@@ -292,7 +293,7 @@ function WorkshopProfile() {
             <Section title="Opening hours">
               <ul className="space-y-1 text-sm">
                 {DAY_KEYS.map((d) => {
-                  const w = (vendor.availability as any)?.[d];
+                  const w = (vendor.availability as any)?.days?.[d] ?? DEFAULT_AVAILABILITY.days[d];
                   return (
                     <li key={d} className="flex justify-between">
                       <span className="mono-tag text-[10px] opacity-60">{d.toUpperCase()}</span>
