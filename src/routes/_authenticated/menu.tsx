@@ -28,6 +28,7 @@ const QUICK: Item[] = [
   { to: "/post/new", label: "New post", hint: "Photo · video", glyph: "＋" },
   { to: "/atlas/ride", label: "Ride Mode", hint: "Turn-by-turn", glyph: "◎" },
   { to: "/marketplace", label: "The Vault", hint: "Browse & sell", glyph: "◈" },
+  { to: "/assistant", label: "Ask REX", hint: "AI companion", glyph: "✦" },
   { to: "/garages", label: "Book a Service", hint: "Find a garage", glyph: "⚒" },
 ];
 
