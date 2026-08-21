@@ -191,7 +191,30 @@ export const addServiceRecord = createServerFn({ method: "POST" })
     return row;
   });
 
+/** Close out a scheduled service item once the work is actually done. */
+export const completeServiceRecord = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((raw: unknown) => CompleteServiceInput.parse(raw))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("vehicle_service_records")
+      .update({
+        status: "done",
+        service_date: data.service_date,
+        ...(data.odometer_km == null ? {} : { odometer_km: data.odometer_km }),
+        reminded_at: new Date().toISOString(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any)
+      .eq("id", data.id)
+      .eq("owner_id", context.userId)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
 export const deleteServiceRecord = createServerFn({ method: "POST" })
+
   .middleware([requireSupabaseAuth])
   .validator((raw: unknown) => IdInput.parse(raw))
   .handler(async ({ data, context }) => {
