@@ -352,7 +352,9 @@ function PublicGarage({ ownerId, handle }: { ownerId: string; handle: string }) 
               </div>
 
             </div>
+            </Link>
           </li>
+
         ))}
       </ul>
     </section>
