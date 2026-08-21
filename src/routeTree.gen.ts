@@ -30,6 +30,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LegalIndexRouteImport } from './routes/legal/index'
 import { Route as JudgeIndexRouteImport } from './routes/judge.index'
 import { Route as CommunitiesIndexRouteImport } from './routes/communities.index'
+import { Route as WSlugRouteImport } from './routes/w.$slug'
 import { Route as VIdRouteImport } from './routes/v.$id'
 import { Route as UHandleRouteImport } from './routes/u.$handle'
 import { Route as TagTagRouteImport } from './routes/tag.$tag'
@@ -302,6 +303,11 @@ const JudgeIndexRoute = JudgeIndexRouteImport.update({
 const CommunitiesIndexRoute = CommunitiesIndexRouteImport.update({
   id: '/communities/',
   path: '/communities/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WSlugRoute = WSlugRouteImport.update({
+  id: '/w/$slug',
+  path: '/w/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VIdRoute = VIdRouteImport.update({
@@ -1303,6 +1309,7 @@ export interface FileRoutesByFullPath {
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$id': typeof VIdRoute
+  '/w/$slug': typeof WSlugRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/legal/': typeof LegalIndexRoute
@@ -1491,6 +1498,7 @@ export interface FileRoutesByTo {
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$id': typeof VIdRoute
+  '/w/$slug': typeof WSlugRoute
   '/communities': typeof CommunitiesIndexRoute
   '/judge': typeof JudgeIndexRoute
   '/legal': typeof LegalIndexRoute
@@ -1682,6 +1690,7 @@ export interface FileRoutesById {
   '/tag/$tag': typeof TagTagRoute
   '/u/$handle': typeof UHandleRoute
   '/v/$id': typeof VIdRoute
+  '/w/$slug': typeof WSlugRoute
   '/communities/': typeof CommunitiesIndexRoute
   '/judge/': typeof JudgeIndexRoute
   '/legal/': typeof LegalIndexRoute
@@ -1875,6 +1884,7 @@ export interface FileRouteTypes {
     | '/tag/$tag'
     | '/u/$handle'
     | '/v/$id'
+    | '/w/$slug'
     | '/communities/'
     | '/judge/'
     | '/legal/'
@@ -2063,6 +2073,7 @@ export interface FileRouteTypes {
     | '/tag/$tag'
     | '/u/$handle'
     | '/v/$id'
+    | '/w/$slug'
     | '/communities'
     | '/judge'
     | '/legal'
@@ -2253,6 +2264,7 @@ export interface FileRouteTypes {
     | '/tag/$tag'
     | '/u/$handle'
     | '/v/$id'
+    | '/w/$slug'
     | '/communities/'
     | '/judge/'
     | '/legal/'
@@ -2432,6 +2444,7 @@ export interface RootRouteChildren {
   TagTagRoute: typeof TagTagRoute
   UHandleRoute: typeof UHandleRoute
   VIdRoute: typeof VIdRoute
+  WSlugRoute: typeof WSlugRoute
   CommunitiesIndexRoute: typeof CommunitiesIndexRoute
   JudgeIndexRoute: typeof JudgeIndexRoute
   LegalIndexRoute: typeof LegalIndexRoute
@@ -2599,6 +2612,13 @@ declare module '@tanstack/react-router' {
       path: '/communities'
       fullPath: '/communities/'
       preLoaderRoute: typeof CommunitiesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$slug': {
+      id: '/w/$slug'
+      path: '/w/$slug'
+      fullPath: '/w/$slug'
+      preLoaderRoute: typeof WSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/v/$id': {
@@ -4232,6 +4252,7 @@ const rootRouteChildren: RootRouteChildren = {
   TagTagRoute: TagTagRoute,
   UHandleRoute: UHandleRoute,
   VIdRoute: VIdRoute,
+  WSlugRoute: WSlugRoute,
   CommunitiesIndexRoute: CommunitiesIndexRoute,
   JudgeIndexRoute: JudgeIndexRoute,
   LegalIndexRoute: LegalIndexRoute,
