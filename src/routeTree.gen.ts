@@ -88,6 +88,7 @@ import { Route as JudgeEventsSlugRouteImport } from './routes/judge.events.$slug
 import { Route as JudgeEntriesIdRouteImport } from './routes/judge.entries.$id'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as AuthenticatedVendorPlansRouteImport } from './routes/_authenticated/vendor.plans'
+import { Route as AuthenticatedVendorBookingsRouteImport } from './routes/_authenticated/vendor.bookings'
 import { Route as AuthenticatedVendorApplyRouteImport } from './routes/_authenticated/vendor.apply'
 import { Route as AuthenticatedSettingsTwofaRouteImport } from './routes/_authenticated/settings.twofa'
 import { Route as AuthenticatedSettingsTermsRouteImport } from './routes/_authenticated/settings.terms'
@@ -602,6 +603,12 @@ const AuthenticatedVendorPlansRoute =
   AuthenticatedVendorPlansRouteImport.update({
     id: '/plans',
     path: '/plans',
+    getParentRoute: () => AuthenticatedVendorRoute,
+  } as any)
+const AuthenticatedVendorBookingsRoute =
+  AuthenticatedVendorBookingsRouteImport.update({
+    id: '/bookings',
+    path: '/bookings',
     getParentRoute: () => AuthenticatedVendorRoute,
   } as any)
 const AuthenticatedVendorApplyRoute =
@@ -1395,6 +1402,7 @@ export interface FileRoutesByFullPath {
   '/settings/terms': typeof AuthenticatedSettingsTermsRoute
   '/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/vendor/apply': typeof AuthenticatedVendorApplyRoute
+  '/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
   '/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1584,6 +1592,7 @@ export interface FileRoutesByTo {
   '/settings/terms': typeof AuthenticatedSettingsTermsRoute
   '/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/vendor/apply': typeof AuthenticatedVendorApplyRoute
+  '/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
   '/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1780,6 +1789,7 @@ export interface FileRoutesById {
   '/_authenticated/settings/terms': typeof AuthenticatedSettingsTermsRoute
   '/_authenticated/settings/twofa': typeof AuthenticatedSettingsTwofaRoute
   '/_authenticated/vendor/apply': typeof AuthenticatedVendorApplyRoute
+  '/_authenticated/vendor/bookings': typeof AuthenticatedVendorBookingsRoute
   '/_authenticated/vendor/plans': typeof AuthenticatedVendorPlansRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/judge/entries/$id': typeof JudgeEntriesIdRoute
@@ -1976,6 +1986,7 @@ export interface FileRouteTypes {
     | '/settings/terms'
     | '/settings/twofa'
     | '/vendor/apply'
+    | '/vendor/bookings'
     | '/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -2165,6 +2176,7 @@ export interface FileRouteTypes {
     | '/settings/terms'
     | '/settings/twofa'
     | '/vendor/apply'
+    | '/vendor/bookings'
     | '/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -2360,6 +2372,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/terms'
     | '/_authenticated/settings/twofa'
     | '/_authenticated/vendor/apply'
+    | '/_authenticated/vendor/bookings'
     | '/_authenticated/vendor/plans'
     | '/api/public/health'
     | '/judge/entries/$id'
@@ -3043,6 +3056,13 @@ declare module '@tanstack/react-router' {
       path: '/plans'
       fullPath: '/vendor/plans'
       preLoaderRoute: typeof AuthenticatedVendorPlansRouteImport
+      parentRoute: typeof AuthenticatedVendorRoute
+    }
+    '/_authenticated/vendor/bookings': {
+      id: '/_authenticated/vendor/bookings'
+      path: '/bookings'
+      fullPath: '/vendor/bookings'
+      preLoaderRoute: typeof AuthenticatedVendorBookingsRouteImport
       parentRoute: typeof AuthenticatedVendorRoute
     }
     '/_authenticated/vendor/apply': {
@@ -3957,12 +3977,14 @@ const AuthenticatedSettingsRouteWithChildren =
 
 interface AuthenticatedVendorRouteChildren {
   AuthenticatedVendorApplyRoute: typeof AuthenticatedVendorApplyRoute
+  AuthenticatedVendorBookingsRoute: typeof AuthenticatedVendorBookingsRoute
   AuthenticatedVendorPlansRoute: typeof AuthenticatedVendorPlansRoute
   AuthenticatedVendorIndexRoute: typeof AuthenticatedVendorIndexRoute
 }
 
 const AuthenticatedVendorRouteChildren: AuthenticatedVendorRouteChildren = {
   AuthenticatedVendorApplyRoute: AuthenticatedVendorApplyRoute,
+  AuthenticatedVendorBookingsRoute: AuthenticatedVendorBookingsRoute,
   AuthenticatedVendorPlansRoute: AuthenticatedVendorPlansRoute,
   AuthenticatedVendorIndexRoute: AuthenticatedVendorIndexRoute,
 }
