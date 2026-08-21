@@ -727,37 +727,79 @@ export type Database = {
       }
       bookings: {
         Row: {
+          cancelled_reason: string | null
+          checked_in_at: string | null
+          completed_at: string | null
+          contact_phone: string | null
           created_at: string
+          currency: string
           customer_id: string
           id: string
+          media: Json
           notes: string | null
+          problem_text: string | null
+          quote_cents: number | null
+          quote_notes: string | null
+          quote_requested: boolean
           scheduled_at: string
           service_id: string | null
+          service_ids: string[]
           status: Database["public"]["Enums"]["booking_status"]
+          status_history: Json
           updated_at: string
+          vehicle_id: string | null
           vendor_id: string
+          work_media: Json
         }
         Insert: {
+          cancelled_reason?: string | null
+          checked_in_at?: string | null
+          completed_at?: string | null
+          contact_phone?: string | null
           created_at?: string
+          currency?: string
           customer_id: string
           id?: string
+          media?: Json
           notes?: string | null
+          problem_text?: string | null
+          quote_cents?: number | null
+          quote_notes?: string | null
+          quote_requested?: boolean
           scheduled_at: string
           service_id?: string | null
+          service_ids?: string[]
           status?: Database["public"]["Enums"]["booking_status"]
+          status_history?: Json
           updated_at?: string
+          vehicle_id?: string | null
           vendor_id: string
+          work_media?: Json
         }
         Update: {
+          cancelled_reason?: string | null
+          checked_in_at?: string | null
+          completed_at?: string | null
+          contact_phone?: string | null
           created_at?: string
+          currency?: string
           customer_id?: string
           id?: string
+          media?: Json
           notes?: string | null
+          problem_text?: string | null
+          quote_cents?: number | null
+          quote_notes?: string | null
+          quote_requested?: boolean
           scheduled_at?: string
           service_id?: string | null
+          service_ids?: string[]
           status?: Database["public"]["Enums"]["booking_status"]
+          status_history?: Json
           updated_at?: string
+          vehicle_id?: string | null
           vendor_id?: string
+          work_media?: Json
         }
         Relationships: [
           {
@@ -779,6 +821,13 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
           {
@@ -6342,33 +6391,48 @@ export type Database = {
       subscription_plans: {
         Row: {
           code: string
+          created_at: string
           currency: string
+          description: string | null
           features: Json
           id: string
           interval: string
           is_active: boolean
           name: string
           price_cents: number
+          sort_order: number
+          tier: string | null
+          trial_days: number
         }
         Insert: {
           code: string
+          created_at?: string
           currency?: string
+          description?: string | null
           features?: Json
           id?: string
           interval?: string
           is_active?: boolean
           name: string
           price_cents: number
+          sort_order?: number
+          tier?: string | null
+          trial_days?: number
         }
         Update: {
           code?: string
+          created_at?: string
           currency?: string
+          description?: string | null
           features?: Json
           id?: string
           interval?: string
           is_active?: boolean
           name?: string
           price_cents?: number
+          sort_order?: number
+          tier?: string | null
+          trial_days?: number
         }
         Relationships: []
       }
@@ -7091,15 +7155,22 @@ export type Database = {
         Row: {
           address_line1: string | null
           address_line2: string | null
+          availability: Json
+          booking_enabled: boolean
+          brands: string[]
           business_name: string
           business_type: string
+          certifications: Json
           city: string | null
+          completed_jobs_count: number
           contact_channels: Json
           country: string | null
           cover_url: string | null
           created_at: string
+          currency: string
           description: string | null
           email: string | null
+          emergency_service: boolean
           followers_count: number
           gallery: Json
           id: string
@@ -7112,23 +7183,32 @@ export type Database = {
           operating_hours: Json
           owner_id: string
           owner_name: string | null
+          payment_methods: string[]
           phone: string | null
+          policies: Json
           portfolio: Json
           postal_code: string | null
           premium_until: string | null
+          price_from_cents: number | null
           products_showcase: Json
           profile_views_count: number
+          rating_avg: number
           region: string | null
+          response_time_mins: number | null
           reviewed_at: string | null
           reviewed_by: string | null
+          reviews_count: number
           service_areas: string[]
           services_showcase: Json
           slug: string
           socials: Json
+          specialties: string[]
           submitted_at: string | null
           tax_number: string | null
+          team: Json
           trade_license_no: string | null
           updated_at: string
+          vehicle_types: string[]
           verification_docs: Json
           verification_notes: string | null
           verification_status: string
@@ -7137,15 +7217,22 @@ export type Database = {
         Insert: {
           address_line1?: string | null
           address_line2?: string | null
+          availability?: Json
+          booking_enabled?: boolean
+          brands?: string[]
           business_name: string
           business_type?: string
+          certifications?: Json
           city?: string | null
+          completed_jobs_count?: number
           contact_channels?: Json
           country?: string | null
           cover_url?: string | null
           created_at?: string
+          currency?: string
           description?: string | null
           email?: string | null
+          emergency_service?: boolean
           followers_count?: number
           gallery?: Json
           id?: string
@@ -7158,23 +7245,32 @@ export type Database = {
           operating_hours?: Json
           owner_id: string
           owner_name?: string | null
+          payment_methods?: string[]
           phone?: string | null
+          policies?: Json
           portfolio?: Json
           postal_code?: string | null
           premium_until?: string | null
+          price_from_cents?: number | null
           products_showcase?: Json
           profile_views_count?: number
+          rating_avg?: number
           region?: string | null
+          response_time_mins?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          reviews_count?: number
           service_areas?: string[]
           services_showcase?: Json
           slug: string
           socials?: Json
+          specialties?: string[]
           submitted_at?: string | null
           tax_number?: string | null
+          team?: Json
           trade_license_no?: string | null
           updated_at?: string
+          vehicle_types?: string[]
           verification_docs?: Json
           verification_notes?: string | null
           verification_status?: string
@@ -7183,15 +7279,22 @@ export type Database = {
         Update: {
           address_line1?: string | null
           address_line2?: string | null
+          availability?: Json
+          booking_enabled?: boolean
+          brands?: string[]
           business_name?: string
           business_type?: string
+          certifications?: Json
           city?: string | null
+          completed_jobs_count?: number
           contact_channels?: Json
           country?: string | null
           cover_url?: string | null
           created_at?: string
+          currency?: string
           description?: string | null
           email?: string | null
+          emergency_service?: boolean
           followers_count?: number
           gallery?: Json
           id?: string
@@ -7204,23 +7307,32 @@ export type Database = {
           operating_hours?: Json
           owner_id?: string
           owner_name?: string | null
+          payment_methods?: string[]
           phone?: string | null
+          policies?: Json
           portfolio?: Json
           postal_code?: string | null
           premium_until?: string | null
+          price_from_cents?: number | null
           products_showcase?: Json
           profile_views_count?: number
+          rating_avg?: number
           region?: string | null
+          response_time_mins?: number | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          reviews_count?: number
           service_areas?: string[]
           services_showcase?: Json
           slug?: string
           socials?: Json
+          specialties?: string[]
           submitted_at?: string | null
           tax_number?: string | null
+          team?: Json
           trade_license_no?: string | null
           updated_at?: string
+          vehicle_types?: string[]
           verification_docs?: Json
           verification_notes?: string | null
           verification_status?: string
@@ -7640,13 +7752,23 @@ export type Database = {
       }
       vendors_public: {
         Row: {
+          address_line1: string | null
+          availability: Json | null
+          booking_enabled: boolean | null
+          brands: string[] | null
           business_name: string | null
           business_type: string | null
+          certifications: Json | null
           city: string | null
+          completed_jobs_count: number | null
+          contact_channels: Json | null
           country: string | null
           cover_url: string | null
           created_at: string | null
+          currency: string | null
           description: string | null
+          email: string | null
+          emergency_service: boolean | null
           followers_count: number | null
           gallery: Json | null
           id: string | null
@@ -7656,24 +7778,45 @@ export type Database = {
           lng: number | null
           logo_url: string | null
           operating_hours: Json | null
+          payment_methods: string[] | null
+          phone: string | null
+          policies: Json | null
+          portfolio: Json | null
           premium_until: string | null
+          price_from_cents: number | null
           products_showcase: Json | null
           profile_views_count: number | null
+          rating_avg: number | null
           region: string | null
+          response_time_mins: number | null
+          reviews_count: number | null
           service_areas: string[] | null
           services_showcase: Json | null
           slug: string | null
           socials: Json | null
+          specialties: string[] | null
+          team: Json | null
+          vehicle_types: string[] | null
           website: string | null
         }
         Insert: {
+          address_line1?: string | null
+          availability?: Json | null
+          booking_enabled?: boolean | null
+          brands?: string[] | null
           business_name?: string | null
           business_type?: string | null
+          certifications?: Json | null
           city?: string | null
+          completed_jobs_count?: number | null
+          contact_channels?: Json | null
           country?: string | null
           cover_url?: string | null
           created_at?: string | null
+          currency?: string | null
           description?: string | null
+          email?: string | null
+          emergency_service?: boolean | null
           followers_count?: number | null
           gallery?: Json | null
           id?: string | null
@@ -7683,24 +7826,45 @@ export type Database = {
           lng?: number | null
           logo_url?: string | null
           operating_hours?: Json | null
+          payment_methods?: string[] | null
+          phone?: string | null
+          policies?: Json | null
+          portfolio?: Json | null
           premium_until?: string | null
+          price_from_cents?: number | null
           products_showcase?: Json | null
           profile_views_count?: number | null
+          rating_avg?: number | null
           region?: string | null
+          response_time_mins?: number | null
+          reviews_count?: number | null
           service_areas?: string[] | null
           services_showcase?: Json | null
           slug?: string | null
           socials?: Json | null
+          specialties?: string[] | null
+          team?: Json | null
+          vehicle_types?: string[] | null
           website?: string | null
         }
         Update: {
+          address_line1?: string | null
+          availability?: Json | null
+          booking_enabled?: boolean | null
+          brands?: string[] | null
           business_name?: string | null
           business_type?: string | null
+          certifications?: Json | null
           city?: string | null
+          completed_jobs_count?: number | null
+          contact_channels?: Json | null
           country?: string | null
           cover_url?: string | null
           created_at?: string | null
+          currency?: string | null
           description?: string | null
+          email?: string | null
+          emergency_service?: boolean | null
           followers_count?: number | null
           gallery?: Json | null
           id?: string | null
@@ -7710,14 +7874,25 @@ export type Database = {
           lng?: number | null
           logo_url?: string | null
           operating_hours?: Json | null
+          payment_methods?: string[] | null
+          phone?: string | null
+          policies?: Json | null
+          portfolio?: Json | null
           premium_until?: string | null
+          price_from_cents?: number | null
           products_showcase?: Json | null
           profile_views_count?: number | null
+          rating_avg?: number | null
           region?: string | null
+          response_time_mins?: number | null
+          reviews_count?: number | null
           service_areas?: string[] | null
           services_showcase?: Json | null
           slug?: string | null
           socials?: Json | null
+          specialties?: string[] | null
+          team?: Json | null
+          vehicle_types?: string[] | null
           website?: string | null
         }
         Relationships: []
@@ -7740,6 +7915,46 @@ export type Database = {
           id: string
           status: string
           title: string
+        }[]
+      }
+      garage_search: {
+        Args: {
+          _brand?: string
+          _emergency?: boolean
+          _lat?: number
+          _limit?: number
+          _lng?: number
+          _q?: string
+          _specialties?: string[]
+          _vehicle_type?: string
+        }
+        Returns: {
+          brands: string[]
+          business_name: string
+          business_type: string
+          city: string
+          completed_jobs_count: number
+          country: string
+          cover_url: string
+          currency: string
+          description: string
+          distance_km: number
+          emergency_service: boolean
+          id: string
+          is_premium: boolean
+          is_verified: boolean
+          lat: number
+          lng: number
+          logo_url: string
+          operating_hours: Json
+          price_from_cents: number
+          rating_avg: number
+          response_time_mins: number
+          reviews_count: number
+          services_count: number
+          slug: string
+          specialties: string[]
+          vehicle_types: string[]
         }[]
       }
       get_creator_collab_email: {
@@ -7908,7 +8123,18 @@ export type Database = {
         | "premium"
         | "standard"
         | "owner"
-      booking_status: "requested" | "confirmed" | "completed" | "cancelled"
+      booking_status:
+        | "requested"
+        | "confirmed"
+        | "completed"
+        | "cancelled"
+        | "awaiting_garage"
+        | "quotation_sent"
+        | "awaiting_customer"
+        | "scheduled"
+        | "checked_in"
+        | "in_progress"
+        | "waiting_parts"
       conversation_kind: "dm" | "club" | "group"
       fee_scope:
         | "default"
@@ -8194,7 +8420,19 @@ export const Constants = {
         "standard",
         "owner",
       ],
-      booking_status: ["requested", "confirmed", "completed", "cancelled"],
+      booking_status: [
+        "requested",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "awaiting_garage",
+        "quotation_sent",
+        "awaiting_customer",
+        "scheduled",
+        "checked_in",
+        "in_progress",
+        "waiting_parts",
+      ],
       conversation_kind: ["dm", "club", "group"],
       fee_scope: [
         "default",
