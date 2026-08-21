@@ -120,7 +120,15 @@ function VehiclePage() {
               LIST FOR SALE →
             </Link>
           )}
+          <Link
+            to="/garages"
+            className="tap mono-tag inline-block rounded-lg px-3 py-2 text-[10px]"
+            style={{ border: "1px solid var(--color-hair-strong)", color: "var(--color-ink)" }}
+          >
+            BOOK A SERVICE →
+          </Link>
         </div>
+
 
       </header>
 
