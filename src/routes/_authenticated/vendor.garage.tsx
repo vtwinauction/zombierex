@@ -55,7 +55,7 @@ function GarageSettings() {
   const [bookingEnabled, setBookingEnabled] = useState(true);
   const [payments, setPayments] = useState<string[]>([]);
   const [slotMinutes, setSlotMinutes] = useState(60);
-  const [days, setDays] = useState<Record<string, DayWindow>>(DEFAULT_AVAILABILITY.days as never);
+  const [days, setDays] = useState<Record<string, DayWindow>>(DEFAULT_AVAILABILITY.days as Record<string, DayWindow>);
 
   useEffect(() => {
     if (!vendor) return;
@@ -66,7 +66,10 @@ function GarageSettings() {
     setBookingEnabled(vendor.booking_enabled !== false);
     setPayments(vendor.payment_methods ?? []);
     setSlotMinutes(vendor.availability?.slot_minutes ?? 60);
-    setDays({ ...(DEFAULT_AVAILABILITY.days as never), ...(vendor.availability?.days ?? {}) });
+    setDays({
+      ...(DEFAULT_AVAILABILITY.days as Record<string, DayWindow>),
+      ...((vendor.availability?.days ?? {}) as Record<string, DayWindow>),
+    });
   }, [vendor]);
 
   const save = useMutation({
